@@ -1,0 +1,12 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+    }
+}
+
+rootProject.name = 'HuskClaims'
+include(
+        'common',
+        'bukkit',
+        'plugin',
+)
