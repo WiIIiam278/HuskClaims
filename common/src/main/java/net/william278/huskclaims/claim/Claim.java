@@ -4,10 +4,13 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import net.william278.cloplib.operation.Operation;
 import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -16,14 +19,9 @@ import java.util.concurrent.ConcurrentMap;
 
 public class Claim {
 
-    // Claim corners - closest to the world boundary, and furthest from the world boundary
+    // The claim region
     @Expose
-    @SerializedName("near_corner")
-    private BlockPosition nearCorner;
-
-    @Expose
-    @SerializedName("far_corner")
-    private BlockPosition farCorner;
+    private SquareRegion region;
 
     // Map of TrustLevels to a list of UUID players with that TrustLevel
     @Expose
@@ -35,33 +33,32 @@ public class Claim {
 
     // List of OperationTypes allowed on this claim to everyone
     @Expose
-    @SerializedName("base_operation_flags")
-    private ConcurrentLinkedQueue<OperationType> baseClaimFlags;
+    @SerializedName("universal_flags")
+    private List<OperationType> universalFlags;
 
-    // If this is a subdivision, whether to inherit member trust levels from the parent
+    // If this is a child claim, whether to inherit member trust levels from the parent.
+    // If set to false, this is a restricted child claim.
     @Expose
-    @SerializedName("inherit_from_parent")
-    private boolean inheritFromParent;
+    @SerializedName("inherit_parent")
+    private boolean inheritParent;
 
-    private Claim(@NotNull BlockPosition corner1, @NotNull BlockPosition corner2,
-                  @NotNull ConcurrentMap<UUID, String> trustees, @NotNull ConcurrentLinkedQueue<Claim> children,
-                  @NotNull ConcurrentLinkedQueue<OperationType> baseClaimFlags, boolean inheritFromParent) {
-        final List<BlockPosition> corners = BlockPosition.getSortedCorners(corner1, corner2);
-        this.nearCorner = corners.get(0);
-        this.farCorner = corners.get(3);
+    private Claim(@NotNull SquareRegion region, @NotNull ConcurrentMap<UUID, String> trustees,
+                  @NotNull ConcurrentLinkedQueue<Claim> children, @NotNull List<OperationType> universalFlags,
+                  boolean inheritParent) {
+        this.region = region;
         this.trustees = trustees;
         this.children = children;
-        this.baseClaimFlags = baseClaimFlags;
-        this.inheritFromParent = inheritFromParent;
+        this.universalFlags = universalFlags;
+        this.inheritParent = inheritParent;
     }
 
-    private Claim(@NotNull BlockPosition corner1, @NotNull BlockPosition corner2, @NotNull HuskClaims plugin) {
+    private Claim(@NotNull SquareRegion region, @NotNull HuskClaims plugin) {
         this(
-                corner1, corner2,
+                region,
                 Maps.newConcurrentMap(),
                 Queues.newConcurrentLinkedQueue(),
-                Queues.newConcurrentLinkedQueue(),
-                false
+                new ArrayList<>(),
+                true
         );
     }
 
@@ -70,13 +67,8 @@ public class Claim {
     }
 
     @NotNull
-    public BlockPosition getNearCorner() {
-        return nearCorner;
-    }
-
-    @NotNull
-    public BlockPosition getFarCorner() {
-        return farCorner;
+    public SquareRegion getRegion() {
+        return region;
     }
 
     @NotNull
@@ -85,11 +77,36 @@ public class Claim {
     }
 
     @NotNull
-    public Optional<TrustLevel> getUserTrustLevel(@NotNull UUID uuid, @NotNull ClaimWorld world,
-                                                  @NotNull HuskClaims plugin) {
-        return Optional.ofNullable(trustees.get(uuid))
+    public Optional<TrustLevel> getEffectiveTrustLevel(@NotNull User user, @NotNull ClaimWorld world,
+                                                       @NotNull HuskClaims plugin) {
+        return Optional.ofNullable(trustees.get(user.getUuid()))
                 .flatMap(plugin::getTrustLevel)
-                .or(() -> getParent(world).flatMap(parent -> parent.getUserTrustLevel(uuid, world, plugin)));
+                .or(() -> inheritParent
+                        ? getParent(world).flatMap(parent -> parent.getEffectiveTrustLevel(user, world, plugin))
+                        : Optional.empty());
+    }
+
+    public boolean isPrivilegeAllowed(@NotNull TrustLevel.Privilege privilege, @NotNull User user,
+                                      @NotNull ClaimWorld world, @NotNull HuskClaims plugin) {
+        return getEffectiveTrustLevel(user, world, plugin)
+                .map(level -> level.getPrivileges().contains(privilege))
+                .orElse(false);
+    }
+
+    public boolean isOperationAllowed(@NotNull Operation operation, @NotNull ClaimWorld world,
+                                      @NotNull HuskClaims plugin) {
+        // If the operation is explicitly allowed, return it
+        return universalFlags.contains(operation.getType()) || operation.getUser()
+
+                // Or, if there's a user involved in this operation, check their rights
+                .map(user -> trustees.get(user.getUuid())).flatMap(plugin::getTrustLevel)
+                .map(level -> level.getFlags().contains(operation.getType()))
+
+                // If the user doesn't have a trust level here, try getting it from the parent
+                .orElseGet(() -> inheritParent && getParent(world)
+                        .map(parent -> parent.isOperationAllowed(operation, world, plugin))
+                        .orElse(false));
+
     }
 
     public Optional<Claim> getParent(@NotNull ClaimWorld world) {
@@ -98,34 +115,34 @@ public class Claim {
                 .findFirst();
     }
 
+    public boolean isChildClaim(@NotNull ClaimWorld world) {
+        return getParent(world).isPresent();
+    }
+
     @NotNull
     public ConcurrentLinkedQueue<Claim> getChildren() {
         return children;
     }
 
-    public int getSurfaceArea() {
-        return nearCorner.getSurfaceArea(farCorner);
-    }
-
-    public Claim createAndAddChild(@NotNull BlockPosition corner1, @NotNull BlockPosition corner2,
-                                   @NotNull HuskClaims plugin) throws IllegalArgumentException {
-        if (!contains(corner1) || !contains(corner2)) {
+    @NotNull
+    public Claim createAndAddChild(@NotNull SquareRegion subRegion, @NotNull ClaimWorld world, @NotNull HuskClaims plugin)
+            throws IllegalArgumentException {
+        if (isChildClaim(world)) {
+            throw new IllegalArgumentException("A child claim cannot be within another child claim");
+        }
+        if (!region.contains(subRegion.getNearCorner()) || !region.contains(subRegion.getFarCorner())) {
             throw new IllegalArgumentException("Child claim must be contained within parent claim");
         }
-        final Claim child = new Claim(corner1, corner2, plugin);
+        final Claim child = new Claim(region, plugin);
         children.add(child);
         return child;
-    }
-
-    public boolean contains(@NotNull BlockPosition position) {
-        return position.getX() >= nearCorner.getX() && position.getX() <= farCorner.getX()
-                && position.getZ() >= nearCorner.getZ() && position.getZ() <= farCorner.getZ();
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Claim claim) {
-            return claim.nearCorner.equals(nearCorner) && claim.farCorner.equals(farCorner);
+            return claim.region.equals(region)
+                    && claim.children.equals(children);
         }
         return false;
     }
