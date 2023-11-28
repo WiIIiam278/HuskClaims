@@ -17,9 +17,12 @@
  *  limitations under the License.
  */
 
-package net.william278.huskclaims;
+package net.william278.huskclaims.database;
 
-import org.bukkit.plugin.java.JavaPlugin;
+public abstract class Database {
 
-public class BukkitHuskClaims extends JavaPlugin {
+    public enum Type {
+        SQLITE
+    }
+
 }

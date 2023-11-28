@@ -1,9 +1,30 @@
+/*
+ * This file is part of HuskClaims, licensed under the Apache License 2.0.
+ *
+ *  Copyright (c) William278 <will27528@gmail.com>
+ *  Copyright (c) contributors
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package net.william278.huskclaims.claim;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import net.william278.cloplib.operation.Operation;
 import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.HuskClaims;
@@ -17,11 +38,21 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * A {@link Region} in a {@link ClaimWorld} goverened by user {@link TrustLevel}s and a set of
+ * base {@link OperationType} flags
+ *
+ 
+ * @see Region
+ * @since 1.0
+ */
+@Getter
+@NoArgsConstructor
 public class Claim {
 
     // The claim region
     @Expose
-    private SquareRegion region;
+    private Region region;
 
     // Map of TrustLevels to a list of UUID players with that TrustLevel
     @Expose
@@ -42,7 +73,7 @@ public class Claim {
     @SerializedName("inherit_parent")
     private boolean inheritParent;
 
-    private Claim(@NotNull SquareRegion region, @NotNull ConcurrentMap<UUID, String> trustees,
+    private Claim(@NotNull Region region, @NotNull ConcurrentMap<UUID, String> trustees,
                   @NotNull ConcurrentLinkedQueue<Claim> children, @NotNull List<OperationType> universalFlags,
                   boolean inheritParent) {
         this.region = region;
@@ -52,7 +83,7 @@ public class Claim {
         this.inheritParent = inheritParent;
     }
 
-    private Claim(@NotNull SquareRegion region, @NotNull HuskClaims plugin) {
+    private Claim(@NotNull Region region, @NotNull HuskClaims plugin) {
         this(
                 region,
                 Maps.newConcurrentMap(),
@@ -60,20 +91,6 @@ public class Claim {
                 new ArrayList<>(),
                 true
         );
-    }
-
-    @SuppressWarnings("unused")
-    private Claim() {
-    }
-
-    @NotNull
-    public SquareRegion getRegion() {
-        return region;
-    }
-
-    @NotNull
-    public ConcurrentMap<UUID, String> getTrustees() {
-        return trustees;
     }
 
     @NotNull
@@ -120,12 +137,7 @@ public class Claim {
     }
 
     @NotNull
-    public ConcurrentLinkedQueue<Claim> getChildren() {
-        return children;
-    }
-
-    @NotNull
-    public Claim createAndAddChild(@NotNull SquareRegion subRegion, @NotNull ClaimWorld world, @NotNull HuskClaims plugin)
+    public Claim createAndAddChild(@NotNull Region subRegion, @NotNull ClaimWorld world, @NotNull HuskClaims plugin)
             throws IllegalArgumentException {
         if (isChildClaim(world)) {
             throw new IllegalArgumentException("A child claim cannot be within another child claim");

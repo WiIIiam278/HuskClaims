@@ -17,9 +17,32 @@
  *  limitations under the License.
  */
 
-package net.william278.huskclaims;
+package net.william278.huskclaims.user;
 
-import org.bukkit.plugin.java.JavaPlugin;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
+import net.william278.huskclaims.position.Position;
+import net.william278.huskclaims.position.World;
+import org.jetbrains.annotations.NotNull;
 
-public class BukkitHuskClaims extends JavaPlugin {
+import java.util.UUID;
+
+public abstract class OnlineUser extends User {
+    protected OnlineUser(@NotNull String username, @NotNull UUID uuid) {
+        super(username, uuid);
+    }
+
+    @NotNull
+    public abstract Position getPosition();
+
+    @NotNull
+    public final World getWorld() {
+        return getPosition().getWorld();
+    }
+
+    public abstract void sendMessage(@NotNull Component message);
+
+    @NotNull
+    protected abstract Audience getAudience();
+
 }

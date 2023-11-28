@@ -17,42 +17,40 @@
  *  limitations under the License.
  */
 
-package net.william278.huskclaims;
+package net.william278.huskclaims.claim;
 
-import net.william278.huskclaims.claim.ClaimHighlighter;
-import net.william278.huskclaims.claim.ClaimWorld;
-import net.william278.huskclaims.config.ConfigProvider;
-import net.william278.huskclaims.position.World;
+import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
-import java.util.Optional;
+import java.util.Collection;
+import java.util.List;
 
 /**
- * Common interface for the HuskClaims plugin
+ * A highlighter for claims - used to highlight a claim to a user in-game
  *
+ 
  * @since 1.0
  */
-public interface HuskClaims extends ConfigProvider, ClaimHighlighter {
+public interface ClaimHighlighter {
 
     /**
-     * Get a trust level by name
+     * Highlight claim(s) for a user
      *
-     * @return the trust level, if found
+     * @param user  The user to visualize the claim to
+     * @param claim A collection of claims to visualize
      * @since 1.0
      */
-    @NotNull
-    Map<World, ClaimWorld> getClaimWorlds();
+    void highlightClaim(@NotNull OnlineUser user, @NotNull Collection<Claim> claims);
 
     /**
-     * Get a claim world by world
+     * Highlight claim(s) for a user
      *
-     * @param world The world to get the claim world for
-     * @return the claim world, if found
+     * @param user   The user to visualize the claim to
+     * @param claims The claim(s) to visualize
      * @since 1.0
      */
-    default Optional<ClaimWorld> getClaimWorld(@NotNull World world) {
-        return Optional.ofNullable(getClaimWorlds().get(world));
+    default void highlightClaim(@NotNull OnlineUser user, @NotNull Claim... claims) {
+        this.highlightClaim(user, List.of(claims));
     }
 
 }

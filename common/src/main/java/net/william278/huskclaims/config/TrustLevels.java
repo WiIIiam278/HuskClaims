@@ -17,9 +17,20 @@
  *  limitations under the License.
  */
 
-package net.william278.huskclaims;
+package net.william278.huskclaims.config;
 
-import org.bukkit.plugin.java.JavaPlugin;
+import de.exlll.configlib.Configuration;
 
-public class BukkitHuskClaims extends JavaPlugin {
+@Configuration
+public class TrustLevels {
+
+    protected static final String CONFIG_HEADER = """
+            ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+            ┃      Trust Levels Config     ┃
+            ┃    Developed by William278   ┃
+            ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+            ┣╸ Config Help: https://william278.net/docs/huskclaims/trust-levels/
+            ┗╸ Documentation: https://william278.net/docs/huskclaims/
+            """;
+
 }
