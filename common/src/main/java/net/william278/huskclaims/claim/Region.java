@@ -32,7 +32,6 @@ import java.util.List;
 /**
  * A square region defined by two {@link Corner} points
  *
- 
  * @see Corner
  * @since 1.0
  */
@@ -116,14 +115,12 @@ public class Region {
     /**
      * {@link CoordinatePoint} implementation representing the corner of a {@link Region}
      *
-     
      * @since 1.0
      */
     public static class Corner implements CoordinatePoint {
 
         @Expose
         private int x;
-
         @Expose
         private int z;
 

@@ -66,7 +66,15 @@ public class Claim {
      * Map of TrustLevels to a list of UUID players with that TrustLevel
      */
     @Expose
-    private ConcurrentMap<UUID, String> trustees;
+    @SerializedName("trusted_users")
+    private ConcurrentMap<UUID, String> trustedUsers;
+
+    /**
+     * Map of TrustLevels to a list of UUID groups with that TrustLevel
+     */
+    @Expose
+    @SerializedName("trusted_groups")
+    private ConcurrentMap<String, String> trustedGroups;
 
     /**
      * List of child claims
@@ -90,11 +98,11 @@ public class Claim {
     @SerializedName("inherit_parent")
     private boolean inheritParent;
 
-    private Claim(@NotNull Region region, @NotNull ConcurrentMap<UUID, String> trustees,
+    private Claim(@NotNull Region region, @NotNull ConcurrentMap<UUID, String> trustedUsers,
                   @NotNull ConcurrentLinkedQueue<Claim> children, @NotNull List<OperationType> universalFlags,
                   boolean inheritParent) {
         this.region = region;
-        this.trustees = trustees;
+        this.trustedUsers = trustedUsers;
         this.children = children;
         this.universalFlags = universalFlags;
         this.inheritParent = inheritParent;
@@ -113,7 +121,7 @@ public class Claim {
     @NotNull
     public Optional<TrustLevel> getEffectiveTrustLevel(@NotNull User user, @NotNull ClaimWorld world,
                                                        @NotNull HuskClaims plugin) {
-        return Optional.ofNullable(trustees.get(user.getUuid()))
+        return Optional.ofNullable(trustedUsers.get(user.getUuid()))
                 .flatMap(plugin::getTrustLevel)
                 .or(() -> inheritParent
                         ? getParent(world).flatMap(parent -> parent.getEffectiveTrustLevel(user, world, plugin))
@@ -136,7 +144,7 @@ public class Claim {
                 || operation.getUser().map(user -> owner.equals(user.getUuid())).orElse(false)
 
                 // Or, if there's a user involved in this operation, check their rights
-                || operation.getUser().map(user -> trustees.get(user.getUuid())).flatMap(plugin::getTrustLevel)
+                || operation.getUser().map(user -> trustedUsers.get(user.getUuid())).flatMap(plugin::getTrustLevel)
                 .map(level -> level.getFlags().contains(operation.getType()))
 
                 // If the user doesn't have a trust level here, try getting it from the parent

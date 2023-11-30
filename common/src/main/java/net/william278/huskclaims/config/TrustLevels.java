@@ -24,6 +24,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.kyori.adventure.key.Key;
+import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.claim.TrustLevel;
 import org.jetbrains.annotations.NotNull;
 
@@ -61,8 +62,17 @@ public class TrustLevels {
                     .key(Key.key("huskclaims", "build_trust")).weight(300)
                     .displayName("Build Trust")
                     .commandAliases(List.of("trust"))
-                    .flags(List.of())
+                    .flags(List.of(
+                            OperationType.BLOCK_PLACE,
+                            OperationType.BLOCK_BREAK,
+                            OperationType.CONTAINER_OPEN,
+                            OperationType.BLOCK_INTERACT,
+                            OperationType.ENTITY_INTERACT,
+                            OperationType.ENDER_PEARL_TELEPORT
+                    ))
                     .privileges(List.of(
+                            TrustLevel.Privilege.MANAGE_TRUSTEES,
+                            TrustLevel.Privilege.MANAGE_SUBDIVISIONS,
                             TrustLevel.Privilege.MANAGE_EXPLOSIONS
                     ))
                     .build(),
@@ -72,7 +82,12 @@ public class TrustLevels {
                     .key(Key.key("huskclaims", "container_trust")).weight(200)
                     .displayName("Container Trust")
                     .commandAliases(List.of("containertrust"))
-                    .flags(List.of())
+                    .flags(List.of(
+                            OperationType.CONTAINER_OPEN,
+                            OperationType.BLOCK_INTERACT,
+                            OperationType.ENTITY_INTERACT,
+                            OperationType.ENDER_PEARL_TELEPORT
+                    ))
                     .build(),
 
             // Access trust (doors, buttons, levers, etc.)
@@ -80,7 +95,11 @@ public class TrustLevels {
                     .key(Key.key("huskclaims", "access_trust")).weight(100)
                     .displayName("Access Trust")
                     .commandAliases(List.of("accesstrust"))
-                    .flags(List.of())
+                    .flags(List.of(
+                            OperationType.BLOCK_INTERACT,
+                            OperationType.ENTITY_INTERACT,
+                            OperationType.ENDER_PEARL_TELEPORT
+                    ))
                     .build()
     );
 

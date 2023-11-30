@@ -25,15 +25,17 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.william278.huskclaims.database.Database;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Configuration
 public final class Settings {
 
-    protected static final String CONFIG_HEADER = """
+    static final String CONFIG_HEADER = """
             ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
             ┃       HuskClaims Config      ┃
             ┃    Developed by William278   ┃
@@ -66,6 +68,14 @@ public final class Settings {
                 "Don't modify this unless you know what you're doing!"})
         PoolOptions poolOptions;
 
+        @Comment("Names of tables to use on your database. Don't modify this unless you know what you're doing!")
+        Map<String, String> tableNames = Map.of(
+                Database.Table.META_DATA.name().toLowerCase(), Database.Table.META_DATA.getDefaultName(),
+                Database.Table.USER_DATA.name().toLowerCase(), Database.Table.USER_DATA.getDefaultName(),
+                Database.Table.USER_GROUP_DATA.name().toLowerCase(), Database.Table.USER_GROUP_DATA.getDefaultName(),
+                Database.Table.CLAIM_DATA.name().toLowerCase(), Database.Table.CLAIM_DATA.getDefaultName()
+        );
+
         @Getter
         @NoArgsConstructor
         public static class Credentials {
@@ -87,9 +97,10 @@ public final class Settings {
             private long timeout = 20000;
         }
 
-        @Comment("Names of tables to use on your database. Don't modify this unless you know what you're doing!")
-        Map<String, String> tableNames = Database.Table.getConfigMap();
-
+        @NotNull
+        public String getTableName(@NotNull Database.Table tableName) {
+            return Optional.ofNullable(tableNames.get(tableName.name().toLowerCase())).orElse(tableName.getDefaultName());
+        }
     }
 
 }

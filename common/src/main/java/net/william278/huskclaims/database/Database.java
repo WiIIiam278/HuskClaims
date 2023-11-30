@@ -22,60 +22,243 @@ package net.william278.huskclaims.database;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.user.Preferences;
+import net.william278.huskclaims.user.SavedUser;
+import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.time.OffsetDateTime;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class Database {
 
     protected HuskClaims plugin;
+    private boolean loaded;
 
-    /**
-     * Loads SQL table creation schema statements from a resource file as a string array.
-     *
-     * @param schemaFileName database script resource file to load from
-     * @return Array of string-formatted table creation schema statements
-     * @throws IOException if the resource could not be read
-     */
-    protected final String[] getSchemaStatements(@NotNull String schemaFileName) throws IOException {
-        return formatStatementTables(new String(Objects.requireNonNull(
-                plugin.getResource(schemaFileName)).readAllBytes(), StandardCharsets.UTF_8)
-        ).split(";");
+    protected Database(@NotNull HuskClaims plugin) {
+        this.plugin = plugin;
     }
 
     /**
-     * Format all table name placeholder strings in an SQL statement.
+     * Get the schema statements from the schema file
      *
-     * @param sql the SQL statement with unformatted table name placeholders
-     * @return the formatted statement, with table placeholders replaced with the correct names
+     * @return the {@link #format formatted} schema statements
      */
-    protected final String formatStatementTables(@NotNull String sql) {
-        final Map<String, String> tableNames = plugin.getSettings().getDatabase().getTableNames();
-        return sql.replaceAll("%meta_data%", tableNames.get(Table.META_DATA))
-                .replaceAll("%user_data%", tableNames.get(Table.META_DATA))
-                .replaceAll("%claim_data%", tableNames.get(Table.META_DATA));
+    @NotNull
+    protected final String[] getScript(@NotNull String name) {
+        name = (name.startsWith("database/") ? "" : "database/") + name + (name.endsWith(".sql") ? "" : ".sql");
+        try (InputStream schemaStream = Objects.requireNonNull(plugin.getResource(name))) {
+            final String schema = new String(schemaStream.readAllBytes(), StandardCharsets.UTF_8);
+            return format(schema).split(";");
+        } catch (IOException e) {
+            plugin.log(Level.SEVERE, "Failed to load database schema", e);
+        }
+        return new String[0];
+    }
+
+    protected abstract void executeScript(@NotNull Connection connection, @NotNull String name) throws SQLException;
+
+    /**
+     * Format a string for use in an SQL query
+     *
+     * @param statement The SQL statement to format
+     * @return The formatted SQL statement
+     */
+    @NotNull
+    protected final String format(@NotNull String statement) {
+        final Pattern pattern = Pattern.compile("%(\\w+)%");
+        final Matcher matcher = pattern.matcher(statement);
+        final StringBuilder sb = new StringBuilder();
+        while (matcher.find()) {
+            final Table table = Table.match(matcher.group(1));
+            matcher.appendReplacement(sb, plugin.getSettings().getDatabase().getTableName(table));
+        }
+        matcher.appendTail(sb);
+        return sb.toString();
     }
 
     /**
-     * Initialize the database and ensure tables are present; create tables if they do not exist.
+     * Backup a flat file database
+     *
+     * @param file the file to back up
+     */
+    protected final void backupFlatFile(@NotNull Path file) {
+        if (!file.toFile().exists()) {
+            return;
+        }
+
+        final Path backup = file.getParent().resolve(String.format("%s.bak", file.getFileName().toString()));
+        try {
+            final File backupFile = backup.toFile();
+            if (!backupFile.exists() || backupFile.delete()) {
+                Files.copy(file, backup);
+            }
+        } catch (IOException e) {
+            plugin.log(Level.WARNING, "Failed to backup flat file database", e);
+        }
+    }
+
+    /**
+     * Initialize the database connection
+     *
+     * @throws IllegalStateException if the database initialization fails
      */
     public abstract void initialize() throws IllegalStateException;
 
     /**
-     * Supported database types
+     * Check if the database has been created
+     *
+     * @return {@code true} if the database has been created; {@code false} otherwise
+     */
+    public abstract boolean isCreated();
+
+    /**
+     * Perform database migrations
+     *
+     * @param connection the database connection
+     * @throws SQLException if an SQL error occurs during migration
+     */
+    protected final void performMigrations(@NotNull Connection connection, @NotNull Type type) throws SQLException {
+        final int currentVersion = getSchemaVersion();
+        final int latestVersion = Migration.getLatestVersion();
+        if (currentVersion < latestVersion) {
+            plugin.log(Level.INFO, "Performing database migrations (Target version: v" + latestVersion + ")");
+            for (Migration migration : Migration.getOrderedMigrations()) {
+                if (!migration.isSupported(type)) {
+                    continue;
+                }
+                if (migration.getVersion() > currentVersion) {
+                    try {
+                        plugin.log(Level.INFO, "Performing database migration: " + migration.getMigrationName()
+                                + " (v" + migration.getVersion() + ")");
+                        final String scriptName = "migrations/" + migration.getVersion() + "-" + type.name().toLowerCase() +
+                                "-" + migration.getMigrationName() + ".sql";
+                        executeScript(connection, scriptName);
+                    } catch (SQLException e) {
+                        plugin.log(Level.WARNING, "Migration " + migration.getMigrationName()
+                                + " (v" + migration.getVersion() + ") failed; skipping", e);
+                    }
+                }
+            }
+            setSchemaVersion(latestVersion);
+            plugin.log(Level.INFO, "Completed database migration (Target version: v" + latestVersion + ")");
+        }
+    }
+
+    /**
+     * Get the database schema version
+     *
+     * @return the database schema version
+     */
+    public abstract int getSchemaVersion();
+
+    /**
+     * Set the database schema version
+     *
+     * @param version the database schema version
+     */
+    public abstract void setSchemaVersion(int version);
+
+    /**
+     * Get a user by their UUID
+     *
+     * @param uuid The UUID of the user
+     * @return The user, if they exist
+     */
+    public abstract Optional<SavedUser> getUser(@NotNull UUID uuid);
+
+    /**
+     * Get a user by their name
+     *
+     * @param username The name of the user
+     * @return The user, if they exist
+     */
+    public abstract Optional<SavedUser> getUser(@NotNull String username);
+
+    /**
+     * Get a list of {@link SavedUser}s who have not logged in for a given number of days
+     *
+     * @param daysInactive The number of days a user has not logged in for
+     * @return A list of {@link SavedUser}s who have not logged in for a given number of days
+     */
+    public abstract List<SavedUser> getInactiveUsers(long daysInactive);
+
+    /**
+     * Add a user to the database
+     *
+     * @param user        The user to add
+     * @param preferences The user's preferences
+     */
+    public abstract void createUser(@NotNull User user, long claimBlocks, @NotNull Preferences preferences);
+
+    /**
+     * Update a user's name and preferences in the database
+     *
+     * @param user        The user to update
+     * @param lastLogin   The user's last login time
+     * @param preferences The user's preferences to update
+     */
+    public abstract void updateUser(@NotNull User user, @NotNull OffsetDateTime lastLogin, long claimBlocks, @NotNull Preferences preferences);
+
+    /**
+     * Update a user's name and preferences in the database, marking their last login time as now
+     *
+     * @param user        The user to update
+     * @param preferences The user's preferences to update
+     */
+    public final void updateUser(@NotNull User user, int claimBlocks, @NotNull Preferences preferences) {
+        this.updateUser(user, OffsetDateTime.now(), claimBlocks, preferences);
+    }
+
+    /**
+     * Delete all users from the database
+     */
+    public abstract void deleteAllUsers();
+
+    /**
+     * Close the database connection
+     */
+    public abstract void close();
+
+    /**
+     * Check if the database has been loaded
+     *
+     * @return {@code true} if the database has loaded successfully; {@code false} if it failed to initialize
+     */
+    public boolean hasLoaded() {
+        return loaded;
+    }
+
+    /**
+     * Set if the database has loaded
+     *
+     * @param loaded whether the database has loaded successfully
+     */
+    protected void setLoaded(boolean loaded) {
+        this.loaded = loaded;
+    }
+
+    /**
+     * Identifies types of databases
      */
     public enum Type {
         MYSQL("MySQL"),
         MARIADB("MariaDB"),
         SQLITE("SQLite");
-
+        @NotNull
         private final String displayName;
 
         Type(@NotNull String displayName) {
@@ -89,13 +272,14 @@ public abstract class Database {
     }
 
     /**
-     * Represents the names of tables in the database.
+     * Represents the names of tables in the database
      */
     public enum Table {
-        META_DATA("huskclaims_schema"),
+        META_DATA("huskclaims_metadata"),
         USER_DATA("huskclaims_users"),
+        USER_GROUP_DATA("huskclaims_user_groups"),
         CLAIM_DATA("huskclaims_claim_worlds");
-
+        @NotNull
         private final String defaultName;
 
         Table(@NotNull String defaultName) {
@@ -103,17 +287,57 @@ public abstract class Database {
         }
 
         @NotNull
-        public String getDefaultName() {
-            return defaultName;
+        public static Database.Table match(@NotNull String placeholder) throws IllegalArgumentException {
+            return Table.valueOf(placeholder.toUpperCase());
         }
 
         @NotNull
-        public static Map<String, String> getConfigMap() {
-            return Arrays.stream(values()).collect(Collectors.toMap(
-                    table -> table.name().toLowerCase(Locale.ENGLISH),
-                    Table::getDefaultName
-            ));
+        public String getDefaultName() {
+            return defaultName;
         }
+    }
+
+    /**
+     * Represents database migrations that need to be run
+     */
+    public enum Migration {
+        ADD_METADATA_TABLE(
+                0, "add_metadata_table",
+                Type.MYSQL, Type.MARIADB, Type.SQLITE
+        );
+
+        private final int version;
+        private final String migrationName;
+        private final Type[] supportedTypes;
+
+        Migration(int version, @NotNull String migrationName, @NotNull Type... supportedTypes) {
+            this.version = version;
+            this.migrationName = migrationName;
+            this.supportedTypes = supportedTypes;
+        }
+
+        private int getVersion() {
+            return version;
+        }
+
+        private String getMigrationName() {
+            return migrationName;
+        }
+
+        private boolean isSupported(@NotNull Type type) {
+            return Arrays.stream(supportedTypes).anyMatch(supportedType -> supportedType == type);
+        }
+
+        public static List<Migration> getOrderedMigrations() {
+            return Arrays.stream(Migration.values())
+                    .sorted(Comparator.comparingInt(Migration::getVersion))
+                    .collect(Collectors.toList());
+        }
+
+        public static int getLatestVersion() {
+            return getOrderedMigrations().get(getOrderedMigrations().size() - 1).getVersion();
+        }
+
     }
 
 }

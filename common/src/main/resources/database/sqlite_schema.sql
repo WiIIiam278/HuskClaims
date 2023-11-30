@@ -7,12 +7,22 @@ CREATE TABLE IF NOT EXISTS `%meta_data%`
 -- Create the users table if it does not exist
 CREATE TABLE IF NOT EXISTS `%user_data%`
 (
-    `uuid`        char(36)    NOT NULL UNIQUE,
-    `username`    varchar(16) NOT NULL,
-    `last_login`  timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `preferences` longblob    NOT NULL,
+    `uuid`         char(36)    NOT NULL UNIQUE,
+    `username`     varchar(16) NOT NULL,
+    `last_login`   timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `claim_blocks` bigint      NOT NULL DEFAULT 0,
+    `preferences`  longblob    NOT NULL,
 
     PRIMARY KEY (`uuid`)
+);
+
+-- Create the user groups table if it does not exist
+CREATE TABLE IF NOT EXISTS `%user_groups%`
+(
+    `id`      integer     NOT NULL PRIMARY KEY AUTOINCREMENT,
+    `uuid`    char(36)    NOT NULL,
+    `name`    varchar(32) NOT NULL,
+    `members` longblob    NOT NULL
 );
 
 -- Create the claim worlds table if it does not exist

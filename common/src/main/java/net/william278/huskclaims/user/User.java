@@ -39,7 +39,7 @@ public class User {
     private UUID uuid;
 
     @NotNull
-    public static User of(@NotNull String username, @NotNull UUID uuid) {
+    public static User of(@NotNull UUID uuid, @NotNull String username) {
         return new User(username, uuid);
     }
 

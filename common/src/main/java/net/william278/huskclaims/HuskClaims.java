@@ -19,15 +19,17 @@
 
 package net.william278.huskclaims;
 
+import net.william278.desertwell.util.Version;
 import net.william278.huskclaims.claim.ClaimHighlighter;
+import net.william278.huskclaims.claim.ClaimManager;
 import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.config.ConfigProvider;
-import net.william278.huskclaims.position.World;
+import net.william278.huskclaims.database.DatabaseProvider;
+import net.william278.huskclaims.group.GroupManager;
+import net.william278.huskclaims.util.GsonProvider;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
-import java.util.Map;
-import java.util.Optional;
 import java.util.logging.Level;
 
 /**
@@ -35,27 +37,44 @@ import java.util.logging.Level;
  *
  * @since 1.0
  */
-public interface HuskClaims extends ConfigProvider, ClaimHighlighter {
+public interface HuskClaims extends ConfigProvider, DatabaseProvider, GsonProvider, ClaimManager, GroupManager,
+        ClaimHighlighter {
 
     /**
-     * Get a trust level by name
+     * Initialize all plugin systems
      *
-     * @return the trust level, if found
+     * @since 1.0
+     */
+    default void initialize() {
+        log(Level.INFO, String.format("Initializing HuskClaims v%s...", getPluginVersion()));
+        try {
+            loadSettings();
+            loadTrustLevels();
+            loadLocales();
+            loadDatabase();
+            loadClaimWorlds();
+            loadUserGroups();
+        } catch (Throwable e) {
+            log(Level.SEVERE, "An error occurred whilst initializing HuskClaims", e);
+            disablePlugin();
+            return;
+        }
+        log(Level.INFO, String.format("Successfully initialized HuskClaims v%s", getPluginVersion()));
+    }
+
+    /**
+     * Disable the plugin
+     */
+    void disablePlugin();
+
+    /**
+     * Get a list of all {@link ClaimWorld}s
+     *
+     * @return A list of all {@link ClaimWorld}s
      * @since 1.0
      */
     @NotNull
-    Map<World, ClaimWorld> getClaimWorlds();
-
-    /**
-     * Get a claim world by world
-     *
-     * @param world The world to get the claim world for
-     * @return the claim world, if found
-     * @since 1.0
-     */
-    default Optional<ClaimWorld> getClaimWorld(@NotNull World world) {
-        return Optional.ofNullable(getClaimWorlds().get(world));
-    }
+    Version getPluginVersion();
 
     /**
      * Get a plugin resource

@@ -27,6 +27,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
+/**
+ * Platform-agnostic representation of an online user
+ */
 public abstract class OnlineUser extends User {
     protected OnlineUser(@NotNull String username, @NotNull UUID uuid) {
         super(username, uuid);
@@ -40,9 +43,11 @@ public abstract class OnlineUser extends User {
         return getPosition().getWorld();
     }
 
-    public abstract void sendMessage(@NotNull Component message);
-
     @NotNull
     protected abstract Audience getAudience();
+
+    public void sendMessage(@NotNull Component message) {
+        getAudience().sendMessage(message);
+    }
 
 }

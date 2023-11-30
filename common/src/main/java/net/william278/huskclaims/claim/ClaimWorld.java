@@ -66,7 +66,7 @@ public class ClaimWorld {
     }
 
     public Optional<User> getUser(@NotNull UUID uuid) {
-        return Optional.ofNullable(userCache.get(uuid)).map(name -> User.of(name, uuid));
+        return Optional.ofNullable(userCache.get(uuid)).map(name -> User.of(uuid, name));
     }
 
     public Optional<Claim> getParentClaimAt(@NotNull CoordinatePoint position) {
