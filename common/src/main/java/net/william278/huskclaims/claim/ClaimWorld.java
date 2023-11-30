@@ -26,10 +26,10 @@ import com.google.gson.annotations.SerializedName;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import net.william278.cloplib.operation.Operation;
-import net.william278.cloplib.operation.OperationType;
+import net.william278.cloplib.operation.*;
 import net.william278.huskclaims.HuskClaims;
-import net.william278.huskclaims.position.CoordinatePoint;
+import net.william278.huskclaims.position.BlockPosition;
+import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 
@@ -44,7 +44,6 @@ import java.util.concurrent.ConcurrentMap;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ClaimWorld {
 
-    private transient int id;
     @Expose
     private ConcurrentLinkedQueue<Claim> claims;
     @Expose
@@ -69,11 +68,11 @@ public class ClaimWorld {
         return Optional.ofNullable(userCache.get(uuid)).map(name -> User.of(uuid, name));
     }
 
-    public Optional<Claim> getParentClaimAt(@NotNull CoordinatePoint position) {
+    public Optional<Claim> getParentClaimAt(@NotNull BlockPosition position) {
         return getClaims().stream().filter(claim -> claim.getRegion().contains(position)).findFirst();
     }
 
-    public Optional<Claim> getClaimAt(@NotNull CoordinatePoint position) {
+    public Optional<Claim> getClaimAt(@NotNull BlockPosition position) {
         return getParentClaimAt(position).map(parent -> parent.getChildren().stream()
                 .filter(c -> c.getRegion().contains(position)).findFirst()
                 .orElse(parent));
@@ -89,7 +88,7 @@ public class ClaimWorld {
     }
 
     public boolean isOperationAllowed(@NotNull Operation operation, @NotNull HuskClaims plugin) {
-        return getClaimAt(Region.Corner.wrap(operation.getOperationPosition()))
+        return getClaimAt((Position) operation.getOperationPosition())
                 .map(claim -> claim.isOperationAllowed(operation, this, plugin))
                 .orElse(wildernessFlags.contains(operation.getType()));
     }

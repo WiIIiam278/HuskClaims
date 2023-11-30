@@ -50,4 +50,6 @@ public abstract class OnlineUser extends User {
         getAudience().sendMessage(message);
     }
 
+    public abstract void sendBlockChange(@NotNull Position position, @NotNull String blockId);
+
 }

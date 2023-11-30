@@ -31,7 +31,7 @@ import org.jetbrains.annotations.NotNull;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Position implements CoordinatePoint, OperationPosition {
+public class Position implements BlockPosition, OperationPosition {
 
     @Expose
     private double x;
@@ -54,6 +54,11 @@ public class Position implements CoordinatePoint, OperationPosition {
     @NotNull
     public static Position at(double x, double y, double z, float yaw, float pitch, @NotNull World world) {
         return new Position(x, y, z, yaw, pitch, world);
+    }
+
+    @NotNull
+    public static Position at(@NotNull BlockPosition blockPosition, double y, @NotNull World world) {
+        return new Position(blockPosition.getBlockX(), y, blockPosition.getBlockZ(), 0f, 0f, world);
     }
 
     @NotNull

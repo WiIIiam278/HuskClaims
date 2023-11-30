@@ -21,13 +21,18 @@ package net.william278.huskclaims.config;
 
 import de.exlll.configlib.NameFormatters;
 import de.exlll.configlib.YamlConfigurationProperties;
+import de.exlll.configlib.YamlConfigurationStore;
 import de.exlll.configlib.YamlConfigurations;
+import net.william278.annotaml.Annotaml;
+import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.TrustLevel;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 
 /**
  * Interface for getting and setting data from plugin configuration files
@@ -35,6 +40,12 @@ import java.util.Optional;
  * @since 1.0
  */
 public interface ConfigProvider {
+
+    @NotNull
+    YamlConfigurationProperties YAML_CONFIGURATION_PROPERTIES = YamlConfigurationProperties.newBuilder()
+            .header(Settings.CONFIG_HEADER)
+            .setNameFormatter(NameFormatters.LOWER_UNDERSCORE)
+            .build();
 
     /**
      * Get the plugin settings, read from the config file
@@ -62,10 +73,7 @@ public interface ConfigProvider {
         setSettings(YamlConfigurations.update(
                 getConfigDirectory().resolve("config.yml"),
                 Settings.class,
-                YamlConfigurationProperties.newBuilder()
-                        .header(Settings.CONFIG_HEADER)
-                        .setNameFormatter(NameFormatters.LOWER_UNDERSCORE)
-                        .build()
+                YAML_CONFIGURATION_PROPERTIES
         ));
     }
 
@@ -92,7 +100,18 @@ public interface ConfigProvider {
      * @since 1.0
      */
     default void loadLocales() {
-
+        final String localesFile = String.format("messages-%s.yml", getSettings().getLanguage());
+        try {
+            setLocales(Annotaml.create(
+                    getConfigDirectory().resolve(localesFile).toFile(),
+                    Annotaml.create(
+                            Locales.class,
+                            getPlugin().getResource(String.format("locales/%s.yml", getSettings().getLanguage()))
+                    ).get()
+            ).get());
+        } catch (Throwable e) {
+            throw new IllegalStateException("Unable to load locales file: " + localesFile, e);
+        }
     }
 
     /**
@@ -132,10 +151,7 @@ public interface ConfigProvider {
         setTrustLevels(YamlConfigurations.update(
                 getConfigDirectory().resolve("trust_levels.yml"),
                 TrustLevels.class,
-                YamlConfigurationProperties.newBuilder()
-                        .header(TrustLevels.CONFIG_HEADER)
-                        .setNameFormatter(NameFormatters.LOWER_UNDERSCORE)
-                        .build()
+                YAML_CONFIGURATION_PROPERTIES
         ).sortByWeight());
     }
 
@@ -147,5 +163,8 @@ public interface ConfigProvider {
      */
     @NotNull
     Path getConfigDirectory();
+
+    @NotNull
+    HuskClaims getPlugin();
 
 }

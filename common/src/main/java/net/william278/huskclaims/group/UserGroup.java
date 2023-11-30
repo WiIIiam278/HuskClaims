@@ -11,4 +11,9 @@ public record UserGroup(
         @NotNull String name,
         @NotNull List<User> members
 ) {
+
+    public boolean isMember(@NotNull UUID uuid) {
+        return members.stream().anyMatch(user -> user.getUuid().equals(uuid));
+    }
+
 }

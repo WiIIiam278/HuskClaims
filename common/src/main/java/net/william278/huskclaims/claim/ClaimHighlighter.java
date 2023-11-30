@@ -33,23 +33,25 @@ import java.util.List;
 public interface ClaimHighlighter {
 
     /**
-     * Highlight claim(s) for a user
+     * Highlight a claim to a user
      *
-     * @param user   The user to visualize the claim to
-     * @param claims A collection of claims to visualize
+     * @param user  The user to visualize the claim to
+     * @param claim The claim to visualize
      * @since 1.0
      */
-    void highlightClaim(@NotNull OnlineUser user, @NotNull Collection<Claim> claims);
+    void highlightClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world,
+                        @NotNull Claim claim);
 
     /**
      * Highlight claim(s) for a user
      *
      * @param user   The user to visualize the claim to
-     * @param claims The claim(s) to visualize
+     * @param claims A {@link Collection} of claims to visualize
      * @since 1.0
      */
-    default void highlightClaim(@NotNull OnlineUser user, @NotNull Claim... claims) {
-        this.highlightClaim(user, List.of(claims));
+    default void highlightClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world,
+                                @NotNull Collection<Claim> claims) {
+        claims.forEach(claim -> highlightClaim(user, world, claim));
     }
 
 }

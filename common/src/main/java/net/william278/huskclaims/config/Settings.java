@@ -24,9 +24,11 @@ import de.exlll.configlib.Configuration;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.database.Database;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -37,7 +39,7 @@ public final class Settings {
 
     static final String CONFIG_HEADER = """
             ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-            ┃       HuskClaims Config      ┃
+            ┃      HuskClaims - Config     ┃
             ┃    Developed by William278   ┃
             ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
             ┣╸ Information: https://william278.net/project/huskclaims/
@@ -46,7 +48,7 @@ public final class Settings {
             """;
 
     @Comment("Locale of the default language file to use. Docs: https://william278.net/docs/huskclaims/translations")
-    private String language = "en";
+    private String language = Locales.DEFAULT_LOCALE;
 
     @Comment("Whether to automatically check for plugin updates on startup")
     private boolean checkForUpdates = true;
@@ -101,6 +103,30 @@ public final class Settings {
         public String getTableName(@NotNull Database.Table tableName) {
             return Optional.ofNullable(tableNames.get(tableName.name().toLowerCase())).orElse(tableName.getDefaultName());
         }
+    }
+
+    @Comment("Claim inspection highlighting settings")
+    private HighlighterSettings claimHighlighting = new HighlighterSettings();
+
+    @Getter
+    @NoArgsConstructor
+    public static class HighlighterSettings {
+        private String regularClaimCornerBlock = "minecraft:glowstone";
+        private String regularClaimBlock = "minecraft:gold_block";
+        private String childClaimCornerBlock = "minecraft:sea_lantern";
+        private String childClaimBlock = "minecraft:iron_block";
+        private String adminClaimCornerBlock = "minecraft:jack_o_lantern";
+        private String adminClaimBlock = "minecraft:pumpkin";
+    }
+
+    @Comment("Claim default flag settings")
+    private ClaimDefaults claimDefaults = new ClaimDefaults();
+
+    @Getter
+    @NoArgsConstructor
+    public static class ClaimDefaults {
+        private List<OperationType> defaultFlags = List.of();
+        private List<OperationType> adminFlags = List.of();
     }
 
 }

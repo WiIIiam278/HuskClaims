@@ -26,16 +26,15 @@ import com.google.gson.annotations.SerializedName;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import net.william278.cloplib.operation.Operation;
 import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
@@ -46,13 +45,13 @@ import java.util.concurrent.ConcurrentMap;
  * @see Region
  * @since 1.0
  */
-@Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Claim {
 
     /**
      * The claim region
      */
+    @Getter
     @Expose
     private Region region;
 
@@ -60,6 +59,7 @@ public class Claim {
      * The owner of the claim
      */
     @Expose
+    @Nullable
     private UUID owner;
 
     /**
@@ -67,18 +67,19 @@ public class Claim {
      */
     @Expose
     @SerializedName("trusted_users")
-    private ConcurrentMap<UUID, String> trustedUsers;
+    private Map<UUID, String> trustedUsers;
 
     /**
      * Map of TrustLevels to a list of UUID groups with that TrustLevel
      */
     @Expose
     @SerializedName("trusted_groups")
-    private ConcurrentMap<String, String> trustedGroups;
+    private Map<String, String> trustedGroups;
 
     /**
      * List of child claims
      */
+    @Getter
     @Expose
     private ConcurrentLinkedQueue<Claim> children;
 
@@ -86,46 +87,56 @@ public class Claim {
      * List of OperationTypes allowed on this claim to everyone
      */
     @Expose
-    @SerializedName("universal_flags")
-    private List<OperationType> universalFlags;
+    @SerializedName("default_flags")
+    private List<OperationType> defaultFlags;
 
     /**
      * If this is a child claim, whether to inherit member trust levels from the parent.
      * <p>
      * If set to false, this child claim will be restricted.
      */
+    @Getter
+    @Setter
     @Expose
     @SerializedName("inherit_parent")
     private boolean inheritParent;
 
-    private Claim(@NotNull Region region, @NotNull ConcurrentMap<UUID, String> trustedUsers,
-                  @NotNull ConcurrentLinkedQueue<Claim> children, @NotNull List<OperationType> universalFlags,
-                  boolean inheritParent) {
+    private Claim(@Nullable UUID owner, @NotNull Region region, @NotNull ConcurrentMap<UUID, String> trustedUsers,
+                  @NotNull ConcurrentMap<String, String> trustedGroups, @NotNull ConcurrentLinkedQueue<Claim> children,
+                  boolean inheritParent, @NotNull List<OperationType> defaultFlags) {
+        this.owner = owner;
         this.region = region;
         this.trustedUsers = trustedUsers;
+        this.trustedGroups = trustedGroups;
         this.children = children;
-        this.universalFlags = universalFlags;
+        this.defaultFlags = defaultFlags;
         this.inheritParent = inheritParent;
     }
 
-    private Claim(@NotNull Region region, @NotNull HuskClaims plugin) {
-        this(
-                region,
-                Maps.newConcurrentMap(),
-                Queues.newConcurrentLinkedQueue(),
-                new ArrayList<>(),
-                true
-        );
+    private Claim(@Nullable UUID owner, @NotNull Region region, @NotNull HuskClaims plugin) {
+        this(owner, region, Maps.newConcurrentMap(), Maps.newConcurrentMap(), Queues.newConcurrentLinkedQueue(), true,
+                owner != null ? plugin.getSettings().getClaimDefaults().getDefaultFlags()
+                        : plugin.getSettings().getClaimDefaults().getAdminFlags());
     }
 
     @NotNull
-    public Optional<TrustLevel> getEffectiveTrustLevel(@NotNull User user, @NotNull ClaimWorld world,
-                                                       @NotNull HuskClaims plugin) {
-        return Optional.ofNullable(trustedUsers.get(user.getUuid()))
-                .flatMap(plugin::getTrustLevel)
-                .or(() -> inheritParent
-                        ? getParent(world).flatMap(parent -> parent.getEffectiveTrustLevel(user, world, plugin))
-                        : Optional.empty());
+    public static Claim create(@NotNull User owner, @NotNull Region region, @NotNull HuskClaims plugin) {
+        return new Claim(owner.getUuid(), region, plugin);
+    }
+
+    @NotNull
+    public static Claim createAdminClaim(@NotNull Region region, @NotNull HuskClaims plugin) {
+        return new Claim(null, region, plugin);
+    }
+
+    /**
+     * Get the owner of the claim
+     *
+     * @return the owner of the claim. A claim is an "admin claim" (owned by the server) if there is no owner.
+     * @since 1.0
+     */
+    public Optional<UUID> getOwner() {
+        return Optional.ofNullable(owner);
     }
 
     public boolean isPrivilegeAllowed(@NotNull TrustLevel.Privilege privilege, @NotNull User user,
@@ -135,23 +146,69 @@ public class Claim {
                 .orElse(false);
     }
 
+    /**
+     * Get the user's explicit {@link TrustLevel} in this claim. This does not take into account parent claims;
+     * see {@link #getEffectiveTrustLevel(User, ClaimWorld, HuskClaims)}.
+     *
+     * @param user   the user to get the trust level for
+     * @param plugin the plugin instance
+     * @return the user's trust level, if they have one defined
+     */
+    public Optional<TrustLevel> getTrustLevel(@NotNull UUID user, @NotNull HuskClaims plugin) {
+        if (trustedUsers.containsKey(user)) {
+            return plugin.getTrustLevel(trustedUsers.get(user));
+        }
+
+        if (owner == null) {
+            return Optional.empty();
+        }
+
+        return trustedGroups.entrySet().stream()
+                .filter(entry -> plugin.getUserGroup(owner, entry.getKey())
+                        .map(group -> group.isMember(user))
+                        .orElse(false)
+                ).findFirst()
+                .flatMap(entry -> plugin.getTrustLevel(entry.getValue()));
+    }
+
+    /**
+     * Get the user's effective {@link TrustLevel}, taking parent claims into account
+     *
+     * @param user   the user to get the effective trust level for
+     * @param world  the world the claim is in
+     * @param plugin the plugin instance
+     * @return the user's effective trust level, if they have one defined
+     * @since 1.0
+     */
+    @NotNull
+    public Optional<TrustLevel> getEffectiveTrustLevel(@NotNull User user, @NotNull ClaimWorld world,
+                                                       @NotNull HuskClaims plugin) {
+        return getTrustLevel(user.getUuid(), plugin)
+                .or(() -> inheritParent
+                        ? getParent(world).flatMap(parent -> parent.getEffectiveTrustLevel(user, world, plugin))
+                        : Optional.empty());
+    }
+
     public boolean isOperationAllowed(@NotNull Operation operation, @NotNull ClaimWorld world,
                                       @NotNull HuskClaims plugin) {
         // If the operation is explicitly allowed, return it
-        return universalFlags.contains(operation.getType())
+        return defaultFlags.contains(operation.getType())
 
                 // Or, if the user is the owner, return true
-                || operation.getUser().map(user -> owner.equals(user.getUuid())).orElse(false)
+                || (owner != null && operation.getUser()
+                .map(user -> owner.equals(user.getUuid()))
+                .orElse(false))
 
                 // Or, if there's a user involved in this operation, check their rights
-                || operation.getUser().map(user -> trustedUsers.get(user.getUuid())).flatMap(plugin::getTrustLevel)
-                .map(level -> level.getFlags().contains(operation.getType()))
+                || (operation.getUser()
+                .flatMap(user -> getTrustLevel(user.getUuid(), plugin)
+                        .map(level -> level.getFlags().contains(operation.getType())))
+                .orElse(false))
 
-                // If the user doesn't have a trust level here, try getting it from the parent
-                .orElseGet(() -> inheritParent && getParent(world)
-                        .map(parent -> parent.isOperationAllowed(operation, world, plugin))
-                        .orElse(false));
-
+                // Or, if the user doesn't have a trust level here, try getting it from the parent
+                || (inheritParent && getParent(world)
+                .map(parent -> parent.isOperationAllowed(operation, world, plugin))
+                .orElse(false));
     }
 
     public Optional<Claim> getParent(@NotNull ClaimWorld world) {
@@ -164,6 +221,14 @@ public class Claim {
         return getParent(world).isPresent();
     }
 
+    public boolean isAdminClaim(@NotNull ClaimWorld world) {
+        if (isChildClaim(world)) {
+            return getParent(world).map(parent -> parent.isAdminClaim(world)).orElse(false);
+        } else {
+            return getOwner().isEmpty();
+        }
+    }
+
     @NotNull
     public Claim createAndAddChild(@NotNull Region subRegion, @NotNull ClaimWorld world, @NotNull HuskClaims plugin)
             throws IllegalArgumentException {
@@ -173,7 +238,7 @@ public class Claim {
         if (!region.contains(subRegion.getNearCorner()) || !region.contains(subRegion.getFarCorner())) {
             throw new IllegalArgumentException("Child claim must be contained within parent claim");
         }
-        final Claim child = new Claim(region, plugin);
+        final Claim child = new Claim(owner, region, plugin);
         children.add(child);
         return child;
     }
@@ -186,4 +251,5 @@ public class Claim {
         }
         return false;
     }
+
 }

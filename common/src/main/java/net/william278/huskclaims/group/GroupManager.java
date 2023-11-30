@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Interface for managing {@link UserGroup}s
+ * Interface for managing {@link UserGroup}s &mdash; groups of multiple users for easier management of claims
  */
 public interface GroupManager {
 

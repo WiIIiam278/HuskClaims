@@ -20,13 +20,13 @@
 package net.william278.huskclaims;
 
 import net.william278.desertwell.util.Version;
-import net.william278.huskclaims.claim.ClaimHighlighter;
 import net.william278.huskclaims.claim.ClaimManager;
 import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.config.ConfigProvider;
 import net.william278.huskclaims.database.DatabaseProvider;
 import net.william278.huskclaims.group.GroupManager;
 import net.william278.huskclaims.util.GsonProvider;
+import net.william278.huskclaims.util.WorldHeightProvider;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
@@ -38,7 +38,7 @@ import java.util.logging.Level;
  * @since 1.0
  */
 public interface HuskClaims extends ConfigProvider, DatabaseProvider, GsonProvider, ClaimManager, GroupManager,
-        ClaimHighlighter {
+        WorldHeightProvider {
 
     /**
      * Initialize all plugin systems
@@ -54,6 +54,7 @@ public interface HuskClaims extends ConfigProvider, DatabaseProvider, GsonProvid
             loadDatabase();
             loadClaimWorlds();
             loadUserGroups();
+            loadOperationListener();
         } catch (Throwable e) {
             log(Level.SEVERE, "An error occurred whilst initializing HuskClaims", e);
             disablePlugin();
@@ -64,6 +65,8 @@ public interface HuskClaims extends ConfigProvider, DatabaseProvider, GsonProvid
 
     /**
      * Disable the plugin
+     *
+     * @since 1.0
      */
     void disablePlugin();
 
@@ -94,5 +97,16 @@ public interface HuskClaims extends ConfigProvider, DatabaseProvider, GsonProvid
      * @since 1.0
      */
     void log(@NotNull Level level, @NotNull String message, Throwable... exceptions);
+
+    /**
+     * Get the plugin instance
+     *
+     * @return the plugin instance
+     * @since 1.0
+     */
+    @NotNull
+    default HuskClaims getPlugin() {
+        return this;
+    }
 
 }

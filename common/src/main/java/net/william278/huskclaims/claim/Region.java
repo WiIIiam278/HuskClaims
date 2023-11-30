@@ -21,16 +21,17 @@ package net.william278.huskclaims.claim;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import net.william278.cloplib.operation.OperationPosition;
-import net.william278.huskclaims.position.CoordinatePoint;
+import net.william278.huskclaims.position.BlockPosition;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 /**
- * A square region defined by two {@link Corner} points
+ * A rectangular region defined by two {@link Corner} points
  *
  * @see Corner
  * @since 1.0
@@ -46,27 +47,52 @@ public class Region {
     @SerializedName("far_corner")
     private Corner farCorner;
 
-    private Region(@NotNull CoordinatePoint pos1, @NotNull CoordinatePoint pos2) {
-        final List<Corner> corners = getSquareCorners(pos1, pos2);
+    private Region(@NotNull BlockPosition pos1, @NotNull BlockPosition pos2) {
+        final List<Corner> corners = getQuadCorners(pos1, pos2);
         this.nearCorner = corners.get(0);
         this.farCorner = corners.get(3);
     }
 
     /**
-     * Get a list of four {@link Corner corner points} that form the square region
+     * Create a region from two {@link BlockPosition} corner positions
+     *
+     * @param pos1 The first position
+     * @param pos2 The second position
+     * @return A {@link Region} defined by the two positions
+     * @since 1.0
+     */
+    @NotNull
+    public static Region from(@NotNull BlockPosition pos1, @NotNull BlockPosition pos2) {
+        return new Region(pos1, pos2);
+    }
+
+    /**
+     * Get a list of four {@link Corner corner points} that form the quad region
      *
      * @param pos1 The first position
      * @param pos2 The second position
      * @return A list of four sorted normalized {@link Corner corner points} that form the square region
+     * @since 1.0
      */
     @NotNull
-    private static List<Corner> getSquareCorners(@NotNull CoordinatePoint pos1, @NotNull CoordinatePoint pos2) {
+    private static List<Corner> getQuadCorners(@NotNull BlockPosition pos1, @NotNull BlockPosition pos2) {
         return List.of(
                 Corner.at(Math.min(pos1.getBlockX(), pos2.getBlockX()), Math.min(pos1.getBlockZ(), pos2.getBlockZ())),
                 Corner.at(Math.max(pos1.getBlockX(), pos2.getBlockX()), Math.min(pos1.getBlockZ(), pos2.getBlockZ())),
                 Corner.at(Math.min(pos1.getBlockX(), pos2.getBlockX()), Math.max(pos1.getBlockZ(), pos2.getBlockZ())),
                 Corner.at(Math.max(pos1.getBlockX(), pos2.getBlockX()), Math.max(pos1.getBlockZ(), pos2.getBlockZ()))
         );
+    }
+
+    /**
+     * Get a list of the four {@link Corner corner points} that form the quad region
+     *
+     * @return A list of the four {@link Corner corner points} that form the quad region
+     * @since 1.0
+     */
+    @NotNull
+    public List<Corner> getCorners() {
+        return getQuadCorners(nearCorner, farCorner);
     }
 
     /**
@@ -86,7 +112,7 @@ public class Region {
      * @return Whether the position is contained in this region
      * @since 1.0
      */
-    public boolean contains(@NotNull CoordinatePoint position) {
+    public boolean contains(@NotNull BlockPosition position) {
         return position.getBlockX() >= nearCorner.getBlockX() && position.getBlockX() <= farCorner.getBlockX()
                 && position.getBlockZ() >= nearCorner.getBlockZ() && position.getBlockZ() <= farCorner.getBlockZ();
     }
@@ -113,34 +139,22 @@ public class Region {
     }
 
     /**
-     * {@link CoordinatePoint} implementation representing the corner of a {@link Region}
+     * {@link BlockPosition} implementation representing the corner of a {@link Region}
      *
      * @since 1.0
      */
-    public static class Corner implements CoordinatePoint {
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class Corner implements BlockPosition {
 
         @Expose
         private int x;
         @Expose
         private int z;
 
-        @SuppressWarnings("unused")
-        private Corner() {
-        }
-
-        private Corner(int x, int z) {
-            this.x = x;
-            this.z = z;
-        }
-
         @NotNull
         public static Corner at(int x, int z) {
             return new Corner(x, z);
-        }
-
-        @NotNull
-        public static Corner wrap(@NotNull OperationPosition position) {
-            return at((int) position.getX(), (int) position.getZ());
         }
 
         @Override
@@ -152,5 +166,6 @@ public class Region {
         public int getBlockZ() {
             return z;
         }
+
     }
 }

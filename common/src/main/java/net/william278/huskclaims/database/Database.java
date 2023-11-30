@@ -328,6 +328,7 @@ public abstract class Database {
             return Arrays.stream(supportedTypes).anyMatch(supportedType -> supportedType == type);
         }
 
+        @NotNull
         public static List<Migration> getOrderedMigrations() {
             return Arrays.stream(Migration.values())
                     .sorted(Comparator.comparingInt(Migration::getVersion))
