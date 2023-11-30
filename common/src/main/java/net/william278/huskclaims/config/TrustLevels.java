@@ -20,7 +20,17 @@
 package net.william278.huskclaims.config;
 
 import de.exlll.configlib.Configuration;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import net.kyori.adventure.key.Key;
+import net.william278.huskclaims.claim.TrustLevel;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
+@Getter
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Configuration
 public class TrustLevels {
 
@@ -32,5 +42,54 @@ public class TrustLevels {
             ┣╸ Config Help: https://william278.net/docs/huskclaims/trust-levels/
             ┗╸ Documentation: https://william278.net/docs/huskclaims/
             """;
+
+    protected List<TrustLevel> DEFAULTS = List.of(
+            // Permission trust (manage trustees, make sub-divisions, etc.)
+            TrustLevel.builder()
+                    .key(Key.key("huskclaims", "permission_trust")).weight(400)
+                    .displayName("Permission Trust")
+                    .commandAliases(List.of("permisiontrust"))
+                    .flags(List.of())
+                    .privileges(List.of(
+                            TrustLevel.Privilege.MANAGE_TRUSTEES,
+                            TrustLevel.Privilege.MANAGE_SUBDIVISIONS
+                    ))
+                    .build(),
+
+            // Regular Build trust (place & break blocks, etc.)
+            TrustLevel.builder()
+                    .key(Key.key("huskclaims", "build_trust")).weight(300)
+                    .displayName("Build Trust")
+                    .commandAliases(List.of("trust"))
+                    .flags(List.of())
+                    .privileges(List.of(
+                            TrustLevel.Privilege.MANAGE_EXPLOSIONS
+                    ))
+                    .build(),
+
+            // Container trust (chests, furnaces, etc.)
+            TrustLevel.builder()
+                    .key(Key.key("huskclaims", "container_trust")).weight(200)
+                    .displayName("Container Trust")
+                    .commandAliases(List.of("containertrust"))
+                    .flags(List.of())
+                    .build(),
+
+            // Access trust (doors, buttons, levers, etc.)
+            TrustLevel.builder()
+                    .key(Key.key("huskclaims", "access_trust")).weight(100)
+                    .displayName("Access Trust")
+                    .commandAliases(List.of("accesstrust"))
+                    .flags(List.of())
+                    .build()
+    );
+
+    private List<TrustLevel> trustLevels = DEFAULTS;
+
+    @NotNull
+    protected TrustLevels sortByWeight() {
+        trustLevels.sort(TrustLevel::compareTo);
+        return this;
+    }
 
 }

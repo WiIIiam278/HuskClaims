@@ -20,6 +20,8 @@
 package net.william278.huskclaims.user;
 
 import com.google.gson.annotations.Expose;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -27,18 +29,14 @@ import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
 
     @Expose
     private String username;
     @Expose
     private UUID uuid;
-
-    protected User(@NotNull String username, @NotNull UUID uuid) {
-        this.username = username;
-        this.uuid = uuid;
-    }
 
     @NotNull
     public static User of(@NotNull String username, @NotNull UUID uuid) {

@@ -23,6 +23,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.william278.cloplib.operation.Operation;
@@ -39,36 +40,52 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * A {@link Region} in a {@link ClaimWorld} goverened by user {@link TrustLevel}s and a set of
+ * A {@link Region} in a {@link ClaimWorld} governed by user {@link TrustLevel}s and a set of
  * base {@link OperationType} flags
  *
- 
  * @see Region
  * @since 1.0
  */
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Claim {
 
-    // The claim region
+    /**
+     * The claim region
+     */
     @Expose
     private Region region;
 
-    // Map of TrustLevels to a list of UUID players with that TrustLevel
+    /**
+     * The owner of the claim
+     */
+    @Expose
+    private UUID owner;
+
+    /**
+     * Map of TrustLevels to a list of UUID players with that TrustLevel
+     */
     @Expose
     private ConcurrentMap<UUID, String> trustees;
 
-    // List of child claims
+    /**
+     * List of child claims
+     */
     @Expose
     private ConcurrentLinkedQueue<Claim> children;
 
-    // List of OperationTypes allowed on this claim to everyone
+    /**
+     * List of OperationTypes allowed on this claim to everyone
+     */
     @Expose
     @SerializedName("universal_flags")
     private List<OperationType> universalFlags;
 
-    // If this is a child claim, whether to inherit member trust levels from the parent.
-    // If set to false, this is a restricted child claim.
+    /**
+     * If this is a child claim, whether to inherit member trust levels from the parent.
+     * <p>
+     * If set to false, this child claim will be restricted.
+     */
     @Expose
     @SerializedName("inherit_parent")
     private boolean inheritParent;
@@ -113,10 +130,13 @@ public class Claim {
     public boolean isOperationAllowed(@NotNull Operation operation, @NotNull ClaimWorld world,
                                       @NotNull HuskClaims plugin) {
         // If the operation is explicitly allowed, return it
-        return universalFlags.contains(operation.getType()) || operation.getUser()
+        return universalFlags.contains(operation.getType())
+
+                // Or, if the user is the owner, return true
+                || operation.getUser().map(user -> owner.equals(user.getUuid())).orElse(false)
 
                 // Or, if there's a user involved in this operation, check their rights
-                .map(user -> trustees.get(user.getUuid())).flatMap(plugin::getTrustLevel)
+                || operation.getUser().map(user -> trustees.get(user.getUuid())).flatMap(plugin::getTrustLevel)
                 .map(level -> level.getFlags().contains(operation.getType()))
 
                 // If the user doesn't have a trust level here, try getting it from the parent

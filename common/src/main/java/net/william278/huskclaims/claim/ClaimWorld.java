@@ -23,6 +23,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.william278.cloplib.operation.Operation;
@@ -40,10 +41,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ClaimWorld {
 
-    private int id;
+    private transient int id;
     @Expose
     private ConcurrentLinkedQueue<Claim> claims;
     @Expose

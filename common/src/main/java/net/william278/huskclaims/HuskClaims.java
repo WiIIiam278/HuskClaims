@@ -25,8 +25,10 @@ import net.william278.huskclaims.config.ConfigProvider;
 import net.william278.huskclaims.position.World;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.InputStream;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
 
 /**
  * Common interface for the HuskClaims plugin
@@ -54,5 +56,24 @@ public interface HuskClaims extends ConfigProvider, ClaimHighlighter {
     default Optional<ClaimWorld> getClaimWorld(@NotNull World world) {
         return Optional.ofNullable(getClaimWorlds().get(world));
     }
+
+    /**
+     * Get a plugin resource
+     *
+     * @param name The name of the resource
+     * @return the resource, if found
+     * @since 1.0
+     */
+    InputStream getResource(@NotNull String name);
+
+    /**
+     * Log a message to the console.
+     *
+     * @param level      the level to log at
+     * @param message    the message to log
+     * @param exceptions any exceptions to log
+     * @since 1.0
+     */
+    void log(@NotNull Level level, @NotNull String message, Throwable... exceptions);
 
 }

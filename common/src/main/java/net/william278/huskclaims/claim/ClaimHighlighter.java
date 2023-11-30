@@ -28,7 +28,6 @@ import java.util.List;
 /**
  * A highlighter for claims - used to highlight a claim to a user in-game
  *
- 
  * @since 1.0
  */
 public interface ClaimHighlighter {
@@ -36,8 +35,8 @@ public interface ClaimHighlighter {
     /**
      * Highlight claim(s) for a user
      *
-     * @param user  The user to visualize the claim to
-     * @param claim A collection of claims to visualize
+     * @param user   The user to visualize the claim to
+     * @param claims A collection of claims to visualize
      * @since 1.0
      */
     void highlightClaim(@NotNull OnlineUser user, @NotNull Collection<Claim> claims);

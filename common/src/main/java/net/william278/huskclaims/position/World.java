@@ -20,6 +20,7 @@
 package net.william278.huskclaims.position;
 
 import com.google.gson.annotations.Expose;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,8 +30,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class World implements OperationWorld {
 
     @Expose

@@ -20,6 +20,7 @@
 package net.william278.huskclaims.position;
 
 import com.google.gson.annotations.Expose;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,8 +29,8 @@ import net.william278.cloplib.operation.OperationPosition;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Position implements CoordinatePoint, OperationPosition {
 
     @Expose

@@ -136,7 +136,7 @@ public interface ConfigProvider {
                         .header(TrustLevels.CONFIG_HEADER)
                         .setNameFormatter(NameFormatters.LOWER_UNDERSCORE)
                         .build()
-        ));
+        ).sortByWeight());
     }
 
     /**

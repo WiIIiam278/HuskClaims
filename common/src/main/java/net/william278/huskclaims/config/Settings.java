@@ -21,14 +21,15 @@ package net.william278.huskclaims.config;
 
 import de.exlll.configlib.Comment;
 import de.exlll.configlib.Configuration;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.william278.huskclaims.database.Database;
 
-import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Configuration
 public final class Settings {
 
@@ -53,7 +54,7 @@ public final class Settings {
 
     @Getter
     @NoArgsConstructor
-    private static class DatabaseSettings {
+    public static class DatabaseSettings {
 
         @Comment("Type of database to use (SQLITE, MYSQL or MARIADB)")
         private Database.Type type = Database.Type.SQLITE;
@@ -67,7 +68,7 @@ public final class Settings {
 
         @Getter
         @NoArgsConstructor
-        private static class Credentials {
+        public static class Credentials {
             private String host = "localhost";
             int port = 3306;
             String database = "huskclaims";
@@ -78,7 +79,7 @@ public final class Settings {
 
         @Getter
         @NoArgsConstructor
-        private static class PoolOptions {
+        public static class PoolOptions {
             private int size = 12;
             private long idle = 12;
             private long lifetime = 1800000;
@@ -87,7 +88,7 @@ public final class Settings {
         }
 
         @Comment("Names of tables to use on your database. Don't modify this unless you know what you're doing!")
-        LinkedHashMap<String, String> tableNames;
+        Map<String, String> tableNames = Database.Table.getConfigMap();
 
     }
 

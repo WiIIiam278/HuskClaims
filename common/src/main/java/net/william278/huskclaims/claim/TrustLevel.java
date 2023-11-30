@@ -19,34 +19,34 @@
 
 package net.william278.huskclaims.claim;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import net.kyori.adventure.key.Key;
 import net.william278.cloplib.operation.OperationType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 @Getter
-@NoArgsConstructor
+@Builder
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class TrustLevel implements Comparable<TrustLevel> {
 
-    @Expose
-    private String id;
-    @Expose
-    @SerializedName("display_name")
+    private Key key;
     private String displayName;
-    @Expose
-    @SerializedName("command_aliases")
-    private List<String> commandAliases;
-    @Expose
-    @SerializedName("flags")
-    private List<OperationType> flags;
-    @Expose
-    private List<Privilege> privileges;
-    @Expose
-    private int weight;
+    @Builder.Default
+    private List<String> commandAliases = List.of();
+    @Builder.Default
+    private List<OperationType> flags = List.of();
+    @Builder.Default
+    private List<Privilege> privileges = List.of();
+    @Builder.Default
+    private int weight = 100;
+
+    @NotNull
+    public String getId() {
+        return key.asString();
+    }
 
     @Override
     public int compareTo(@NotNull TrustLevel o) {
