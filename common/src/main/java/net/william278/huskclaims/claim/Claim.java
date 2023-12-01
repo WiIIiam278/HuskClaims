@@ -55,6 +55,7 @@ public class Claim {
      * The claim region
      */
     @Getter
+    @Setter
     @Expose
     private Region region;
 

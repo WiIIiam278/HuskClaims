@@ -40,21 +40,43 @@ public class TrustLevels {
             ┃   HuskClaims - Trust Levels  ┃
             ┃    Developed by William278   ┃
             ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+            ┣╸ List of trust levels users & groups can be assigned to in claims
             ┣╸ Config Help: https://william278.net/docs/huskclaims/trust-levels/
             ┗╸ Documentation: https://william278.net/docs/huskclaims/
             """;
 
-    protected static final List<TrustLevel> DEFAULTS = List.of(
+    private List<TrustLevel> trustLevels = List.of(
             // Permission trust (manage trustees, make sub-divisions, etc.)
             TrustLevel.builder()
                     .key(Key.key("huskclaims", "permission_trust"))
                     .weight(400)
                     .displayName("Permission Trust")
                     .commandAliases(List.of("permisiontrust"))
-                    .flags(List.of())
+                    .flags(List.of(
+                            OperationType.BLOCK_BREAK,
+                            OperationType.BLOCK_PLACE,
+                            OperationType.BLOCK_INTERACT,
+                            OperationType.REDSTONE_INTERACT,
+                            OperationType.ENTITY_INTERACT,
+                            OperationType.CONTAINER_OPEN,
+                            OperationType.FARM_BLOCK_BREAK,
+                            OperationType.FARM_BLOCK_PLACE,
+                            OperationType.FARM_BLOCK_INTERACT,
+                            OperationType.PLACE_HANGING_ENTITY,
+                            OperationType.BREAK_HANGING_ENTITY,
+                            OperationType.PLAYER_DAMAGE_PLAYER,
+                            OperationType.PLAYER_DAMAGE_PERSISTENT_ENTITY,
+                            OperationType.PLAYER_DAMAGE_MONSTER,
+                            OperationType.PLAYER_DAMAGE_ENTITY,
+                            OperationType.FILL_BUCKET,
+                            OperationType.EMPTY_BUCKET,
+                            OperationType.USE_SPAWN_EGG,
+                            OperationType.ENDER_PEARL_TELEPORT
+                    ))
                     .privileges(List.of(
                             TrustLevel.Privilege.MANAGE_TRUSTEES,
-                            TrustLevel.Privilege.MANAGE_SUBDIVISIONS
+                            TrustLevel.Privilege.MANAGE_CHILD_CLAIMS,
+                            TrustLevel.Privilege.MANAGE_OPERATION_GROUPS
                     ))
                     .build(),
 
@@ -65,17 +87,25 @@ public class TrustLevels {
                     .displayName("Build Trust")
                     .commandAliases(List.of("trust"))
                     .flags(List.of(
-                            OperationType.BLOCK_PLACE,
                             OperationType.BLOCK_BREAK,
-                            OperationType.CONTAINER_OPEN,
+                            OperationType.BLOCK_PLACE,
                             OperationType.BLOCK_INTERACT,
+                            OperationType.REDSTONE_INTERACT,
                             OperationType.ENTITY_INTERACT,
+                            OperationType.CONTAINER_OPEN,
+                            OperationType.FARM_BLOCK_BREAK,
+                            OperationType.FARM_BLOCK_PLACE,
+                            OperationType.FARM_BLOCK_INTERACT,
+                            OperationType.PLACE_HANGING_ENTITY,
+                            OperationType.BREAK_HANGING_ENTITY,
+                            OperationType.PLAYER_DAMAGE_PLAYER,
+                            OperationType.PLAYER_DAMAGE_PERSISTENT_ENTITY,
+                            OperationType.PLAYER_DAMAGE_MONSTER,
+                            OperationType.PLAYER_DAMAGE_ENTITY,
+                            OperationType.FILL_BUCKET,
+                            OperationType.EMPTY_BUCKET,
+                            OperationType.USE_SPAWN_EGG,
                             OperationType.ENDER_PEARL_TELEPORT
-                    ))
-                    .privileges(List.of(
-                            TrustLevel.Privilege.MANAGE_TRUSTEES,
-                            TrustLevel.Privilege.MANAGE_SUBDIVISIONS,
-                            TrustLevel.Privilege.MANAGE_EXPLOSIONS
                     ))
                     .build(),
 
@@ -86,9 +116,10 @@ public class TrustLevels {
                     .displayName("Container Trust")
                     .commandAliases(List.of("containertrust"))
                     .flags(List.of(
-                            OperationType.CONTAINER_OPEN,
                             OperationType.BLOCK_INTERACT,
                             OperationType.ENTITY_INTERACT,
+                            OperationType.CONTAINER_OPEN,
+                            OperationType.REDSTONE_INTERACT,
                             OperationType.ENDER_PEARL_TELEPORT
                     ))
                     .build(),
@@ -102,12 +133,11 @@ public class TrustLevels {
                     .flags(List.of(
                             OperationType.BLOCK_INTERACT,
                             OperationType.ENTITY_INTERACT,
+                            OperationType.REDSTONE_INTERACT,
                             OperationType.ENDER_PEARL_TELEPORT
                     ))
                     .build()
     );
-
-    private List<TrustLevel> trustLevels = DEFAULTS;
 
     @NotNull
     protected TrustLevels sortByWeight() {

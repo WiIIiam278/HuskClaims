@@ -129,6 +129,29 @@ public class Region {
                 || contains(region.getNearCorner()) || contains(region.getFarCorner());
     }
 
+    /**
+     * Get a new {@link Region} that is the result of performing a resize operation of this region,
+     * by moving one of its corners
+     *
+     * @param cornerIndex       index of the corner of this region {@code 0 <= cornerIndex <= 3}
+     * @param newCornerPosition the new position of the corner
+     * @return the resized region
+     * @throws IllegalArgumentException if the corner index is not between 0 and 3
+     */
+    @NotNull
+    public Region getResized(int cornerIndex, @NotNull Corner newCornerPosition) throws IllegalArgumentException {
+        if (cornerIndex < 0 || cornerIndex > 3) {
+            throw new IllegalArgumentException("Corner index must be between 0 and 3");
+        }
+
+        // Get diagonally opposite corner of the corner being moved
+        final List<Corner> corners = getCorners();
+        final Corner oppositeCorner = corners.get((cornerIndex + 2) % 4);
+
+        // Get the new region from the new corner position and the opposite corner
+        return Region.from(newCornerPosition, oppositeCorner);
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Region region) {

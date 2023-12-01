@@ -110,13 +110,6 @@ public interface ClaimManager extends ClaimHandler {
     }
 
     /**
-     * Load the platform-specific operation listener
-     *
-     * @since 1.0
-     */
-    void loadOperationListener();
-
-    /**
      * Get the claim highlighter
      *
      * @return the claim highlighter
@@ -124,5 +117,13 @@ public interface ClaimManager extends ClaimHandler {
      */
     @NotNull
     ClaimHighlighter getClaimHighlighter();
+
+    /**
+     * Set the highlighter to use for highlighting claims
+     *
+     * @param claimHighlighter The claim highlighter to set
+     * @since 1.0
+     */
+    void setClaimHighlighter(@NotNull ClaimHighlighter claimHighlighter);
 
 }

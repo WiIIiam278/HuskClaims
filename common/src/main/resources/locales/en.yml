@@ -2,4 +2,8 @@ error_no_permission: '[Error:](#ff3300) [You do not have permission to use this 
 error_command_in_game_only: '[Error:](#ff3300) [This command can only be used in-game](#ff7e5e)'
 error_user_not_found: '[Error:](#ff3300) [That user could not be found](#ff7e5e)'
 error_invalid_syntax: '[Error:](#ff3300) [Invalid syntax. Usage: %1%](#ff7e5e)'
+world_not_claimable: '[Claiming is disabled in this world](#ff7e5e)'
 not_applicable: 'N/A'
+land_not_claimed: '[This land has not been claimed](#ff7e5e)'
+land_claimed_by: '[This land has been claimed by %1%](#00fb9a)'
+administrator_username: 'an administrator'

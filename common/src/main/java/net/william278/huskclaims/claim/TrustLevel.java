@@ -55,8 +55,8 @@ public class TrustLevel implements Comparable<TrustLevel> {
 
     public enum Privilege {
         MANAGE_TRUSTEES,
-        MANAGE_SUBDIVISIONS,
-        MANAGE_EXPLOSIONS,
+        MANAGE_CHILD_CLAIMS,
+        MANAGE_OPERATION_GROUPS,
     }
 
 }

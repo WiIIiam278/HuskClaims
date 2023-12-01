@@ -21,9 +21,7 @@ package net.william278.huskclaims.config;
 
 import de.exlll.configlib.Comment;
 import de.exlll.configlib.Configuration;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.database.Database;
 import net.william278.huskclaims.position.World;
@@ -57,7 +55,7 @@ public final class Settings {
     private DatabaseSettings database = new DatabaseSettings();
 
     @Getter
-    @NoArgsConstructor
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class DatabaseSettings {
 
         @Comment("Type of database to use (SQLITE, MYSQL or MARIADB)")
@@ -71,15 +69,15 @@ public final class Settings {
         PoolOptions poolOptions;
 
         @Comment("Names of tables to use on your database. Don't modify this unless you know what you're doing!")
-        Map<String, String> tableNames = Map.of(
-                Database.Table.META_DATA.name().toLowerCase(), Database.Table.META_DATA.getDefaultName(),
-                Database.Table.USER_DATA.name().toLowerCase(), Database.Table.USER_DATA.getDefaultName(),
-                Database.Table.USER_GROUP_DATA.name().toLowerCase(), Database.Table.USER_GROUP_DATA.getDefaultName(),
-                Database.Table.CLAIM_DATA.name().toLowerCase(), Database.Table.CLAIM_DATA.getDefaultName()
+        Map<Database.Table, String> tableNames = Map.of(
+                Database.Table.META_DATA, Database.Table.META_DATA.getDefaultName(),
+                Database.Table.USER_DATA, Database.Table.USER_DATA.getDefaultName(),
+                Database.Table.USER_GROUP_DATA, Database.Table.USER_GROUP_DATA.getDefaultName(),
+                Database.Table.CLAIM_DATA, Database.Table.CLAIM_DATA.getDefaultName()
         );
 
         @Getter
-        @NoArgsConstructor
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
         public static class Credentials {
             private String host = "localhost";
             int port = 3306;
@@ -90,7 +88,7 @@ public final class Settings {
         }
 
         @Getter
-        @NoArgsConstructor
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
         public static class PoolOptions {
             private int size = 12;
             private long idle = 12;
@@ -101,7 +99,7 @@ public final class Settings {
 
         @NotNull
         public String getTableName(@NotNull Database.Table tableName) {
-            return Optional.ofNullable(tableNames.get(tableName.name().toLowerCase())).orElse(tableName.getDefaultName());
+            return Optional.ofNullable(tableNames.get(tableName)).orElse(tableName.getDefaultName());
         }
     }
 
@@ -109,7 +107,7 @@ public final class Settings {
     private CrossServerSettings crossServer = new CrossServerSettings();
 
     @Getter
-    @NoArgsConstructor
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class CrossServerSettings {
         @Comment("Whether to enable cross-server mode")
         private boolean enabled = false;
@@ -120,16 +118,34 @@ public final class Settings {
     private ClaimSettings claims = new ClaimSettings();
 
     @Getter
-    @NoArgsConstructor
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class ClaimSettings {
         @Comment("Default flags for regular claims")
-        private List<OperationType> defaultFlags = List.of();
+        private List<OperationType> defaultFlags = List.of(
+                OperationType.PLAYER_DAMAGE_MONSTER,
+                OperationType.EXPLOSION_DAMAGE_ENTITY,
+                OperationType.PLAYER_DAMAGE_PLAYER,
+                OperationType.MONSTER_SPAWN
+        );
 
         @Comment("Default flags for admin claims")
-        private List<OperationType> adminFlags = List.of();
+        private List<OperationType> adminFlags = List.of(
+                OperationType.PLAYER_DAMAGE_MONSTER,
+                OperationType.EXPLOSION_DAMAGE_ENTITY,
+                OperationType.PLAYER_DAMAGE_PLAYER
+        );
 
         @Comment("List of worlds where users cannot claim")
         private List<String> unclaimableWorlds = List.of();
+
+        @Comment("Claim inspection tool (right click with this to inspect claims)")
+        private String inspectionTool = "minecraft:stick";
+
+        @Comment("Claim creation & resize tool (right click with this to create/resize claims)")
+        private String claimTool = "minecraft:golden_shovel";
+
+        @Comment("Max range of inspector tools")
+        private int inspectionDistance = 40;
 
         @Comment("Claim inspection highlighting settings")
         private HighlighterSettings highlighting = new HighlighterSettings();
@@ -139,7 +155,7 @@ public final class Settings {
         }
 
         @Getter
-        @NoArgsConstructor
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
         public static class HighlighterSettings {
             @Comment("Highlight block for regular claim corners")
             private String regularClaimCornerBlock = "minecraft:glowstone";
@@ -158,8 +174,42 @@ public final class Settings {
 
             @Comment("Highlight block for admin claims")
             private String adminClaimBlock = "minecraft:pumpkin";
+
+            @Comment("Highlight block for other players' claim corners")
+            private String otherClaimCornerBlock = "minecraft:netherrack";
+
+            @Comment("Highlight block for other players' claims")
+            private String otherClaimBlock = "minecraft:netherrack";
         }
 
+    }
+
+    @Comment("Groups of operations that can be toggled on/off in claims")
+    public List<OperationGroup> operationGroups = List.of(
+            OperationGroup.builder()
+                    .name("Claim Explosions")
+                    .allowedOperations(List.of(
+                            OperationType.EXPLOSION_DAMAGE_TERRAIN,
+                            OperationType.MONSTER_DAMAGE_TERRAIN
+                    ))
+                    .toggleCommandAliases(List.of("claimexplosions"))
+                    .build()
+    );
+
+    @Getter
+    @Builder
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class OperationGroup {
+        private String name;
+        private List<String> toggleCommandAliases;
+        private List<OperationType> allowedOperations;
+    }
+
+    public static class UserGroupSettings {
+        private boolean enabled;
+        private int maxMembersPerGroup;
+        private int maxGroupsPerPlayer;
     }
 
 }

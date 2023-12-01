@@ -25,6 +25,7 @@ import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.config.ConfigProvider;
 import net.william278.huskclaims.database.DatabaseProvider;
 import net.william278.huskclaims.group.GroupManager;
+import net.william278.huskclaims.listener.ListenerProvider;
 import net.william278.huskclaims.position.World;
 import net.william278.huskclaims.util.GsonProvider;
 import net.william278.huskclaims.util.WorldHeightProvider;
@@ -40,7 +41,7 @@ import java.util.logging.Level;
  * @since 1.0
  */
 public interface HuskClaims extends ConfigProvider, DatabaseProvider, GsonProvider, ClaimManager, GroupManager,
-        WorldHeightProvider {
+        WorldHeightProvider, ListenerProvider {
 
     /**
      * Initialize all plugin systems
@@ -56,7 +57,7 @@ public interface HuskClaims extends ConfigProvider, DatabaseProvider, GsonProvid
             loadDatabase();
             loadClaimWorlds();
             loadUserGroups();
-            loadOperationListener();
+            loadListeners();
         } catch (Throwable e) {
             log(Level.SEVERE, "An error occurred whilst initializing HuskClaims", e);
             disablePlugin();

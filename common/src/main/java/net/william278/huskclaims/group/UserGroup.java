@@ -25,6 +25,14 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * A group of users that can be added to a claim. Useful for bulk management of claim permissions.
+ *
+ * @param groupOwner The UUID of the group owner
+ * @param name       The name of the group
+ * @param members    The members of the group
+ * @since 1.0
+ */
 public record UserGroup(
         @NotNull UUID groupOwner,
         @NotNull String name,
