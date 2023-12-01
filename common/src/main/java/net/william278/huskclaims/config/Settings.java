@@ -206,10 +206,29 @@ public final class Settings {
         private List<OperationType> allowedOperations;
     }
 
+    @Comment("User group settings")
+    public UserGroupSettings userGroups = new UserGroupSettings();
+
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class UserGroupSettings {
-        private boolean enabled;
-        private int maxMembersPerGroup;
-        private int maxGroupsPerPlayer;
+        @Comment("Whether to enable user groups")
+        private boolean enabled = true;
+
+        @Comment("The prefix to use when specifying a group in a trust command (e.g. /trust #groupname)")
+        private String groupSpecifierPrefix = "#";
+
+        @Comment("Whether to restrict group names with a regex filter")
+        private boolean restrictGroupNames = true;
+
+        @Comment("Regex for group names")
+        private String groupNameRegex = "[a-zA-Z0-9-_]*";
+
+        @Comment("Max members per group")
+        private int maxMembersPerGroup = 10;
+
+        @Comment("Max groups per player")
+        private int maxGroupsPerPlayer = 3;
     }
 
 }

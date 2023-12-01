@@ -22,6 +22,7 @@ package net.william278.huskclaims.database;
 import com.google.gson.JsonSyntaxException;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.ClaimWorld;
+import net.william278.huskclaims.group.UserGroup;
 import net.william278.huskclaims.position.ServerWorld;
 import net.william278.huskclaims.position.World;
 import net.william278.huskclaims.user.Preferences;
@@ -308,6 +309,99 @@ public class SqLiteDatabase extends Database {
             statement.executeUpdate();
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to update user in table", e);
+        }
+    }
+
+    @NotNull
+    @Override
+    public List<UserGroup> getUserGroups(@NotNull UUID uuid) {
+        try (PreparedStatement statement = getConnection().prepareStatement(format("""
+                SELECT `name`, `members`
+                FROM `%user_groups%`
+                WHERE `uuid` = ?"""))) {
+            statement.setString(1, uuid.toString());
+            final ResultSet resultSet = statement.executeQuery();
+            final List<UserGroup> userGroups = new ArrayList<>();
+            while (resultSet.next()) {
+                userGroups.add(new UserGroup(
+                        uuid,
+                        resultSet.getString("name"),
+                        plugin.getUserListFromJson(new String(
+                                resultSet.getBytes("members"), StandardCharsets.UTF_8
+                        ))
+                ));
+            }
+            return userGroups;
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to fetch user groups from table", e);
+        }
+        return Collections.emptyList();
+    }
+
+    @NotNull
+    @Override
+    public List<UserGroup> getAllUserGroups() {
+        try (PreparedStatement statement = getConnection().prepareStatement(format("""
+                SELECT `uuid`, `name`, `members`
+                FROM `%user_groups%`"""))) {
+            final ResultSet resultSet = statement.executeQuery();
+            final List<UserGroup> userGroups = new ArrayList<>();
+            while (resultSet.next()) {
+                userGroups.add(new UserGroup(
+                        UUID.fromString(resultSet.getString("uuid")),
+                        resultSet.getString("name"),
+                        plugin.getUserListFromJson(new String(
+                                resultSet.getBytes("members"), StandardCharsets.UTF_8
+                        ))
+                ));
+            }
+            return userGroups;
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to fetch user groups from table", e);
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void addUserGroup(@NotNull UserGroup group) {
+        try (PreparedStatement statement = getConnection().prepareStatement(format("""
+                INSERT INTO `%user_groups%` (`uuid`, `name`, `members`)
+                VALUES (?, ?, ?)"""))) {
+            statement.setString(1, group.groupOwner().toString());
+            statement.setString(2, group.name());
+            statement.setBytes(3, plugin.getGson().toJson(group.members()).getBytes(StandardCharsets.UTF_8));
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to create user group in table", e);
+        }
+    }
+
+    @Override
+    public void updateUserGroup(@NotNull UUID owner, @NotNull String name, @NotNull UserGroup newGroup) {
+        try (PreparedStatement statement = getConnection().prepareStatement(format("""
+                UPDATE `%user_groups%`
+                SET `name` = ?, `members` = ?
+                WHERE `uuid` = ? AND `name` = ?"""))) {
+            statement.setString(1, newGroup.name());
+            statement.setBytes(2, plugin.getGson().toJson(newGroup.members()).getBytes(StandardCharsets.UTF_8));
+            statement.setString(3, owner.toString());
+            statement.setString(4, name);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to update user group in table", e);
+        }
+    }
+
+    @Override
+    public void deleteUserGroup(@NotNull UserGroup group) {
+        try (PreparedStatement statement = getConnection().prepareStatement(format("""
+                DELETE FROM `%user_groups%`
+                WHERE `uuid` = ? AND `name` = ?"""))) {
+            statement.setString(1, group.groupOwner().toString());
+            statement.setString(2, group.name());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to remove user group from table", e);
         }
     }
 

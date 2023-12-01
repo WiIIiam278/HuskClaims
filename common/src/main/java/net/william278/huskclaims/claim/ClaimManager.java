@@ -21,8 +21,12 @@ package net.william278.huskclaims.claim;
 
 import net.william278.cloplib.operation.OperationPosition;
 import net.william278.cloplib.operation.OperationWorld;
+import net.william278.huskclaims.database.Database;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.position.World;
+import net.william278.huskclaims.user.OnlineUser;
+import net.william278.huskclaims.user.User;
+import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalTime;
@@ -79,17 +83,80 @@ public interface ClaimManager extends ClaimHandler {
     }
 
     /**
+     * Create a claim over a region
+     *
+     * @param world  The world to create the claim in
+     * @param region The region to create the claim over
+     * @param owner  The owner of the claim
+     * @throws IllegalArgumentException if the region is already claimed, or if no claim world is present for the world
+     * @since 1.0
+     */
+    @Blocking
+    default void createClaimAt(@NotNull OperationWorld world, @NotNull Region region,
+                               @NotNull User owner) throws IllegalArgumentException {
+        if (!getClaimWorlds().containsKey(world)) {
+            throw new IllegalArgumentException("No claim world is present for world " + world.getName());
+        }
+        final ClaimWorld claimWorld = getClaimWorlds().get(world);
+
+        // Validate region is not yet claimed
+        if (claimWorld.isRegionClaimed(region)) {
+            throw new IllegalArgumentException("Region is already claimed");
+        }
+
+        // Create the claim and add it
+        final Claim claim = Claim.create(owner, region, getPlugin());
+        claimWorld.getClaims().add(claim);
+        getDatabase().updateClaimWorld(claimWorld);
+    }
+
+    /**
+     * Create a child claim over a region
+     *
+     * @param world   The world to create the claim in
+     * @param region  The region to create the claim over
+     * @param creator The creator of the child claim
+     * @throws IllegalArgumentException if the region is already claimed, or if no claim world is present for the world
+     * @since 1.0
+     */
+    @Blocking
+    default void createChildClaimAt(@NotNull OperationWorld world, @NotNull Region region,
+                                    @NotNull User creator) throws IllegalArgumentException {
+        if (!getClaimWorlds().containsKey(world)) {
+            throw new IllegalArgumentException("No claim world is present for world " + world.getName());
+        }
+        final ClaimWorld claimWorld = getClaimWorlds().get(world);
+
+        // Create claim
+        final Claim parent = claimWorld.getClaimAt(region.getNearCorner())
+                .orElseThrow(() -> new IllegalArgumentException("No parent claim found"));
+        if (parent.getRegion().equals(region)) {
+            throw new IllegalArgumentException("Parent claim and child claim regions cannot be the same");
+        }
+
+        // Validate privileges
+        if (parent.isPrivilegeAllowed(TrustLevel.Privilege.MANAGE_CHILD_CLAIMS, creator, claimWorld, getPlugin())) {
+            throw new IllegalArgumentException("User lacks sufficient child claim creation privileges");
+        }
+
+        // Create and add child claim
+        parent.createAndAddChild(region, claimWorld, getPlugin());
+        getDatabase().updateClaimWorld(claimWorld);
+    }
+
+    /**
      * Load the claim worlds from the database
      *
      * @since 1.0
      */
+    @Blocking
     default void loadClaimWorlds() throws IllegalStateException {
         getPlugin().log(Level.INFO, "Loading claims from the database...");
-        LocalTime startTime = LocalTime.now();
+        final LocalTime startTime = LocalTime.now();
 
         // Only load claim worlds for this server
         final Map<String, ClaimWorld> loadedWorlds = new HashMap<>();
-        final Map<World, ClaimWorld> worlds = getPlugin().getDatabase().getClaimWorlds(getPlugin().getServerName());
+        final Map<World, ClaimWorld> worlds = getDatabase().getClaimWorlds(getPlugin().getServerName());
         worlds.forEach((world, claimWorld) -> loadedWorlds.put(world.getName(), claimWorld));
         for (final World serverWorld : getPlugin().getWorlds()) {
             if (getPlugin().getSettings().getClaims().isWorldUnclaimable(serverWorld)) {
@@ -98,7 +165,7 @@ public interface ClaimManager extends ClaimHandler {
 
             if (worlds.keySet().stream().map(World::getName).noneMatch(uuid -> uuid.equals(serverWorld.getName()))) {
                 getPlugin().log(Level.INFO, String.format("Creating new claim world for %s...", serverWorld.getName()));
-                loadedWorlds.put(serverWorld.getName(), getPlugin().getDatabase().createClaimWorld(serverWorld));
+                loadedWorlds.put(serverWorld.getName(), getDatabase().createClaimWorld(serverWorld));
             }
         }
         setClaimWorlds(loadedWorlds);
@@ -119,11 +186,27 @@ public interface ClaimManager extends ClaimHandler {
     ClaimHighlighter getClaimHighlighter();
 
     /**
+     * Highlight a claim at a position for a user
+     *
+     * @param user     The user to highlight the claim for
+     * @param position The position to highlight the claim at
+     * @since 1.0
+     */
+    default void highlightClaimAt(@NotNull OnlineUser user, @NotNull OperationPosition position) {
+        getClaimWorld(position.getWorld())
+                .ifPresent(world -> world.getClaimAt((Position) position)
+                        .ifPresent(claim -> getClaimHighlighter().highlightClaim(user, world, claim)));
+    }
+
+    /**
      * Set the highlighter to use for highlighting claims
      *
      * @param claimHighlighter The claim highlighter to set
      * @since 1.0
      */
     void setClaimHighlighter(@NotNull ClaimHighlighter claimHighlighter);
+
+    @NotNull
+    Database getDatabase();
 
 }

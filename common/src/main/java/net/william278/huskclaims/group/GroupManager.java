@@ -19,14 +19,25 @@
 
 package net.william278.huskclaims.group;
 
+import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.database.Database;
+import net.william278.huskclaims.user.User;
+import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.logging.Level;
 
 /**
  * Interface for managing {@link UserGroup}s &mdash; groups of multiple users for easier management of claims
+ *
+ * @since 1.0
  */
 public interface GroupManager {
 
@@ -38,6 +49,13 @@ public interface GroupManager {
      */
     @NotNull
     List<UserGroup> getUserGroups();
+
+    /**
+     * Set the list of user groups
+     *
+     * @param userGroups The list of user groups
+     */
+    void setUserGroups(@NotNull List<UserGroup> userGroups);
 
     /**
      * Get a list of user groups owned by a player
@@ -64,12 +82,83 @@ public interface GroupManager {
     }
 
     /**
+     * Create a user group
+     *
+     * @param user The user creating the group
+     * @param name The name of the group
+     * @since 1.0
+     */
+    @Blocking
+    default void createUserGroup(@NotNull User user, @NotNull String name) throws IllegalArgumentException {
+        if (!getPlugin().isValidGroupName(name) || getUserGroup(user.getUuid(), name).isPresent()) {
+            throw new IllegalArgumentException("Invalid or already taken group name");
+        }
+        final UserGroup group = new UserGroup(user.getUuid(), name, new ArrayList<>());
+        getUserGroups().add(group);
+        getDatabase().addUserGroup(group);
+        //todo Publish create event
+    }
+
+    /**
+     * Edit a user group
+     *
+     * @param owner      UUID of the group owner
+     * @param groupName  Name of the group
+     * @param editor     Consumer to edit the group
+     * @param notPresent Runnable to run if the group is not present
+     * @since 1.0
+     */
+    @Blocking
+    default void editUserGroup(@NotNull UUID owner, @NotNull String groupName, @NotNull Consumer<UserGroup> editor,
+                               @NotNull Runnable notPresent) {
+        getUserGroup(owner, groupName).ifPresentOrElse(group -> {
+            editor.accept(group);
+            getDatabase().updateUserGroup(owner, groupName, group);
+            //todo Publish update event
+        }, notPresent);
+    }
+
+    /**
+     * Delete a user group
+     *
+     * @param owner     UUID of the group owner
+     * @param groupName Name of the group
+     * @return {@code true} if the group was deleted, {@code false} otherwise
+     * @since 1.0
+     */
+    @Blocking
+    default boolean deleteUserGroup(@NotNull UUID owner, @NotNull String groupName) {
+        return getUserGroup(owner, groupName).map(group -> {
+            getDatabase().deleteUserGroup(group);
+            getUserGroups().remove(group);
+            //todo Publish delete event
+            return true;
+        }).orElse(false);
+    }
+
+    /**
      * Load the user groups from the database
      *
      * @since 1.0
      */
+    @Blocking
     default void loadUserGroups() {
-        //todo load from DB
+        getPlugin().log(Level.INFO, "Loading user groups from the database...");
+        LocalTime startTime = LocalTime.now();
+
+        // Load all users groups from the database
+        final List<UserGroup> groups = getDatabase().getAllUserGroups();
+        this.setUserGroups(groups);
+
+        final long uniqueGroups = groups.stream().map(UserGroup::groupOwner).toList().stream().distinct().count();
+        getPlugin().log(Level.INFO, String.format("Loaded %s user group(s) by %s user(s) in %s seconds",
+                groups.size(), uniqueGroups, ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d));
     }
+
+    @NotNull
+    Database getDatabase();
+
+    @NotNull
+    HuskClaims getPlugin();
 
 }

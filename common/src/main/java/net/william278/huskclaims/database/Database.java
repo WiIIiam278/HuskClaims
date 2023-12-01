@@ -23,6 +23,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.ClaimWorld;
+import net.william278.huskclaims.group.UserGroup;
 import net.william278.huskclaims.position.ServerWorld;
 import net.william278.huskclaims.position.World;
 import net.william278.huskclaims.user.Preferences;
@@ -225,6 +226,46 @@ public abstract class Database {
     public final void updateUser(@NotNull User user, long claimBlocks, @NotNull Preferences preferences) {
         this.updateUser(user, OffsetDateTime.now(), claimBlocks, preferences);
     }
+
+    /**
+     * Get a list of a user's {@link UserGroup user groups}.
+     *
+     * @param uuid The UUID of the user
+     * @return A list of the user's {@link UserGroup user groups}
+     */
+    @NotNull
+    public abstract List<UserGroup> getUserGroups(@NotNull UUID uuid);
+
+    /**
+     * Get a map of all {@link UserGroup user groups} for all users.
+     *
+     * @return A map of everyone's {@link UserGroup user groups}.
+     */
+    @NotNull
+    public abstract List<UserGroup> getAllUserGroups();
+
+    /**
+     * Add a {@link UserGroup} to the database
+     *
+     * @param group the group to add
+     */
+    public abstract void addUserGroup(@NotNull UserGroup group);
+
+    /**
+     * Edit a {@link UserGroup} in the database
+     *
+     * @param owner    The owner of the group
+     * @param name     The name of the group
+     * @param newGroup The new group data
+     */
+    public abstract void updateUserGroup(@NotNull UUID owner, @NotNull String name, @NotNull UserGroup newGroup);
+
+    /**
+     * Delete a {@link UserGroup} from the database
+     *
+     * @param group the group to delete
+     */
+    public abstract void deleteUserGroup(@NotNull UserGroup group);
 
     /**
      * Get a list of all claim worlds on a server

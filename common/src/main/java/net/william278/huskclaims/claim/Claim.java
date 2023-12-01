@@ -31,6 +31,7 @@ import net.william278.cloplib.operation.Operation;
 import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.user.User;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -234,13 +235,14 @@ public class Claim {
     }
 
     @NotNull
+    @ApiStatus.Internal
     public Claim createAndAddChild(@NotNull Region subRegion, @NotNull ClaimWorld world, @NotNull HuskClaims plugin)
             throws IllegalArgumentException {
         if (isChildClaim(world)) {
             throw new IllegalArgumentException("A child claim cannot be within another child claim");
         }
         if (!region.contains(subRegion.getNearCorner()) || !region.contains(subRegion.getFarCorner())) {
-            throw new IllegalArgumentException("Child claim must be contained within parent claim");
+            throw new IllegalArgumentException("Child claim must be fully enclosed within parent claim");
         }
         final Claim child = new Claim(owner, region, plugin);
         children.add(child);
