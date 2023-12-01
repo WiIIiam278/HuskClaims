@@ -26,6 +26,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.database.Database;
+import net.william278.huskclaims.position.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -44,8 +45,7 @@ public final class Settings {
             ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
             ┣╸ Information: https://william278.net/project/huskclaims/
             ┣╸ Config Help: https://william278.net/docs/huskclaims/config-files/
-            ┗╸ Documentation: https://william278.net/docs/huskclaims/
-            """;
+            ┗╸ Documentation: https://william278.net/docs/huskclaims/""";
 
     @Comment("Locale of the default language file to use. Docs: https://william278.net/docs/huskclaims/translations")
     private String language = Locales.DEFAULT_LOCALE;
@@ -105,28 +105,61 @@ public final class Settings {
         }
     }
 
-    @Comment("Claim inspection highlighting settings")
-    private HighlighterSettings claimHighlighting = new HighlighterSettings();
+    @Comment("Cross-server settings")
+    private CrossServerSettings crossServer = new CrossServerSettings();
 
     @Getter
     @NoArgsConstructor
-    public static class HighlighterSettings {
-        private String regularClaimCornerBlock = "minecraft:glowstone";
-        private String regularClaimBlock = "minecraft:gold_block";
-        private String childClaimCornerBlock = "minecraft:sea_lantern";
-        private String childClaimBlock = "minecraft:iron_block";
-        private String adminClaimCornerBlock = "minecraft:jack_o_lantern";
-        private String adminClaimBlock = "minecraft:pumpkin";
+    public static class CrossServerSettings {
+        @Comment("Whether to enable cross-server mode")
+        private boolean enabled = false;
     }
 
-    @Comment("Claim default flag settings")
-    private ClaimDefaults claimDefaults = new ClaimDefaults();
+
+    @Comment("Claim flags & world settings")
+    private ClaimSettings claims = new ClaimSettings();
 
     @Getter
     @NoArgsConstructor
-    public static class ClaimDefaults {
+    public static class ClaimSettings {
+        @Comment("Default flags for regular claims")
         private List<OperationType> defaultFlags = List.of();
+
+        @Comment("Default flags for admin claims")
         private List<OperationType> adminFlags = List.of();
+
+        @Comment("List of worlds where users cannot claim")
+        private List<String> unclaimableWorlds = List.of();
+
+        @Comment("Claim inspection highlighting settings")
+        private HighlighterSettings highlighting = new HighlighterSettings();
+
+        public boolean isWorldUnclaimable(@NotNull World world) {
+            return unclaimableWorlds.stream().anyMatch(world.getName()::equalsIgnoreCase);
+        }
+
+        @Getter
+        @NoArgsConstructor
+        public static class HighlighterSettings {
+            @Comment("Highlight block for regular claim corners")
+            private String regularClaimCornerBlock = "minecraft:glowstone";
+
+            @Comment("Highlight block for regular claims")
+            private String regularClaimBlock = "minecraft:gold_block";
+
+            @Comment("Highlight block for child/sub claim corners")
+            private String childClaimCornerBlock = "minecraft:sea_lantern";
+
+            @Comment("Highlight block for child/sub claims")
+            private String childClaimBlock = "minecraft:iron_block";
+
+            @Comment("Highlight block for admin claim corners")
+            private String adminClaimCornerBlock = "minecraft:jack_o_lantern";
+
+            @Comment("Highlight block for admin claims")
+            private String adminClaimBlock = "minecraft:pumpkin";
+        }
+
     }
 
 }

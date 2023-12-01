@@ -17,31 +17,31 @@
  *  limitations under the License.
  */
 
-package net.william278.huskclaims.user;
+package net.william278.huskclaims.position;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * Represents user preferences
+ * Represents a {@link World} mapped to a specific server, by ID
  *
- * @since 1.0
+ * @param server The ID of the server the world is on
+ * @param world  The world
  */
-@Getter
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
-public class Preferences {
+public record ServerWorld(@NotNull String server, @NotNull World world) {
 
-    @Expose
-    @SerializedName("ignoring_claims")
-    private boolean isIgnoringClaims = false;
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (!(obj instanceof final ServerWorld serverWorld)) {
+            return false;
+        }
+        return serverWorld.server().equals(server) && serverWorld.world().equals(world);
+    }
 
-    @Expose
-    @SerializedName("audit_log")
-    private AuditLog auditLog = new AuditLog();
-
+    @Override
+    public String toString() {
+        return server + "/" + world.getName();
+    }
 }

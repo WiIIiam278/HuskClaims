@@ -34,7 +34,10 @@ import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
@@ -115,8 +118,8 @@ public class Claim {
 
     private Claim(@Nullable UUID owner, @NotNull Region region, @NotNull HuskClaims plugin) {
         this(owner, region, Maps.newConcurrentMap(), Maps.newConcurrentMap(), Queues.newConcurrentLinkedQueue(), true,
-                owner != null ? plugin.getSettings().getClaimDefaults().getDefaultFlags()
-                        : plugin.getSettings().getClaimDefaults().getAdminFlags());
+                owner != null ? plugin.getSettings().getClaims().getDefaultFlags()
+                        : plugin.getSettings().getClaims().getAdminFlags());
     }
 
     @NotNull
@@ -245,11 +248,7 @@ public class Claim {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Claim claim) {
-            return claim.region.equals(region)
-                    && claim.children.equals(children);
-        }
-        return false;
+        return obj instanceof Claim c && c.region.equals(region) && c.children.equals(children);
     }
 
 }

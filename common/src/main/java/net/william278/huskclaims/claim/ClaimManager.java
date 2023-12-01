@@ -21,14 +21,17 @@ package net.william278.huskclaims.claim;
 
 import net.william278.cloplib.operation.OperationPosition;
 import net.william278.cloplib.operation.OperationWorld;
-import net.william278.huskclaims.position.BlockPosition;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.position.World;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
 
 /**
  * Interface for managing {@link ClaimWorld}s
@@ -38,13 +41,20 @@ import java.util.Optional;
 public interface ClaimManager extends ClaimHandler {
 
     /**
-     * Get a trust level by name
+     * Get the claim worlds
      *
-     * @return the trust level, if found
+     * @return map of claim worlds
      * @since 1.0
      */
     @NotNull
     Map<OperationWorld, ClaimWorld> getClaimWorlds();
+
+    /**
+     * Set the claim worlds
+     *
+     * @param claimWorlds The claim worlds to set
+     */
+    void setClaimWorlds(@NotNull Map<String, ClaimWorld> claimWorlds);
 
     /**
      * Get a claim world by world
@@ -73,8 +83,30 @@ public interface ClaimManager extends ClaimHandler {
      *
      * @since 1.0
      */
-    default void loadClaimWorlds() {
-        //todo load from DB
+    default void loadClaimWorlds() throws IllegalStateException {
+        getPlugin().log(Level.INFO, "Loading claims from the database...");
+        LocalTime startTime = LocalTime.now();
+
+        // Only load claim worlds for this server
+        final Map<String, ClaimWorld> loadedWorlds = new HashMap<>();
+        final Map<World, ClaimWorld> worlds = getPlugin().getDatabase().getClaimWorlds(getPlugin().getServerName());
+        worlds.forEach((world, claimWorld) -> loadedWorlds.put(world.getName(), claimWorld));
+        for (final World serverWorld : getPlugin().getWorlds()) {
+            if (getPlugin().getSettings().getClaims().isWorldUnclaimable(serverWorld)) {
+                continue;
+            }
+
+            if (worlds.keySet().stream().map(World::getName).noneMatch(uuid -> uuid.equals(serverWorld.getName()))) {
+                getPlugin().log(Level.INFO, String.format("Creating new claim world for %s...", serverWorld.getName()));
+                loadedWorlds.put(serverWorld.getName(), getPlugin().getDatabase().createClaimWorld(serverWorld));
+            }
+        }
+        setClaimWorlds(loadedWorlds);
+
+        final Collection<ClaimWorld> claimWorlds = getClaimWorlds().values();
+        final int claimCount = claimWorlds.stream().mapToInt(ClaimWorld::getClaimCount).sum();
+        getPlugin().log(Level.INFO, String.format("Loaded %s claim(s) across %s world(s) in %s seconds",
+                claimCount, claimWorlds.size(), ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d));
     }
 
     /**

@@ -22,6 +22,9 @@ package net.william278.huskclaims.database;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.claim.ClaimWorld;
+import net.william278.huskclaims.position.ServerWorld;
+import net.william278.huskclaims.position.World;
 import net.william278.huskclaims.user.Preferences;
 import net.william278.huskclaims.user.SavedUser;
 import net.william278.huskclaims.user.User;
@@ -219,14 +222,43 @@ public abstract class Database {
      * @param user        The user to update
      * @param preferences The user's preferences to update
      */
-    public final void updateUser(@NotNull User user, int claimBlocks, @NotNull Preferences preferences) {
+    public final void updateUser(@NotNull User user, long claimBlocks, @NotNull Preferences preferences) {
         this.updateUser(user, OffsetDateTime.now(), claimBlocks, preferences);
     }
 
     /**
-     * Delete all users from the database
+     * Get a list of all claim worlds on a server
+     *
+     * @return A list of all claim worlds on a server, excluding unclaimable worlds.
+     * @throws IllegalStateException if the plugin fails to fetch claim world data
      */
-    public abstract void deleteAllUsers();
+    @NotNull
+    public abstract Map<World, ClaimWorld> getClaimWorlds(@NotNull String server) throws IllegalStateException;
+
+    /**
+     * Get a list of all claim worlds
+     *
+     * @return A map of world-server entries to each claim world
+     * @throws IllegalStateException if the plugin fails to fetch claim world data
+     */
+    @NotNull
+    public abstract Map<ServerWorld, ClaimWorld> getAllClaimWorlds() throws IllegalStateException;
+
+    /**
+     * Create a new claim world and add it to the database
+     *
+     * @param world The world to create the claim world for
+     * @return The created claim world
+     */
+    @NotNull
+    public abstract ClaimWorld createClaimWorld(@NotNull World world);
+
+    /**
+     * Update a claim world in the database
+     *
+     * @param claimWorld The claim world to update
+     */
+    public abstract void updateClaimWorld(@NotNull ClaimWorld claimWorld);
 
     /**
      * Close the database connection

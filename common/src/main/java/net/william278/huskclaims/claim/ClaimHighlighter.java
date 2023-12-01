@@ -23,7 +23,6 @@ import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * A highlighter for claims - used to highlight a claim to a user in-game

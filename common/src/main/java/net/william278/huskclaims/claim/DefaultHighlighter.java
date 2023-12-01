@@ -26,10 +26,10 @@ import org.jetbrains.annotations.NotNull;
 
 public class DefaultHighlighter implements ClaimHighlighter {
 
-    private final Settings.HighlighterSettings settings;
+    private final Settings.ClaimSettings.HighlighterSettings settings;
 
     public DefaultHighlighter(@NotNull HuskClaims plugin) {
-        this.settings = plugin.getSettings().getClaimHighlighting();
+        this.settings = plugin.getSettings().getClaims().getHighlighting();
     }
 
     @Override

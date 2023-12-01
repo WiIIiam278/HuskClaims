@@ -25,11 +25,13 @@ import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.config.ConfigProvider;
 import net.william278.huskclaims.database.DatabaseProvider;
 import net.william278.huskclaims.group.GroupManager;
+import net.william278.huskclaims.position.World;
 import net.william278.huskclaims.util.GsonProvider;
 import net.william278.huskclaims.util.WorldHeightProvider;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.logging.Level;
 
 /**
@@ -64,6 +66,21 @@ public interface HuskClaims extends ConfigProvider, DatabaseProvider, GsonProvid
     }
 
     /**
+     * Shutdown plugin subsystems
+     *
+     * @since 1.0
+     */
+    default void shutdown() {
+        log(Level.INFO, String.format("Disabling down HuskClaims v%s...", getPluginVersion()));
+        try {
+            getDatabase().close();
+        } catch (Throwable e) {
+            log(Level.SEVERE, "An error occurred whilst disabling HuskClaims", e);
+        }
+        log(Level.INFO, String.format("Successfully disabled HuskClaims v%s", getPluginVersion()));
+    }
+
+    /**
      * Disable the plugin
      *
      * @since 1.0
@@ -78,6 +95,15 @@ public interface HuskClaims extends ConfigProvider, DatabaseProvider, GsonProvid
      */
     @NotNull
     Version getPluginVersion();
+
+    /**
+     * Get the server worlds
+     *
+     * @return the server worlds
+     * @since 1.0
+     */
+    @NotNull
+    List<World> getWorlds();
 
     /**
      * Get a plugin resource

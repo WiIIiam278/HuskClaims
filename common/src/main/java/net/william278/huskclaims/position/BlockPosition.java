@@ -19,11 +19,7 @@
 
 package net.william278.huskclaims.position;
 
-import com.google.common.collect.Lists;
-import net.william278.huskclaims.claim.Region;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
 
 /**
  * Interface for the lateral position of a block

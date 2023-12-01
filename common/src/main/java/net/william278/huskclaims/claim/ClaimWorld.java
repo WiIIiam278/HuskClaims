@@ -26,7 +26,8 @@ import com.google.gson.annotations.SerializedName;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import net.william278.cloplib.operation.*;
+import net.william278.cloplib.operation.Operation;
+import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.position.BlockPosition;
 import net.william278.huskclaims.position.Position;
@@ -44,6 +45,7 @@ import java.util.concurrent.ConcurrentMap;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ClaimWorld {
 
+    private transient int id;
     @Expose
     private ConcurrentLinkedQueue<Claim> claims;
     @Expose
@@ -54,6 +56,7 @@ public class ClaimWorld {
     private List<OperationType> wildernessFlags;
 
     private ClaimWorld(@NotNull HuskClaims plugin) {
+        this.id = 0;
         this.claims = Queues.newConcurrentLinkedQueue();
         this.userCache = Maps.newConcurrentMap();
         this.wildernessFlags = new ArrayList<>();
@@ -91,6 +94,19 @@ public class ClaimWorld {
         return getClaimAt((Position) operation.getOperationPosition())
                 .map(claim -> claim.isOperationAllowed(operation, this, plugin))
                 .orElse(wildernessFlags.contains(operation.getType()));
+    }
+
+    public int getClaimCount() {
+        return getClaims().size();
+    }
+
+    public void updateId(int id) {
+        this.id = id;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof ClaimWorld world && world.id == id;
     }
 
 }

@@ -21,18 +21,15 @@ package net.william278.huskclaims.config;
 
 import de.exlll.configlib.NameFormatters;
 import de.exlll.configlib.YamlConfigurationProperties;
-import de.exlll.configlib.YamlConfigurationStore;
 import de.exlll.configlib.YamlConfigurations;
 import net.william278.annotaml.Annotaml;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.TrustLevel;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
 
 /**
  * Interface for getting and setting data from plugin configuration files
@@ -111,6 +108,21 @@ public interface ConfigProvider {
             ).get());
         } catch (Throwable e) {
             throw new IllegalStateException("Unable to load locales file: " + localesFile, e);
+        }
+    }
+
+    @NotNull
+    String getServerName();
+
+    void setServer(@NotNull Server server);
+
+    default void loadServer() {
+        if (getSettings().getCrossServer().isEnabled()) {
+            setServer(YamlConfigurations.update(
+                    getConfigDirectory().resolve("server.yml"),
+                    Server.class,
+                    YAML_CONFIGURATION_PROPERTIES
+            ));
         }
     }
 

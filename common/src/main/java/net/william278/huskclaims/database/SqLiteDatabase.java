@@ -19,7 +19,11 @@
 
 package net.william278.huskclaims.database;
 
+import com.google.gson.JsonSyntaxException;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.claim.ClaimWorld;
+import net.william278.huskclaims.position.ServerWorld;
+import net.william278.huskclaims.position.World;
 import net.william278.huskclaims.user.Preferences;
 import net.william278.huskclaims.user.SavedUser;
 import net.william278.huskclaims.user.User;
@@ -32,10 +36,7 @@ import java.nio.file.Path;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 
 public class SqLiteDatabase extends Database {
@@ -310,14 +311,94 @@ public class SqLiteDatabase extends Database {
         }
     }
 
+    @NotNull
     @Override
-    public void deleteAllUsers() {
-        try (Statement statement = getConnection().createStatement()) {
-            statement.execute(format("DELETE FROM `%user_data%`"));
+    public Map<World, ClaimWorld> getClaimWorlds(@NotNull String server) throws IllegalStateException {
+        final Map<World, ClaimWorld> worlds = new HashMap<>();
+        try (PreparedStatement statement = getConnection().prepareStatement(format("""
+                SELECT `id`, `world_uuid`, `world_name`, `world_environment`, `claims`
+                FROM `%claim_data%`
+                WHERE `server_name` = ?"""))) {
+            statement.setString(1, server);
+            final ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                final World world = World.of(
+                        resultSet.getString("world_name"),
+                        UUID.fromString(resultSet.getString("world_uuid"))
+                );
+                final ClaimWorld claimWorld = plugin.getClaimWorldFromJson(
+                        new String(resultSet.getBytes("claims"), StandardCharsets.UTF_8)
+                );
+                claimWorld.updateId(resultSet.getInt("id"));
+                if (!plugin.getSettings().getClaims().isWorldUnclaimable(world)) {
+                    worlds.put(world, claimWorld);
+                }
+            }
+        } catch (SQLException | JsonSyntaxException e) {
+            throw new IllegalStateException(String.format("Failed to fetch claim world map for %s", server), e);
+        }
+        return worlds;
+    }
+
+    @NotNull
+    @Override
+    public Map<ServerWorld, ClaimWorld> getAllClaimWorlds() throws IllegalStateException {
+        final Map<ServerWorld, ClaimWorld> worlds = new HashMap<>();
+        try (PreparedStatement statement = getConnection().prepareStatement(format("""
+                SELECT `id`, `server_name`, `world_uuid`, `world_name`, `world_environment`, `claims`
+                FROM `%claim_data%`"""))) {
+            final ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                final World world = World.of(
+                        resultSet.getString("world_name"),
+                        UUID.fromString(resultSet.getString("world_uuid"))
+                );
+                final ClaimWorld claimWorld = plugin.getClaimWorldFromJson(
+                        new String(resultSet.getBytes("claims"), StandardCharsets.UTF_8)
+                );
+                claimWorld.updateId(resultSet.getInt("id"));
+                worlds.put(new ServerWorld(resultSet.getString("server_name"), world), claimWorld);
+            }
+        } catch (SQLException | JsonSyntaxException e) {
+            throw new IllegalStateException("Failed to fetch map of all claim worlds", e);
+        }
+        return worlds;
+    }
+
+
+    @Override
+    @NotNull
+    public ClaimWorld createClaimWorld(@NotNull World world) {
+        final ClaimWorld claimWorld = ClaimWorld.create(plugin);
+        try (PreparedStatement statement = getConnection().prepareStatement(format("""
+                INSERT INTO `%claim_data%` (`world_uuid`, `world_name`, `world_environment`, `server_name`, `claims`)
+                VALUES (?, ?, ?, ?, ?)"""))) {
+            statement.setString(1, world.getUuid().toString());
+            statement.setString(2, world.getName());
+            statement.setString(3, world.getEnvironment());
+            statement.setString(4, plugin.getServerName());
+            statement.setBytes(5, plugin.getGson().toJson(claimWorld).getBytes(StandardCharsets.UTF_8));
+            claimWorld.updateId(statement.executeUpdate());
+        } catch (SQLException | JsonSyntaxException e) {
+            plugin.log(Level.SEVERE, "Failed to create claim world in table", e);
+        }
+        return claimWorld;
+    }
+
+    @Override
+    public void updateClaimWorld(@NotNull ClaimWorld claimWorld) {
+        try (PreparedStatement statement = getConnection().prepareStatement(format("""
+                UPDATE `%claim_data%`
+                SET `claims` = ?
+                WHERE `id` = ?"""))) {
+            statement.setBytes(1, plugin.getGson().toJson(claimWorld).getBytes(StandardCharsets.UTF_8));
+            statement.setInt(2, claimWorld.getId());
+            statement.executeUpdate();
         } catch (SQLException e) {
-            plugin.log(Level.SEVERE, "Failed to delete all users from table", e);
+            plugin.log(Level.SEVERE, "Failed to update claim world in table", e);
         }
     }
+
 
     @Override
     public void close() {
