@@ -22,15 +22,29 @@ package net.william278.huskclaims.listener;
 import net.william278.cloplib.operation.OperationPosition;
 import net.william278.cloplib.operation.OperationUser;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.claim.ClaimWorld;
+import net.william278.huskclaims.position.Position;
+import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
 
 /**
  * Handler for when the claim creation and resize tool is used
  */
 public interface ClaimsToolHandler {
 
-    default void onClaimToolUse(@NotNull OperationUser user, @NotNull OperationPosition position) {
 
+    // Handle a right click action on a block with a claim tool
+    default void onClaimToolUse(@NotNull OperationUser operationUser, @NotNull OperationPosition position) {
+        final OnlineUser user = (OnlineUser) operationUser;
+        final Optional<ClaimWorld> optionalWorld = getPlugin().getClaimWorld(position.getWorld());
+        if (optionalWorld.isEmpty()) {
+            getPlugin().getLocales().getLocale("world_not_claimable")
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+        getPlugin().handleSelection(user, optionalWorld.get(), (Position) position);
     }
 
     @NotNull

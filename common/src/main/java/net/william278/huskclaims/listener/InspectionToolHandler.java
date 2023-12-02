@@ -26,7 +26,6 @@ import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.user.OnlineUser;
-import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -63,19 +62,8 @@ public interface InspectionToolHandler {
     // Highlight the claim for the user and send a message
     private void highlightClaim(@NotNull OnlineUser user, @NotNull Claim claim, @NotNull ClaimWorld world) {
         getPlugin().getClaimHighlighter().highlightClaim(user, world, claim);
-        getPlugin().getLocales().getLocale("land_claimed_by", getClaimUsername(claim, world))
+        getPlugin().getLocales().getLocale("land_claimed_by", claim.getOwnerName(world, getPlugin()))
                 .ifPresent(user::sendMessage);
-    }
-
-    // Get the claim owner's username
-    @NotNull
-    private String getClaimUsername(@NotNull Claim claim, @NotNull ClaimWorld world) {
-        return claim.getOwner()
-                // Get the owner username from the cache. Or, if it's an admin claim, get the admin username
-                .flatMap(owner -> world.getUser(owner).map(User::getUsername)
-                        .or(() -> getPlugin().getLocales().getRawLocale("administrator_username")))
-                // Otherwise, if the name could not be found, return "N/A"
-                .orElse(getPlugin().getLocales().getNotApplicable());
     }
 
     @NotNull

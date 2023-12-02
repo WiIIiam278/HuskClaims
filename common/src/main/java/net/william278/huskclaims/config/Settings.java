@@ -138,6 +138,12 @@ public final class Settings {
         @Comment("List of worlds where users cannot claim")
         private List<String> unclaimableWorlds = List.of();
 
+        @Comment("The number of claim blocks a user gets when they first join the server")
+        private long startingClaimBlocks = 100;
+
+        @Comment("The number of claim blocks a user gets hourly")
+        private long hourlyClaimBlocks = 100;
+
         @Comment("Claim inspection tool (right click with this to inspect claims)")
         private String inspectionTool = "minecraft:stick";
 

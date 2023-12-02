@@ -21,21 +21,23 @@ package net.william278.huskclaims.user;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import net.william278.huskclaims.claim.ClaimManager;
+import org.jetbrains.annotations.NotNull;
 
-/**
- * Represents user preferences
- *
- * @since 1.0
- */
+
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class Preferences {
 
+    /**
+     * Default preferences
+     */
+    @NotNull
+    public static Preferences DEFAULTS = new Preferences();
+
+    @Setter
     @Expose
     @SerializedName("ignoring_claims")
     private boolean isIgnoringClaims = false;
@@ -43,5 +45,10 @@ public class Preferences {
     @Expose
     @SerializedName("audit_log")
     private AuditLog auditLog = new AuditLog();
+
+    @Setter
+    @Expose
+    @SerializedName("claiming_mode")
+    private ClaimManager.ClaimingMode claimingMode = ClaimManager.ClaimingMode.CLAIMS;
 
 }

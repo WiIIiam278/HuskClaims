@@ -27,6 +27,7 @@ import net.william278.huskclaims.database.DatabaseProvider;
 import net.william278.huskclaims.group.GroupManager;
 import net.william278.huskclaims.listener.ListenerProvider;
 import net.william278.huskclaims.position.World;
+import net.william278.huskclaims.user.UserManager;
 import net.william278.huskclaims.util.GsonProvider;
 import net.william278.huskclaims.util.TextValidator;
 import net.william278.huskclaims.util.WorldHeightProvider;
@@ -41,8 +42,8 @@ import java.util.logging.Level;
  *
  * @since 1.0
  */
-public interface HuskClaims extends ConfigProvider, DatabaseProvider, GsonProvider, ClaimManager, GroupManager,
-        WorldHeightProvider, ListenerProvider, TextValidator {
+public interface HuskClaims extends ConfigProvider, DatabaseProvider, GsonProvider, TextValidator,
+        UserManager, ClaimManager, GroupManager, WorldHeightProvider, ListenerProvider {
 
     /**
      * Initialize all plugin systems

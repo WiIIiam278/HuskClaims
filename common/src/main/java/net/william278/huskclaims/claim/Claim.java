@@ -234,6 +234,17 @@ public class Claim {
         }
     }
 
+    // Get the claim owner's username
+    @NotNull
+    public String getOwnerName(@NotNull ClaimWorld world, @NotNull HuskClaims plugin) {
+        return getOwner()
+                // Get the owner username from the cache. Or, if it's an admin claim, get the admin username
+                .flatMap(owner -> world.getUser(owner).map(User::getUsername)
+                        .or(() -> plugin.getLocales().getRawLocale("administrator_username")))
+                // Otherwise, if the name could not be found, return "N/A"
+                .orElse(plugin.getLocales().getNotApplicable());
+    }
+
     @NotNull
     @ApiStatus.Internal
     public Claim createAndAddChild(@NotNull Region subRegion, @NotNull ClaimWorld world, @NotNull HuskClaims plugin)

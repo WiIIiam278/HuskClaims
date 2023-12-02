@@ -20,7 +20,6 @@
 package net.william278.huskclaims.database;
 
 import net.william278.huskclaims.HuskClaims;
-import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -52,7 +51,7 @@ public interface DatabaseProvider {
         final Database.Type type = getPlugin().getSettings().getDatabase().getType();
         switch (type) {
             case MYSQL, MARIADB -> {
-                throw new NotImplementedException("MySQL/MariaDB support is not yet implemented");
+                throw new UnsupportedOperationException("MySQL/MariaDB support is not yet implemented");
             }
             case SQLITE -> {
                 return new SqLiteDatabase(getPlugin());

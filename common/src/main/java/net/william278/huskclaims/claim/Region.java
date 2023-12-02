@@ -180,6 +180,11 @@ public class Region {
             return new Corner(x, z);
         }
 
+        @NotNull
+        public static Corner wrap(@NotNull BlockPosition blockPosition) {
+            return new Corner(blockPosition.getBlockX(), blockPosition.getBlockZ());
+        }
+
         @Override
         public int getBlockX() {
             return x;
@@ -189,6 +194,5 @@ public class Region {
         public int getBlockZ() {
             return z;
         }
-
     }
 }

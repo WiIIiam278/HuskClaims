@@ -312,6 +312,34 @@ public class SqLiteDatabase extends Database {
         }
     }
 
+    @Override
+    public void updateUserPreferences(@NotNull User user, @NotNull Preferences preferences) {
+        try (PreparedStatement statement = getConnection().prepareStatement(format("""
+                UPDATE `%user_data%`
+                SET `preferences` = ?
+                WHERE `uuid` = ?"""))) {
+            statement.setBytes(1, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
+            statement.setString(2, user.getUuid().toString());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to update user preferences in table", e);
+        }
+    }
+
+    @Override
+    public void updateUserClaimBlocks(@NotNull User user, long claimBlocks) {
+        try (PreparedStatement statement = getConnection().prepareStatement(format("""
+                UPDATE `%user_data%`
+                SET `claim_blocks` = ?
+                WHERE `uuid` = ?"""))) {
+            statement.setLong(1, claimBlocks);
+            statement.setString(2, user.getUuid().toString());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to update user claim blocks in table", e);
+        }
+    }
+
     @NotNull
     @Override
     public List<UserGroup> getUserGroups(@NotNull UUID uuid) {

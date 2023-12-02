@@ -42,7 +42,7 @@ import java.util.logging.Level;
  *
  * @since 1.0
  */
-public interface ClaimManager extends ClaimHandler {
+public interface ClaimManager extends ClaimHandler, ClaimSelector {
 
     /**
      * Get the claim worlds
@@ -209,4 +209,12 @@ public interface ClaimManager extends ClaimHandler {
     @NotNull
     Database getDatabase();
 
+    /**
+     * Types of claim selection modes
+     * @since 1.0
+     */
+    enum ClaimingMode {
+        CLAIMS,
+        CHILD_CLAIMS
+    }
 }

@@ -213,9 +213,11 @@ public abstract class Database {
      *
      * @param user        The user to update
      * @param lastLogin   The user's last login time
+     * @param claimBlocks The user's claim blocks
      * @param preferences The user's preferences to update
      */
-    public abstract void updateUser(@NotNull User user, @NotNull OffsetDateTime lastLogin, long claimBlocks, @NotNull Preferences preferences);
+    public abstract void updateUser(@NotNull User user, @NotNull OffsetDateTime lastLogin,
+                                    long claimBlocks, @NotNull Preferences preferences);
 
     /**
      * Update a user's name and preferences in the database, marking their last login time as now
@@ -226,6 +228,22 @@ public abstract class Database {
     public final void updateUser(@NotNull User user, long claimBlocks, @NotNull Preferences preferences) {
         this.updateUser(user, OffsetDateTime.now(), claimBlocks, preferences);
     }
+
+    /**
+     * Update a user's preferences in the database
+     *
+     * @param user        The user to update
+     * @param preferences The user's preferences to update
+     */
+    public abstract void updateUserPreferences(@NotNull User user, @NotNull Preferences preferences);
+
+    /**
+     * Update a user's claim blocks in the database
+     *
+     * @param user        The user to update
+     * @param claimBlocks The user's claim blocks to update
+     */
+    public abstract void updateUserClaimBlocks(@NotNull User user, long claimBlocks);
 
     /**
      * Get a list of a user's {@link UserGroup user groups}.
