@@ -28,6 +28,7 @@ import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
@@ -42,7 +43,7 @@ import java.util.logging.Level;
  *
  * @since 1.0
  */
-public interface ClaimManager extends ClaimHandler, ClaimSelector {
+public interface ClaimManager extends ClaimHandler, ClaimEditor {
 
     /**
      * Get the claim worlds
@@ -83,7 +84,7 @@ public interface ClaimManager extends ClaimHandler, ClaimSelector {
     }
 
     /**
-     * Create a claim over a region
+     * Create a claim and update the owner's claim block count
      *
      * @param world  The world to create the claim in
      * @param region The region to create the claim over
@@ -93,7 +94,7 @@ public interface ClaimManager extends ClaimHandler, ClaimSelector {
      */
     @Blocking
     default void createClaimAt(@NotNull OperationWorld world, @NotNull Region region,
-                               @NotNull User owner) throws IllegalArgumentException {
+                               @Nullable User owner) throws IllegalArgumentException {
         if (!getClaimWorlds().containsKey(world)) {
             throw new IllegalArgumentException("No claim world is present for world " + world.getName());
         }
@@ -105,9 +106,91 @@ public interface ClaimManager extends ClaimHandler, ClaimSelector {
         }
 
         // Create the claim and add it
-        final Claim claim = Claim.create(owner, region, getPlugin());
+        final Claim claim = owner != null
+                ? Claim.create(owner, region, getPlugin())
+                : Claim.createAdminClaim(region, getPlugin());
         claimWorld.getClaims().add(claim);
         getDatabase().updateClaimWorld(claimWorld);
+
+        // Adjust the owner's claim block count
+        if (owner != null) {
+            getPlugin().editClaimBlocks(owner, (blocks -> blocks - region.getSurfaceArea()));
+        }
+    }
+
+    /**
+     * Create an admin claim
+     *
+     * @param world  The world to create the claim in
+     * @param region The region to create the claim over
+     * @throws IllegalArgumentException if the region is already claimed, or if no claim world is present for the world
+     * @since 1.0
+     */
+    default void createAdminClaimAt(@NotNull OperationWorld world, @NotNull Region region)
+            throws IllegalArgumentException {
+        createClaimAt(world, region, null);
+    }
+
+    /**
+     * Resize a claim and update the owner's claim block count
+     *
+     * @param world     The world the claim is in
+     * @param claim     The claim to resize
+     * @param newRegion The new region of the claim
+     * @throws IllegalArgumentException if the new region overlaps with another claim, if no claim world is present,
+     *                                  or if the new region does not fully enclose all the claim's children
+     */
+    default void resizeClaim(@NotNull OperationWorld world, @NotNull Claim claim,
+                             @NotNull Region newRegion) throws IllegalArgumentException {
+        if (!getClaimWorlds().containsKey(world)) {
+            throw new IllegalArgumentException("No claim world is present for world " + world.getName());
+        }
+        final ClaimWorld claimWorld = getClaimWorlds().get(world);
+
+        // Ensure this is not a child claim and doesn't overlap with other claims
+        if (claim.isChildClaim(claimWorld)) {
+            throw new IllegalArgumentException("Cannot resize a child claim at the world level");
+        }
+        if (claimWorld.isRegionClaimed(newRegion, claim.getRegion())) {
+            throw new IllegalArgumentException("New claim region would overlap with other claim(s)");
+        }
+
+        // Ensure claim encloses all of its children
+        if (!claim.getChildren().stream().map(Claim::getRegion).allMatch(newRegion::fullyEncloses)) {
+            throw new IllegalArgumentException("Region does not fully enclose its children");
+        }
+        final int oldSurfaceArea = claim.getRegion().getSurfaceArea();
+
+        // Update the claim
+        claim.setRegion(newRegion);
+        getDatabase().updateClaimWorld(claimWorld);
+
+        // Adjust the owner's claim block count
+        claim.getOwner().flatMap(claimWorld::getUser).ifPresent(user -> getPlugin().editClaimBlocks(
+                user, (blocks -> blocks + (oldSurfaceArea - newRegion.getSurfaceArea())))
+        );
+    }
+
+    default void deleteClaim(@NotNull OperationWorld world, @NotNull Claim claim) {
+        if (!getClaimWorlds().containsKey(world)) {
+            throw new IllegalArgumentException("No claim world is present for world " + world.getName());
+        }
+        final ClaimWorld claimWorld = getClaimWorlds().get(world);
+
+        // Ensure this is not a child claim
+        if (claim.isChildClaim(claimWorld)) {
+            throw new IllegalArgumentException("Cannot delete a child claim at the world level");
+        }
+
+        // Delete the claim
+        final long surfaceArea = claim.getRegion().getSurfaceArea();
+        claimWorld.getClaims().remove(claim);
+        getDatabase().updateClaimWorld(claimWorld);
+
+        // Adjust the owner's claim block count
+        claim.getOwner().flatMap(claimWorld::getUser).ifPresent(user -> getPlugin().editClaimBlocks(
+                user, (blocks -> blocks + surfaceArea))
+        );
     }
 
     /**
@@ -193,9 +276,8 @@ public interface ClaimManager extends ClaimHandler, ClaimSelector {
      * @since 1.0
      */
     default void highlightClaimAt(@NotNull OnlineUser user, @NotNull OperationPosition position) {
-        getClaimWorld(position.getWorld())
-                .ifPresent(world -> world.getClaimAt((Position) position)
-                        .ifPresent(claim -> getClaimHighlighter().highlightClaim(user, world, claim)));
+        getClaimWorld(position.getWorld()).ifPresent(world -> world.getClaimAt((Position) position)
+                .ifPresent(claim -> getClaimHighlighter().highlightClaim(user, world, claim)));
     }
 
     /**
@@ -211,6 +293,7 @@ public interface ClaimManager extends ClaimHandler, ClaimSelector {
 
     /**
      * Types of claim selection modes
+     *
      * @since 1.0
      */
     enum ClaimingMode {

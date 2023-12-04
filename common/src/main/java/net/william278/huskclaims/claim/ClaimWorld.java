@@ -86,8 +86,31 @@ public class ClaimWorld {
         return getClaims().stream().filter(claim -> claim.getRegion().intersects(region)).toList();
     }
 
+    /**
+     * Get if a region is claimed
+     *
+     * @param region The region to check
+     * @return if the region is claimed
+     * @since 1.0
+     */
     public boolean isRegionClaimed(@NotNull Region region) {
         return !getParentClaimsWithin(region).isEmpty();
+    }
+
+    /**
+     * Get if a region is claimed, except for certain claims
+     *
+     * @param region    The region to check
+     * @param exceptFor claims to exclude from the check
+     * @return if the region is claimed
+     * @since 1.0
+     */
+    public boolean isRegionClaimed(@NotNull Region region, @NotNull Region... exceptFor) {
+        final List<Claim> claims = new ArrayList<>(getParentClaimsWithin(region));
+        for (Region except : exceptFor) {
+            claims.removeIf(claim -> claim.getRegion().equals(except));
+        }
+        return claims.isEmpty();
     }
 
     public boolean isOperationAllowed(@NotNull Operation operation, @NotNull HuskClaims plugin) {

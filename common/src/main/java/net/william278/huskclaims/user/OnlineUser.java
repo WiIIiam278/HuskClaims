@@ -57,4 +57,6 @@ public abstract class OnlineUser extends User {
 
     public abstract void sendBlockChange(@NotNull Position position, @NotNull String blockId);
 
+    public abstract boolean hasPermission(@NotNull String permission);
+
 }

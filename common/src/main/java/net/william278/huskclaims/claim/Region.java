@@ -118,6 +118,17 @@ public class Region {
     }
 
     /**
+     * Returns if this region fully encloses another region
+     *
+     * @param region The region to check
+     * @return Whether this region fully encloses the other region
+     * @since 1.0
+     */
+    public boolean fullyEncloses(@NotNull Region region) {
+        return contains(region.getNearCorner()) && contains(region.getFarCorner());
+    }
+
+    /**
      * Returns if this region intersects with another region
      *
      * @param region The region to check
@@ -127,6 +138,23 @@ public class Region {
     public boolean intersects(@NotNull Region region) {
         return region.contains(nearCorner) || region.contains(farCorner)
                 || contains(region.getNearCorner()) || contains(region.getFarCorner());
+    }
+
+    /**
+     * Get the index of the corner that was clicked
+     *
+     * @param position the position that was clicked
+     * @return the index of the corner that was clicked, or -1 if no corner was clicked
+     * @since 1.0
+     */
+    public int getClickedCorner(@NotNull BlockPosition position) {
+        final List<Corner> corners = getCorners();
+        for (int i = 0; i < 4; i++) {
+            if (corners.get(i).equals(position)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /**

@@ -29,6 +29,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public interface UserManager {
 
@@ -52,6 +53,7 @@ public interface UserManager {
         final Preferences preferences = optionalPreferences.get();
         consumer.accept(preferences);
         setUserPreferences(user.getUuid(), preferences);
+        getDatabase().updateUserPreferences(user, preferences);
         //todo broadcast USER DATA UPDATE
     }
 
@@ -67,14 +69,14 @@ public interface UserManager {
     }
 
     @Blocking
-    default void editClaimBlocks(@NotNull User user, @NotNull Consumer<Long> consumer) {
+    default void editClaimBlocks(@NotNull User user, @NotNull Function<Long, Long> consumer) {
         final Optional<Long> optionalClaimBlocks = getClaimBlocks(user.getUuid());
         if (optionalClaimBlocks.isEmpty()) {
             return;
         }
-        final long claimBlocks = optionalClaimBlocks.get();
-        consumer.accept(claimBlocks);
+        final long claimBlocks = consumer.apply(optionalClaimBlocks.get());
         setClaimBlocks(user.getUuid(), claimBlocks);
+        getDatabase().updateUserClaimBlocks(user, claimBlocks);
         //todo broadcast USER DATA UPDATE
     }
 

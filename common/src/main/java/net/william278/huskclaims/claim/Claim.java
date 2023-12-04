@@ -144,6 +144,16 @@ public class Claim {
         return Optional.ofNullable(owner);
     }
 
+    /**
+     * Returns whether the given user is allowed a privilege in this claim
+     *
+     * @param privilege the privilege to check
+     * @param user      the user to check
+     * @param world     the claim world the claim is in
+     * @param plugin    the plugin instance
+     * @return whether the user is allowed the privilege
+     * @since 1.0
+     */
     public boolean isPrivilegeAllowed(@NotNull TrustLevel.Privilege privilege, @NotNull User user,
                                       @NotNull ClaimWorld world, @NotNull HuskClaims plugin) {
         return getEffectiveTrustLevel(user, world, plugin)
@@ -194,6 +204,15 @@ public class Claim {
                         : Optional.empty());
     }
 
+    /**
+     * Returns whether the given operation is allowed on this claim
+     *
+     * @param operation the operation to check
+     * @param world     the claim world the claim is in
+     * @param plugin    the plugin instance
+     * @return whether the operation is allowed
+     * @since 1.0
+     */
     public boolean isOperationAllowed(@NotNull Operation operation, @NotNull ClaimWorld world,
                                       @NotNull HuskClaims plugin) {
         // If the operation is explicitly allowed, return it
@@ -252,7 +271,7 @@ public class Claim {
         if (isChildClaim(world)) {
             throw new IllegalArgumentException("A child claim cannot be within another child claim");
         }
-        if (!region.contains(subRegion.getNearCorner()) || !region.contains(subRegion.getFarCorner())) {
+        if (!region.fullyEncloses(subRegion)) {
             throw new IllegalArgumentException("Child claim must be fully enclosed within parent claim");
         }
         final Claim child = new Claim(owner, region, plugin);

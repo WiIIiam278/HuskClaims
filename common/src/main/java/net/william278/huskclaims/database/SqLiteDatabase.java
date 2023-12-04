@@ -228,7 +228,7 @@ public class SqLiteDatabase extends Database {
     @Override
     public Optional<SavedUser> getUser(@NotNull String username) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `uuid`, `username`, `last_login`, `claim_blocks`, `claim_blocks`, `preferences`
+                SELECT `uuid`, `username`, `last_login`, `claim_blocks`, `preferences`
                 FROM `%user_data%`
                 WHERE `username` = ?"""))) {
             statement.setString(1, username);
@@ -288,7 +288,8 @@ public class SqLiteDatabase extends Database {
             statement.setString(2, user.getUsername());
             statement.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
             statement.setLong(4, claimBlocks);
-            statement.setBytes(5, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
+            statement.setLong(5, claimBlocks);
+            statement.setBytes(6, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
             statement.executeUpdate();
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to create user in table", e);
@@ -296,7 +297,8 @@ public class SqLiteDatabase extends Database {
     }
 
     @Override
-    public void updateUser(@NotNull User user, @NotNull OffsetDateTime lastLogin, long claimBlocks, @NotNull Preferences preferences) {
+    public void updateUser(@NotNull User user, @NotNull OffsetDateTime lastLogin,
+                           long claimBlocks, @NotNull Preferences preferences) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 UPDATE `%user_data%`
                 SET `username` = ?, `last_login` = ?, `claim_blocks` = ?, `preferences` = ?

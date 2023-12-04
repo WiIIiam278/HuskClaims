@@ -244,7 +244,6 @@ public abstract class Database {
      * @param claimBlocks The user's claim blocks to update
      */
     public abstract void updateUserClaimBlocks(@NotNull User user, long claimBlocks);
-
     /**
      * Get a list of a user's {@link UserGroup user groups}.
      *

@@ -51,4 +51,9 @@ public class Preferences {
     @SerializedName("claiming_mode")
     private ClaimManager.ClaimingMode claimingMode = ClaimManager.ClaimingMode.CLAIMS;
 
+    @Setter
+    @Expose
+    @SerializedName("admin_claiming")
+    private boolean adminClaiming = false;
+
 }
