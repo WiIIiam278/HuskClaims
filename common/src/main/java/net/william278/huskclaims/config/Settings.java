@@ -27,6 +27,7 @@ import net.william278.huskclaims.database.Database;
 import net.william278.huskclaims.position.World;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -134,6 +135,11 @@ public final class Settings {
                 OperationType.EXPLOSION_DAMAGE_ENTITY,
                 OperationType.PLAYER_DAMAGE_PLAYER
         );
+
+        @Comment("Default flags for the wilderness (outside of claims)")
+        private List<OperationType> wildernessRules = Arrays.stream(
+                OperationType.values() // Allow all operation types
+        ).toList();
 
         @Comment("List of worlds where users cannot claim")
         private List<String> unclaimableWorlds = List.of();

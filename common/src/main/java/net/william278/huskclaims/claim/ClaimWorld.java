@@ -59,7 +59,7 @@ public class ClaimWorld {
         this.id = 0;
         this.claims = Queues.newConcurrentLinkedQueue();
         this.userCache = Maps.newConcurrentMap();
-        this.wildernessFlags = new ArrayList<>();
+        this.wildernessFlags = new ArrayList<>(plugin.getSettings().getClaims().getWildernessRules());
     }
 
     @NotNull
