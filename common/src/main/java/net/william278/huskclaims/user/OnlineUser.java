@@ -55,6 +55,8 @@ public abstract class OnlineUser extends User {
         sendMessage(mineDown.toComponent());
     }
 
+    public abstract void sendPluginMessage(@NotNull String channel, byte[] message);
+
     public abstract void sendBlockChange(@NotNull Position position, @NotNull String blockId);
 
     public abstract boolean hasPermission(@NotNull String permission);

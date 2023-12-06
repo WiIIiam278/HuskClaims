@@ -17,33 +17,39 @@
  *  limitations under the License.
  */
 
-package net.william278.huskclaims.position;
+package net.william278.huskclaims.network;
 
+import net.william278.huskclaims.HuskClaims;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
+
 /**
- * Represents a {@link World} mapped to a specific server, by ID
+ * Interface for getting the plugin {@link Broker} implementation
  *
- * @param server The ID of the server the world is on
- * @param world  The world
  * @since 1.0
  */
-public record ServerWorld(@NotNull String server, @NotNull World world) {
+public interface BrokerProvider {
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
+    Optional<Broker> getBroker();
+
+    void setBroker(@NotNull Broker broker);
+
+    void setupPluginMessagingChannels();
+
+    default void loadBroker() {
+        if (!getPlugin().getSettings().getCrossServer().isEnabled()) {
+            return;
         }
-        if (!(obj instanceof final ServerWorld serverWorld)) {
-            return false;
+
+        switch (getPlugin().getSettings().getCrossServer().getBrokerType()) {
+            case REDIS -> setBroker(new RedisBroker(getPlugin()));
+            case PLUGIN_MESSAGE -> setBroker(new PluginMessageBroker(getPlugin()));
         }
-        return serverWorld.server().equals(server) && serverWorld.world().equals(world);
+        getBroker().ifPresent(Broker::initialize);
     }
 
-    @Override
-    public String toString() {
-        return server + "/" + world.getName();
-    }
+    @NotNull
+    HuskClaims getPlugin();
 
 }

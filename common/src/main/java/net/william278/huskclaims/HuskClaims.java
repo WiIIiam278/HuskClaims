@@ -19,6 +19,7 @@
 
 package net.william278.huskclaims;
 
+import net.kyori.adventure.key.Key;
 import net.william278.desertwell.util.Version;
 import net.william278.huskclaims.claim.ClaimManager;
 import net.william278.huskclaims.claim.ClaimWorld;
@@ -26,11 +27,12 @@ import net.william278.huskclaims.config.ConfigProvider;
 import net.william278.huskclaims.database.DatabaseProvider;
 import net.william278.huskclaims.group.GroupManager;
 import net.william278.huskclaims.listener.ListenerProvider;
+import net.william278.huskclaims.network.BrokerProvider;
 import net.william278.huskclaims.position.World;
+import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.UserManager;
-import net.william278.huskclaims.util.GsonProvider;
-import net.william278.huskclaims.util.TextValidator;
-import net.william278.huskclaims.util.WorldHeightProvider;
+import net.william278.huskclaims.util.*;
+import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
@@ -42,8 +44,9 @@ import java.util.logging.Level;
  *
  * @since 1.0
  */
-public interface HuskClaims extends ConfigProvider, DatabaseProvider, GsonProvider, TextValidator,
-        UserManager, ClaimManager, GroupManager, WorldHeightProvider, ListenerProvider {
+public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvider, GsonProvider, TextValidator,
+        UserManager, ClaimManager, GroupManager, WorldHeightProvider, ListenerProvider, UserListProvider,
+        BrokerProvider {
 
     /**
      * Initialize all plugin systems
@@ -59,6 +62,7 @@ public interface HuskClaims extends ConfigProvider, DatabaseProvider, GsonProvid
             loadDatabase();
             loadClaimWorlds();
             loadUserGroups();
+            loadBroker();
             loadListeners();
         } catch (Throwable e) {
             log(Level.SEVERE, "An error occurred whilst initializing HuskClaims", e);
@@ -100,6 +104,14 @@ public interface HuskClaims extends ConfigProvider, DatabaseProvider, GsonProvid
     Version getPluginVersion();
 
     /**
+     * Get a list of all {@link OnlineUser online users} on this server
+     *
+     * @return A list of {@link OnlineUser}s
+     * @since 1.0
+     */
+    List<OnlineUser> getOnlineUsers();
+
+    /**
      * Get the server worlds
      *
      * @return the server worlds
@@ -126,6 +138,18 @@ public interface HuskClaims extends ConfigProvider, DatabaseProvider, GsonProvid
      * @since 1.0
      */
     void log(@NotNull Level level, @NotNull String message, Throwable... exceptions);
+
+    /**
+     * Get a {@link Key} for the plugin
+     *
+     * @param value the value of the key
+     * @return the key
+     */
+    @NotNull
+    default Key getKey(@NotNull String... value) {
+        @Subst("bar") String text = String.join("/", value);
+        return Key.key("huskclaims", text);
+    }
 
     /**
      * Get the plugin instance

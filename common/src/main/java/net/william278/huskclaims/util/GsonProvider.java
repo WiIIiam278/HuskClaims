@@ -25,6 +25,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import net.william278.huskclaims.claim.ClaimWorld;
+import net.william278.huskclaims.network.Message;
 import net.william278.huskclaims.user.Preferences;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
@@ -64,6 +65,11 @@ public interface GsonProvider {
     @NotNull
     default Preferences getPreferencesFromJson(@NotNull String json) throws JsonSyntaxException {
         return getGson().fromJson(json, Preferences.class);
+    }
+
+    @NotNull
+    default Message getMessageFromJson(@NotNull String json) throws JsonSyntaxException {
+        return getGson().fromJson(json, Message.class);
     }
 
 }

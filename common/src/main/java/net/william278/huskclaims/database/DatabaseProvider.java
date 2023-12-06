@@ -24,6 +24,8 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * Interface for getting the plugin {@link Database} implementation
+ *
+ * @since 1.0
  */
 public interface DatabaseProvider {
 

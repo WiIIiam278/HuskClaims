@@ -56,7 +56,7 @@ public interface InspectionToolHandler {
                     .ifPresent(user::sendMessage);
             return;
         }
-        highlightClaim(user, optionalClaim.get(), claimWorld);
+        getPlugin().runAsync(() -> highlightClaim(user, optionalClaim.get(), claimWorld));
     }
 
     // Highlight the claim for the user and send a message

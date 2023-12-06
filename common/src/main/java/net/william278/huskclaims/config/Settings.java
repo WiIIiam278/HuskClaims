@@ -24,6 +24,7 @@ import de.exlll.configlib.Configuration;
 import lombok.*;
 import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.database.Database;
+import net.william278.huskclaims.network.Broker;
 import net.william278.huskclaims.position.World;
 import org.jetbrains.annotations.NotNull;
 
@@ -63,7 +64,7 @@ public final class Settings {
         private Database.Type type = Database.Type.SQLITE;
 
         @Comment("Specify credentials here if you are using MYSQL or MARIADB")
-        private Credentials credentials = new Credentials();
+        private DatabaseCredentials credentials = new DatabaseCredentials();
 
         @Comment({"MYSQL / MARIADB database Hikari connection pool properties",
                 "Don't modify this unless you know what you're doing!"})
@@ -79,7 +80,7 @@ public final class Settings {
 
         @Getter
         @NoArgsConstructor(access = AccessLevel.PRIVATE)
-        public static class Credentials {
+        public static class DatabaseCredentials {
             private String host = "localhost";
             int port = 3306;
             String database = "huskclaims";
@@ -112,6 +113,26 @@ public final class Settings {
     public static class CrossServerSettings {
         @Comment("Whether to enable cross-server mode")
         private boolean enabled = false;
+
+        @Comment({"The cluster ID, for if you're networking multiple separate groups of HuskClaims-enabled servers.",
+                "Do not change unless you know what you're doing"})
+        private String clusterId = "main";
+
+        @Comment("Type of network message broker to ues for data synchronisation (PLUGIN_MESSAGE or REDIS)")
+        private Broker.Type brokerType = Broker.Type.PLUGIN_MESSAGE;
+
+        @Comment("Settings for if you're using REDIS as your message broker")
+        private RedisSettings redis = new RedisSettings();
+
+        @Getter
+        @NoArgsConstructor
+        public static class RedisSettings {
+            private String host = "localhost";
+            private int port = 6379;
+            private boolean useSSL = false;
+            private String password = "";
+            private int database = 0;
+        }
     }
 
 
