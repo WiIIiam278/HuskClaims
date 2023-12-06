@@ -67,6 +67,22 @@ public class Region {
     }
 
     /**
+     * Create a region around a {@link BlockPosition} with a given radius
+     *
+     * @param position The position to create the region around
+     * @param radius   The radius of the region
+     * @return A {@link Region} defined by the position and radius
+     * @since 1.0
+     */
+    @NotNull
+    public static Region around(@NotNull BlockPosition position, int radius) {
+        return from(
+                Corner.at(position.getBlockX() - radius, position.getBlockZ() - radius),
+                Corner.at(position.getBlockX() + radius, position.getBlockZ() + radius)
+        );
+    }
+
+    /**
      * Get a list of four {@link Corner corner points} that form the quad region
      *
      * @param pos1 The first position

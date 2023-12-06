@@ -21,6 +21,7 @@ package net.william278.huskclaims.network;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
@@ -29,10 +30,12 @@ import org.jetbrains.annotations.NotNull;
  * Represents a message sent by a {@link Broker} cross-server. See {@link #builder()} for
  * a builder to create a message.
  */
+@Getter
 @NoArgsConstructor
 public class Message {
 
     public static final String TARGET_ALL = "ALL";
+
     @NotNull
     @Expose
     private MessageType type;
@@ -51,6 +54,7 @@ public class Message {
     private String sender;
     @NotNull
     @Expose
+    @SerializedName("source_server")
     private String sourceServer;
 
     private Message(@NotNull MessageType type, @NotNull String target, @NotNull TargetType targetType, @NotNull Payload payload) {
@@ -69,36 +73,6 @@ public class Message {
         this.sender = sender.getUsername();
         this.sourceServer = broker.getServer();
         broker.send(this, sender);
-    }
-
-    @NotNull
-    public MessageType getType() {
-        return type;
-    }
-
-    @NotNull
-    public String getTarget() {
-        return target;
-    }
-
-    @NotNull
-    public TargetType getTargetType() {
-        return targetType;
-    }
-
-    @NotNull
-    public Payload getPayload() {
-        return payload;
-    }
-
-    @NotNull
-    public String getSender() {
-        return sender;
-    }
-
-    @NotNull
-    public String getSourceServer() {
-        return sourceServer;
     }
 
     /**
@@ -173,11 +147,15 @@ public class Message {
      */
     public enum MessageType {
         /**
-         * Request other servers for a list of online users
+         * Notify other servers of the need to update user groups for the user by payload.
+         */
+        UPDATE_USER_GROUPS,
+        /**
+         * Request other servers to send a {@link MessageType#UPDATE_USER_LIST} to the sending server.
          */
         REQUEST_USER_LIST,
         /**
-         * A message containing a list of users on a server
+         * Notify other servers of the need to update the user list for the sending server with the payload.
          */
         UPDATE_USER_LIST
     }

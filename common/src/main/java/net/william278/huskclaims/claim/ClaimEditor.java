@@ -124,9 +124,9 @@ public interface ClaimEditor {
 
         // Check claim blocks
         final long claimBlockDifference = claim.getRegion().getSurfaceArea() - resized.getSurfaceArea();
-        if (getPlugin().getClaimBlocks(user.getUuid()).orElse(0L) < claimBlockDifference) {
-            getPlugin().getLocales().getLocale("error_not_enough_claim_blocks", Long.toString(claimBlockDifference))
-                    .ifPresent(user::sendMessage);
+        if (getPlugin().getClaimBlocks(user.getUuid()) < claimBlockDifference) {
+            getPlugin().getLocales().getLocale("error_not_enough_claim_blocks",
+                    Long.toString(claimBlockDifference)).ifPresent(user::sendMessage);
             return;
         }
         claim.setRegion(resized);
@@ -143,7 +143,7 @@ public interface ClaimEditor {
 
         // Validate they have enough claim blocks
         final long surfaceArea = region.getSurfaceArea();
-        if (getPlugin().getClaimBlocks(user.getUuid()).orElse(0L) < surfaceArea) {
+        if (getPlugin().getClaimBlocks(user.getUuid()) < surfaceArea) {
             getPlugin().getLocales().getLocale("error_not_enough_claim_blocks", Long.toString(surfaceArea))
                     .ifPresent(user::sendMessage);
             return;

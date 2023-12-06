@@ -43,7 +43,7 @@ import java.util.logging.Level;
 public class SqLiteDatabase extends Database {
 
     /**
-     * Path to the SQLite HuskHomesData.db file.
+     * Path to the SQLite HuskClaimsData.db file.
      */
     private final Path databaseFile;
 

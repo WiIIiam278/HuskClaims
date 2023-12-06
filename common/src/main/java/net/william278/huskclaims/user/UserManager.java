@@ -54,7 +54,6 @@ public interface UserManager {
         consumer.accept(preferences);
         setUserPreferences(user.getUuid(), preferences);
         getDatabase().updateUserPreferences(user, preferences);
-        //todo broadcast USER DATA UPDATE
     }
 
     @NotNull
@@ -64,23 +63,21 @@ public interface UserManager {
         getClaimBlocks().put(uuid, claimBlocks);
     }
 
-    default Optional<Long> getClaimBlocks(@NotNull UUID uuid) {
-        return Optional.ofNullable(getClaimBlocks().get(uuid));
+    default long getClaimBlocks(@NotNull UUID uuid) throws IllegalArgumentException {
+        if (!getClaimBlocks().containsKey(uuid)) {
+            throw new IllegalArgumentException("No claim blocks found for UUID " + uuid);
+        }
+        return getClaimBlocks().get(uuid);
     }
 
     @Blocking
-    default void editClaimBlocks(@NotNull User user, @NotNull Function<Long, Long> consumer) {
-        final Optional<Long> optionalClaimBlocks = getClaimBlocks(user.getUuid());
-        if (optionalClaimBlocks.isEmpty()) {
-            return;
-        }
-        final long claimBlocks = consumer.apply(optionalClaimBlocks.get());
+    default void editClaimBlocks(@NotNull User user, @NotNull Function<Long, Long> consumer)
+            throws IllegalArgumentException {
+        final long claimBlocks = consumer.apply(getClaimBlocks(user.getUuid()));
         setClaimBlocks(user.getUuid(), claimBlocks);
         getDatabase().updateUserClaimBlocks(user, claimBlocks);
-        //todo broadcast USER DATA UPDATE
     }
 
-    //todo call on login and on USER DATA UPDATE broadcast
     @Blocking
     default void loadUserData(@NotNull User user) {
         getDatabase().getUser(user.getUuid()).ifPresentOrElse(data -> {

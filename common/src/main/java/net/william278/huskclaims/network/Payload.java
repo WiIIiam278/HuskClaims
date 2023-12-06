@@ -20,6 +20,7 @@
 package net.william278.huskclaims.network;
 
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.william278.huskclaims.user.User;
@@ -32,23 +33,22 @@ import java.util.UUID;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Payload {
+
     @Nullable
     @Expose
     private UUID uuid;
-
     @Nullable
     @Expose
     private Integer integer;
     @Nullable
     @Expose
     private Boolean bool;
-
     @Nullable
     @Expose
     private String string;
-
     @Nullable
     @Expose
+    @SerializedName("user_list")
     private List<User> userList;
 
     @NotNull
@@ -70,6 +70,7 @@ public class Payload {
         return payload;
     }
 
+    @NotNull
     public static Payload bool(boolean bool) {
         final Payload payload = new Payload();
         payload.bool = bool;

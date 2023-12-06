@@ -21,6 +21,7 @@ package net.william278.huskclaims.network;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
@@ -31,6 +32,7 @@ import java.util.logging.Level;
 /**
  * A broker for dispatching {@link Message}s across the proxy network
  */
+@Getter
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class Broker implements MessageHandler {
 
@@ -39,7 +41,7 @@ public abstract class Broker implements MessageHandler {
     /**
      * Handle an inbound {@link Message}
      *
-     * @param receiver The user who received the message, if a receiver exists
+     * @param receiver The user who received the message if a receiver exists
      * @param message  The message
      */
     protected void handle(@Nullable OnlineUser receiver, @NotNull Message message) {
@@ -115,29 +117,20 @@ public abstract class Broker implements MessageHandler {
         return this;
     }
 
-    // Return the plugin instance
-    @NotNull
-    @Override
-    public HuskClaims getPlugin() {
-        return plugin;
-    }
 
     /**
      * Identifies types of message brokers
      */
+    @Getter
     public enum Type {
         PLUGIN_MESSAGE("Plugin Messages"),
         REDIS("Redis");
+
         @NotNull
         private final String displayName;
 
         Type(@NotNull String displayName) {
             this.displayName = displayName;
-        }
-
-        @NotNull
-        public String getDisplayName() {
-            return displayName;
         }
     }
 

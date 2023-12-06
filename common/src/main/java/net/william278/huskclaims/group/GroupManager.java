@@ -21,7 +21,9 @@ package net.william278.huskclaims.group;
 
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.database.Database;
-import net.william278.huskclaims.user.User;
+import net.william278.huskclaims.network.Message;
+import net.william278.huskclaims.network.Payload;
+import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.NotNull;
 
@@ -84,19 +86,19 @@ public interface GroupManager {
     /**
      * Create a user group
      *
-     * @param user The user creating the group
-     * @param name The name of the group
+     * @param owner The user creating the group
+     * @param name  The name of the group
      * @since 1.0
      */
     @Blocking
-    default void createUserGroup(@NotNull User user, @NotNull String name) throws IllegalArgumentException {
-        if (!getPlugin().isValidGroupName(name) || getUserGroup(user.getUuid(), name).isPresent()) {
+    default void createUserGroup(@NotNull OnlineUser owner, @NotNull String name) throws IllegalArgumentException {
+        if (!getPlugin().isValidGroupName(name) || getUserGroup(owner.getUuid(), name).isPresent()) {
             throw new IllegalArgumentException("Invalid or already taken group name");
         }
-        final UserGroup group = new UserGroup(user.getUuid(), name, new ArrayList<>());
+        final UserGroup group = new UserGroup(owner.getUuid(), name, new ArrayList<>());
         getUserGroups().add(group);
         getDatabase().addUserGroup(group);
-        //todo Publish create event
+        publishGroupChange(owner);
     }
 
     /**
@@ -109,12 +111,12 @@ public interface GroupManager {
      * @since 1.0
      */
     @Blocking
-    default void editUserGroup(@NotNull UUID owner, @NotNull String groupName, @NotNull Consumer<UserGroup> editor,
-                               @NotNull Runnable notPresent) {
-        getUserGroup(owner, groupName).ifPresentOrElse(group -> {
+    default void editUserGroup(@NotNull OnlineUser owner, @NotNull String groupName,
+                               @NotNull Consumer<UserGroup> editor, @NotNull Runnable notPresent) {
+        getUserGroup(owner.getUuid(), groupName).ifPresentOrElse(group -> {
             editor.accept(group);
-            getDatabase().updateUserGroup(owner, groupName, group);
-            //todo Publish update event
+            getDatabase().updateUserGroup(owner.getUuid(), groupName, group);
+            publishGroupChange(owner);
         }, notPresent);
     }
 
@@ -127,13 +129,21 @@ public interface GroupManager {
      * @since 1.0
      */
     @Blocking
-    default boolean deleteUserGroup(@NotNull UUID owner, @NotNull String groupName) {
-        return getUserGroup(owner, groupName).map(group -> {
+    default boolean deleteUserGroup(@NotNull OnlineUser owner, @NotNull String groupName) {
+        return getUserGroup(owner.getUuid(), groupName).map(group -> {
             getDatabase().deleteUserGroup(group);
             getUserGroups().remove(group);
-            //todo Publish delete event
+            publishGroupChange(owner);
             return true;
         }).orElse(false);
+    }
+
+    private void publishGroupChange(@NotNull OnlineUser user) {
+        getPlugin().getBroker().ifPresent(broker -> Message.builder()
+                .type(Message.MessageType.UPDATE_USER_GROUPS)
+                .payload(Payload.uuid(user.getUuid()))
+                .target(Message.TARGET_ALL, Message.TargetType.SERVER)
+                .build().send(broker, user));
     }
 
     /**
