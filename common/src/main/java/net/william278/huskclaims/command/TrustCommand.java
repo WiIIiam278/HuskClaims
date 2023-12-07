@@ -25,7 +25,6 @@ import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.claim.TrustLevel;
 import net.william278.huskclaims.claim.Trustable;
 import net.william278.huskclaims.config.Settings;
-import net.william278.huskclaims.user.CommandUser;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.SavedUser;
 import org.jetbrains.annotations.NotNull;
@@ -35,59 +34,57 @@ import java.util.Optional;
 import java.util.UUID;
 
 //todo
-public class TrustLevelCommand extends Command implements TrustableTabCompletable {
+public class TrustCommand extends InClaimCommand implements TrustableTabCompletable {
 
     private final TrustLevel level;
 
-    protected TrustLevelCommand(@NotNull TrustLevel level, @NotNull HuskClaims plugin) {
+    protected TrustCommand(@NotNull TrustLevel level, @NotNull HuskClaims plugin) {
         super(level.getCommandAliases(), "<player>", plugin);
         this.level = level;
     }
 
     @Override
-    public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
-        final OnlineUser trustee = (OnlineUser) executor;
-        final Optional<ClaimWorld> claimWorld = plugin.getClaimWorld(trustee.getWorld());
-        final Optional<Claim> claim = claimWorld.flatMap(w -> w.getClaimAt(trustee.getPosition()));
-        if (claim.isEmpty()) {
-            plugin.getLocales().getLocale("error_not_in_claim")
-                    .ifPresent(executor::sendMessage);
-            return;
-        }
-
-        final ClaimWorld world = claimWorld.get();
-        final Claim target = claim.get();
-        final Optional<Trustable> saved = parseStringArg(args, 0).flatMap(n -> resolveTrustable(trustee, target.getOwner().orElse(null), n));
-        if (saved.isEmpty()) {
+    public void execute(@NotNull OnlineUser executor, @NotNull ClaimWorld world, @NotNull Claim claim,
+                        @NotNull String[] args) {
+        final Optional<Trustable> optionalTrustable = parseStringArg(args, 0)
+                .flatMap(n -> resolveTrustable(claim.getOwner().orElse(null), n));
+        if (optionalTrustable.isEmpty()) {
             plugin.getLocales().getLocale("error_invalid_syntax")
                     .ifPresent(executor::sendMessage);
             return;
         }
 
-        if (!target.isPrivilegeAllowed(TrustLevel.Privilege.MANAGE_TRUSTEES, trustee, world, plugin)) {
+        setTrustLevel(optionalTrustable.get(), executor, world, claim);
+    }
+
+    private void setTrustLevel(@NotNull Trustable trustable, @NotNull OnlineUser executor,
+                               @NotNull ClaimWorld world, @NotNull Claim claim) {
+        if (!claim.isPrivilegeAllowed(TrustLevel.Privilege.MANAGE_TRUSTEES, executor, world, plugin)) {
             plugin.getLocales().getLocale("no_managing_permission")
                     .ifPresent(executor::sendMessage);
             return;
         }
 
-        final Optional<Integer> ranked = target.getEffectiveTrustLevel(saved.get(), world, plugin).map(TrustLevel::getWeight);
-        final Optional<Integer> ranker = target.getEffectiveTrustLevel(trustee, world, plugin).map(TrustLevel::getWeight);
-        if (ranked.isEmpty() || ranker.isEmpty() || ranked.get() >= ranker.get()) {
+        // Check if the executor is allowed to set the trust level of the trustable
+        final Optional<Integer> trustableWeight = claim.getEffectiveTrustLevel(trustable, world, plugin)
+                .map(TrustLevel::getWeight);
+        final int executorWeight = claim.getEffectiveTrustLevel(executor, world, plugin)
+                .map(TrustLevel::getWeight).orElse(Integer.MAX_VALUE);
+        if (trustableWeight.isPresent() && executorWeight <= trustableWeight.get()) {
             plugin.getLocales().getLocale("error_trust_level_rank")
                     .ifPresent(executor::sendMessage);
             return;
         }
 
-        target.setTrustLevel(saved.get(), level);
+        claim.setTrustLevel(trustable, level);
         plugin.getDatabase().updateClaimWorld(world);
-        plugin.getLocales().getLocale("trust_level_set", trustee.getTrustIdentifier(plugin), level.getDisplayName());
+        plugin.getLocales().getLocale("trust_level_set", trustable.getTrustIdentifier(plugin), level.getDisplayName());
     }
 
-    private Optional<? extends Trustable> resolveTrustable(@NotNull OnlineUser trustee, @Nullable UUID claimOwner,
-                                                           @NotNull String name) {
+    private Optional<? extends Trustable> resolveTrustable(@Nullable UUID claimOwner, @NotNull String name) {
         // Resolve group
         final Settings.UserGroupSettings groups = plugin.getSettings().getUserGroups();
-        if (groups.isEnabled() && name.startsWith(groups.getGroupSpecifierPrefix())) {
+        if (groups.isEnabled() && claimOwner != null && name.startsWith(groups.getGroupSpecifierPrefix())) {
             return plugin.getUserGroup(claimOwner, name.substring(groups.getGroupSpecifierPrefix().length()));
         }
 
