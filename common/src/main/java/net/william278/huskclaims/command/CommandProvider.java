@@ -1,12 +1,10 @@
 package net.william278.huskclaims.command;
 
 import com.google.common.collect.Lists;
-import lombok.AllArgsConstructor;
 import net.william278.huskclaims.HuskClaims;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * Provider for HuskClaims commands
@@ -14,7 +12,9 @@ import java.util.function.Function;
 public interface CommandProvider {
 
     @NotNull
-    List<BaseCommand> getCommands();
+    List<Command> getCommands();
+
+    void setCommands(@NotNull List<Command> commands);
 
     /**
      * Registers all plugin commands: built-in commands, trust level commands, then operation group commands
@@ -22,31 +22,19 @@ public interface CommandProvider {
      * @since 1.0
      */
     default void loadCommands() {
+        final List<Command> commands = Lists.newArrayList();
+
         // Register built-in commands
-        this.getCommands().addAll(BuiltinCommands.registerAll(getPlugin()));
+        commands.add(new HuskClaimsCommand(getPlugin()));
 
         // Register trust level commands todo
 
         // Register operation group commands todo
+
+        setCommands(commands);
     }
 
     @NotNull
     HuskClaims getPlugin();
-
-    @AllArgsConstructor
-    enum BuiltinCommands {
-        HUSKCLAIMS(HuskClaimsCommand::new);
-
-        private final Function<HuskClaims, ? extends BaseCommand> creator;
-
-        @NotNull
-        public static List<BaseCommand> registerAll(@NotNull HuskClaims plugin) {
-            final List<BaseCommand> commands = Lists.newArrayList();
-            for (BuiltinCommands commandType : values()) {
-                commandType.creator.apply(plugin);
-            }
-            return commands;
-        }
-    }
 
 }

@@ -35,7 +35,6 @@ import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

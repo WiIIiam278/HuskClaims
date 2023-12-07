@@ -24,6 +24,8 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.claim.Trustable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -31,7 +33,7 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class User {
+public class User implements Trustable {
 
     @Expose
     private String username;
@@ -43,4 +45,9 @@ public class User {
         return new User(username, uuid);
     }
 
+    @NotNull
+    @Override
+    public String getTrustIdentifier(@NotNull HuskClaims plugin) {
+        return username;
+    }
 }

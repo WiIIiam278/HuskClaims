@@ -64,6 +64,7 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvi
             loadClaimWorlds();
             loadUserGroups();
             loadBroker();
+            loadCommands();
             loadListeners();
         } catch (Throwable e) {
             log(Level.SEVERE, "An error occurred whilst initializing HuskClaims", e);

@@ -30,6 +30,7 @@ import lombok.Setter;
 import net.william278.cloplib.operation.Operation;
 import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.group.UserGroup;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -162,8 +163,55 @@ public class Claim {
     }
 
     /**
+     * Set the {@link TrustLevel} of the given user in this claim
+     *
+     * @param uuid  the user to set the trust level for
+     * @param level the trust level to set
+     * @since 1.0
+     */
+    public void setUserTrustLevel(@NotNull UUID uuid, @NotNull TrustLevel level) {
+        trustedUsers.put(uuid, level.getId());
+    }
+
+    /**
+     * Set the {@link TrustLevel} of the given group in this claim
+     *
+     * @param group the group to set the trust level for
+     * @param level the trust level to set
+     * @since 1.0
+     */
+    public void setGroupTrustLevel(@NotNull UserGroup group, @NotNull TrustLevel level) {
+        trustedGroups.put(group.name(), level.getId());
+    }
+
+    public void setTrustLevel(@NotNull Trustable trustable, @NotNull TrustLevel level) {
+        if (trustable instanceof User user) {
+            setUserTrustLevel(user.getUuid(), level);
+        } else if (trustable instanceof UserGroup group) {
+            setGroupTrustLevel(group, level);
+        } else {
+            throw new IllegalArgumentException("Trustable must be a User or UserGroup");
+        }
+    }
+
+    /**
+     * Get the {@link TrustLevel} of the given group in this claim
+     *
+     * @param group  the group to get the trust level for
+     * @param plugin the plugin instance
+     * @return the group's trust level, if they have one defined
+     * @since 1.0
+     */
+    public Optional<TrustLevel> getGroupTrustLevel(@NotNull String group, @NotNull HuskClaims plugin) {
+        if (trustedGroups.containsKey(group)) {
+            return plugin.getTrustLevel(trustedGroups.get(group));
+        }
+        return Optional.empty();
+    }
+
+    /**
      * Get the user's explicit {@link TrustLevel} in this claim. This does not take into account parent claims;
-     * see {@link #getEffectiveTrustLevel(User, ClaimWorld, HuskClaims)}.
+     * see {@link #getEffectiveTrustLevel(Trustable, ClaimWorld, HuskClaims)}.
      *
      * @param user   the user to get the trust level for
      * @param plugin the plugin instance
@@ -187,20 +235,37 @@ public class Claim {
     }
 
     /**
+     * Get the {@link TrustLevel} of the given {@link Trustable} in this claim
+     *
+     * @param trustable the trustable to get the trust level for
+     * @param plugin    the plugin instance
+     * @return the trustable's currnent level, if they have one defined
+     * @since 1.0
+     */
+    public Optional<TrustLevel> getTrustLevel(@NotNull Trustable trustable, @NotNull HuskClaims plugin) {
+        if (trustable instanceof User user) {
+            return getTrustLevel(user.getUuid(), plugin);
+        } else if (trustable instanceof UserGroup group) {
+            return getGroupTrustLevel(group.name(), plugin);
+        }
+        throw new IllegalArgumentException("Trustable must be a User or UserGroup");
+    }
+
+    /**
      * Get the user's effective {@link TrustLevel}, taking parent claims into account
      *
-     * @param user   the user to get the effective trust level for
-     * @param world  the world the claim is in
-     * @param plugin the plugin instance
+     * @param trustable the user to get the effective trust level for
+     * @param world     the world the claim is in
+     * @param plugin    the plugin instance
      * @return the user's effective trust level, if they have one defined
      * @since 1.0
      */
     @NotNull
-    public Optional<TrustLevel> getEffectiveTrustLevel(@NotNull User user, @NotNull ClaimWorld world,
+    public Optional<TrustLevel> getEffectiveTrustLevel(@NotNull Trustable trustable, @NotNull ClaimWorld world,
                                                        @NotNull HuskClaims plugin) {
-        return getTrustLevel(user.getUuid(), plugin)
+        return getTrustLevel(trustable, plugin)
                 .or(() -> inheritParent
-                        ? getParent(world).flatMap(parent -> parent.getEffectiveTrustLevel(user, world, plugin))
+                        ? getParent(world).flatMap(parent -> parent.getEffectiveTrustLevel(trustable, world, plugin))
                         : Optional.empty());
     }
 

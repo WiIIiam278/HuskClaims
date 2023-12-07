@@ -1,10 +1,20 @@
 package net.william278.huskclaims.command;
 
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.user.CommandUser;
+import org.jetbrains.annotations.NotNull;
 
-public class HuskClaimsCommand extends BaseCommand {
+import java.util.List;
 
-    protected HuskClaimsCommand(HuskClaims plugin) {
-        super(plugin);
+public class HuskClaimsCommand extends Command {
+
+    protected HuskClaimsCommand(@NotNull HuskClaims plugin) {
+        super(List.of("huskclaims"), "[test|test|test]", plugin);
     }
+
+    @Override
+    public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
+
+    }
+
 }
