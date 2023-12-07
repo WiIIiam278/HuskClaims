@@ -24,9 +24,7 @@ import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.claim.TrustLevel;
 import net.william278.huskclaims.claim.Trustable;
-import net.william278.huskclaims.config.Settings;
 import net.william278.huskclaims.user.OnlineUser;
-import net.william278.huskclaims.user.SavedUser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,57 +37,35 @@ public class TrustCommand extends InClaimCommand implements TrustableTabCompleta
     private final TrustLevel level;
 
     protected TrustCommand(@NotNull TrustLevel level, @NotNull HuskClaims plugin) {
-        super(level.getCommandAliases(), "<player>", plugin);
+        super(level.getCommandAliases(), plugin);
         this.level = level;
     }
 
     @Override
     public void execute(@NotNull OnlineUser executor, @NotNull ClaimWorld world, @NotNull Claim claim,
                         @NotNull String[] args) {
-        final Optional<Trustable> optionalTrustable = parseStringArg(args, 0)
-                .flatMap(n -> resolveTrustable(claim.getOwner().orElse(null), n));
-        if (optionalTrustable.isEmpty()) {
+        final Optional<String> toTrust = parseStringArg(args, 0);
+        if (toTrust.isEmpty()) {
             plugin.getLocales().getLocale("error_invalid_syntax")
                     .ifPresent(executor::sendMessage);
             return;
         }
 
-        setTrustLevel(optionalTrustable.get(), executor, world, claim);
+        // Resolve the trustable and check the executor has access
+        resolveTrustable(toTrust.get(), claim)
+                .flatMap(t -> checkUserHasAccess(executor, t, world, claim) ? Optional.of(t) : Optional.empty())
+                .ifPresentOrElse(
+                        t -> setTrustLevel(t, world, claim),
+                        () -> plugin.getLocales().getLocale("error_not_trusted")
+                                .ifPresent(executor::sendMessage)
+                );
     }
 
-    private void setTrustLevel(@NotNull Trustable trustable, @NotNull OnlineUser executor,
-                               @NotNull ClaimWorld world, @NotNull Claim claim) {
-        if (!claim.isPrivilegeAllowed(TrustLevel.Privilege.MANAGE_TRUSTEES, executor, world, plugin)) {
-            plugin.getLocales().getLocale("no_managing_permission")
-                    .ifPresent(executor::sendMessage);
-            return;
-        }
-
-        // Check if the executor is allowed to set the trust level of the trustable
-        final Optional<Integer> trustableWeight = claim.getEffectiveTrustLevel(trustable, world, plugin)
-                .map(TrustLevel::getWeight);
-        final int executorWeight = claim.getEffectiveTrustLevel(executor, world, plugin)
-                .map(TrustLevel::getWeight).orElse(Integer.MAX_VALUE);
-        if (trustableWeight.isPresent() && executorWeight <= trustableWeight.get()) {
-            plugin.getLocales().getLocale("error_trust_level_rank")
-                    .ifPresent(executor::sendMessage);
-            return;
-        }
-
+    private void setTrustLevel(@NotNull Trustable trustable, @NotNull ClaimWorld world, @NotNull Claim claim) {
         claim.setTrustLevel(trustable, level);
         plugin.getDatabase().updateClaimWorld(world);
-        plugin.getLocales().getLocale("trust_level_set", trustable.getTrustIdentifier(plugin), level.getDisplayName());
-    }
-
-    private Optional<? extends Trustable> resolveTrustable(@Nullable UUID claimOwner, @NotNull String name) {
-        // Resolve group
-        final Settings.UserGroupSettings groups = plugin.getSettings().getUserGroups();
-        if (groups.isEnabled() && claimOwner != null && name.startsWith(groups.getGroupSpecifierPrefix())) {
-            return plugin.getUserGroup(claimOwner, name.substring(groups.getGroupSpecifierPrefix().length()));
-        }
-
-        // Resolve username
-        return plugin.getDatabase().getUser(name).map(SavedUser::user);
+        plugin.getLocales().getLocale("trust_level_set",
+                trustable.getTrustIdentifier(plugin), level.getDisplayName());
     }
 
     @Nullable

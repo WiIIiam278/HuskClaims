@@ -72,6 +72,7 @@ public class Claim {
      * Map of TrustLevels to a list of UUID players with that TrustLevel
      */
     @Expose
+    @Getter
     @SerializedName("trusted_users")
     private Map<UUID, String> trustedUsers;
 
@@ -79,6 +80,7 @@ public class Claim {
      * Map of TrustLevels to a list of UUID groups with that TrustLevel
      */
     @Expose
+    @Getter
     @SerializedName("trusted_groups")
     private Map<String, String> trustedGroups;
 

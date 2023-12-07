@@ -46,6 +46,7 @@ public interface CommandProvider {
 
         // Register built-in commands
         commands.add(new HuskClaimsCommand(getPlugin()));
+        commands.add(new UnTrustCommand(getPlugin()));
 
         // Register trust level commands
         getPlugin().getTrustLevels().stream()
