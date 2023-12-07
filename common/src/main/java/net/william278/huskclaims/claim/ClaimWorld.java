@@ -19,6 +19,7 @@
 
 package net.william278.huskclaims.claim;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import com.google.gson.annotations.Expose;
@@ -59,7 +60,7 @@ public class ClaimWorld {
         this.id = 0;
         this.claims = Queues.newConcurrentLinkedQueue();
         this.userCache = Maps.newConcurrentMap();
-        this.wildernessFlags = new ArrayList<>(plugin.getSettings().getClaims().getWildernessRules());
+        this.wildernessFlags = Lists.newArrayList(plugin.getSettings().getClaims().getWildernessRules());
     }
 
     @NotNull
@@ -106,7 +107,7 @@ public class ClaimWorld {
      * @since 1.0
      */
     public boolean isRegionClaimed(@NotNull Region region, @NotNull Region... exceptFor) {
-        final List<Claim> claims = new ArrayList<>(getParentClaimsWithin(region));
+        final List<Claim> claims = Lists.newArrayList(getParentClaimsWithin(region));
         for (Region except : exceptFor) {
             claims.removeIf(claim -> claim.getRegion().equals(except));
         }

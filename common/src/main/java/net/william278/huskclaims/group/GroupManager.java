@@ -19,6 +19,7 @@
 
 package net.william278.huskclaims.group;
 
+import com.google.common.collect.Lists;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.database.Database;
 import net.william278.huskclaims.network.Message;
@@ -95,7 +96,7 @@ public interface GroupManager {
         if (!getPlugin().isValidGroupName(name) || getUserGroup(owner.getUuid(), name).isPresent()) {
             throw new IllegalArgumentException("Invalid or already taken group name");
         }
-        final UserGroup group = new UserGroup(owner.getUuid(), name, new ArrayList<>());
+        final UserGroup group = new UserGroup(owner.getUuid(), name, Lists.newArrayList());
         getUserGroups().add(group);
         getDatabase().addUserGroup(group);
         publishGroupChange(owner);

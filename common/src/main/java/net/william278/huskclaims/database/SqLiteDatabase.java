@@ -19,6 +19,7 @@
 
 package net.william278.huskclaims.database;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonSyntaxException;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.ClaimWorld;
@@ -253,7 +254,7 @@ public class SqLiteDatabase extends Database {
 
     @Override
     public List<SavedUser> getInactiveUsers(long daysInactive) {
-        final List<SavedUser> inactiveUsers = new ArrayList<>();
+        final List<SavedUser> inactiveUsers = Lists.newArrayList();
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 SELECT `uuid`, `username`, `last_login`, `preferences`, `claim_blocks`
                 FROM `%user_data%`
@@ -351,7 +352,7 @@ public class SqLiteDatabase extends Database {
                 WHERE `uuid` = ?"""))) {
             statement.setString(1, uuid.toString());
             final ResultSet resultSet = statement.executeQuery();
-            final List<UserGroup> userGroups = new ArrayList<>();
+            final List<UserGroup> userGroups = Lists.newArrayList();
             while (resultSet.next()) {
                 userGroups.add(new UserGroup(
                         uuid,
@@ -375,7 +376,7 @@ public class SqLiteDatabase extends Database {
                 SELECT `uuid`, `name`, `members`
                 FROM `%user_groups%`"""))) {
             final ResultSet resultSet = statement.executeQuery();
-            final List<UserGroup> userGroups = new ArrayList<>();
+            final List<UserGroup> userGroups = Lists.newArrayList();
             while (resultSet.next()) {
                 userGroups.add(new UserGroup(
                         UUID.fromString(resultSet.getString("uuid")),
