@@ -35,6 +35,8 @@ public interface BrokerProvider {
 
     void setBroker(@NotNull Broker broker);
 
+    void closeBroker();
+
     void setupPluginMessagingChannels();
 
     default void loadBroker() {

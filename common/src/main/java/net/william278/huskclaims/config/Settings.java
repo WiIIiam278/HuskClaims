@@ -34,8 +34,8 @@ import java.util.Map;
 import java.util.Optional;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Configuration
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Settings {
 
     static final String CONFIG_HEADER = """
@@ -57,6 +57,7 @@ public final class Settings {
     private DatabaseSettings database = new DatabaseSettings();
 
     @Getter
+    @Configuration
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class DatabaseSettings {
 
@@ -79,6 +80,7 @@ public final class Settings {
         );
 
         @Getter
+        @Configuration
         @NoArgsConstructor(access = AccessLevel.PRIVATE)
         public static class DatabaseCredentials {
             private String host = "localhost";
@@ -90,6 +92,7 @@ public final class Settings {
         }
 
         @Getter
+        @Configuration
         @NoArgsConstructor(access = AccessLevel.PRIVATE)
         public static class PoolOptions {
             private int size = 12;
@@ -109,6 +112,7 @@ public final class Settings {
     private CrossServerSettings crossServer = new CrossServerSettings();
 
     @Getter
+    @Configuration
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class CrossServerSettings {
         @Comment("Whether to enable cross-server mode")
@@ -125,6 +129,7 @@ public final class Settings {
         private RedisSettings redis = new RedisSettings();
 
         @Getter
+        @Configuration
         @NoArgsConstructor
         public static class RedisSettings {
             private String host = "localhost";
@@ -140,6 +145,7 @@ public final class Settings {
     private ClaimSettings claims = new ClaimSettings();
 
     @Getter
+    @Configuration
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class ClaimSettings {
         @Comment("Default flags for regular claims")
@@ -188,6 +194,7 @@ public final class Settings {
         }
 
         @Getter
+        @Configuration
         @NoArgsConstructor(access = AccessLevel.PRIVATE)
         public static class HighlighterSettings {
             @Comment("Highlight block for regular claim corners")
@@ -231,6 +238,7 @@ public final class Settings {
 
     @Getter
     @Builder
+    @Configuration
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class OperationGroup {
@@ -243,6 +251,7 @@ public final class Settings {
     public UserGroupSettings userGroups = new UserGroupSettings();
 
     @Getter
+    @Configuration
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class UserGroupSettings {
         @Comment("Whether to enable user groups")

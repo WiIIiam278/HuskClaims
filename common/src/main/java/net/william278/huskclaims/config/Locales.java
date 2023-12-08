@@ -23,6 +23,7 @@ import de.themoep.minedown.adventure.MineDown;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.william278.annotaml.YamlFile;
+import net.william278.annotaml.YamlIgnored;
 import net.william278.paginedown.ListOptions;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.text.WordUtils;
@@ -50,6 +51,7 @@ import java.util.Optional;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Locales {
 
+    @YamlIgnored
     protected static final String DEFAULT_LOCALE = "en";
 
     // The raw set of locales loaded from yaml

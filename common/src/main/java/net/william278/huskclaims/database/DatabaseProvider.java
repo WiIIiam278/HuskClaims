@@ -34,6 +34,8 @@ public interface DatabaseProvider {
 
     void setDatabase(@NotNull Database database);
 
+    void closeDatabase();
+
     default void loadDatabase() throws IllegalStateException {
         // Create database instance
         final Database database = createDatabase();

@@ -61,7 +61,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor
 public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTask.Supplier {
 
     @Getter
@@ -107,13 +107,9 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     private BukkitAudiences audiences;
 
     @Override
-    public void onLoad() {
+    public void onEnable() {
         this.audiences = BukkitAudiences.create(this);
         this.morePaperLib = new MorePaperLib(this);
-    }
-
-    @Override
-    public void onEnable() {
         this.initialize();
 
         //todo bukkit - register commands
@@ -197,6 +193,13 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     }
 
     @Override
+    public void closeBroker() {
+        if (broker != null) {
+            broker.close();
+        }
+    }
+
+    @Override
     public void setupPluginMessagingChannels() {
         //todo
     }
@@ -213,4 +216,10 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
         return new BukkitClaimsListener(this);
     }
 
+    @Override
+    public void closeDatabase() {
+        if (database != null) {
+            database.close();
+        }
+    }
 }

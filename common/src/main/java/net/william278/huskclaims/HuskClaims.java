@@ -82,7 +82,8 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvi
     default void shutdown() {
         log(Level.INFO, String.format("Disabling down HuskClaims v%s...", getPluginVersion()));
         try {
-            getDatabase().close();
+            closeDatabase();
+            closeBroker();
         } catch (Throwable e) {
             log(Level.SEVERE, "An error occurred whilst disabling HuskClaims", e);
         }

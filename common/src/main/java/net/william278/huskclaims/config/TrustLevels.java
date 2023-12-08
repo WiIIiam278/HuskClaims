@@ -19,6 +19,7 @@
 
 package net.william278.huskclaims.config;
 
+import com.google.common.collect.Lists;
 import de.exlll.configlib.Configuration;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -45,10 +46,10 @@ public class TrustLevels {
             ┗╸ Documentation: https://william278.net/docs/huskclaims/
             """;
 
-    private List<TrustLevel> trustLevels = List.of(
+    private List<TrustLevel> trustLevels = Lists.newArrayList(
             // Permission trust (manage trustees, make sub-divisions, etc.)
             TrustLevel.builder()
-                    .key(Key.key("huskclaims", "permission_trust"))
+                    .id(Key.key("huskclaims", "permission_trust").asString())
                     .weight(400)
                     .displayName("Permission Trust")
                     .commandAliases(List.of("permisiontrust"))
@@ -82,7 +83,7 @@ public class TrustLevels {
 
             // Regular Build trust (place & break blocks, etc.)
             TrustLevel.builder()
-                    .key(Key.key("huskclaims", "build_trust"))
+                    .id(Key.key("huskclaims", "build_trust").asString())
                     .weight(300)
                     .displayName("Build Trust")
                     .commandAliases(List.of("trust"))
@@ -111,7 +112,7 @@ public class TrustLevels {
 
             // Container trust (chests, furnaces, etc.)
             TrustLevel.builder()
-                    .key(Key.key("huskclaims", "container_trust"))
+                    .id(Key.key("huskclaims", "container_trust").asString())
                     .weight(200)
                     .displayName("Container Trust")
                     .commandAliases(List.of("containertrust"))
@@ -126,7 +127,7 @@ public class TrustLevels {
 
             // Access trust (doors, buttons, levers, etc.)
             TrustLevel.builder()
-                    .key(Key.key("huskclaims", "access_trust"))
+                    .id(Key.key("huskclaims", "access_trust").asString())
                     .weight(100)
                     .displayName("Access Trust")
                     .commandAliases(List.of("accesstrust"))

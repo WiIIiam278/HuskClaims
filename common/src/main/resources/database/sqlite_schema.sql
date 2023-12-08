@@ -17,12 +17,14 @@ CREATE TABLE IF NOT EXISTS `%user_data%`
 );
 
 -- Create the user groups table if it does not exist
-CREATE TABLE IF NOT EXISTS `%user_groups%`
+CREATE TABLE IF NOT EXISTS `%user_group_data%`
 (
     `id`      integer     NOT NULL PRIMARY KEY AUTOINCREMENT,
     `uuid`    char(36)    NOT NULL,
     `name`    varchar(32) NOT NULL,
-    `members` longblob    NOT NULL
+    `members` longblob    NOT NULL,
+
+    FOREIGN KEY (`uuid`) REFERENCES `%user_data%` (`uuid`)
 );
 
 -- Create the claim worlds table if it does not exist

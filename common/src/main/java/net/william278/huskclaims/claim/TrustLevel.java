@@ -19,6 +19,7 @@
 
 package net.william278.huskclaims.claim;
 
+import de.exlll.configlib.Configuration;
 import lombok.*;
 import net.kyori.adventure.key.Key;
 import net.william278.cloplib.operation.OperationType;
@@ -28,11 +29,12 @@ import java.util.List;
 
 @Getter
 @Builder
+@Configuration
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class TrustLevel implements Comparable<TrustLevel> {
 
-    private Key key;
+    private String id;
     private String displayName;
     @Builder.Default
     private List<String> commandAliases = List.of();
@@ -42,11 +44,6 @@ public class TrustLevel implements Comparable<TrustLevel> {
     private List<Privilege> privileges = List.of();
     @Builder.Default
     private int weight = 100;
-
-    @NotNull
-    public String getId() {
-        return key.asString();
-    }
 
     @Override
     public int compareTo(@NotNull TrustLevel o) {
