@@ -31,7 +31,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 import java.util.UUID;
 
-//todo
 public class TrustCommand extends InClaimCommand implements TrustableTabCompletable {
 
     private final TrustLevel level;
