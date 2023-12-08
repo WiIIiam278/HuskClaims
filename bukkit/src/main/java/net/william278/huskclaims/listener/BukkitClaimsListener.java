@@ -56,4 +56,9 @@ public class BukkitClaimsListener extends BukkitOperationListener implements Cla
         return plugin;
     }
 
+    @Override
+    public void setInspectionDistance(int i) {
+        throw new UnsupportedOperationException("Inspection distance is not supported in Bukkit");
+    }
+
 }
