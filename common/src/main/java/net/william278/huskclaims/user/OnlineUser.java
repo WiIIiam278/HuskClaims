@@ -23,6 +23,7 @@ import de.themoep.minedown.adventure.MineDown;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.william278.cloplib.operation.OperationUser;
+import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.position.World;
 import org.jetbrains.annotations.NotNull;
@@ -32,9 +33,12 @@ import java.util.UUID;
 /**
  * Platform-agnostic representation of an online user
  */
-public abstract class OnlineUser extends User implements OperationUser {
-    protected OnlineUser(@NotNull String username, @NotNull UUID uuid) {
+public abstract class OnlineUser extends User implements OperationUser, CommandUser {
+
+    protected final HuskClaims plugin;
+    protected OnlineUser(@NotNull String username, @NotNull UUID uuid, @NotNull HuskClaims plugin) {
         super(username, uuid);
+        this.plugin = plugin;
     }
 
     @NotNull
@@ -46,7 +50,9 @@ public abstract class OnlineUser extends User implements OperationUser {
     }
 
     @NotNull
-    protected abstract Audience getAudience();
+    public Audience getAudience() {
+        return plugin.getAudiences().player(getUuid());
+    }
 
     public void sendMessage(@NotNull Component message) {
         getAudience().sendMessage(message);

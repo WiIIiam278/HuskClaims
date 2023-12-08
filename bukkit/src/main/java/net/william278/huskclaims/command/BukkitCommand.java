@@ -1,0 +1,108 @@
+package net.william278.huskclaims.command;
+
+import net.william278.huskclaims.BukkitHuskClaims;
+import net.william278.huskclaims.user.BukkitUser;
+import net.william278.huskclaims.user.CommandUser;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionDefault;
+import org.bukkit.plugin.PluginManager;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
+
+public class BukkitCommand extends org.bukkit.command.Command {
+
+    private final BukkitHuskClaims plugin;
+    private final Command command;
+
+    public BukkitCommand(@NotNull Command command, @NotNull BukkitHuskClaims plugin) {
+        super(command.getName(), command.getDescription(), command.getUsage(), command.getAliases());
+        this.command = command;
+        this.plugin = plugin;
+    }
+
+    @Override
+    public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+        this.command.onExecuted(sender instanceof Player p ? BukkitUser.adapt(p, plugin) : plugin.getConsole(), args);
+        return true;
+    }
+
+    @NotNull
+    @Override
+    public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias,
+                                    @NotNull String[] args) throws IllegalArgumentException {
+        if (!(this.command instanceof TabCompletable completable)) {
+            return List.of();
+        }
+        final CommandUser user = sender instanceof Player p ? BukkitUser.adapt(p, plugin) : plugin.getConsole();
+        return completable.getSuggestions(user, args);
+    }
+
+    public void register() {
+        // Register with bukkit
+        plugin.getMorePaperLib().commandRegistration().getServerCommandMap()
+                .register("huskclaims", this);
+
+        // Register permissions
+        BukkitCommand.addPermission(
+                plugin,
+                command.getPermission(),
+                command.getUsage(),
+                BukkitCommand.getPermissionDefault(command.isOperatorCommand())
+        );
+        final List<Permission> childNodes = command.getAdditionalPermissions()
+                .entrySet().stream()
+                .map((entry) -> BukkitCommand.addPermission(
+                        plugin,
+                        entry.getKey(),
+                        "",
+                        BukkitCommand.getPermissionDefault(entry.getValue()))
+                )
+                .filter(Objects::nonNull)
+                .toList();
+        if (!childNodes.isEmpty()) {
+            BukkitCommand.addPermission(
+                    plugin,
+                    command.getPermission("*"),
+                    command.getUsage(),
+                    PermissionDefault.FALSE,
+                    childNodes.toArray(new Permission[0])
+            );
+        }
+
+        //todo commodore TAB completion
+    }
+
+    @Nullable
+    protected static Permission addPermission(@NotNull BukkitHuskClaims plugin, @NotNull String node,
+                                              @NotNull String description, @NotNull PermissionDefault permissionDefault,
+                                              @NotNull Permission... children) {
+        final Map<String, Boolean> childNodes = Arrays.stream(children)
+                .map(Permission::getName)
+                .collect(HashMap::new, (map, child) -> map.put(child, true), HashMap::putAll);
+
+        final PluginManager manager = plugin.getServer().getPluginManager();
+        if (manager.getPermission(node) != null) {
+            return null;
+        }
+
+        final Permission permission;
+        if (description.isEmpty()) {
+            permission = new Permission(node, permissionDefault, childNodes);
+        } else {
+            permission = new Permission(node, description, permissionDefault, childNodes);
+        }
+        manager.addPermission(permission);
+
+        return permission;
+    }
+
+    @NotNull
+    protected static PermissionDefault getPermissionDefault(boolean isOperatorCommand) {
+        return isOperatorCommand ? PermissionDefault.OP : PermissionDefault.TRUE;
+    }
+
+}

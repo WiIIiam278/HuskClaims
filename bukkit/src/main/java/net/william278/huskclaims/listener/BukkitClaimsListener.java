@@ -41,7 +41,7 @@ public class BukkitClaimsListener extends BukkitOperationListener implements Cla
     @Override
     @NotNull
     public OperationPosition getPosition(@NotNull Location location) {
-        return BukkitHuskClaims.adapt(location);
+        return BukkitHuskClaims.Adapter.adapt(location);
     }
 
     @Override

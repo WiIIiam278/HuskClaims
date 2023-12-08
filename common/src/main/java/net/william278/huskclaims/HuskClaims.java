@@ -19,6 +19,7 @@
 
 package net.william278.huskclaims;
 
+import net.kyori.adventure.audience.Audiences;
 import net.kyori.adventure.key.Key;
 import net.william278.desertwell.util.Version;
 import net.william278.huskclaims.claim.ClaimManager;
@@ -30,6 +31,7 @@ import net.william278.huskclaims.group.GroupManager;
 import net.william278.huskclaims.listener.ListenerProvider;
 import net.william278.huskclaims.network.BrokerProvider;
 import net.william278.huskclaims.position.World;
+import net.william278.huskclaims.user.ConsoleUser;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.UserManager;
 import net.william278.huskclaims.util.*;
@@ -47,7 +49,7 @@ import java.util.logging.Level;
  */
 public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvider, GsonProvider, UserManager,
         ClaimManager, GroupManager, ListenerProvider, UserListProvider, CommandProvider, BrokerProvider,
-        WorldHeightProvider, TextValidator {
+        WorldHeightProvider, TextValidator, AudiencesProvider {
 
     /**
      * Initialize all plugin systems

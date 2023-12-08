@@ -21,7 +21,6 @@ package net.william278.huskclaims.command;
 
 import com.google.common.collect.Lists;
 import net.william278.huskclaims.HuskClaims;
-import net.william278.huskclaims.claim.TrustLevel;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -34,7 +33,7 @@ public interface CommandProvider {
     @NotNull
     List<Command> getCommands();
 
-    void setCommands(@NotNull List<Command> commands);
+    void registerCommands(@NotNull List<Command> commands);
 
     /**
      * Registers all plugin commands: built-in commands, trust level commands, then operation group commands
@@ -55,7 +54,7 @@ public interface CommandProvider {
 
         // Register operation group commands todo
 
-        setCommands(commands);
+        registerCommands(commands);
     }
 
     @NotNull

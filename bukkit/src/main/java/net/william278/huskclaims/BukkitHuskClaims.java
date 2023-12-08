@@ -22,7 +22,6 @@ package net.william278.huskclaims;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -32,6 +31,7 @@ import net.william278.desertwell.util.Version;
 import net.william278.huskclaims.claim.ClaimHighlighter;
 import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.claim.TrustLevel;
+import net.william278.huskclaims.command.BukkitCommand;
 import net.william278.huskclaims.command.Command;
 import net.william278.huskclaims.config.Locales;
 import net.william278.huskclaims.config.Server;
@@ -42,27 +42,32 @@ import net.william278.huskclaims.group.UserGroup;
 import net.william278.huskclaims.listener.BukkitClaimsListener;
 import net.william278.huskclaims.listener.ClaimsListener;
 import net.william278.huskclaims.network.Broker;
+import net.william278.huskclaims.network.PluginMessageBroker;
 import net.william278.huskclaims.position.BlockPosition;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.position.World;
-import net.william278.huskclaims.user.BukkitUser;
-import net.william278.huskclaims.user.OnlineUser;
-import net.william278.huskclaims.user.Preferences;
-import net.william278.huskclaims.user.User;
+import net.william278.huskclaims.user.*;
 import net.william278.huskclaims.util.BukkitTask;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import space.arim.morepaperlib.MorePaperLib;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 
 @NoArgsConstructor
-public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTask.Supplier {
+public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTask.Supplier, PluginMessageListener {
 
     @Getter
     @Setter
@@ -79,7 +84,6 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     @Setter
     private ConcurrentMap<OperationWorld, ClaimWorld> claimWorlds = Maps.newConcurrentMap();
     @Getter
-    @Setter
     private List<Command> commands = Lists.newArrayList();
     @Getter
     @Setter
@@ -103,7 +107,6 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     private Server server;
     @Getter
     private MorePaperLib morePaperLib;
-    @Getter
     private BukkitAudiences audiences;
 
     @Override
@@ -111,27 +114,11 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
         this.audiences = BukkitAudiences.create(this);
         this.morePaperLib = new MorePaperLib(this);
         this.initialize();
-
-        //todo bukkit - register commands
     }
 
     @Override
     public void onDisable() {
         this.shutdown();
-    }
-
-    @NotNull
-    public static Position adapt(@NotNull org.bukkit.Location location) {
-        return Position.at(
-                location.getX(), location.getY(), location.getZ(),
-                location.getYaw(), location.getPitch(),
-                adapt(Objects.requireNonNull(location.getWorld(), "Location world is null"))
-        );
-    }
-
-    @NotNull
-    public static World adapt(@NotNull org.bukkit.World world) {
-        return World.of(world.getName(), world.getUID());
     }
 
     @Override
@@ -155,9 +142,7 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     @NotNull
     @Override
     public List<World> getWorlds() {
-        return getServer().getWorlds().stream()
-                .map(BukkitHuskClaims::adapt)
-                .toList();
+        return getServer().getWorlds().stream().map(Adapter::adapt).toList();
     }
 
     @Override
@@ -200,8 +185,37 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     }
 
     @Override
+    public void registerCommands(@NotNull List<Command> commands) {
+        commands.forEach(command -> {
+            new BukkitCommand(command, this).register();
+            this.commands.add(command);
+        });
+    }
+
+    @Override
+    public @NotNull ConsoleUser getConsole() {
+        return ConsoleUser.wrap(audiences.console());
+    }
+
+    @Override
+    @NotNull
+    public BukkitAudiences getAudiences() {
+        return audiences;
+    }
+
+    @Override
     public void setupPluginMessagingChannels() {
-        //todo
+        final String channelId = PluginMessageBroker.BUNGEE_CHANNEL_ID;
+        getServer().getMessenger().registerIncomingPluginChannel(this, channelId, this);
+        getServer().getMessenger().registerOutgoingPluginChannel(this, channelId);
+    }
+
+    @Override
+    public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
+        if (broker != null && broker instanceof PluginMessageBroker pluginMessenger
+                && getSettings().getCrossServer().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
+            pluginMessenger.onReceive(channel, BukkitUser.adapt(player, this), message);
+        }
     }
 
     @NotNull
@@ -222,4 +236,37 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
             database.close();
         }
     }
+
+    public static class Adapter {
+        @NotNull
+        public static Position adapt(@NotNull Location location) {
+            return Position.at(
+                    location.getX(), location.getY(), location.getZ(),
+                    location.getYaw(), location.getPitch(),
+                    adapt(Objects.requireNonNull(location.getWorld(), "Location world is null"))
+            );
+        }
+
+        @NotNull
+        public static Location adapt(@NotNull Position position) {
+            return new Location(
+                    adapt(position.getWorld()),
+                    position.getX(), position.getY(), position.getZ(),
+                    position.getYaw(), position.getPitch()
+            );
+        }
+
+        @NotNull
+        public static org.bukkit.World adapt(@NotNull World position) {
+            return Optional.ofNullable(Bukkit.getWorld(position.getUuid()))
+                    .or(() -> Optional.ofNullable(Bukkit.getWorld(position.getName())))
+                    .orElseThrow(() -> new IllegalArgumentException("World not found"));
+        }
+
+        @NotNull
+        public static World adapt(@NotNull org.bukkit.World world) {
+            return World.of(world.getName(), world.getUID());
+        }
+    }
+
 }
