@@ -43,20 +43,20 @@ public class UnTrustCommand extends InClaimCommand implements TabCompletable {
     @Override
     public void execute(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
                         @NotNull Claim claim, @NotNull String[] args) {
-        final Optional<String> toUntrust = parseStringArg(args, 0);
-        if (toUntrust.isEmpty()) {
+        final Optional<String> toUnTrust = parseStringArg(args, 0);
+        if (toUnTrust.isEmpty()) {
             plugin.getLocales().getLocale("error_invalid_syntax")
                     .ifPresent(executor::sendMessage);
             return;
         }
 
         // Resolve the trustable and check the executor has access
-        resolveTrustable(toUntrust.get(), claim)
+        resolveTrustable(toUnTrust.get(), claim)
                 .flatMap(t -> checkUserHasAccess(executor, t, world, claim) ? Optional.of(t) : Optional.empty())
                 .map(t -> removeTrust(t, world, claim))
                 .ifPresentOrElse(
                         t -> plugin.getLocales().getLocale(t ? "trust_level_removed" : "error_not_trusted",
-                                toUntrust.get()).ifPresent(executor::sendMessage),
+                                toUnTrust.get()).ifPresent(executor::sendMessage),
                         () -> plugin.getLocales().getLocale("error_not_trusted")
                                 .ifPresent(executor::sendMessage)
                 );
