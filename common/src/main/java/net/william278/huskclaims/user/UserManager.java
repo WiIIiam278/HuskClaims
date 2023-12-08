@@ -34,7 +34,7 @@ import java.util.function.Function;
 public interface UserManager {
 
     @NotNull
-    ConcurrentHashMap<UUID, Preferences> getUserPreferences();
+    ConcurrentMap<UUID, Preferences> getUserPreferences();
 
     default void setUserPreferences(@NotNull UUID uuid, @NotNull Preferences preferences) {
         getUserPreferences().put(uuid, preferences);

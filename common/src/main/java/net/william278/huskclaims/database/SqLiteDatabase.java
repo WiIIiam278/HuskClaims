@@ -20,6 +20,7 @@
 package net.william278.huskclaims.database;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Queues;
 import com.google.gson.JsonSyntaxException;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.ClaimWorld;
@@ -39,6 +40,7 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 
 public class SqLiteDatabase extends Database {
@@ -345,14 +347,14 @@ public class SqLiteDatabase extends Database {
 
     @NotNull
     @Override
-    public List<UserGroup> getUserGroups(@NotNull UUID uuid) {
+    public ConcurrentLinkedQueue<UserGroup> getUserGroups(@NotNull UUID uuid) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 SELECT `name`, `members`
                 FROM `%user_groups%`
                 WHERE `uuid` = ?"""))) {
             statement.setString(1, uuid.toString());
             final ResultSet resultSet = statement.executeQuery();
-            final List<UserGroup> userGroups = Lists.newArrayList();
+            final ConcurrentLinkedQueue<UserGroup> userGroups = Queues.newConcurrentLinkedQueue();
             while (resultSet.next()) {
                 userGroups.add(new UserGroup(
                         uuid,
@@ -366,17 +368,17 @@ public class SqLiteDatabase extends Database {
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to fetch user groups from table", e);
         }
-        return Collections.emptyList();
+        return Queues.newConcurrentLinkedQueue();
     }
 
     @NotNull
     @Override
-    public List<UserGroup> getAllUserGroups() {
+    public ConcurrentLinkedQueue<UserGroup> getAllUserGroups() {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 SELECT `uuid`, `name`, `members`
                 FROM `%user_groups%`"""))) {
             final ResultSet resultSet = statement.executeQuery();
-            final List<UserGroup> userGroups = Lists.newArrayList();
+            final ConcurrentLinkedQueue<UserGroup> userGroups = Queues.newConcurrentLinkedQueue();
             while (resultSet.next()) {
                 userGroups.add(new UserGroup(
                         UUID.fromString(resultSet.getString("uuid")),
@@ -390,7 +392,7 @@ public class SqLiteDatabase extends Database {
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to fetch user groups from table", e);
         }
-        return Collections.emptyList();
+        return Queues.newConcurrentLinkedQueue();
     }
 
     @Override

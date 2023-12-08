@@ -111,7 +111,7 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvi
      * @return A list of {@link OnlineUser}s
      * @since 1.0
      */
-    List<OnlineUser> getOnlineUsers();
+    List<? extends OnlineUser> getOnlineUsers();
 
     /**
      * Get the server worlds

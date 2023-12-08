@@ -19,6 +19,7 @@
 
 package net.william278.huskclaims.claim;
 
+import com.google.common.collect.Maps;
 import net.william278.cloplib.operation.OperationPosition;
 import net.william278.cloplib.operation.OperationWorld;
 import net.william278.huskclaims.database.Database;
@@ -36,6 +37,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 
 /**
@@ -52,14 +54,14 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
      * @since 1.0
      */
     @NotNull
-    Map<OperationWorld, ClaimWorld> getClaimWorlds();
+    ConcurrentMap<OperationWorld, ClaimWorld> getClaimWorlds();
 
     /**
      * Set the claim worlds
      *
      * @param claimWorlds The claim worlds to set
      */
-    void setClaimWorlds(@NotNull Map<String, ClaimWorld> claimWorlds);
+    void setClaimWorlds(@NotNull ConcurrentMap<OperationWorld, ClaimWorld> claimWorlds);
 
     /**
      * Get a claim world by world
@@ -238,9 +240,9 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
         final LocalTime startTime = LocalTime.now();
 
         // Only load claim worlds for this server
-        final Map<String, ClaimWorld> loadedWorlds = new HashMap<>();
         final Map<World, ClaimWorld> worlds = getDatabase().getClaimWorlds(getPlugin().getServerName());
-        worlds.forEach((world, claimWorld) -> loadedWorlds.put(world.getName(), claimWorld));
+        final ConcurrentMap<OperationWorld, ClaimWorld> loadedWorlds = Maps.newConcurrentMap();
+        loadedWorlds.putAll(worlds);
         for (final World serverWorld : getPlugin().getWorlds()) {
             if (getPlugin().getSettings().getClaims().isWorldUnclaimable(serverWorld)) {
                 continue;
@@ -248,7 +250,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
 
             if (worlds.keySet().stream().map(World::getName).noneMatch(uuid -> uuid.equals(serverWorld.getName()))) {
                 getPlugin().log(Level.INFO, String.format("Creating new claim world for %s...", serverWorld.getName()));
-                loadedWorlds.put(serverWorld.getName(), getDatabase().createClaimWorld(serverWorld));
+                loadedWorlds.put(serverWorld, getDatabase().createClaimWorld(serverWorld));
             }
         }
         setClaimWorlds(loadedWorlds);

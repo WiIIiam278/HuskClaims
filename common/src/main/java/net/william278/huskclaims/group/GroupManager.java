@@ -33,6 +33,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
@@ -50,14 +51,14 @@ public interface GroupManager {
      * @since 1.0
      */
     @NotNull
-    List<UserGroup> getUserGroups();
+    ConcurrentLinkedQueue<UserGroup> getUserGroups();
 
     /**
      * Set the list of user groups
      *
      * @param userGroups The list of user groups
      */
-    void setUserGroups(@NotNull List<UserGroup> userGroups);
+    void setUserGroups(@NotNull ConcurrentLinkedQueue<UserGroup> userGroups);
 
     /**
      * Get a list of user groups owned by a player
@@ -157,7 +158,7 @@ public interface GroupManager {
         LocalTime startTime = LocalTime.now();
 
         // Load all users groups from the database
-        final List<UserGroup> groups = getDatabase().getAllUserGroups();
+        final ConcurrentLinkedQueue<UserGroup> groups = getDatabase().getAllUserGroups();
         this.setUserGroups(groups);
 
         final long uniqueGroups = groups.stream().map(UserGroup::groupOwner).toList().stream().distinct().count();

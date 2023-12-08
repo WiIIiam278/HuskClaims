@@ -22,6 +22,7 @@ package net.william278.huskclaims.user;
 import de.themoep.minedown.adventure.MineDown;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
+import net.william278.cloplib.operation.OperationUser;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.position.World;
 import org.jetbrains.annotations.NotNull;
@@ -31,7 +32,7 @@ import java.util.UUID;
 /**
  * Platform-agnostic representation of an online user
  */
-public abstract class OnlineUser extends User {
+public abstract class OnlineUser extends User implements OperationUser {
     protected OnlineUser(@NotNull String username, @NotNull UUID uuid) {
         super(username, uuid);
     }

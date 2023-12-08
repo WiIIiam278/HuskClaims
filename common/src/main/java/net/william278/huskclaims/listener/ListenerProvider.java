@@ -24,10 +24,10 @@ import org.jetbrains.annotations.NotNull;
 public interface ListenerProvider {
 
     @NotNull
-    ClaimsListener getClaimsListener();
+    ClaimsListener createClaimsListener();
 
     default void loadListeners() {
-        getClaimsListener().register();
+        createClaimsListener().register();
     }
 
 }

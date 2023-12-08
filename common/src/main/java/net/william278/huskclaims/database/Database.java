@@ -41,6 +41,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -251,7 +252,7 @@ public abstract class Database {
      * @return A list of the user's {@link UserGroup user groups}
      */
     @NotNull
-    public abstract List<UserGroup> getUserGroups(@NotNull UUID uuid);
+    public abstract ConcurrentLinkedQueue<UserGroup> getUserGroups(@NotNull UUID uuid);
 
     /**
      * Get a map of all {@link UserGroup user groups} for all users.
@@ -259,7 +260,7 @@ public abstract class Database {
      * @return A map of everyone's {@link UserGroup user groups}.
      */
     @NotNull
-    public abstract List<UserGroup> getAllUserGroups();
+    public abstract ConcurrentLinkedQueue<UserGroup> getAllUserGroups();
 
     /**
      * Add a {@link UserGroup} to the database

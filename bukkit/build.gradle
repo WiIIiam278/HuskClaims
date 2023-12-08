@@ -1,3 +1,7 @@
+plugins {
+    id 'xyz.jpenilla.run-paper' version '2.2.2'
+}
+
 dependencies {
     implementation project(path: ':common')
 
@@ -10,6 +14,9 @@ dependencies {
     compileOnly 'org.jetbrains:annotations:24.1.0'
     compileOnly 'net.william278:annotaml:2.0.7'
     compileOnly 'net.william278:DesertWell:2.0.4'
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
 }
 
 shadowJar {
@@ -41,4 +48,11 @@ shadowJar {
     relocate 'space.arim', 'net.william278.huskclaims.libraries.paperlib'
     relocate 'me.lucko', 'net.william278.huskclaims.libraries'
     relocate 'net.roxeez', 'net.william278.huskclaims.libraries'
+}
+
+
+tasks {
+    runServer {
+        minecraftVersion('1.20.2')
+    }
 }

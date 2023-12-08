@@ -36,8 +36,10 @@ import java.util.UUID;
 public class User implements Trustable {
 
     @Expose
+    @NotNull
     private String username;
     @Expose
+    @NotNull
     private UUID uuid;
 
     @NotNull
