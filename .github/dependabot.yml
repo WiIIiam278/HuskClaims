@@ -7,11 +7,13 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    prefix: "ci"
+    commit-message:
+      prefix: "ci"
 
   # Gradle package updates
   - package-ecosystem: "gradle"
     directory: "/"
     schedule:
       interval: "weekly"
-    prefix: "deps"
+    commit-message:
+      prefix: "deps"
