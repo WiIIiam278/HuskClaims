@@ -1,0 +1,17 @@
+# Dependabot configuration file for GitHub
+
+version: 2
+updates:
+  # CI workflow action updates
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    prefix: "ci"
+
+  # Gradle package updates
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    prefix: "deps"
