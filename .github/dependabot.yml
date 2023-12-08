@@ -17,3 +17,6 @@ updates:
       interval: "weekly"
     commit-message:
       prefix: "deps"
+    ignore:
+      - dependency-name: 'org.spigotmc:spigot-api'
+      - dependency-name: 'org.papermc:paper-api'

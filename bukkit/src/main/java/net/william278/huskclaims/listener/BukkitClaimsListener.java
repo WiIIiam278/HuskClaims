@@ -56,9 +56,4 @@ public class BukkitClaimsListener extends BukkitOperationListener implements Cla
         return plugin;
     }
 
-    @Override
-    @SuppressWarnings("unused")
-    public void setInspectionDistance(int i) {
-    }
-
 }
