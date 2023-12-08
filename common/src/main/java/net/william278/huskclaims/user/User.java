@@ -37,19 +37,19 @@ public class User implements Trustable {
 
     @Expose
     @NotNull
-    private String username;
+    private String name;
     @Expose
     @NotNull
     private UUID uuid;
 
     @NotNull
-    public static User of(@NotNull UUID uuid, @NotNull String username) {
-        return new User(username, uuid);
+    public static User of(@NotNull UUID uuid, @NotNull String name) {
+        return new User(name, uuid);
     }
 
     @NotNull
     @Override
     public String getTrustIdentifier(@NotNull HuskClaims plugin) {
-        return username;
+        return name;
     }
 }

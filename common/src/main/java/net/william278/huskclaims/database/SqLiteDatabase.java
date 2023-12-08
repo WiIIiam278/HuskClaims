@@ -288,7 +288,7 @@ public class SqLiteDatabase extends Database {
                 INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`, `preferences`)
                 VALUES (?, ?, ?, ?)"""))) {
             statement.setString(1, user.getUuid().toString());
-            statement.setString(2, user.getUsername());
+            statement.setString(2, user.getName());
             statement.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
             statement.setLong(4, claimBlocks);
             statement.setLong(5, claimBlocks);
@@ -306,7 +306,7 @@ public class SqLiteDatabase extends Database {
                 UPDATE `%user_data%`
                 SET `username` = ?, `last_login` = ?, `claim_blocks` = ?, `preferences` = ?
                 WHERE `uuid` = ?"""))) {
-            statement.setString(1, user.getUsername());
+            statement.setString(1, user.getName());
             statement.setTimestamp(2, Timestamp.valueOf(lastLogin.toLocalDateTime()));
             statement.setLong(3, claimBlocks);
             statement.setBytes(4, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));

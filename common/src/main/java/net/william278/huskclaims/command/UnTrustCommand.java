@@ -87,7 +87,7 @@ public class UnTrustCommand extends InClaimCommand implements TabCompletable {
                 .flatMap(world -> world.getClaimAt(user.getPosition()).map(claim -> {
                     final List<String> names = Lists.newArrayList();
                     claim.getTrustedUsers().keySet().stream()
-                            .map(uuid -> world.getUser(uuid).map(User::getUsername))
+                            .map(uuid -> world.getUser(uuid).map(User::getName))
                             .forEach(optionalName -> optionalName.ifPresent(names::add));
                     claim.getTrustedGroups().keySet().stream()
                             .map(group -> plugin.getSettings().getUserGroups().getGroupSpecifierPrefix() + group)
