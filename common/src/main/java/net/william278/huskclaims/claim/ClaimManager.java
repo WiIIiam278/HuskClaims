@@ -20,8 +20,6 @@
 package net.william278.huskclaims.claim;
 
 import com.google.common.collect.Maps;
-import net.william278.cloplib.operation.OperationPosition;
-import net.william278.cloplib.operation.OperationWorld;
 import net.william278.huskclaims.database.Database;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.position.World;
@@ -37,7 +35,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 
 /**
@@ -54,14 +51,14 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
      * @since 1.0
      */
     @NotNull
-    ConcurrentMap<OperationWorld, ClaimWorld> getClaimWorlds();
+    HashMap<String, ClaimWorld> getClaimWorlds();
 
     /**
      * Set the claim worlds
      *
      * @param claimWorlds The claim worlds to set
      */
-    void setClaimWorlds(@NotNull ConcurrentMap<OperationWorld, ClaimWorld> claimWorlds);
+    void setClaimWorlds(@NotNull HashMap<World, ClaimWorld> claimWorlds);
 
     /**
      * Get a claim world by world
@@ -70,8 +67,8 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
      * @return the claim world, if found
      * @since 1.0
      */
-    default Optional<ClaimWorld> getClaimWorld(@NotNull OperationWorld world) {
-        return Optional.ofNullable(getClaimWorlds().get(world));
+    default Optional<ClaimWorld> getClaimWorld(@NotNull World world) {
+        return Optional.ofNullable(getClaimWorlds().get(world.getName()));
     }
 
     /**
@@ -81,8 +78,8 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
      * @return the claim, if found
      * @since 1.0
      */
-    default Optional<Claim> getClaimAt(@NotNull OperationPosition position) {
-        return getClaimWorld(position.getWorld()).flatMap(world -> world.getClaimAt((Position) position));
+    default Optional<Claim> getClaimAt(@NotNull Position position) {
+        return getClaimWorld(position.getWorld()).flatMap(world -> world.getClaimAt(position));
     }
 
     /**
@@ -95,12 +92,10 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
      * @since 1.0
      */
     @Blocking
-    default void createClaimAt(@NotNull OperationWorld world, @NotNull Region region,
+    default void createClaimAt(@NotNull World world, @NotNull Region region,
                                @Nullable User owner) throws IllegalArgumentException {
-        if (!getClaimWorlds().containsKey(world)) {
-            throw new IllegalArgumentException("No claim world is present for world " + world.getName());
-        }
-        final ClaimWorld claimWorld = getClaimWorlds().get(world);
+        final ClaimWorld claimWorld = getClaimWorld(world).orElseThrow(
+                () -> new IllegalArgumentException("No claim world for world" + world.getName()));
 
         // Validate region is not yet claimed
         if (claimWorld.isRegionClaimed(region)) {
@@ -128,7 +123,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
      * @throws IllegalArgumentException if the region is already claimed, or if no claim world is present for the world
      * @since 1.0
      */
-    default void createAdminClaimAt(@NotNull OperationWorld world, @NotNull Region region)
+    default void createAdminClaimAt(@NotNull World world, @NotNull Region region)
             throws IllegalArgumentException {
         createClaimAt(world, region, null);
     }
@@ -142,12 +137,10 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
      * @throws IllegalArgumentException if the new region overlaps with another claim, if no claim world is present,
      *                                  or if the new region does not fully enclose all the claim's children
      */
-    default void resizeClaim(@NotNull OperationWorld world, @NotNull Claim claim,
+    default void resizeClaim(@NotNull World world, @NotNull Claim claim,
                              @NotNull Region newRegion) throws IllegalArgumentException {
-        if (!getClaimWorlds().containsKey(world)) {
-            throw new IllegalArgumentException("No claim world is present for world " + world.getName());
-        }
-        final ClaimWorld claimWorld = getClaimWorlds().get(world);
+        final ClaimWorld claimWorld = getClaimWorld(world).orElseThrow(
+                () -> new IllegalArgumentException("No claim world for world" + world.getName()));
 
         // Ensure this is not a child claim and doesn't overlap with other claims
         if (claim.isChildClaim(claimWorld)) {
@@ -173,11 +166,9 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
         );
     }
 
-    default void deleteClaim(@NotNull OperationWorld world, @NotNull Claim claim) {
-        if (!getClaimWorlds().containsKey(world)) {
-            throw new IllegalArgumentException("No claim world is present for world " + world.getName());
-        }
-        final ClaimWorld claimWorld = getClaimWorlds().get(world);
+    default void deleteClaim(@NotNull World world, @NotNull Claim claim) {
+        final ClaimWorld claimWorld = getClaimWorld(world).orElseThrow(
+                () -> new IllegalArgumentException("No claim world for world" + world.getName()));
 
         // Ensure this is not a child claim
         if (claim.isChildClaim(claimWorld)) {
@@ -205,12 +196,11 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
      * @since 1.0
      */
     @Blocking
-    default void createChildClaimAt(@NotNull OperationWorld world, @NotNull Region region,
+    default void createChildClaimAt(@NotNull World world, @NotNull Region region,
                                     @NotNull User creator) throws IllegalArgumentException {
-        if (!getClaimWorlds().containsKey(world)) {
-            throw new IllegalArgumentException("No claim world is present for world " + world.getName());
-        }
-        final ClaimWorld claimWorld = getClaimWorlds().get(world);
+        final ClaimWorld claimWorld = getClaimWorld(world).orElseThrow(
+                () -> new IllegalArgumentException("No claim world for world" + world.getName())
+        );
 
         // Create claim
         final Claim parent = claimWorld.getClaimAt(region.getNearCorner())
@@ -241,7 +231,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
 
         // Only load claim worlds for this server
         final Map<World, ClaimWorld> worlds = getDatabase().getClaimWorlds(getPlugin().getServerName());
-        final ConcurrentMap<OperationWorld, ClaimWorld> loadedWorlds = Maps.newConcurrentMap();
+        final HashMap<World, ClaimWorld> loadedWorlds = Maps.newHashMap();
         loadedWorlds.putAll(worlds);
         for (final World serverWorld : getPlugin().getWorlds()) {
             if (getPlugin().getSettings().getClaims().isWorldUnclaimable(serverWorld)) {
@@ -262,6 +252,15 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
     }
 
     /**
+     * Load the claim highlighter
+     *
+     * @since 1.0
+     */
+    default void loadClaimHighlighter() {
+        setClaimHighlighter(new DefaultHighlighter(getPlugin()));
+    }
+
+    /**
      * Get the claim highlighter
      *
      * @return the claim highlighter
@@ -277,8 +276,8 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
      * @param position The position to highlight the claim at
      * @since 1.0
      */
-    default void highlightClaimAt(@NotNull OnlineUser user, @NotNull OperationPosition position) {
-        getClaimWorld(position.getWorld()).ifPresent(world -> world.getClaimAt((Position) position)
+    default void highlightClaimAt(@NotNull OnlineUser user, @NotNull Position position) {
+        getClaimWorld(position.getWorld()).ifPresent(world -> world.getClaimAt(position)
                 .ifPresent(claim -> getClaimHighlighter().highlightClaim(user, world, claim)));
     }
 

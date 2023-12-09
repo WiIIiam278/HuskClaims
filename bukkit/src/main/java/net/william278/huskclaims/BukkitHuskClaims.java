@@ -26,7 +26,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import net.william278.cloplib.operation.OperationWorld;
 import net.william278.desertwell.util.Version;
 import net.william278.huskclaims.claim.ClaimHighlighter;
 import net.william278.huskclaims.claim.ClaimWorld;
@@ -39,7 +38,7 @@ import net.william278.huskclaims.config.Settings;
 import net.william278.huskclaims.config.TrustLevels;
 import net.william278.huskclaims.database.Database;
 import net.william278.huskclaims.group.UserGroup;
-import net.william278.huskclaims.listener.BukkitClaimsListener;
+import net.william278.huskclaims.listener.BukkitListener;
 import net.william278.huskclaims.listener.ClaimsListener;
 import net.william278.huskclaims.network.Broker;
 import net.william278.huskclaims.network.PluginMessageBroker;
@@ -58,10 +57,7 @@ import org.jetbrains.annotations.Nullable;
 import space.arim.morepaperlib.MorePaperLib;
 
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
@@ -81,8 +77,7 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     @Getter
     private ConcurrentMap<UUID, Long> claimBlocks = Maps.newConcurrentMap();
     @Getter
-    @Setter
-    private ConcurrentMap<OperationWorld, ClaimWorld> claimWorlds = Maps.newConcurrentMap();
+    private HashMap<String, ClaimWorld> claimWorlds = Maps.newHashMap();
     @Getter
     private List<Command> commands = Lists.newArrayList();
     @Getter
@@ -193,7 +188,8 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     }
 
     @Override
-    public @NotNull ConsoleUser getConsole() {
+    @NotNull
+    public ConsoleUser getConsole() {
         return ConsoleUser.wrap(audiences.console());
     }
 
@@ -218,6 +214,12 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
         }
     }
 
+    @Override
+    public void setClaimWorlds(@NotNull HashMap<World, ClaimWorld> claimWorlds) {
+        this.claimWorlds = Maps.newHashMap();
+        claimWorlds.forEach((world, claimWorld) -> this.claimWorlds.put(world.getName(), claimWorld));
+    }
+
     @NotNull
     @Override
     public List<Integer> getHighestBlockYAt(@NotNull List<BlockPosition> positions, @NotNull World world) {
@@ -227,7 +229,7 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     @NotNull
     @Override
     public ClaimsListener createClaimsListener() {
-        return new BukkitClaimsListener(this);
+        return new BukkitListener(this);
     }
 
     @Override

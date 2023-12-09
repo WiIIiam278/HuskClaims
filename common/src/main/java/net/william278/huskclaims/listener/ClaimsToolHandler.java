@@ -36,15 +36,16 @@ public interface ClaimsToolHandler {
 
 
     // Handle a right click action on a block with a claim tool
-    default void onClaimToolUse(@NotNull OperationUser operationUser, @NotNull OperationPosition position) {
-        final OnlineUser user = (OnlineUser) operationUser;
+    default void onClaimToolUse(@NotNull OperationUser opUser, @NotNull OperationPosition opPosition) {
+        final OnlineUser user = (OnlineUser) opUser;
+        final Position position = (Position) opPosition;
         final Optional<ClaimWorld> optionalWorld = getPlugin().getClaimWorld(position.getWorld());
         if (optionalWorld.isEmpty()) {
             getPlugin().getLocales().getLocale("world_not_claimable")
                     .ifPresent(user::sendMessage);
             return;
         }
-        getPlugin().runAsync(() -> getPlugin().handleSelection(user, optionalWorld.get(), (Position) position));
+        getPlugin().runAsync(() -> getPlugin().handleSelection(user, optionalWorld.get(), position));
     }
 
     @NotNull

@@ -36,8 +36,9 @@ import java.util.Optional;
 public interface InspectionToolHandler {
 
     // When the inspection tool (default: stick) is used
-    default void onInspectionToolUse(@NotNull OperationUser operationUser, @NotNull OperationPosition position) {
-        final OnlineUser user = (OnlineUser) operationUser;
+    default void onInspectionToolUse(@NotNull OperationUser opUser, @NotNull OperationPosition opPosition) {
+        final OnlineUser user = (OnlineUser) opUser;
+        final Position position = (Position) opPosition;
 
         // Check that the world is claimable
         final Optional<ClaimWorld> optionalWorld = getPlugin().getClaimWorld(position.getWorld());
@@ -50,7 +51,7 @@ public interface InspectionToolHandler {
 
         // Check if there is a claim at the position
         //todo - future: highlight ALL nearby claims if the user is sneaking.
-        final Optional<Claim> optionalClaim = claimWorld.getClaimAt((Position) position);
+        final Optional<Claim> optionalClaim = claimWorld.getClaimAt(position);
         if (optionalClaim.isEmpty()) {
             getPlugin().getLocales().getLocale("land_not_claimed")
                     .ifPresent(user::sendMessage);

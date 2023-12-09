@@ -27,15 +27,34 @@ import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.user.BukkitUser;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.NotNull;
 
-public class BukkitClaimsListener extends BukkitOperationListener implements ClaimsListener {
+public class BukkitListener extends BukkitOperationListener implements ClaimsListener, UserListener {
 
-    private final HuskClaims plugin;
+    private final BukkitHuskClaims plugin;
 
-    public BukkitClaimsListener(@NotNull BukkitHuskClaims plugin) {
+    public BukkitListener(@NotNull BukkitHuskClaims plugin) {
         super(plugin, plugin);
         this.plugin = plugin;
+    }
+
+    @Override
+    public void register() {
+        ClaimsListener.super.register();
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+    }
+
+    @EventHandler
+    public void onPlayerJoin(@NotNull PlayerJoinEvent e) {
+        this.onUserJoin(BukkitUser.adapt(e.getPlayer(), plugin));
+    }
+
+    @EventHandler
+    public void onPlayerQuit(@NotNull PlayerQuitEvent e) {
+        this.onUserQuit(BukkitUser.adapt(e.getPlayer(), plugin));
     }
 
     @Override

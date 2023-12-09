@@ -186,9 +186,10 @@ public class Claim {
         trustedGroups.put(group.name(), level.getId());
     }
 
-    public void setTrustLevel(@NotNull Trustable trustable, @NotNull TrustLevel level) {
+    public void setTrustLevel(@NotNull Trustable trustable, @NotNull ClaimWorld world, @NotNull TrustLevel level) {
         if (trustable instanceof User user) {
             setUserTrustLevel(user.getUuid(), level);
+            world.cacheUser(user);
         } else if (trustable instanceof UserGroup group) {
             setGroupTrustLevel(group, level);
         } else {

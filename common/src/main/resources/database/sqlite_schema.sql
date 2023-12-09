@@ -35,5 +35,5 @@ CREATE TABLE IF NOT EXISTS `%claim_data%`
     `world_uuid`        char(36)     NOT NULL,
     `world_name`        varchar(128) NOT NULL,
     `world_environment` varchar(32)  NOT NULL,
-    `claims`            longblob     NOT NULL
+    `data`            longblob     NOT NULL
 );

@@ -160,10 +160,10 @@ public class Region {
      * Get the index of the corner that was clicked
      *
      * @param position the position that was clicked
-     * @return the index of the corner that was clicked, or -1 if no corner was clicked
+     * @return the index of the corner that was clicked or -1 if no corner was clicked
      * @since 1.0
      */
-    public int getClickedCorner(@NotNull BlockPosition position) {
+    public int getClickedCorner(@NotNull Corner position) {
         final List<Corner> corners = getCorners();
         for (int i = 0; i < 4; i++) {
             if (corners.get(i).equals(position)) {
@@ -188,7 +188,7 @@ public class Region {
             throw new IllegalArgumentException("Corner index must be between 0 and 3");
         }
 
-        // Get diagonally opposite corner of the corner being moved
+        // Get the diagonally opposite corner of the corner being moved
         final List<Corner> corners = getCorners();
         final Corner oppositeCorner = corners.get((cornerIndex + 2) % 4);
 
@@ -237,6 +237,14 @@ public class Region {
         @Override
         public int getBlockZ() {
             return z;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof Corner corner) {
+                return corner.x == x && corner.z == z;
+            }
+            return false;
         }
     }
 }

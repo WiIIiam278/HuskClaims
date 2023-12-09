@@ -21,7 +21,6 @@ package net.william278.huskclaims.claim;
 
 import de.exlll.configlib.Configuration;
 import lombok.*;
-import net.kyori.adventure.key.Key;
 import net.william278.cloplib.operation.OperationType;
 import org.jetbrains.annotations.NotNull;
 

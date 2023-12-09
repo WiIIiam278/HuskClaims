@@ -150,7 +150,10 @@ public interface ClaimEditor {
         }
 
         // Create the claim
+        world.cacheUser(user);
         getPlugin().createClaimAt(user.getWorld(), region, user);
+        getPlugin().getLocales().getLocale("claim_created", Long.toString(surfaceArea))
+                .ifPresent(user::sendMessage);
     }
 
     @NotNull
@@ -172,7 +175,7 @@ public interface ClaimEditor {
 
         // Get the claim and check if they have permission to resize it
         final Claim claim = clickedClaim.get();
-        if (claim.getRegion().getClickedCorner(clicked) != -1) {
+        if (claim.getRegion().getClickedCorner(Region.Corner.wrap(clicked)) != -1) {
             final ClaimSelection selection = builder.claimBeingResized(claim).build();
 
             if (!selection.canResize(user, world, getPlugin())) {

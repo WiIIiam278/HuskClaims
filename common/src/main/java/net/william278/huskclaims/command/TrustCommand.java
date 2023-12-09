@@ -45,7 +45,7 @@ public class TrustCommand extends InClaimCommand implements TrustableTabCompleta
                         @NotNull String[] args) {
         final Optional<String> toTrust = parseStringArg(args, 0);
         if (toTrust.isEmpty()) {
-            plugin.getLocales().getLocale("error_invalid_syntax")
+            plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                     .ifPresent(executor::sendMessage);
             return;
         }
@@ -61,7 +61,7 @@ public class TrustCommand extends InClaimCommand implements TrustableTabCompleta
     }
 
     private void setTrustLevel(@NotNull Trustable trustable, @NotNull ClaimWorld world, @NotNull Claim claim) {
-        claim.setTrustLevel(trustable, level);
+        claim.setTrustLevel(trustable, world, level);
         plugin.getDatabase().updateClaimWorld(world);
         plugin.getLocales().getLocale("trust_level_set",
                 trustable.getTrustIdentifier(plugin), level.getDisplayName());

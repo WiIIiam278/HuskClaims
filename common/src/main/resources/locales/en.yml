@@ -13,6 +13,8 @@ land_selection_overlaps: '[This land selection overlaps with an existing claim](
 selection_resize_not_enclosing_children: '[This selection resize would not enclose all its child claims](#ff7e5e)'
 claim_selection_create: '[First claim corner set. Right click to select a second position to create claim.](#00fb9a)'
 claim_selection_resize: '[Selected claim corner for resizing. Right click to select a new claim corner position.](#00fb9a)'
+claim_created: '[Successfully created a claim. Use](#00fb9a) [/trust](#00fb9a italic suggest_command=/trust) [to allow others to build within it.](#00fb9a)'
+claim_created_admin: '[Successfully created an administrator claim.](#00fb9a)'
 trust_level_set: '[Successfully gave %1% %2% in this claim](#00fb9a)'
 trust_level_removed: '[Successfully revoked %1%''s access level to this claim](#00fb9a)'
 no_claiming_permission: '[You do not have permission to create or edit claims](#ff7e5e)'

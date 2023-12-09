@@ -86,6 +86,10 @@ public class ClaimWorld {
         return getClaims().stream().filter(claim -> claim.getRegion().intersects(region)).toList();
     }
 
+    public void cacheUser(@NotNull User user) {
+        userCache.put(user.getUuid(), user.getName());
+    }
+
     /**
      * Get if a region is claimed
      *

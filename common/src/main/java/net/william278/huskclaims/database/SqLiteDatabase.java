@@ -286,13 +286,12 @@ public class SqLiteDatabase extends Database {
     public void createUser(@NotNull User user, long claimBlocks, @NotNull Preferences preferences) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`, `preferences`)
-                VALUES (?, ?, ?, ?)"""))) {
+                VALUES (?, ?, ?, ?, ?)"""))) {
             statement.setString(1, user.getUuid().toString());
             statement.setString(2, user.getName());
             statement.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
             statement.setLong(4, claimBlocks);
-            statement.setLong(5, claimBlocks);
-            statement.setBytes(6, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
+            statement.setBytes(5, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
             statement.executeUpdate();
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to create user in table", e);
@@ -443,7 +442,7 @@ public class SqLiteDatabase extends Database {
     public Map<World, ClaimWorld> getClaimWorlds(@NotNull String server) throws IllegalStateException {
         final Map<World, ClaimWorld> worlds = new HashMap<>();
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `id`, `world_uuid`, `world_name`, `world_environment`, `claims`
+                SELECT `id`, `world_uuid`, `world_name`, `world_environment`, `data`
                 FROM `%claim_data%`
                 WHERE `server_name` = ?"""))) {
             statement.setString(1, server);
@@ -454,7 +453,7 @@ public class SqLiteDatabase extends Database {
                         UUID.fromString(resultSet.getString("world_uuid"))
                 );
                 final ClaimWorld claimWorld = plugin.getClaimWorldFromJson(
-                        new String(resultSet.getBytes("claims"), StandardCharsets.UTF_8)
+                        new String(resultSet.getBytes("data"), StandardCharsets.UTF_8)
                 );
                 claimWorld.updateId(resultSet.getInt("id"));
                 if (!plugin.getSettings().getClaims().isWorldUnclaimable(world)) {
@@ -472,7 +471,7 @@ public class SqLiteDatabase extends Database {
     public Map<ServerWorld, ClaimWorld> getAllClaimWorlds() throws IllegalStateException {
         final Map<ServerWorld, ClaimWorld> worlds = new HashMap<>();
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `id`, `server_name`, `world_uuid`, `world_name`, `world_environment`, `claims`
+                SELECT `id`, `server_name`, `world_uuid`, `world_name`, `world_environment`, `data`
                 FROM `%claim_data%`"""))) {
             final ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
@@ -481,7 +480,7 @@ public class SqLiteDatabase extends Database {
                         UUID.fromString(resultSet.getString("world_uuid"))
                 );
                 final ClaimWorld claimWorld = plugin.getClaimWorldFromJson(
-                        new String(resultSet.getBytes("claims"), StandardCharsets.UTF_8)
+                        new String(resultSet.getBytes("data"), StandardCharsets.UTF_8)
                 );
                 claimWorld.updateId(resultSet.getInt("id"));
                 worlds.put(new ServerWorld(resultSet.getString("server_name"), world), claimWorld);
@@ -498,7 +497,7 @@ public class SqLiteDatabase extends Database {
     public ClaimWorld createClaimWorld(@NotNull World world) {
         final ClaimWorld claimWorld = ClaimWorld.create(plugin);
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                INSERT INTO `%claim_data%` (`world_uuid`, `world_name`, `world_environment`, `server_name`, `claims`)
+                INSERT INTO `%claim_data%` (`world_uuid`, `world_name`, `world_environment`, `server_name`, `data`)
                 VALUES (?, ?, ?, ?, ?)"""))) {
             statement.setString(1, world.getUuid().toString());
             statement.setString(2, world.getName());
@@ -516,7 +515,7 @@ public class SqLiteDatabase extends Database {
     public void updateClaimWorld(@NotNull ClaimWorld claimWorld) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 UPDATE `%claim_data%`
-                SET `claims` = ?
+                SET `data` = ?
                 WHERE `id` = ?"""))) {
             statement.setBytes(1, plugin.getGson().toJson(claimWorld).getBytes(StandardCharsets.UTF_8));
             statement.setInt(2, claimWorld.getId());
