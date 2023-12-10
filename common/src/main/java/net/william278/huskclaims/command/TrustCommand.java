@@ -73,4 +73,10 @@ public class TrustCommand extends InClaimCommand implements TrustableTabCompleta
         return plugin.getClaimAt(user.getPosition()).flatMap(Claim::getOwner).orElse(null);
     }
 
+    @NotNull
+    @Override
+    public String getDescription() {
+        return level.getDescription();
+    }
+
 }

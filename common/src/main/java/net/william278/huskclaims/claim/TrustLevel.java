@@ -35,6 +35,7 @@ public class TrustLevel implements Comparable<TrustLevel> {
 
     private String id;
     private String displayName;
+    private String description;
     @Builder.Default
     private List<String> commandAliases = List.of();
     @Builder.Default

@@ -52,6 +52,7 @@ public class TrustLevels {
                     .id(Key.key("huskclaims", "permission_trust").asString())
                     .weight(400)
                     .displayName("Permission Trust")
+                    .description("Allows users to manage trustees & make child claims")
                     .commandAliases(List.of("permisiontrust"))
                     .flags(List.of(
                             OperationType.BLOCK_BREAK,
@@ -86,6 +87,7 @@ public class TrustLevels {
                     .id(Key.key("huskclaims", "build_trust").asString())
                     .weight(300)
                     .displayName("Build Trust")
+                    .description("Allows users to build in the claim")
                     .commandAliases(List.of("trust"))
                     .flags(List.of(
                             OperationType.BLOCK_BREAK,
@@ -115,6 +117,7 @@ public class TrustLevels {
                     .id(Key.key("huskclaims", "container_trust").asString())
                     .weight(200)
                     .displayName("Container Trust")
+                    .description("Allows users to open chests & other containers")
                     .commandAliases(List.of("containertrust"))
                     .flags(List.of(
                             OperationType.BLOCK_INTERACT,
@@ -130,6 +133,7 @@ public class TrustLevels {
                     .id(Key.key("huskclaims", "access_trust").asString())
                     .weight(100)
                     .displayName("Access Trust")
+                    .description("Allows users to use doors, buttons, levers, etc.")
                     .commandAliases(List.of("accesstrust"))
                     .flags(List.of(
                             OperationType.BLOCK_INTERACT,
