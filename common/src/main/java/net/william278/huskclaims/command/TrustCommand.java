@@ -54,17 +54,19 @@ public class TrustCommand extends InClaimCommand implements TrustableTabCompleta
         resolveTrustable(toTrust.get(), claim)
                 .flatMap(t -> checkUserHasAccess(executor, t, world, claim) ? Optional.of(t) : Optional.empty())
                 .ifPresentOrElse(
-                        t -> setTrustLevel(t, world, claim),
+                        t -> setTrustLevel(executor, t, world, claim),
                         () -> plugin.getLocales().getLocale("error_not_trusted")
                                 .ifPresent(executor::sendMessage)
                 );
     }
 
-    private void setTrustLevel(@NotNull Trustable trustable, @NotNull ClaimWorld world, @NotNull Claim claim) {
+    private void setTrustLevel(@NotNull OnlineUser executor, @NotNull Trustable trustable,
+                               @NotNull ClaimWorld world, @NotNull Claim claim) {
         claim.setTrustLevel(trustable, world, level);
         plugin.getDatabase().updateClaimWorld(world);
         plugin.getLocales().getLocale("trust_level_set",
-                trustable.getTrustIdentifier(plugin), level.getDisplayName());
+                        trustable.getTrustIdentifier(plugin), level.getDisplayName())
+                .ifPresent(executor::sendMessage);
     }
 
     @Nullable

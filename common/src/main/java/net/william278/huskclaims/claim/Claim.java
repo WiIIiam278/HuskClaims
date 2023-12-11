@@ -159,7 +159,7 @@ public class Claim {
      */
     public boolean isPrivilegeAllowed(@NotNull TrustLevel.Privilege privilege, @NotNull User user,
                                       @NotNull ClaimWorld world, @NotNull HuskClaims plugin) {
-        return getEffectiveTrustLevel(user, world, plugin)
+        return user.getUuid().equals(owner) || getEffectiveTrustLevel(user, world, plugin)
                 .map(level -> level.getPrivileges().contains(privilege))
                 .orElse(false);
     }

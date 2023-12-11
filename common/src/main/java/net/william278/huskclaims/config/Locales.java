@@ -87,7 +87,7 @@ public class Locales {
      * @return An {@link Optional} containing the formatted locale corresponding to the id, if it exists
      */
     public Optional<MineDown> getLocale(@NotNull String localeId) {
-        return getRawLocale(localeId).map(MineDown::new);
+        return getRawLocale(localeId).map(this::format);
     }
 
     /**
@@ -101,7 +101,18 @@ public class Locales {
      */
     public Optional<MineDown> getLocale(@NotNull String localeId, @NotNull String... replacements) {
         return getRawLocale(localeId, Arrays.stream(replacements).map(Locales::escapeText)
-                .toArray(String[]::new)).map(MineDown::new);
+                .toArray(String[]::new)).map(this::format);
+    }
+
+    /**
+     * Returns a MineDown-formatted string
+     *
+     * @param text The text to format
+     * @return A {@link MineDown} object containing the formatted text
+     */
+    @NotNull
+    public MineDown format(@NotNull String text) {
+        return new MineDown(text);
     }
 
     /**

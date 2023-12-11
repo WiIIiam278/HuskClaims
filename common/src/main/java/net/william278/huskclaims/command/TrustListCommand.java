@@ -36,34 +36,34 @@ public class TrustListCommand extends InClaimCommand {
     }
 
     private void sendTrustListMenu(@NotNull OnlineUser executor, @NotNull Claim claim, @NotNull ClaimWorld world) {
-        plugin.getLocales().getLocale("trust_list_claim_header",
+        plugin.getLocales().getLocale("trust_list_header",
                 claim.getOwnerName(world, plugin)).ifPresent(executor::sendMessage);
         plugin.getTrustLevels().forEach(level -> sendTrustListRow(executor, level, claim, world));
     }
 
     private void sendTrustListRow(@NotNull OnlineUser executor, @NotNull TrustLevel level,
                                   @NotNull Claim claim, @NotNull ClaimWorld world) {
-        if (claim.getTrustedUsers().isEmpty() && claim.getTrustedGroups().isEmpty()) {
-            return;
-        }
-
-        // Add trusted users and groups
         final StringJoiner joiner = new StringJoiner(
                 plugin.getLocales().getRawLocale("trust_list_separator").orElse(", ")
         );
-        claim.getTrustedUsers().forEach(
-                (uuid, string) -> joiner.add(getMemberEntry(uuid, world))
-        );
-        claim.getOwner().ifPresent(owner -> claim.getTrustedGroups().forEach(
-                (name, uuid) -> joiner.add(getGroupEntry(name, owner, plugin))
-        ));
+        plugin.getLocales().getRawLocale("trust_list_row_none").ifPresent(joiner::setEmptyValue);
+
+        // Add trusted users and groups
+        claim.getTrustedUsers().entrySet().stream()
+                .filter(e -> e.getValue().equals(level.getId()))
+                .forEach(e -> joiner.add(getMemberEntry(e.getKey(), world)));
+        claim.getOwner().ifPresent(owner -> claim.getTrustedGroups().entrySet().stream()
+                .filter(e -> e.getValue().equals(level.getId()))
+                .forEach(e -> joiner.add(getGroupEntry(e.getKey(), owner, plugin))));
 
         // Return the row
-        plugin.getLocales().getLocale("trust_list_row",
-                Locales.escapeText(level.getDisplayName()),
-                plugin.getLocales().wrapText(Locales.escapeText(level.getDescription()), DESCRIPTION_WRAP),
-                joiner.toString()
-        ).ifPresent(executor::sendMessage);
+        plugin.getLocales().getRawLocale("trust_list_row",
+                        Locales.escapeText(level.getDisplayName()),
+                        plugin.getLocales().wrapText(Locales.escapeText(level.getDescription()), DESCRIPTION_WRAP),
+                        joiner.toString()
+                )
+                .map(t -> plugin.getLocales().format(t))
+                .ifPresent(executor::sendMessage);
     }
 
     @NotNull
