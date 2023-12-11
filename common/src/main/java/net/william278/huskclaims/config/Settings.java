@@ -24,6 +24,7 @@ import de.exlll.configlib.Configuration;
 import lombok.*;
 import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.database.Database;
+import net.william278.huskclaims.highlighter.Highlightable;
 import net.william278.huskclaims.network.Broker;
 import net.william278.huskclaims.position.World;
 import org.jetbrains.annotations.NotNull;
@@ -186,40 +187,19 @@ public final class Settings {
         @Comment("Max range of inspector tools")
         private int inspectionDistance = 40;
 
-        @Comment("Claim inspection highlighting settings")
-        private HighlighterSettings highlighting = new HighlighterSettings();
+        @Comment("Blocks to use for the block highlighter")
+        private Map<Highlightable.HighlightType, String> blockHighlighterTypes = Map.of(
+                Highlightable.HighlightType.EDGE, "minecraft:gold_block",
+                Highlightable.HighlightType.CORNER, "minecraft:glowstone",
+                Highlightable.HighlightType.ADMIN_CORNER, "minecraft:jack_o_lantern",
+                Highlightable.HighlightType.ADMIN_EDGE, "minecraft:carved_pumpkin",
+                Highlightable.HighlightType.CHILD_CORNER, "minecraft:iron_block",
+                Highlightable.HighlightType.CHILD_EDGE, "minecraft:white_wool",
+                Highlightable.HighlightType.SELECTION, "minecraft:diamond_block"
+        );
 
         public boolean isWorldUnclaimable(@NotNull World world) {
             return unclaimableWorlds.stream().anyMatch(world.getName()::equalsIgnoreCase);
-        }
-
-        @Getter
-        @Configuration
-        @NoArgsConstructor(access = AccessLevel.PRIVATE)
-        public static class HighlighterSettings {
-            @Comment("Highlight block for regular claim corners")
-            private String regularClaimCornerBlock = "minecraft:glowstone";
-
-            @Comment("Highlight block for regular claims")
-            private String regularClaimBlock = "minecraft:gold_block";
-
-            @Comment("Highlight block for child/sub claim corners")
-            private String childClaimCornerBlock = "minecraft:sea_lantern";
-
-            @Comment("Highlight block for child/sub claims")
-            private String childClaimBlock = "minecraft:iron_block";
-
-            @Comment("Highlight block for admin claim corners")
-            private String adminClaimCornerBlock = "minecraft:jack_o_lantern";
-
-            @Comment("Highlight block for admin claims")
-            private String adminClaimBlock = "minecraft:pumpkin";
-
-            @Comment("Highlight block for other players' claim corners")
-            private String otherClaimCornerBlock = "minecraft:netherrack";
-
-            @Comment("Highlight block for other players' claims")
-            private String otherClaimBlock = "minecraft:netherrack";
         }
 
     }
@@ -228,6 +208,7 @@ public final class Settings {
     public List<OperationGroup> operationGroups = List.of(
             OperationGroup.builder()
                     .name("Claim Explosions")
+                    .description("Toggle whether explosions can damage terrain in claims")
                     .allowedOperations(List.of(
                             OperationType.EXPLOSION_DAMAGE_TERRAIN,
                             OperationType.MONSTER_DAMAGE_TERRAIN
@@ -243,6 +224,7 @@ public final class Settings {
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class OperationGroup {
         private String name;
+        private String description;
         private List<String> toggleCommandAliases;
         private List<OperationType> allowedOperations;
     }

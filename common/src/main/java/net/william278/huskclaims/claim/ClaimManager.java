@@ -171,10 +171,15 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
         );
     }
 
-    default void deleteClaim(@NotNull World world, @NotNull Claim claim) {
-        final ClaimWorld claimWorld = getClaimWorld(world).orElseThrow(
-                () -> new IllegalArgumentException("No claim world for world" + world.getName()));
+    default void deleteClaim(@NotNull World world, @NotNull Claim claim) throws IllegalStateException {
+        this.deleteClaim(
+                getClaimWorld(world).orElseThrow(
+                        () -> new IllegalArgumentException("No claim world for world" + world.getName())
+                ), claim
+        );
+    }
 
+    default void deleteClaim(@NotNull ClaimWorld claimWorld, @NotNull Claim claim) {
         // Ensure this is not a child claim
         if (claim.isChildClaim(claimWorld)) {
             throw new IllegalArgumentException("Cannot delete a child claim at the world level");

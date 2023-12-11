@@ -20,6 +20,7 @@
 package net.william278.huskclaims.claim;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import lombok.AccessLevel;
@@ -31,6 +32,7 @@ import net.william278.huskclaims.position.BlockPosition;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * A rectangular region defined by two {@link Corner} points
@@ -209,12 +211,14 @@ public class Region implements Highlightable {
 
     @NotNull
     @Override
-    public List<? extends BlockPosition> getHighlightPositions() {
-        final List<Corner> positions = Lists.newArrayList(getCorners());
+    public Map<? extends BlockPosition, HighlightType> getHighlightPositions() {
+        final Map<Corner, HighlightType> positions = Maps.newHashMap();
 
+        getCorners().forEach(c -> positions.put(c, HighlightType.CORNER));
 
+        //todo more positions
 
-        return positions.stream().distinct().toList();
+        return positions;
     }
 
     /**

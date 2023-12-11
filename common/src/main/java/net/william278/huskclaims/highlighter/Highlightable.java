@@ -23,6 +23,7 @@ import net.william278.huskclaims.position.BlockPosition;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents an object that can be highlighted
@@ -36,6 +37,16 @@ public interface Highlightable {
      * @since 1.0
      */
     @NotNull
-    List<? extends BlockPosition> getHighlightPositions();
+    Map<? extends BlockPosition, HighlightType> getHighlightPositions();
+
+    enum HighlightType {
+        CORNER,
+        EDGE,
+        CHILD_CORNER,
+        CHILD_EDGE,
+        ADMIN_CORNER,
+        ADMIN_EDGE,
+        SELECTION
+    }
 
 }

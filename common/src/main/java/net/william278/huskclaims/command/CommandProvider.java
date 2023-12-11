@@ -47,13 +47,18 @@ public interface CommandProvider {
         commands.add(new HuskClaimsCommand(getPlugin()));
         commands.add(new UnTrustCommand(getPlugin()));
         commands.add(new TrustListCommand(getPlugin()));
+        commands.add(new UserGroupsCommand(getPlugin()));
+        commands.add(new UnClaimCommand(getPlugin()));
 
         // Register trust level commands
         getPlugin().getTrustLevels().stream()
                 .filter(level -> !level.getCommandAliases().isEmpty())
                 .forEach((level) -> commands.add(new TrustCommand(level, getPlugin())));
 
-        // Register operation group commands todo
+        // Register operation group commands
+        getPlugin().getSettings().getOperationGroups().stream()
+                .filter(group -> !group.getToggleCommandAliases().isEmpty())
+                .forEach((group) -> commands.add(new OperationGroupCommand(group, getPlugin())));
 
         registerCommands(commands);
     }

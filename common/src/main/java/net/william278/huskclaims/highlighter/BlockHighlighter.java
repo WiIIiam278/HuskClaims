@@ -57,15 +57,26 @@ public class BlockHighlighter implements Highlighter {
             final List<HighlightedBlock> highlightBlocks = Lists.newArrayList();
 
             for (Highlightable highlight : toHighlight) {
-                plugin.getHighestBlocksAt(highlight.getHighlightPositions(), world).forEach((position, block) -> {
-                    activeBlocks.add(new HighlightedBlock(position, block));
-                    highlightBlocks.add(new HighlightedBlock(position, plugin.getBlockFor("glowstone")));
-                });
+                plugin.getHighestBlocksAt(highlight.getHighlightPositions().keySet(), world)
+                        .forEach((position, block) -> {
+                            activeBlocks.add(new HighlightedBlock(
+                                    position, block
+                            ));
+                            highlightBlocks.add(new HighlightedBlock(
+                                    position, getBlockFor(highlight.getHighlightPositions().get(position))
+                            ));
+                        });
             }
 
             activeHighlights.put(user.getUuid(), activeBlocks);
             plugin.sendBlockUpdates(user, HighlightedBlock.getMap(highlightBlocks));
         });
+    }
+
+    @NotNull
+    private BlockProvider.MaterialBlock getBlockFor(@NotNull Highlightable.HighlightType type) {
+        return plugin.getBlockFor(plugin.getSettings().getClaims().getBlockHighlighterTypes()
+                .getOrDefault(type, "minecraft:yellow_concrete"));
     }
 
     @Override

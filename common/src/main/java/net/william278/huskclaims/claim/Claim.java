@@ -21,6 +21,7 @@ package net.william278.huskclaims.claim;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
+import com.google.common.collect.Sets;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import lombok.AccessLevel;
@@ -38,10 +39,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
@@ -97,8 +95,9 @@ public class Claim implements Highlightable {
      * List of OperationTypes allowed on this claim to everyone
      */
     @Expose
+    @Getter
     @SerializedName("default_flags")
-    private List<OperationType> defaultFlags;
+    private Set<OperationType> defaultFlags;
 
     /**
      * If this is a child claim, whether to inherit member trust levels from the parent.
@@ -113,7 +112,7 @@ public class Claim implements Highlightable {
 
     private Claim(@Nullable UUID owner, @NotNull Region region, @NotNull ConcurrentMap<UUID, String> trustedUsers,
                   @NotNull ConcurrentMap<String, String> trustedGroups, @NotNull ConcurrentLinkedQueue<Claim> children,
-                  boolean inheritParent, @NotNull List<OperationType> defaultFlags) {
+                  boolean inheritParent, @NotNull Set<OperationType> defaultFlags) {
         this.owner = owner;
         this.region = region;
         this.trustedUsers = trustedUsers;
@@ -124,9 +123,13 @@ public class Claim implements Highlightable {
     }
 
     private Claim(@Nullable UUID owner, @NotNull Region region, @NotNull HuskClaims plugin) {
-        this(owner, region, Maps.newConcurrentMap(), Maps.newConcurrentMap(), Queues.newConcurrentLinkedQueue(), true,
-                owner != null ? plugin.getSettings().getClaims().getDefaultFlags()
-                        : plugin.getSettings().getClaims().getAdminFlags());
+        this(
+                owner, region, Maps.newConcurrentMap(), Maps.newConcurrentMap(),
+                Queues.newConcurrentLinkedQueue(), true,
+                Sets.newHashSet(owner != null
+                        ? plugin.getSettings().getClaims().getDefaultFlags()
+                        : plugin.getSettings().getClaims().getAdminFlags())
+        );
     }
 
     @NotNull
@@ -351,7 +354,7 @@ public class Claim implements Highlightable {
 
     @NotNull
     @Override
-    public List<? extends BlockPosition> getHighlightPositions() {
+    public Map<? extends BlockPosition, HighlightType> getHighlightPositions() {
         return region.getHighlightPositions();
     }
 
