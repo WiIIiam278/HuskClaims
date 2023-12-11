@@ -36,7 +36,7 @@ public class TrustCommand extends InClaimCommand implements TrustableTabCompleta
     private final TrustLevel level;
 
     protected TrustCommand(@NotNull TrustLevel level, @NotNull HuskClaims plugin) {
-        super(level.getCommandAliases(), plugin);
+        super(level.getCommandAliases(), TrustLevel.Privilege.MANAGE_TRUSTEES, plugin);
         this.level = level;
     }
 
@@ -51,13 +51,9 @@ public class TrustCommand extends InClaimCommand implements TrustableTabCompleta
         }
 
         // Resolve the trustable and check the executor has access
-        resolveTrustable(toTrust.get(), claim)
+        resolveTrustable(executor, toTrust.get(), claim)
                 .flatMap(t -> checkUserHasAccess(executor, t, world, claim) ? Optional.of(t) : Optional.empty())
-                .ifPresentOrElse(
-                        t -> setTrustLevel(executor, t, world, claim),
-                        () -> plugin.getLocales().getLocale("error_not_trusted")
-                                .ifPresent(executor::sendMessage)
-                );
+                .ifPresent(t -> setTrustLevel(executor, t, world, claim));
     }
 
     private void setTrustLevel(@NotNull OnlineUser executor, @NotNull Trustable trustable,

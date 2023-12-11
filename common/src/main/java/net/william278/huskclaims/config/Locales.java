@@ -184,6 +184,11 @@ public class Locales {
     }
 
     @NotNull
+    public String getListJoiner() {
+        return getRawLocale("list_separator").orElse(", ");
+    }
+
+    @NotNull
     public ListOptions.Builder getBaseList(int itemsPerPage) {
         return new ListOptions.Builder()
                 .setFooterFormat(getRawLocale("list_footer",

@@ -31,7 +31,6 @@ import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -51,6 +50,10 @@ public interface ClaimEditor {
 
     default Optional<ClaimSelection> getClaimSelection(@NotNull User user) {
         return Optional.ofNullable(getClaimSelections().get(user.getUuid()));
+    }
+
+    default boolean clearClaimSelection(@NotNull User user) {
+        return getClaimSelections().remove(user.getUuid()) != null;
     }
 
     // Create or select a block for claim creation
@@ -74,7 +77,7 @@ public interface ClaimEditor {
                 case CLAIMS -> resizeClaim(user, world, clicked, selection);
                 case CHILD_CLAIMS -> resizeChildClaim(user, world, clicked, selection);
             }
-            getClaimSelections().remove(user.getUuid());
+            clearClaimSelection(user);
             return;
         }
 
@@ -83,7 +86,7 @@ public interface ClaimEditor {
             case CLAIMS -> createClaim(user, world, Region.from(selection.getSelectedPosition(), clicked));
             case CHILD_CLAIMS -> createChildClaim(user, world, Region.from(selection.getSelectedPosition(), clicked));
         }
-        getClaimSelections().remove(user.getUuid());
+        clearClaimSelection(user);
     }
 
     // Make a claim selection and add it to the map if valid
@@ -109,9 +112,9 @@ public interface ClaimEditor {
         final Claim claim = selection.getClaimBeingResized();
         assert claim != null : "Claim selection is not a resize selection";
 
-        // Get the resized claim -- todo debug this?
+        // Get the resized claim -- Todo: this seems to resize the claim such that the corner you move is the greatrer bound?
         final Region resized = claim.getRegion().getResized(
-                selection.getResizedCornerIndex(), Region.Corner.wrap(clickedBlock)
+                selection.getResizedCornerIndex(), Region.Point.wrap(clickedBlock)
         );
         if (world.isRegionClaimed(resized, claim.getRegion())) {
             getPlugin().getLocales().getLocale("land_selection_overlaps")
@@ -133,8 +136,12 @@ public interface ClaimEditor {
                     Long.toString(claimBlockDifference)).ifPresent(user::sendMessage);
             return;
         }
+
         claim.setRegion(resized);
         getPlugin().getDatabase().updateClaimWorld(world);
+        getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claim);
+        getPlugin().getLocales().getLocale("claim_resized")
+                .ifPresent(user::sendMessage);
     }
 
     private void createClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {
@@ -149,6 +156,13 @@ public interface ClaimEditor {
         final long surfaceArea = region.getSurfaceArea();
         if (getPlugin().getClaimBlocks(user.getUuid()) < surfaceArea) {
             getPlugin().getLocales().getLocale("error_not_enough_claim_blocks", Long.toString(surfaceArea))
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+
+        if (region.getSmallestEdge() < getPlugin().getSettings().getClaims().getMinimumClaimSize()) {
+            getPlugin().getLocales().getLocale("error_claim_too_small",
+                            Integer.toString(getPlugin().getSettings().getClaims().getMinimumClaimSize()))
                     .ifPresent(user::sendMessage);
             return;
         }
@@ -180,7 +194,7 @@ public interface ClaimEditor {
 
         // Get the claim and check if they have permission to resize it
         final Claim claim = clickedClaim.get();
-        if (claim.getRegion().getClickedCorner(Region.Corner.wrap(clicked)) != -1) {
+        if (claim.getRegion().getClickedCorner(Region.Point.wrap(clicked)) != -1) {
             final ClaimSelection selection = builder.claimBeingResized(claim).build();
 
             if (!selection.canResize(user, world, getPlugin())) {
@@ -251,7 +265,7 @@ public interface ClaimEditor {
             if (claimBeingResized == null) {
                 return -1;
             }
-            return claimBeingResized.getRegion().getCorners().indexOf(Region.Corner.wrap(selectedPosition));
+            return claimBeingResized.getRegion().getCorners().indexOf(Region.Point.wrap(selectedPosition));
         }
 
         public boolean canResize(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull HuskClaims plugin) {
@@ -274,10 +288,10 @@ public interface ClaimEditor {
 
         @NotNull
         @Override
-        public Map<? extends BlockPosition, HighlightType> getHighlightPositions() {
+        public Map<Region.Point, HighlightType> getHighlightPoints() {
             return isResizeSelection() && claimBeingResized != null
-                    ? claimBeingResized.getRegion().getHighlightPositions()
-                    : Map.of(selectedPosition, HighlightType.SELECTION);
+                    ? claimBeingResized.getRegion().getHighlightPoints()
+                    : Map.of(Region.Point.wrap(selectedPosition), HighlightType.SELECTION);
         }
     }
 

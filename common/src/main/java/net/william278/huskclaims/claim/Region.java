@@ -19,8 +19,8 @@
 
 package net.william278.huskclaims.claim;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import lombok.AccessLevel;
@@ -31,13 +31,15 @@ import net.william278.huskclaims.highlighter.Highlightable;
 import net.william278.huskclaims.position.BlockPosition;
 import org.jetbrains.annotations.NotNull;
 
+import javax.xml.crypto.dsig.keyinfo.RetrievalMethod;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
- * A rectangular region defined by two {@link Corner} points
+ * A rectangular region defined by two {@link Point} points
  *
- * @see Corner
+ * @see Point
  * @since 1.0
  */
 @Getter
@@ -46,13 +48,13 @@ public class Region implements Highlightable {
 
     @Expose
     @SerializedName("near_corner")
-    private Corner nearCorner;
+    private Point nearCorner;
     @Expose
     @SerializedName("far_corner")
-    private Corner farCorner;
+    private Point farCorner;
 
     private Region(@NotNull BlockPosition pos1, @NotNull BlockPosition pos2) {
-        final List<Corner> corners = getQuadCorners(pos1, pos2);
+        final List<Point> corners = getQuadCorners(pos1, pos2);
         this.nearCorner = corners.get(0);
         this.farCorner = corners.get(3);
     }
@@ -81,37 +83,37 @@ public class Region implements Highlightable {
     @NotNull
     public static Region around(@NotNull BlockPosition position, int radius) {
         return from(
-                Corner.at(position.getBlockX() - radius, position.getBlockZ() - radius),
-                Corner.at(position.getBlockX() + radius, position.getBlockZ() + radius)
+                Point.at(position.getBlockX() - radius, position.getBlockZ() - radius),
+                Point.at(position.getBlockX() + radius, position.getBlockZ() + radius)
         );
     }
 
     /**
-     * Get a list of four {@link Corner corner points} that form the quad region
+     * Get a list of four {@link Point corner points} that form the quad region
      *
      * @param pos1 The first position
      * @param pos2 The second position
-     * @return A list of four sorted normalized {@link Corner corner points} that form the square region
+     * @return A list of four sorted normalized {@link Point corner points} that form the square region
      * @since 1.0
      */
     @NotNull
-    private static List<Corner> getQuadCorners(@NotNull BlockPosition pos1, @NotNull BlockPosition pos2) {
+    private static List<Point> getQuadCorners(@NotNull BlockPosition pos1, @NotNull BlockPosition pos2) {
         return List.of(
-                Corner.at(Math.min(pos1.getBlockX(), pos2.getBlockX()), Math.min(pos1.getBlockZ(), pos2.getBlockZ())),
-                Corner.at(Math.max(pos1.getBlockX(), pos2.getBlockX()), Math.min(pos1.getBlockZ(), pos2.getBlockZ())),
-                Corner.at(Math.min(pos1.getBlockX(), pos2.getBlockX()), Math.max(pos1.getBlockZ(), pos2.getBlockZ())),
-                Corner.at(Math.max(pos1.getBlockX(), pos2.getBlockX()), Math.max(pos1.getBlockZ(), pos2.getBlockZ()))
+                Point.at(Math.min(pos1.getBlockX(), pos2.getBlockX()), Math.min(pos1.getBlockZ(), pos2.getBlockZ())),
+                Point.at(Math.max(pos1.getBlockX(), pos2.getBlockX()), Math.min(pos1.getBlockZ(), pos2.getBlockZ())),
+                Point.at(Math.min(pos1.getBlockX(), pos2.getBlockX()), Math.max(pos1.getBlockZ(), pos2.getBlockZ())),
+                Point.at(Math.max(pos1.getBlockX(), pos2.getBlockX()), Math.max(pos1.getBlockZ(), pos2.getBlockZ()))
         );
     }
 
     /**
-     * Get a list of the four {@link Corner corner points} that form the quad region
+     * Get a list of the four {@link Point corner points} that form the quad region
      *
-     * @return A list of the four {@link Corner corner points} that form the quad region
+     * @return A list of the four {@link Point corner points} that form the quad region
      * @since 1.0
      */
     @NotNull
-    public List<Corner> getCorners() {
+    public List<Point> getCorners() {
         return getQuadCorners(nearCorner, farCorner);
     }
 
@@ -149,15 +151,19 @@ public class Region implements Highlightable {
     }
 
     /**
-     * Returns if this region intersects with another region
+     * Returns if this region overlaps with another region
      *
-     * @param region The region to check
-     * @return Whether the regions intersect
+     * @param region The region to check if it overlaps with
+     * @return Whether the regions are overlapping
      * @since 1.0
      */
-    public boolean intersects(@NotNull Region region) {
-        return region.contains(nearCorner) || region.contains(farCorner)
-                || contains(region.getNearCorner()) || contains(region.getFarCorner());
+    public boolean overlaps(@NotNull Region region) {
+        return (// X overlap
+                nearCorner.getBlockX() <= region.getFarCorner().getBlockX() &&
+                        farCorner.getBlockX() >= region.getNearCorner().getBlockX()) &&
+                // Z overlap
+                (nearCorner.getBlockZ() <= region.getFarCorner().getBlockZ() &&
+                        farCorner.getBlockZ() >= region.getNearCorner().getBlockZ());
     }
 
     /**
@@ -167,8 +173,8 @@ public class Region implements Highlightable {
      * @return the index of the corner that was clicked or -1 if no corner was clicked
      * @since 1.0
      */
-    public int getClickedCorner(@NotNull Corner position) {
-        final List<Corner> corners = getCorners();
+    public int getClickedCorner(@NotNull Point position) {
+        final List<Point> corners = getCorners();
         for (int i = 0; i < 4; i++) {
             if (corners.get(i).equals(position)) {
                 return i;
@@ -187,17 +193,21 @@ public class Region implements Highlightable {
      * @throws IllegalArgumentException if the corner index is not between 0 and 3
      */
     @NotNull
-    public Region getResized(int cornerIndex, @NotNull Corner newCornerPosition) throws IllegalArgumentException {
+    public Region getResized(int cornerIndex, @NotNull Point newCornerPosition) throws IllegalArgumentException {
         if (cornerIndex < 0 || cornerIndex > 3) {
             throw new IllegalArgumentException("Corner index must be between 0 and 3");
         }
 
-        // Get the diagonally opposite corner of the corner being moved
-        final List<Corner> corners = getCorners();
-        final Corner oppositeCorner = corners.get((cornerIndex + 2) % 4);
-
-        // Get the new region from the new corner position and the opposite corner
-        return Region.from(newCornerPosition, oppositeCorner);
+        final List<Point> corners = getCorners();
+        final Point oldCornerPosition = corners.get(cornerIndex);
+        final int widthChange = newCornerPosition.getBlockX() - oldCornerPosition.getBlockX();
+        final int heightChange = newCornerPosition.getBlockZ() - oldCornerPosition.getBlockZ();
+        return from(
+                Point.at(corners.get(0).getBlockX() + (cornerIndex == 0 || cornerIndex == 2 ? widthChange : 0),
+                        corners.get(0).getBlockZ() + (cornerIndex == 0 || cornerIndex == 1 ? heightChange : 0)),
+                Point.at(corners.get(3).getBlockX() + (cornerIndex == 1 || cornerIndex == 3 ? widthChange : 0),
+                        corners.get(3).getBlockZ() + (cornerIndex == 2 || cornerIndex == 3 ? heightChange : 0))
+        ); // TODO FIXME
     }
 
     @Override
@@ -211,8 +221,8 @@ public class Region implements Highlightable {
 
     @NotNull
     @Override
-    public Map<? extends BlockPosition, HighlightType> getHighlightPositions() {
-        final Map<Corner, HighlightType> positions = Maps.newHashMap();
+    public Map<Point, HighlightType> getHighlightPoints() {
+        final Map<Point, HighlightType> positions = Maps.newHashMap();
 
         getCorners().forEach(c -> positions.put(c, HighlightType.CORNER));
 
@@ -222,13 +232,26 @@ public class Region implements Highlightable {
     }
 
     /**
-     * {@link BlockPosition} implementation representing the corner of a {@link Region}
+     * Returns the length of the smallest edge of this region
+     *
+     * @return the length of the smallest edge of this region
+     * @since 1.0
+     */
+    public int getSmallestEdge() {
+        return Math.min(
+                Math.abs(farCorner.getBlockX() - nearCorner.getBlockX()),
+                Math.abs(farCorner.getBlockZ() - nearCorner.getBlockZ())
+        );
+    }
+
+    /**
+     * {@link BlockPosition} implementation representing a (corner) Block of a {@link Region}
      *
      * @since 1.0
      */
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class Corner implements BlockPosition {
+    public static class Point implements BlockPosition {
 
         @Expose
         private int x;
@@ -236,13 +259,13 @@ public class Region implements Highlightable {
         private int z;
 
         @NotNull
-        public static Corner at(int x, int z) {
-            return new Corner(x, z);
+        public static Point at(int x, int z) {
+            return new Point(x, z);
         }
 
         @NotNull
-        public static Corner wrap(@NotNull BlockPosition blockPosition) {
-            return new Corner(blockPosition.getBlockX(), blockPosition.getBlockZ());
+        public static Point wrap(@NotNull BlockPosition blockPosition) {
+            return new Point(blockPosition.getBlockX(), blockPosition.getBlockZ());
         }
 
         @Override
@@ -257,8 +280,8 @@ public class Region implements Highlightable {
 
         @Override
         public boolean equals(Object obj) {
-            if (obj instanceof Corner corner) {
-                return corner.x == x && corner.z == z;
+            if (obj instanceof Point point) {
+                return point.x == x && point.z == z;
             }
             return false;
         }

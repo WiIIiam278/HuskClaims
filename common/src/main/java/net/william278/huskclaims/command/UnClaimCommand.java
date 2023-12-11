@@ -30,7 +30,7 @@ import java.util.List;
 public class UnClaimCommand extends InClaimCommand {
 
     protected UnClaimCommand(@NotNull HuskClaims plugin) {
-        super(List.of("unclaim", "delclaim"), plugin);
+        super(List.of("unclaim", "delclaim", "abandonclaim"), null, plugin);
     }
 
     @Override
@@ -42,6 +42,7 @@ public class UnClaimCommand extends InClaimCommand {
                     .ifPresent(executor::sendMessage);
             return;
         }
+
         plugin.deleteClaim(world, claim);
         plugin.getHighlighter().stopHighlighting(executor);
         plugin.getLocales().getLocale("claim_deleted")

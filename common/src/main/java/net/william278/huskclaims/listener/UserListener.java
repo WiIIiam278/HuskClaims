@@ -38,6 +38,10 @@ public interface UserListener {
         final Settings.ClaimSettings claimSettings = getPlugin().getSettings().getClaims();
         if (!claimSettings.getClaimTool().equals(nowHolding) && !claimSettings.getInspectionTool().equals(nowHolding)) {
             getPlugin().getHighlighter().stopHighlighting(user);
+            if (getPlugin().clearClaimSelection(user)) {
+                getPlugin().getLocales().getLocale("claim_selection_cancelled")
+                        .ifPresent(user::sendMessage);
+            }
         }
     }
 

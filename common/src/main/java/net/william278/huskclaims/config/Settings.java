@@ -123,7 +123,7 @@ public final class Settings {
                 "Do not change unless you know what you're doing"})
         private String clusterId = "main";
 
-        @Comment("Type of network message broker to ues for data synchronisation (PLUGIN_MESSAGE or REDIS)")
+        @Comment("Type of network message broker to ues for data synchronization (PLUGIN_MESSAGE or REDIS)")
         private Broker.Type brokerType = Broker.Type.PLUGIN_MESSAGE;
 
         @Comment("Settings for if you're using REDIS as your message broker")
@@ -164,7 +164,7 @@ public final class Settings {
                 OperationType.PLAYER_DAMAGE_PLAYER
         );
 
-        @Comment("Default flags for the wilderness (outside of claims)")
+        @Comment("Default flags for the wilderness (outside claims)")
         private List<OperationType> wildernessRules = Arrays.stream(
                 OperationType.values() // Allow all operation types
         ).toList();
@@ -183,6 +183,9 @@ public final class Settings {
 
         @Comment("Claim creation & resize tool (right click with this to create/resize claims)")
         private String claimTool = "minecraft:golden_shovel";
+
+        @Comment("Minimum size of claims. This does not affect child or admin claims.")
+        private int minimumClaimSize = 5;
 
         @Comment("Max range of inspector tools")
         private int inspectionDistance = 40;

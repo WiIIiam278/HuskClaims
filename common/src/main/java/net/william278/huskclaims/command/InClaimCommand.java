@@ -25,18 +25,25 @@ import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.claim.TrustLevel;
 import net.william278.huskclaims.claim.Trustable;
 import net.william278.huskclaims.config.Settings;
+import net.william278.huskclaims.group.UserGroup;
 import net.william278.huskclaims.user.CommandUser;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.SavedUser;
+import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
 
 public abstract class InClaimCommand extends Command {
 
-    protected InClaimCommand(@NotNull List<String> aliases, @NotNull HuskClaims plugin) {
+    private final TrustLevel.Privilege privilege;
+
+    protected InClaimCommand(@NotNull List<String> aliases, @Nullable TrustLevel.Privilege privilege,
+                             @NotNull HuskClaims plugin) {
         super(aliases, getUsageText(plugin.getSettings().getUserGroups()), plugin);
+        this.privilege = privilege;
     }
 
     @Override
@@ -73,8 +80,12 @@ public abstract class InClaimCommand extends Command {
      */
     protected boolean checkUserHasAccess(@NotNull OnlineUser executor, @NotNull Trustable trustable,
                                          @NotNull ClaimWorld world, @NotNull Claim claim) {
-        if (!claim.isPrivilegeAllowed(TrustLevel.Privilege.MANAGE_TRUSTEES, executor, world, plugin)) {
-            plugin.getLocales().getLocale("no_managing_permission")
+        if (claim.getOwner().map(o -> o.equals(executor.getUuid())).orElse(false)) {
+            return true;
+        }
+
+        if (privilege != null && !claim.isPrivilegeAllowed(privilege, executor, world, plugin)) {
+            plugin.getLocales().getLocale("no_claim_privilege")
                     .ifPresent(executor::sendMessage);
             return false;
         }
@@ -84,7 +95,7 @@ public abstract class InClaimCommand extends Command {
                 .map(TrustLevel::getWeight);
         final int executorWeight = claim.getEffectiveTrustLevel(executor, world, plugin)
                 .map(TrustLevel::getWeight).orElse(Integer.MAX_VALUE);
-        if (trustableWeight.isPresent() && executorWeight <= trustableWeight.get()) {
+        if (trustableWeight.isPresent() && executorWeight < trustableWeight.get()) {
             plugin.getLocales().getLocale("error_trust_level_rank")
                     .ifPresent(executor::sendMessage);
             return false;
@@ -92,17 +103,37 @@ public abstract class InClaimCommand extends Command {
         return true;
     }
 
-    protected Optional<Trustable> resolveTrustable(@NotNull String name, @NotNull Claim claim) {
+    protected Optional<? extends Trustable> resolveTrustable(@NotNull OnlineUser user, @NotNull String name,
+                                                             @NotNull Claim claim) {
         // Resolve group
         final Settings.UserGroupSettings groups = plugin.getSettings().getUserGroups();
         if (groups.isEnabled() && name.startsWith(groups.getGroupSpecifierPrefix()) && claim.getOwner().isPresent()) {
-            return claim.getOwner().flatMap(uuid -> plugin.getUserGroup(uuid,
-                    name.substring(groups.getGroupSpecifierPrefix().length()))
-            );
+            return resolveGroup(user, name, claim, groups);
         }
 
         // Resolve user
-        return plugin.getDatabase().getUser(name).map(SavedUser::user);
+        return resolveUser(user, name);
+    }
+
+    protected Optional<UserGroup> resolveGroup(@NotNull OnlineUser user, @NotNull String name,
+                                               @NotNull Claim claim, @NotNull Settings.UserGroupSettings groups) {
+        return claim.getOwner().flatMap(uuid -> plugin.getUserGroup(uuid,
+                name.substring(groups.getGroupSpecifierPrefix().length()))
+        ).or(() -> {
+            plugin.getLocales().getLocale("error_invalid_group", name)
+                    .ifPresent(user::sendMessage);
+            return Optional.empty();
+        });
+    }
+
+    protected Optional<User> resolveUser(@NotNull OnlineUser user, @NotNull String name) {
+        return plugin.getDatabase().getUser(name)
+                .map(SavedUser::user)
+                .or(() -> {
+                    plugin.getLocales().getLocale("error_invalid_user", name)
+                            .ifPresent(user::sendMessage);
+                    return Optional.empty();
+                });
     }
 
     @NotNull

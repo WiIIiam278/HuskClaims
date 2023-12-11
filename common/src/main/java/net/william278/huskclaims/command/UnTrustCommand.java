@@ -23,7 +23,9 @@ import com.google.common.collect.Lists;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ClaimWorld;
+import net.william278.huskclaims.claim.TrustLevel;
 import net.william278.huskclaims.claim.Trustable;
+import net.william278.huskclaims.config.Settings;
 import net.william278.huskclaims.group.UserGroup;
 import net.william278.huskclaims.user.CommandUser;
 import net.william278.huskclaims.user.OnlineUser;
@@ -36,8 +38,9 @@ import java.util.List;
 import java.util.Optional;
 
 public class UnTrustCommand extends InClaimCommand implements TabCompletable {
+
     protected UnTrustCommand(@NotNull HuskClaims plugin) {
-        super(List.of("untrust"), plugin);
+        super(List.of("untrust"), TrustLevel.Privilege.MANAGE_TRUSTEES, plugin);
     }
 
     @Override
@@ -51,28 +54,41 @@ public class UnTrustCommand extends InClaimCommand implements TabCompletable {
         }
 
         // Resolve the trustable and check the executor has access
-        resolveTrustable(toUnTrust.get(), claim)
+        resolveTrustable(executor, toUnTrust.get(), claim)
                 .flatMap(t -> checkUserHasAccess(executor, t, world, claim) ? Optional.of(t) : Optional.empty())
-                .map(t -> removeTrust(t, world, claim))
-                .ifPresentOrElse(
-                        t -> plugin.getLocales().getLocale(t ? "trust_level_removed" : "error_not_trusted",
-                                toUnTrust.get()).ifPresent(executor::sendMessage),
-                        () -> plugin.getLocales().getLocale("error_not_trusted")
-                                .ifPresent(executor::sendMessage)
-                );
+                .ifPresent(trustable -> removeTrust(executor, trustable, world, claim));
+    }
+
+    @Override
+    protected Optional<UserGroup> resolveGroup(@NotNull OnlineUser user, @NotNull String name, @NotNull Claim claim,
+                                               @NotNull Settings.UserGroupSettings groups) {
+        if (claim.getTrustedGroups().containsKey(name)) {
+            return Optional.empty();
+        }
+        return claim.getOwner()
+                .map(o -> new UserGroup(o, name, List.of()))
+                .or(() -> {
+                    plugin.getLocales().getLocale("error_not_trusted", name)
+                            .ifPresent(user::sendMessage);
+                    return Optional.empty();
+                });
     }
 
     @Blocking
-    private boolean removeTrust(@NotNull Trustable toUntrust, @NotNull ClaimWorld world, @NotNull Claim claim) {
+    private void removeTrust(@NotNull OnlineUser executor, @NotNull Trustable toUntrust,
+                             @NotNull ClaimWorld world, @NotNull Claim claim) {
         boolean removed = false;
         if (toUntrust instanceof User user) {
             removed = claim.getTrustedUsers().remove(user.getUuid()) != null;
-            plugin.getDatabase().updateClaimWorld(world);
         } else if (toUntrust instanceof UserGroup group) {
             removed = claim.getTrustedGroups().remove(group.name()) != null;
+        }
+
+        if (removed) {
+            plugin.getLocales().getLocale("trust_level_removed", toUntrust.getTrustIdentifier(plugin))
+                    .ifPresent(executor::sendMessage);
             plugin.getDatabase().updateClaimWorld(world);
         }
-        return removed;
     }
 
     @Nullable

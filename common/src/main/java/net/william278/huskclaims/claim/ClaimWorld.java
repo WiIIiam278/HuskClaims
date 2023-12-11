@@ -83,7 +83,7 @@ public class ClaimWorld {
 
     @NotNull
     public List<Claim> getParentClaimsWithin(@NotNull Region region) {
-        return getClaims().stream().filter(claim -> claim.getRegion().intersects(region)).toList();
+        return getClaims().stream().filter(claim -> claim.getRegion().overlaps(region)).toList();
     }
 
     public void cacheUser(@NotNull User user) {
@@ -114,7 +114,7 @@ public class ClaimWorld {
         for (Region except : exceptFor) {
             claims.removeIf(claim -> claim.getRegion().equals(except));
         }
-        return claims.isEmpty();
+        return !claims.isEmpty();
     }
 
     public boolean isOperationAllowed(@NotNull Operation operation, @NotNull HuskClaims plugin) {

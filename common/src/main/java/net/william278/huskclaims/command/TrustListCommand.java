@@ -38,19 +38,12 @@ public class TrustListCommand extends InClaimCommand {
     private static final int DESCRIPTION_WRAP = 40;
 
     protected TrustListCommand(@NotNull HuskClaims plugin) {
-        super(List.of("trustlist"), plugin);
+        super(List.of("trustlist"), TrustLevel.Privilege.MANAGE_TRUSTEES, plugin);
     }
 
     @Override
     public void execute(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
                         @NotNull Claim claim, @NotNull String[] args) {
-        if (!claim.isPrivilegeAllowed(TrustLevel.Privilege.MANAGE_TRUSTEES, executor, world, plugin)) {
-            plugin.getLocales().getLocale("no_managing_permission")
-                    .ifPresent(executor::sendMessage);
-            return;
-        }
-
-        // Send the trust list menu
         this.sendTrustListMenu(executor, claim, world);
     }
 
@@ -64,10 +57,8 @@ public class TrustListCommand extends InClaimCommand {
 
     private void sendTrustListRow(@NotNull OnlineUser executor, @NotNull TrustLevel level,
                                   @NotNull Claim claim, @NotNull ClaimWorld world) {
-        final StringJoiner joiner = new StringJoiner(
-                plugin.getLocales().getRawLocale("trust_list_separator").orElse(", ")
-        );
-        plugin.getLocales().getRawLocale("trust_list_row_none").ifPresent(joiner::setEmptyValue);
+        final StringJoiner joiner = new StringJoiner(plugin.getLocales().getListJoiner());
+        plugin.getLocales().getRawLocale("none").ifPresent(joiner::setEmptyValue);
 
         // Add trusted users and groups
         claim.getTrustedUsers().entrySet().stream()
@@ -108,7 +99,10 @@ public class TrustListCommand extends InClaimCommand {
                                 .map(user -> Locales.escapeText(user.getName()))
                                 .collect(Collectors.joining("\n"))
                 ))
-                .orElse(name);
+                .or(() -> plugin.getLocales().getRawLocale("trust_list_deleted_group",
+                        String.format("%s%s", plugin.getSettings().getUserGroups().getGroupSpecifierPrefix(), name)
+                ))
+                .orElse(getPlugin().getLocales().getNotApplicable());
     }
 
 }

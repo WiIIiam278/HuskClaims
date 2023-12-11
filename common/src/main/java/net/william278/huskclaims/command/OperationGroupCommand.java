@@ -32,28 +32,23 @@ public class OperationGroupCommand extends InClaimCommand {
     private final Settings.OperationGroup group;
 
     protected OperationGroupCommand(@NotNull Settings.OperationGroup group, @NotNull HuskClaims plugin) {
-        super(group.getToggleCommandAliases(), plugin);
+        super(group.getToggleCommandAliases(), TrustLevel.Privilege.MANAGE_OPERATION_GROUPS, plugin);
         this.group = group;
     }
 
     @Override
     public void execute(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
                         @NotNull Claim claim, @NotNull String[] args) {
-        if (!claim.isPrivilegeAllowed(TrustLevel.Privilege.MANAGE_OPERATION_GROUPS, executor, world, plugin)) {
-            plugin.getLocales().getLocale("no_managing_permission")
-                    .ifPresent(executor::sendMessage);
-            return;
-        }
-
         if (isOperationGroupSet(claim)) {
             group.getAllowedOperations().forEach(claim.getDefaultFlags()::remove);
-            plugin.getLocales().getLocale("enabled_operation_group", group.getName())
+            plugin.getLocales().getLocale("disabled_operation_group", group.getName())
                     .ifPresent(executor::sendMessage);
         } else {
             claim.getDefaultFlags().addAll(group.getAllowedOperations());
-            plugin.getLocales().getLocale("disabled_operation_group", group.getName())
+            plugin.getLocales().getLocale("enabled_operation_group", group.getName())
                     .ifPresent(executor::sendMessage);
         }
+
         plugin.getDatabase().updateClaimWorld(world);
     }
 

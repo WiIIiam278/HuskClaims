@@ -100,9 +100,12 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
         final ClaimWorld claimWorld = getClaimWorld(world).orElseThrow(
                 () -> new IllegalArgumentException("No claim world for world" + world.getName()));
 
-        // Validate region is not yet claimed
+        // Validate region is not yet claimed or too small
         if (claimWorld.isRegionClaimed(region)) {
             throw new IllegalArgumentException("Region is already claimed");
+        }
+        if (owner != null && region.getSmallestEdge() < getPlugin().getSettings().getClaims().getMinimumClaimSize()) {
+            throw new IllegalArgumentException("Region is too small");
         }
 
         // Create the claim and add it

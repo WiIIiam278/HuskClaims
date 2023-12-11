@@ -33,13 +33,15 @@ import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.group.UserGroup;
 import net.william278.huskclaims.highlighter.Highlightable;
-import net.william278.huskclaims.position.BlockPosition;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
@@ -354,8 +356,8 @@ public class Claim implements Highlightable {
 
     @NotNull
     @Override
-    public Map<? extends BlockPosition, HighlightType> getHighlightPositions() {
-        return region.getHighlightPositions();
+    public Map<Region.Point, HighlightType> getHighlightPoints() {
+        return region.getHighlightPoints();
     }
 
     @Override

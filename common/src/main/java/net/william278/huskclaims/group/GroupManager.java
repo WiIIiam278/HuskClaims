@@ -116,6 +116,8 @@ public interface GroupManager {
                                @NotNull Consumer<UserGroup> editor, @NotNull Runnable notPresent) {
         getUserGroup(owner.getUuid(), groupName).ifPresentOrElse(group -> {
             editor.accept(group);
+            getUserGroups().removeIf(g -> g.groupOwner().equals(owner.getUuid()) && g.name().equalsIgnoreCase(groupName));
+            getUserGroups().add(group);
             getDatabase().updateUserGroup(owner.getUuid(), groupName, group);
             publishGroupChange(owner);
         }, notPresent);

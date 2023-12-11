@@ -19,7 +19,11 @@
 
 package net.william278.huskclaims.highlighter;
 
+import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.claim.Region;
 import net.william278.huskclaims.position.BlockPosition;
+import net.william278.huskclaims.position.Position;
+import net.william278.huskclaims.util.BlockProvider;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -37,7 +41,19 @@ public interface Highlightable {
      * @since 1.0
      */
     @NotNull
-    Map<? extends BlockPosition, HighlightType> getHighlightPositions();
+    Map<Region.Point, HighlightType> getHighlightPoints();
+
+    @NotNull
+    default BlockProvider.MaterialBlock getBlockFor(@NotNull HuskClaims plugin, @NotNull Position position) {
+        return plugin.getBlockFor(plugin.getSettings()
+                .getClaims().getBlockHighlighterTypes()
+                .getOrDefault(
+                        getHighlightPoints().entrySet().stream()
+                                .filter(e -> e.getKey().equals(Region.Point.wrap(position))).map(Map.Entry::getValue)
+                                .findFirst().orElse(HighlightType.SELECTION),
+                        "minecraft:yellow_concrete"
+                ));
+    }
 
     enum HighlightType {
         CORNER,
