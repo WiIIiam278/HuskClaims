@@ -23,11 +23,8 @@ import lombok.Getter;
 import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.position.Position;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Objects;
 
 @Getter
 public class BukkitUser extends OnlineUser {
@@ -53,17 +50,6 @@ public class BukkitUser extends OnlineUser {
     @Override
     public void sendPluginMessage(@NotNull String channel, byte[] message) {
         bukkitPlayer.sendPluginMessage((BukkitHuskClaims) plugin, channel, message);
-    }
-
-    @Override
-    public void sendBlockChange(@NotNull Position position, @NotNull String blockId) {
-        bukkitPlayer.sendBlockChange(
-                BukkitHuskClaims.Adapter.adapt(position),
-                Objects.requireNonNull(
-                        Material.matchMaterial(blockId),
-                        "Invalid material: " + blockId
-                ).createBlockData()
-        );
     }
 
     @Override

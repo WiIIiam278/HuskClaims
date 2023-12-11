@@ -8,5 +8,6 @@ rootProject.name = 'HuskClaims'
 include(
         'common',
         'bukkit',
+        'paper',
         'plugin',
 )

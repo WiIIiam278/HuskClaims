@@ -1,0 +1,8 @@
+name: 'HuskClaims'
+description: '${description}'
+author: 'William278'
+website: 'https://william278.net/'
+main: 'net.william278.huskclaims.PaperHuskClaims'
+loader: 'net.william278.huskclaims.PaperHuskClaimsLoader'
+version: '${version}'
+api-version: '1.19'

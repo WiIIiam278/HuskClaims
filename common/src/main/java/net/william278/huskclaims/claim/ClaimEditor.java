@@ -22,6 +22,7 @@ package net.william278.huskclaims.claim;
 import lombok.Builder;
 import lombok.Getter;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.highlighter.Highlightable;
 import net.william278.huskclaims.position.BlockPosition;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.user.OnlineUser;
@@ -30,6 +31,7 @@ import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
@@ -88,6 +90,7 @@ public interface ClaimEditor {
                                     @NotNull Position clickedBlock) {
         createClaimSelection(user, world, clickedBlock).ifPresent(selection -> {
             getClaimSelections().put(user.getUuid(), selection);
+            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), selection);
 
             if (selection.isResizeSelection()) {
                 getPlugin().getLocales().getLocale("claim_selection_resize")
@@ -105,7 +108,7 @@ public interface ClaimEditor {
         final Claim claim = selection.getClaimBeingResized();
         assert claim != null : "Claim selection is not a resize selection";
 
-        // Get the resized claim
+        // Get the resized claim -- todo debug this?
         final Region resized = claim.getRegion().getResized(
                 selection.getResizedCornerIndex(), Region.Corner.wrap(clickedBlock)
         );
@@ -151,7 +154,8 @@ public interface ClaimEditor {
 
         // Create the claim
         world.cacheUser(user);
-        getPlugin().createClaimAt(user.getWorld(), region, user);
+        final Claim claim = getPlugin().createClaimAt(user.getWorld(), region, user);
+        getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claim);
         getPlugin().getLocales().getLocale("claim_created", Long.toString(surfaceArea))
                 .ifPresent(user::sendMessage);
     }
@@ -227,7 +231,7 @@ public interface ClaimEditor {
      */
     @Builder
     @Getter
-    class ClaimSelection {
+    class ClaimSelection implements Highlightable {
 
         @Nullable
         Claim claimBeingResized;
@@ -267,6 +271,13 @@ public interface ClaimEditor {
                     .orElseGet(() -> user.hasPermission(EDIT_ADMIN_CLAIMS));
         }
 
+        @NotNull
+        @Override
+        public List<? extends BlockPosition> getHighlightPositions() {
+            return isResizeSelection() && claimBeingResized != null
+                    ? claimBeingResized.getRegion().getHighlightPositions()
+                    : List.of(selectedPosition);
+        }
     }
 
     @NotNull

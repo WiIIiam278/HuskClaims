@@ -17,31 +17,28 @@
  *  limitations under the License.
  */
 
-package net.william278.huskclaims.listener;
+package net.william278.huskclaims.util;
 
-import net.william278.huskclaims.HuskClaims;
-import net.william278.huskclaims.config.Settings;
-import net.william278.huskclaims.user.OnlineUser;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import org.bukkit.Material;
+import org.bukkit.block.data.BlockData;
 import org.jetbrains.annotations.NotNull;
 
-public interface UserListener {
+@Getter
+@AllArgsConstructor
+public class BlockDataBlock extends BlockProvider.MaterialBlock {
 
-    default void onUserJoin(@NotNull OnlineUser user) {
-        getPlugin().loadUserData(user);
-    }
+    private final BlockData data;
 
-    default void onUserQuit(@NotNull OnlineUser user) {
-
-    }
-
-    default void onUserSwitchHeldItem(@NotNull OnlineUser user, @NotNull String nowHolding) {
-        final Settings.ClaimSettings claimSettings = getPlugin().getSettings().getClaims();
-        if (!claimSettings.getClaimTool().equals(nowHolding) && !claimSettings.getInspectionTool().equals(nowHolding)) {
-            getPlugin().getHighlighter().stopHighlighting(user);
-        }
+    @NotNull
+    public static BlockDataBlock create(@NotNull Material material) {
+        return new BlockDataBlock(material.createBlockData());
     }
 
     @NotNull
-    HuskClaims getPlugin();
-
+    @Override
+    public String getMaterialKey() {
+        return data.getMaterial().getKey().toString();
+    }
 }

@@ -17,24 +17,25 @@
  *  limitations under the License.
  */
 
-package net.william278.huskclaims.claim;
+package net.william278.huskclaims.highlighter;
 
-import net.william278.huskclaims.HuskClaims;
-import net.william278.huskclaims.config.Settings;
+import net.william278.huskclaims.position.World;
 import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
-public class DefaultHighlighter implements ClaimHighlighter {
+import java.util.Collection;
 
-    private final Settings.ClaimSettings.HighlighterSettings settings;
+//todo
+public class GlowHighlighter implements Highlighter {
 
-    public DefaultHighlighter(@NotNull HuskClaims plugin) {
-        this.settings = plugin.getSettings().getClaims().getHighlighting();
+    @Override
+    public void startHighlighting(@NotNull OnlineUser user, @NotNull World world,
+                                  @NotNull Collection<Highlightable> toHighlight) {
+
     }
 
     @Override
-    public void highlightClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Claim claim) {
-        //todo task tracking and such
-    }
+    public void stopHighlighting(@NotNull OnlineUser user) {
 
+    }
 }

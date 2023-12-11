@@ -21,6 +21,8 @@ package net.william278.huskclaims.claim;
 
 import com.google.common.collect.Maps;
 import net.william278.huskclaims.database.Database;
+import net.william278.huskclaims.highlighter.BlockHighlighter;
+import net.william278.huskclaims.highlighter.Highlighter;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.position.World;
 import net.william278.huskclaims.user.OnlineUser;
@@ -88,12 +90,13 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
      * @param world  The world to create the claim in
      * @param region The region to create the claim over
      * @param owner  The owner of the claim
+     * @return the created claim
      * @throws IllegalArgumentException if the region is already claimed, or if no claim world is present for the world
      * @since 1.0
      */
     @Blocking
-    default void createClaimAt(@NotNull World world, @NotNull Region region,
-                               @Nullable User owner) throws IllegalArgumentException {
+    default Claim createClaimAt(@NotNull World world, @NotNull Region region,
+                                @Nullable User owner) throws IllegalArgumentException {
         final ClaimWorld claimWorld = getClaimWorld(world).orElseThrow(
                 () -> new IllegalArgumentException("No claim world for world" + world.getName()));
 
@@ -113,6 +116,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
         if (owner != null) {
             getPlugin().editClaimBlocks(owner, (blocks -> blocks - region.getSurfaceArea()));
         }
+        return claim;
     }
 
     /**
@@ -120,12 +124,13 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
      *
      * @param world  The world to create the claim in
      * @param region The region to create the claim over
+     * @return the created claim
      * @throws IllegalArgumentException if the region is already claimed, or if no claim world is present for the world
      * @since 1.0
      */
-    default void createAdminClaimAt(@NotNull World world, @NotNull Region region)
+    default Claim createAdminClaimAt(@NotNull World world, @NotNull Region region)
             throws IllegalArgumentException {
-        createClaimAt(world, region, null);
+        return createClaimAt(world, region, null);
     }
 
     /**
@@ -257,7 +262,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
      * @since 1.0
      */
     default void loadClaimHighlighter() {
-        setClaimHighlighter(new DefaultHighlighter(getPlugin()));
+        setHighlighter(new BlockHighlighter(getPlugin()));
     }
 
     /**
@@ -267,7 +272,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
      * @since 1.0
      */
     @NotNull
-    ClaimHighlighter getClaimHighlighter();
+    Highlighter getHighlighter();
 
     /**
      * Highlight a claim at a position for a user
@@ -277,17 +282,17 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
      * @since 1.0
      */
     default void highlightClaimAt(@NotNull OnlineUser user, @NotNull Position position) {
-        getClaimWorld(position.getWorld()).ifPresent(world -> world.getClaimAt(position)
-                .ifPresent(claim -> getClaimHighlighter().highlightClaim(user, world, claim)));
+        getClaimWorld(position.getWorld()).flatMap(world -> world.getClaimAt(position))
+                .ifPresent(claim -> getHighlighter().startHighlighting(user, position.getWorld(), claim));
     }
 
     /**
      * Set the highlighter to use for highlighting claims
      *
-     * @param claimHighlighter The claim highlighter to set
+     * @param highlighter The claim highlighter to set
      * @since 1.0
      */
-    void setClaimHighlighter(@NotNull ClaimHighlighter claimHighlighter);
+    void setHighlighter(@NotNull Highlighter highlighter);
 
     @NotNull
     Database getDatabase();

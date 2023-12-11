@@ -31,6 +31,8 @@ import net.william278.cloplib.operation.Operation;
 import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.group.UserGroup;
+import net.william278.huskclaims.highlighter.Highlightable;
+import net.william278.huskclaims.position.BlockPosition;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -51,7 +53,7 @@ import java.util.concurrent.ConcurrentMap;
  * @since 1.0
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class Claim {
+public class Claim implements Highlightable {
 
     /**
      * The claim region
@@ -345,6 +347,12 @@ public class Claim {
         final Claim child = new Claim(owner, region, plugin);
         children.add(child);
         return child;
+    }
+
+    @NotNull
+    @Override
+    public List<? extends BlockPosition> getHighlightPositions() {
+        return region.getHighlightPositions();
     }
 
     @Override

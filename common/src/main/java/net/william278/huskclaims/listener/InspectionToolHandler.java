@@ -62,7 +62,7 @@ public interface InspectionToolHandler {
 
     // Highlight the claim for the user and send a message
     private void highlightClaim(@NotNull OnlineUser user, @NotNull Claim claim, @NotNull ClaimWorld world) {
-        getPlugin().getClaimHighlighter().highlightClaim(user, world, claim);
+        getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claim);
         getPlugin().getLocales().getLocale("land_claimed_by", claim.getOwnerName(world, getPlugin()))
                 .ifPresent(user::sendMessage);
     }

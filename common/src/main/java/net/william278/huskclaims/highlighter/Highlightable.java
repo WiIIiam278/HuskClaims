@@ -17,25 +17,25 @@
  *  limitations under the License.
  */
 
-package net.william278.huskclaims.util;
+package net.william278.huskclaims.highlighter;
 
 import net.william278.huskclaims.position.BlockPosition;
-import net.william278.huskclaims.position.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public interface WorldHeightProvider {
+/**
+ * Represents an object that can be highlighted
+ */
+public interface Highlightable {
 
     /**
-     * Get a list of the highest block Y at a list of positions
+     * Get the positions to be highlighted
      *
-     * @param positions The positions to get the highest block Y at
-     * @param world     The world to get the highest block Y at
-     * @return A list of the highest block Y at the positions
+     * @return a {@link List} of {@link BlockPosition}s
      * @since 1.0
      */
     @NotNull
-    List<Integer> getHighestBlockYAt(@NotNull List<BlockPosition> positions, @NotNull World world);
+    List<? extends BlockPosition> getHighlightPositions();
 
 }

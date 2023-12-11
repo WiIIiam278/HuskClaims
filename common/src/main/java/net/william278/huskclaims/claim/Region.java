@@ -19,12 +19,14 @@
 
 package net.william278.huskclaims.claim;
 
+import com.google.common.collect.Lists;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import net.william278.huskclaims.highlighter.Highlightable;
 import net.william278.huskclaims.position.BlockPosition;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,7 +40,7 @@ import java.util.List;
  */
 @Getter
 @NoArgsConstructor
-public class Region {
+public class Region implements Highlightable {
 
     @Expose
     @SerializedName("near_corner")
@@ -203,6 +205,16 @@ public class Region {
                     && region.farCorner.equals(farCorner);
         }
         return false;
+    }
+
+    @NotNull
+    @Override
+    public List<? extends BlockPosition> getHighlightPositions() {
+        final List<Corner> positions = Lists.newArrayList(getCorners());
+
+
+
+        return positions.stream().distinct().toList();
     }
 
     /**

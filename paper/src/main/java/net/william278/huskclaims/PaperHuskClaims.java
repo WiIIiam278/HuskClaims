@@ -17,31 +17,23 @@
  *  limitations under the License.
  */
 
-package net.william278.huskclaims.listener;
+package net.william278.huskclaims;
 
-import net.william278.huskclaims.HuskClaims;
-import net.william278.huskclaims.config.Settings;
+import lombok.NoArgsConstructor;
+import net.william278.huskclaims.position.Position;
+import net.william278.huskclaims.user.BukkitUser;
 import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
-public interface UserListener {
+import java.util.Map;
 
-    default void onUserJoin(@NotNull OnlineUser user) {
-        getPlugin().loadUserData(user);
+@NoArgsConstructor
+public class PaperHuskClaims extends BukkitHuskClaims {
+
+    @Override
+    @SuppressWarnings("UnstableApiUsage")
+    public void sendBlockUpdates(@NotNull OnlineUser user, @NotNull Map<Position, MaterialBlock> blocks) {
+        ((BukkitUser) user).getBukkitPlayer().sendMultiBlockChange(Adapter.adapt(blocks));
     }
-
-    default void onUserQuit(@NotNull OnlineUser user) {
-
-    }
-
-    default void onUserSwitchHeldItem(@NotNull OnlineUser user, @NotNull String nowHolding) {
-        final Settings.ClaimSettings claimSettings = getPlugin().getSettings().getClaims();
-        if (!claimSettings.getClaimTool().equals(nowHolding) && !claimSettings.getInspectionTool().equals(nowHolding)) {
-            getPlugin().getHighlighter().stopHighlighting(user);
-        }
-    }
-
-    @NotNull
-    HuskClaims getPlugin();
 
 }
