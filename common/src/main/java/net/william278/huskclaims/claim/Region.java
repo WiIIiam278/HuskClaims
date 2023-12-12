@@ -207,7 +207,7 @@ public class Region implements Highlightable {
                         corners.get(0).getBlockZ() + (cornerIndex == 0 || cornerIndex == 1 ? heightChange : 0)),
                 Point.at(corners.get(3).getBlockX() + (cornerIndex == 1 || cornerIndex == 3 ? widthChange : 0),
                         corners.get(3).getBlockZ() + (cornerIndex == 2 || cornerIndex == 3 ? heightChange : 0))
-        ); // TODO FIXME
+        );
     }
 
     @Override
