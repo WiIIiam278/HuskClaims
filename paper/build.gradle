@@ -38,7 +38,6 @@ shadowJar {
     relocate 'com.google.gson', 'net.william278.huskclaims.libraries.gson'
     relocate 'com.fatboyindustrial', 'net.william278.huskclaims.libraries'
     relocate 'org.bstats', 'net.william278.huskclaims.libraries.bstats'
-    relocate 'io.papermc', 'net.william278.huskclaims.libraries.paperlib'
     relocate 'space.arim', 'net.william278.huskclaims.libraries.paperlib'
     relocate 'me.lucko', 'net.william278.huskclaims.libraries'
     relocate 'net.roxeez', 'net.william278.huskclaims.libraries'
