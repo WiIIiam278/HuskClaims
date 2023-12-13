@@ -26,7 +26,6 @@ import net.william278.huskclaims.claim.TrustLevel;
 import net.william278.huskclaims.claim.Trustable;
 import net.william278.huskclaims.config.Settings;
 import net.william278.huskclaims.group.UserGroup;
-import net.william278.huskclaims.user.CommandUser;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.SavedUser;
 import net.william278.huskclaims.user.User;
@@ -36,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class InClaimCommand extends Command {
+public abstract class InClaimCommand extends OnlineUserCommand {
 
     private final TrustLevel.Privilege privilege;
 
@@ -47,11 +46,8 @@ public abstract class InClaimCommand extends Command {
     }
 
     @Override
-    public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
-        if (!(executor instanceof OnlineUser user)) {
-            return;
-        }
-        final Optional<ClaimWorld> world = plugin.getClaimWorld(((OnlineUser) executor).getWorld());
+    public void execute(@NotNull OnlineUser user, @NotNull String[] args) {
+        final Optional<ClaimWorld> world = plugin.getClaimWorld(user.getWorld());
         if (world.isEmpty()) {
             plugin.getLocales().getLocale("world_not_claimable")
                     .ifPresent(user::sendMessage);

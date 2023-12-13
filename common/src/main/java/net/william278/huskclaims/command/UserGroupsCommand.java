@@ -36,15 +36,14 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class UserGroupsCommand extends Command implements TabCompletable {
+public class UserGroupsCommand extends OnlineUserCommand implements TabCompletable {
 
     protected UserGroupsCommand(@NotNull HuskClaims plugin) {
         super(List.of("group", "usergroup"), "<create|delete|edit> [name] [args]", plugin);
     }
 
     @Override
-    public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
-        final OnlineUser user = (OnlineUser) executor;
+    public void execute(@NotNull OnlineUser user, @NotNull String[] args) {
         final Optional<String> operation = parseStringArg(args, 0);
         final Optional<String> name = parseStringArg(args, 1);
         if (operation.isEmpty() || name.isEmpty()) {

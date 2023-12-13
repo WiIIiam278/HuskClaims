@@ -25,7 +25,6 @@ import lombok.NoArgsConstructor;
 import net.william278.annotaml.YamlFile;
 import net.william278.annotaml.YamlIgnored;
 import net.william278.huskclaims.util.PaginatedListProvider;
-import net.william278.paginedown.ListOptions;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;

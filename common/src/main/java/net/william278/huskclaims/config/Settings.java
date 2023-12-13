@@ -23,13 +23,13 @@ import de.exlll.configlib.Comment;
 import de.exlll.configlib.Configuration;
 import lombok.*;
 import net.william278.cloplib.operation.OperationType;
+import net.william278.huskclaims.claim.ClaimingMode;
 import net.william278.huskclaims.database.Database;
 import net.william278.huskclaims.highlighter.Highlightable;
 import net.william278.huskclaims.network.Broker;
 import net.william278.huskclaims.position.World;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -164,10 +164,15 @@ public final class Settings {
                 OperationType.PLAYER_DAMAGE_PLAYER
         );
 
+        @Comment("List of enabled claim types. Must include at least the regular \"CLAIMS\" mode")
+        private List<ClaimingMode> enabledClaimingModes = List.of(
+                ClaimingMode.values() // Allow all claiming modes
+        );
+
         @Comment("Default flags for the wilderness (outside claims)")
-        private List<OperationType> wildernessRules = Arrays.stream(
+        private List<OperationType> wildernessRules = List.of(
                 OperationType.values() // Allow all operation types
-        ).toList();
+        );
 
         @Comment("List of worlds where users cannot claim")
         private List<String> unclaimableWorlds = List.of();

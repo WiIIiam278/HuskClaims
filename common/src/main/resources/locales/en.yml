@@ -71,4 +71,8 @@ list_page_jumper_button: '[%1%](show_text=&7Jump to page %1% run_command=%2% %1%
 list_page_jumper_current_page: '[%1%](#00fb9a)'
 list_page_jumper_separator: ' '
 list_page_jumper_group_separator: '…'
+switched_claiming_mode: '[Switched to %1% claiming mode](#00fb9a)'
+claiming_mode_claims: 'regular'
+claiming_mode_admin_claims: 'admin'
+claiming_mode_child_claims: 'child'
 administrator_username: 'an administrator'

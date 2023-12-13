@@ -27,12 +27,26 @@ import java.util.List;
 
 /**
  * Provider for HuskClaims commands
+ *
+ * @since 1.0
  */
 public interface CommandProvider {
 
+    /**
+     * Get the list of registered commands
+     *
+     * @return the list of commands
+     * @since 1.0
+     */
     @NotNull
     List<Command> getCommands();
 
+    /**
+     * Register a batch of command with the platform implementation
+     *
+     * @param commands the list of commands to register
+     * @since 1.0
+     */
     void registerCommands(@NotNull List<Command> commands);
 
     /**
@@ -49,6 +63,11 @@ public interface CommandProvider {
         commands.add(new TrustListCommand(getPlugin()));
         commands.add(new UserGroupsCommand(getPlugin()));
         commands.add(new UnClaimCommand(getPlugin()));
+
+        // Register claim commands
+        getPlugin().getSettings().getClaims().getEnabledClaimingModes().stream()
+                .filter(mode -> !mode.getCommandAliases().isEmpty())
+                .forEach((mode) -> commands.add(new ClaimCommand(mode, getPlugin())));
 
         // Register trust level commands
         getPlugin().getTrustLevels().stream()

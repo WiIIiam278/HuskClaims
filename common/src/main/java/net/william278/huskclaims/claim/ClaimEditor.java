@@ -109,7 +109,7 @@ public interface ClaimEditor {
         });
     }
 
-    private void resizeClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world,
+    default void resizeClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world,
                              @NotNull Position clickedBlock, @NotNull ClaimSelection selection) {
         final Claim claim = selection.getClaimBeingResized();
         assert claim != null : "Claim selection is not a resize selection";
@@ -146,7 +146,7 @@ public interface ClaimEditor {
                 .ifPresent(user::sendMessage);
     }
 
-    private void createClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {
+    default void createClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {
         // Validate that the region is not already occupied
         if (world.isRegionClaimed(region)) {
             getPlugin().getLocales().getLocale("land_selection_overlaps")
@@ -177,7 +177,7 @@ public interface ClaimEditor {
                 .ifPresent(user::sendMessage);
     }
 
-    private void createAdminClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {
+    default void createAdminClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {
         // Validate that the region is not already occupied
         if (world.isRegionClaimed(region)) {
             getPlugin().getLocales().getLocale("land_selection_overlaps")
@@ -235,12 +235,12 @@ public interface ClaimEditor {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
-    private void resizeChildClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world,
+    default void resizeChildClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world,
                                   @NotNull Position clickedBlock, @NotNull ClaimSelection selection) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
-    private void createChildClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {
+    default void createChildClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 

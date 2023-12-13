@@ -20,7 +20,6 @@
 package net.william278.huskclaims.claim;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import lombok.AccessLevel;
@@ -31,10 +30,8 @@ import net.william278.huskclaims.highlighter.Highlightable;
 import net.william278.huskclaims.position.BlockPosition;
 import org.jetbrains.annotations.NotNull;
 
-import javax.xml.crypto.dsig.keyinfo.RetrievalMethod;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * A rectangular region defined by two {@link Point} points
