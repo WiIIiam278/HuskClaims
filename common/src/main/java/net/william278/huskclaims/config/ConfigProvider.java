@@ -21,15 +21,17 @@ package net.william278.huskclaims.config;
 
 import de.exlll.configlib.NameFormatters;
 import de.exlll.configlib.YamlConfigurationProperties;
+import de.exlll.configlib.YamlConfigurationStore;
 import de.exlll.configlib.YamlConfigurations;
-import net.william278.annotaml.Annotaml;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.TrustLevel;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 
 /**
  * Interface for getting and setting data from plugin configuration files
@@ -39,10 +41,8 @@ import java.util.Optional;
 public interface ConfigProvider {
 
     @NotNull
-    YamlConfigurationProperties YAML_CONFIGURATION_PROPERTIES = YamlConfigurationProperties.newBuilder()
-            .header(Settings.CONFIG_HEADER)
-            .setNameFormatter(NameFormatters.LOWER_UNDERSCORE)
-            .build();
+    YamlConfigurationProperties.Builder<?> YAML_CONFIGURATION_PROPERTIES = YamlConfigurationProperties.newBuilder()
+            .setNameFormatter(NameFormatters.LOWER_UNDERSCORE);
 
     /**
      * Get the plugin settings, read from the config file
@@ -70,7 +70,7 @@ public interface ConfigProvider {
         setSettings(YamlConfigurations.update(
                 getConfigDirectory().resolve("config.yml"),
                 Settings.class,
-                YAML_CONFIGURATION_PROPERTIES
+                YAML_CONFIGURATION_PROPERTIES.header(Settings.CONFIG_HEADER).build()
         ));
     }
 
@@ -97,17 +97,18 @@ public interface ConfigProvider {
      * @since 1.0
      */
     default void loadLocales() {
-        final String localesFile = String.format("messages-%s.yml", getSettings().getLanguage());
-        try {
-            setLocales(Annotaml.create(
-                    getConfigDirectory().resolve(localesFile).toFile(),
-                    Annotaml.create(
-                            Locales.class,
-                            getPlugin().getResource(String.format("locales/%s.yml", getSettings().getLanguage()))
-                    ).get()
-            ).get());
+        final YamlConfigurationStore<Locales> store = new YamlConfigurationStore<>(
+                Locales.class, YAML_CONFIGURATION_PROPERTIES.header(Locales.CONFIG_HEADER).build()
+        );
+        try (InputStream input = getResource(String.format("locales/%s.yml", getSettings().getLanguage()))) {
+            final Locales locales = store.read(input);
+            store.save(
+                    locales,
+                    getConfigDirectory().resolve(String.format("messages-%s.yml", getSettings().getLanguage()))
+            );
+            setLocales(locales);
         } catch (Throwable e) {
-            throw new IllegalStateException("Unable to load locales file: " + localesFile, e);
+            getPlugin().log(Level.SEVERE, "An error occurred whilst loading the locales file", e);
         }
     }
 
@@ -121,7 +122,7 @@ public interface ConfigProvider {
             setServer(YamlConfigurations.update(
                     getConfigDirectory().resolve("server.yml"),
                     Server.class,
-                    YAML_CONFIGURATION_PROPERTIES
+                    YAML_CONFIGURATION_PROPERTIES.header(Server.CONFIG_HEADER).build()
             ));
         }
     }
@@ -163,9 +164,18 @@ public interface ConfigProvider {
         setTrustLevels(YamlConfigurations.update(
                 getConfigDirectory().resolve("trust_levels.yml"),
                 TrustLevels.class,
-                YAML_CONFIGURATION_PROPERTIES
+                YAML_CONFIGURATION_PROPERTIES.header(TrustLevels.CONFIG_HEADER).build()
         ).sortByWeight());
     }
+
+    /**
+     * Get a plugin resource
+     *
+     * @param name The name of the resource
+     * @return the resource, if found
+     * @since 1.0
+     */
+    InputStream getResource(@NotNull String name);
 
     /**
      * Get the plugin config directory

@@ -19,18 +19,17 @@
 
 package net.william278.huskclaims.config;
 
+import com.google.common.collect.Maps;
+import de.exlll.configlib.Configuration;
 import de.themoep.minedown.adventure.MineDown;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import net.william278.annotaml.YamlFile;
-import net.william278.annotaml.YamlIgnored;
 import net.william278.huskclaims.util.PaginatedListProvider;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -39,23 +38,23 @@ import java.util.Optional;
  *
  * @since 1.0
  */
-@YamlFile(header = """
-        ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-        ┃     HuskClaims - Locales     ┃
-        ┃    Developed by William278   ┃
-        ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-        ┣╸ See plugin about menu for international locale credits
-        ┣╸ Formatted in MineDown: https://github.com/Phoenix616/MineDown
-        ┗╸ Translate HuskClaims: https://william278.net/docs/huskclaims/translations""",
-        rootedMap = true)
+@Configuration
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Locales implements PaginatedListProvider {
 
-    @YamlIgnored
+    static final String CONFIG_HEADER = """
+            ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+            ┃     HuskClaims - Locales     ┃
+            ┃    Developed by William278   ┃
+            ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+            ┣╸ See plugin about menu for international locale credits
+            ┣╸ Formatted in MineDown: https://github.com/Phoenix616/MineDown
+            ┗╸ Translate HuskClaims: https://william278.net/docs/huskclaims/translations""";
+
     protected static final String DEFAULT_LOCALE = "en";
 
     // The raw set of locales loaded from yaml
-    private Map<String, String> rawLocales = new HashMap<>();
+    private Map<String, String> locales = Maps.newLinkedHashMap();
 
     /**
      * Returns a raw, un-formatted locale loaded from the locales file
@@ -64,7 +63,7 @@ public class Locales implements PaginatedListProvider {
      * @return An {@link Optional} containing the locale corresponding to the id, if it exists
      */
     public Optional<String> getRawLocale(@NotNull String localeId) {
-        return Optional.ofNullable(rawLocales.get(localeId)).map(StringEscapeUtils::unescapeJava);
+        return Optional.ofNullable(locales.get(localeId)).map(StringEscapeUtils::unescapeJava);
     }
 
     /**

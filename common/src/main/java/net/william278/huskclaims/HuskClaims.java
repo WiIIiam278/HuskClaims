@@ -115,15 +115,6 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvi
     List<? extends OnlineUser> getOnlineUsers();
 
     /**
-     * Get a plugin resource
-     *
-     * @param name The name of the resource
-     * @return the resource, if found
-     * @since 1.0
-     */
-    InputStream getResource(@NotNull String name);
-
-    /**
      * Log a message to the console.
      *
      * @param level      the level to log at
