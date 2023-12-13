@@ -35,6 +35,7 @@ import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.user.Preferences;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -70,6 +71,18 @@ public class ClaimWorld {
 
     public Optional<User> getUser(@NotNull UUID uuid) {
         return Optional.ofNullable(userCache.get(uuid)).map(name -> User.of(uuid, name));
+    }
+
+    @NotNull
+    public List<Claim> getClaimsByUser(@Nullable UUID uuid) {
+        return claims.stream().filter(claim -> claim.getOwner()
+                .map(o -> o.equals(uuid))
+                .orElse(uuid == null)).toList();
+    }
+
+    @NotNull
+    public List<Claim> getAdminClaims() {
+        return getClaimsByUser(null);
     }
 
     public Optional<Claim> getParentClaimAt(@NotNull BlockPosition position) {

@@ -70,6 +70,16 @@ public abstract class Node implements Executable {
         return Optional.empty();
     }
 
+    protected Optional<Integer> parseIntArg(@NotNull String[] args, int index) {
+        return parseStringArg(args, index).flatMap(arg -> {
+            try {
+                return Optional.of(Integer.parseInt(arg));
+            } catch (NumberFormatException e) {
+                return Optional.empty();
+            }
+        });
+    }
+
     protected Optional<String> parseGreedyArguments(@NotNull String[] args) {
         if (args.length > 1) {
             final StringJoiner sentence = new StringJoiner(" ");
