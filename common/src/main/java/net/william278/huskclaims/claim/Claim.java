@@ -332,11 +332,12 @@ public class Claim implements Highlightable {
     @NotNull
     public String getOwnerName(@NotNull ClaimWorld world, @NotNull HuskClaims plugin) {
         return getOwner()
-                // Get the owner username from the cache. Or, if it's an admin claim, get the admin username
-                .flatMap(owner -> world.getUser(owner).map(User::getName)
-                        .or(() -> plugin.getLocales().getRawLocale("administrator_username")))
-                // Otherwise, if the name could not be found, return "N/A"
-                .orElse(plugin.getLocales().getNotApplicable());
+                // Get the owner username from the cache
+                .map(owner -> world.getUser(owner).map(User::getName)
+                        .orElse(plugin.getLocales().getNotApplicable()))
+                // Or, if it's an admin claim, get the admin username
+                .orElse(plugin.getLocales().getRawLocale("administrator_username")
+                        .orElse(plugin.getLocales().getNotApplicable()));
     }
 
     @NotNull
