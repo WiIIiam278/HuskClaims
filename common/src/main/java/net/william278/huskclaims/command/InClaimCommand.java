@@ -108,7 +108,7 @@ public abstract class InClaimCommand extends Command {
         // Resolve group
         final Settings.UserGroupSettings groups = plugin.getSettings().getUserGroups();
         if (groups.isEnabled() && name.startsWith(groups.getGroupSpecifierPrefix()) && claim.getOwner().isPresent()) {
-            return resolveGroup(user, name, claim, groups);
+            return resolveGroup(user, name.substring(groups.getGroupSpecifierPrefix().length()), claim, groups);
         }
 
         // Resolve user
@@ -117,13 +117,12 @@ public abstract class InClaimCommand extends Command {
 
     protected Optional<UserGroup> resolveGroup(@NotNull OnlineUser user, @NotNull String name,
                                                @NotNull Claim claim, @NotNull Settings.UserGroupSettings groups) {
-        return claim.getOwner().flatMap(uuid -> plugin.getUserGroup(uuid,
-                name.substring(groups.getGroupSpecifierPrefix().length()))
-        ).or(() -> {
-            plugin.getLocales().getLocale("error_invalid_group", name)
-                    .ifPresent(user::sendMessage);
-            return Optional.empty();
-        });
+        return claim.getOwner().flatMap(uuid -> plugin.getUserGroup(uuid, name))
+                .or(() -> {
+                    plugin.getLocales().getLocale("error_invalid_group", name)
+                            .ifPresent(user::sendMessage);
+                    return Optional.empty();
+                });
     }
 
     protected Optional<User> resolveUser(@NotNull OnlineUser user, @NotNull String name) {

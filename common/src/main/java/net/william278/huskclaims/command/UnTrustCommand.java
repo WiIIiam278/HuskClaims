@@ -59,19 +59,14 @@ public class UnTrustCommand extends InClaimCommand implements TabCompletable {
                 .ifPresent(trustable -> removeTrust(executor, trustable, world, claim));
     }
 
+    // We allow the resolution of deleted user groups as we need to be able to remove them from the claim
     @Override
     protected Optional<UserGroup> resolveGroup(@NotNull OnlineUser user, @NotNull String name, @NotNull Claim claim,
                                                @NotNull Settings.UserGroupSettings groups) {
-        if (claim.getTrustedGroups().containsKey(name)) {
+        if (!claim.getTrustedGroups().containsKey(name)) {
             return Optional.empty();
         }
-        return claim.getOwner()
-                .map(o -> new UserGroup(o, name, List.of()))
-                .or(() -> {
-                    plugin.getLocales().getLocale("error_not_trusted", name)
-                            .ifPresent(user::sendMessage);
-                    return Optional.empty();
-                });
+        return claim.getOwner().map(o -> new UserGroup(o, name, List.of()));
     }
 
     @Blocking
@@ -84,11 +79,14 @@ public class UnTrustCommand extends InClaimCommand implements TabCompletable {
             removed = claim.getTrustedGroups().remove(group.name()) != null;
         }
 
-        if (removed) {
-            plugin.getLocales().getLocale("trust_level_removed", toUntrust.getTrustIdentifier(plugin))
+        if (!removed) {
+            plugin.getLocales().getLocale("error_not_trusted", toUntrust.getTrustIdentifier(plugin))
                     .ifPresent(executor::sendMessage);
-            plugin.getDatabase().updateClaimWorld(world);
+            return;
         }
+        plugin.getLocales().getLocale("trust_level_removed", toUntrust.getTrustIdentifier(plugin))
+                .ifPresent(executor::sendMessage);
+        plugin.getDatabase().updateClaimWorld(world);
     }
 
     @Nullable
