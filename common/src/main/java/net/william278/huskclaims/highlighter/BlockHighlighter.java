@@ -22,16 +22,14 @@ package net.william278.huskclaims.highlighter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.position.World;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.util.BlockProvider;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 
 /**
@@ -53,14 +51,23 @@ public class BlockHighlighter implements Highlighter {
         plugin.runSync(() -> {
             stopHighlighting(user);
 
+            final Optional<ClaimWorld> optionalClaimWorld = plugin.getClaimWorld(world);
+            if (optionalClaimWorld.isEmpty()) {
+                return;
+            }
+
+            final ClaimWorld claimWorld = optionalClaimWorld.get();
             final List<HighlightedBlock> activeBlocks = Lists.newArrayList();
             final List<HighlightedBlock> highlightBlocks = Lists.newArrayList();
-
             for (Highlightable highlight : toHighlight) {
-                plugin.getHighestBlocksAt(highlight.getHighlightPoints().keySet(), world)
+                plugin.getHighestBlocksAt(highlight.getHighlightPoints(claimWorld).keySet(), world)
                         .forEach((pos, material) -> {
-                            activeBlocks.add(new HighlightedBlock(pos, material));
-                            highlightBlocks.add(new HighlightedBlock(pos, highlight.getBlockFor(plugin, pos)));
+                            activeBlocks.add(new HighlightedBlock(
+                                    pos, material
+                            ));
+                            highlightBlocks.add(new HighlightedBlock(
+                                    pos, highlight.getBlockFor(claimWorld, pos, plugin)
+                            ));
                         });
             }
 

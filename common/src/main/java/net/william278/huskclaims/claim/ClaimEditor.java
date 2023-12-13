@@ -114,7 +114,7 @@ public interface ClaimEditor {
         final Claim claim = selection.getClaimBeingResized();
         assert claim != null : "Claim selection is not a resize selection";
 
-        // Get the resized claim -- Todo: this seems to resize the claim such that the corner you move is the greatrer bound?
+        // Get the resized claim
         final Region resized = claim.getRegion().getResized(
                 selection.getResizedCornerIndex(), Region.Point.wrap(clickedBlock)
         );
@@ -131,12 +131,15 @@ public interface ClaimEditor {
             return;
         }
 
-        // Check claim blocks
-        final long claimBlockDifference = claim.getRegion().getSurfaceArea() - resized.getSurfaceArea();
-        if (getPlugin().getClaimBlocks(user.getUuid()) < claimBlockDifference) {
-            getPlugin().getLocales().getLocale("error_not_enough_claim_blocks",
-                    Long.toString(claimBlockDifference)).ifPresent(user::sendMessage);
-            return;
+        // Check claim blocks (non-admin claims)
+        if (claim.getOwner().isPresent()) {
+            final long claimBlockDifference = resized.getSurfaceArea() - claim.getRegion().getSurfaceArea();
+            if (getPlugin().getClaimBlocks(user.getUuid()) < claimBlockDifference) {
+                getPlugin().getLocales().getLocale("error_not_enough_claim_blocks",
+                        Long.toString(claimBlockDifference)).ifPresent(user::sendMessage);
+                return;
+            }
+            getPlugin().editClaimBlocks(user, (blocks) -> blocks - claimBlockDifference);
         }
 
         claim.setRegion(resized);
@@ -304,11 +307,11 @@ public interface ClaimEditor {
                     .orElseGet(() -> user.hasPermission(EDIT_ADMIN_CLAIMS));
         }
 
-        @NotNull
         @Override
-        public Map<Region.Point, HighlightType> getHighlightPoints() {
+        @NotNull
+        public Map<Region.Point, HighlightType> getHighlightPoints(@NotNull ClaimWorld world) {
             return isResizeSelection() && claimBeingResized != null
-                    ? claimBeingResized.getRegion().getHighlightPoints()
+                    ? claimBeingResized.getHighlightPoints(world)
                     : Map.of(Region.Point.wrap(selectedPosition), HighlightType.SELECTION);
         }
     }

@@ -20,6 +20,7 @@
 package net.william278.huskclaims.highlighter;
 
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.claim.Region;
 import net.william278.huskclaims.position.BlockPosition;
 import net.william278.huskclaims.position.Position;
@@ -41,14 +42,15 @@ public interface Highlightable {
      * @since 1.0
      */
     @NotNull
-    Map<Region.Point, HighlightType> getHighlightPoints();
+    Map<Region.Point, HighlightType> getHighlightPoints(@NotNull ClaimWorld world);
 
     @NotNull
-    default BlockProvider.MaterialBlock getBlockFor(@NotNull HuskClaims plugin, @NotNull Position position) {
+    default BlockProvider.MaterialBlock getBlockFor(@NotNull ClaimWorld world, @NotNull Position position,
+                                                    @NotNull HuskClaims plugin) {
         return plugin.getBlockFor(plugin.getSettings()
                 .getClaims().getBlockHighlighterTypes()
                 .getOrDefault(
-                        getHighlightPoints().entrySet().stream()
+                        getHighlightPoints(world).entrySet().stream()
                                 .filter(e -> e.getKey().equals(Region.Point.wrap(position))).map(Map.Entry::getValue)
                                 .findFirst().orElse(HighlightType.SELECTION),
                         "minecraft:yellow_concrete"
@@ -62,7 +64,18 @@ public interface Highlightable {
         CHILD_EDGE,
         ADMIN_CORNER,
         ADMIN_EDGE,
-        SELECTION
+        SELECTION;
+
+        @NotNull
+        public static HighlightType getClaimType(boolean isSubClaim, boolean isAdmin, boolean isCorner) {
+            if (isSubClaim) {
+                return isCorner ? CHILD_CORNER : CHILD_EDGE;
+            }
+            if (isAdmin) {
+                return isCorner ? ADMIN_CORNER : ADMIN_EDGE;
+            }
+            return isCorner ? CORNER : EDGE;
+        }
     }
 
 }

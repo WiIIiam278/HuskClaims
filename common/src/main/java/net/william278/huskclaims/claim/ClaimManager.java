@@ -204,13 +204,11 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
      *
      * @param world   The world to create the claim in
      * @param region  The region to create the claim over
-     * @param creator The creator of the child claim
      * @throws IllegalArgumentException if the region is already claimed, or if no claim world is present for the world
      * @since 1.0
      */
     @Blocking
-    default void createChildClaimAt(@NotNull World world, @NotNull Region region,
-                                    @NotNull User creator) throws IllegalArgumentException {
+    default void createChildClaimAt(@NotNull World world, @NotNull Region region) throws IllegalArgumentException {
         final ClaimWorld claimWorld = getClaimWorld(world).orElseThrow(
                 () -> new IllegalArgumentException("No claim world for world" + world.getName())
         );
@@ -220,11 +218,6 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
                 .orElseThrow(() -> new IllegalArgumentException("No parent claim found"));
         if (parent.getRegion().equals(region)) {
             throw new IllegalArgumentException("Parent claim and child claim regions cannot be the same");
-        }
-
-        // Validate privileges
-        if (parent.isPrivilegeAllowed(TrustLevel.Privilege.MANAGE_CHILD_CLAIMS, creator, claimWorld, getPlugin())) {
-            throw new IllegalArgumentException("User lacks sufficient child claim creation privileges");
         }
 
         // Create and add child claim

@@ -32,6 +32,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static net.william278.huskclaims.highlighter.Highlightable.HighlightType.getClaimType;
 
 /**
  * A rectangular region defined by two {@link Point} points
@@ -41,7 +45,7 @@ import java.util.Map;
  */
 @Getter
 @NoArgsConstructor
-public class Region implements Highlightable {
+public class Region {
 
     @Expose
     @SerializedName("near_corner")
@@ -49,6 +53,8 @@ public class Region implements Highlightable {
     @Expose
     @SerializedName("far_corner")
     private Point farCorner;
+
+    private static final int STEP = 10;
 
     private Region(@NotNull BlockPosition pos1, @NotNull BlockPosition pos2) {
         final List<Point> corners = getQuadCorners(pos1, pos2);
@@ -217,15 +223,46 @@ public class Region implements Highlightable {
     }
 
     @NotNull
-    @Override
-    public Map<Point, HighlightType> getHighlightPoints() {
-        final Map<Point, HighlightType> positions = Maps.newHashMap();
+    public Map<Point, Highlightable.HighlightType> getHighlightPoints(boolean isChild, boolean isAdmin) {
+        final Map<Point, Highlightable.HighlightType> positions = Maps.newHashMap();
 
-        getCorners().forEach(c -> positions.put(c, HighlightType.CORNER));
+        // X boundaries
+        final Highlightable.HighlightType edge = getClaimType(isChild, isAdmin, false);
+        addEdgePoints(positions, edge);
 
-        //todo more positions
+        // Add corners
+        final Highlightable.HighlightType corner = getClaimType(isChild, isAdmin, true);
+        getCorners().forEach((c) -> positions.put(c, corner));
 
         return positions;
+    }
+
+    private void addEdgePoints(@NotNull Map<Point, Highlightable.HighlightType> positions,
+                               @NotNull Highlightable.HighlightType type) {
+        // X boundaries
+        for (int x = nearCorner.getBlockX() + STEP; x < farCorner.getBlockX(); x += STEP) {
+            positions.put(Point.at(x, nearCorner.getBlockZ()), type);
+            positions.put(Point.at(x, farCorner.getBlockZ()), type);
+        }
+        // Z boundaries
+        for (int z = nearCorner.getBlockZ() + STEP; z < farCorner.getBlockZ(); z += STEP) {
+            positions.put(Point.at(nearCorner.getBlockX(), z), type);
+            positions.put(Point.at(farCorner.getBlockX(), z), type);
+        }
+
+        // L-shaped corners (Z/X axis)
+        if (Math.abs(farCorner.getBlockZ() - nearCorner.getBlockZ()) > 2) {
+            positions.put(Point.at(nearCorner.getBlockX(), nearCorner.getBlockZ() + 1), type);
+            positions.put(Point.at(farCorner.getBlockX(), nearCorner.getBlockZ() + 1), type);
+            positions.put(Point.at(nearCorner.getBlockX(), farCorner.getBlockZ() - 1), type);
+            positions.put(Point.at(farCorner.getBlockX(), farCorner.getBlockZ() - 1), type);
+        }
+        if (Math.abs(farCorner.getBlockX() - nearCorner.getBlockX()) > 2) {
+            positions.put(Point.at(nearCorner.getBlockX() + 1, nearCorner.getBlockZ()), type);
+            positions.put(Point.at(farCorner.getBlockX() - 1, nearCorner.getBlockZ()), type);
+            positions.put(Point.at(nearCorner.getBlockX() + 1, farCorner.getBlockZ()), type);
+            positions.put(Point.at(farCorner.getBlockX() - 1, farCorner.getBlockZ()), type);
+        }
     }
 
     /**
@@ -236,6 +273,19 @@ public class Region implements Highlightable {
      */
     public int getSmallestEdge() {
         return Math.min(
+                Math.abs(farCorner.getBlockX() - nearCorner.getBlockX()),
+                Math.abs(farCorner.getBlockZ() - nearCorner.getBlockZ())
+        );
+    }
+
+    /**
+     * Returns the length of the longest edge of this region
+     *
+     * @return the length of the longest edge of this region
+     * @since 1.0
+     */
+    public int getLongestEdge() {
+        return Math.max(
                 Math.abs(farCorner.getBlockX() - nearCorner.getBlockX()),
                 Math.abs(farCorner.getBlockZ() - nearCorner.getBlockZ())
         );
@@ -263,6 +313,11 @@ public class Region implements Highlightable {
         @NotNull
         public static Point wrap(@NotNull BlockPosition blockPosition) {
             return new Point(blockPosition.getBlockX(), blockPosition.getBlockZ());
+        }
+
+        @NotNull
+        public Point plus(int x, int z) {
+            return new Point(this.x + x, this.z + z);
         }
 
         @Override

@@ -355,10 +355,16 @@ public class Claim implements Highlightable {
         return child;
     }
 
-    @NotNull
     @Override
-    public Map<Region.Point, HighlightType> getHighlightPoints() {
-        return region.getHighlightPoints();
+    @NotNull
+    public Map<Region.Point, HighlightType> getHighlightPoints(@NotNull ClaimWorld world) {
+
+        final Optional<Claim> parent = getParent(world);
+        return region.getHighlightPoints(
+                parent.isPresent(),
+                parent.map(claim -> claim.getOwner().isEmpty())
+                        .orElse(getOwner().isEmpty())
+        );
     }
 
     @Override
