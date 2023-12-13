@@ -13,6 +13,7 @@ error_invalid_group_name: '[Error:](#ff3300) [That group name is invalid](#ff7e5
 error_already_group_member: '[Error:](#ff3300) [%1% is already a member of that group](#ff7e5e)'
 error_not_group_member: '[Error:](#ff3300) [%1% is not a member of that group](#ff7e5e)'
 error_group_already_exists: '[Error:](#ff3300) [You already have a group with that name](#ff7e5e)'
+error_no_claiming_permission: '[Error:](#ff3300) [You do not have permission to create or edit claims](#ff7e5e)'
 group_list: '[List of your groups:](#00fb9a) [%1%](gray)'
 group_list_item: '[%1%](white show_text=&7Group of %2% players:\n\n&8 run_command=/group edit %1% list)'
 group_member_list: '[List of group members of %1%:](#00fb9a) %2%'

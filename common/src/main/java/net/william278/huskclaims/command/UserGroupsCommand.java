@@ -68,9 +68,14 @@ public class UserGroupsCommand extends Command implements TabCompletable {
     }
 
     private void showGroupList(@NotNull OnlineUser user) {
-        plugin.getLocales().getRawLocale("group_list", plugin.getUserGroups(user.getUuid()).stream()
-                        .map(group -> getGroupEntry(group, plugin))
-                        .collect(Collectors.joining(plugin.getLocales().getListJoiner())))
+        final List<UserGroup> groups = plugin.getUserGroups(user.getUuid());
+        plugin.getLocales().getRawLocale(
+                        "group_list",
+                        groups.isEmpty()
+                                ? plugin.getLocales().getNone()
+                                : groups.stream().map(group -> getGroupEntry(group, plugin))
+                                .collect(Collectors.joining(plugin.getLocales().getListJoiner()))
+                )
                 .map(l -> plugin.getLocales().format(l))
                 .ifPresent(user::sendMessage);
     }
@@ -129,7 +134,7 @@ public class UserGroupsCommand extends Command implements TabCompletable {
                         "group_member_list",
                         Locales.escapeText(group.name()),
                         group.members().isEmpty()
-                                ? plugin.getLocales().getRawLocale("none").orElse("(none)")
+                                ? plugin.getLocales().getNone()
                                 : group.members().stream().map(User::getName).map(Locales::escapeText)
                                 .collect(Collectors.joining(plugin.getLocales().getListJoiner()))
                 ).map(l -> plugin.getLocales().format(l)).ifPresent(user::sendMessage)

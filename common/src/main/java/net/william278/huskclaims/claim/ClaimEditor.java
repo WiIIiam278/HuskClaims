@@ -58,13 +58,14 @@ public interface ClaimEditor {
 
     // Create or select a block for claim creation
     default void handleSelection(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Position clicked) {
-        final ClaimManager.ClaimingMode mode = getClaimingMode(user);
+        final ClaimingMode mode = getClaimingMode(user);
         final Optional<ClaimSelection> optionalSelection = getClaimSelection(user);
 
         // If no selection has been made yet, make one at the clicked position
         if (optionalSelection.isEmpty()) {
             switch (mode) {
-                case CLAIMS -> makeClaimSelection(user, world, clicked);
+                case CLAIMS -> makeClaimSelection(user, world, clicked, false);
+                case ADMIN_CLAIMS -> makeClaimSelection(user, world, clicked, true);
                 case CHILD_CLAIMS -> makeChildClaimSelection(user, world, clicked);
             }
             return;
@@ -74,7 +75,7 @@ public interface ClaimEditor {
         final ClaimSelection selection = optionalSelection.get();
         if (selection.isResizeSelection()) {
             switch (mode) {
-                case CLAIMS -> resizeClaim(user, world, clicked, selection);
+                case CLAIMS, ADMIN_CLAIMS -> resizeClaim(user, world, clicked, selection);
                 case CHILD_CLAIMS -> resizeChildClaim(user, world, clicked, selection);
             }
             clearClaimSelection(user);
@@ -84,6 +85,7 @@ public interface ClaimEditor {
         // Otherwise, create a new claim
         switch (mode) {
             case CLAIMS -> createClaim(user, world, Region.from(selection.getSelectedPosition(), clicked));
+            case ADMIN_CLAIMS -> createAdminClaim(user, world, Region.from(selection.getSelectedPosition(), clicked));
             case CHILD_CLAIMS -> createChildClaim(user, world, Region.from(selection.getSelectedPosition(), clicked));
         }
         clearClaimSelection(user);
@@ -91,8 +93,8 @@ public interface ClaimEditor {
 
     // Make a claim selection and add it to the map if valid
     private void makeClaimSelection(@NotNull OnlineUser user, @NotNull ClaimWorld world,
-                                    @NotNull Position clickedBlock) {
-        createClaimSelection(user, world, clickedBlock).ifPresent(selection -> {
+                                    @NotNull Position clickedBlock, boolean isAdmin) {
+        createClaimSelection(user, world, clickedBlock, isAdmin).ifPresent(selection -> {
             getClaimSelections().put(user.getUuid(), selection);
             getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), selection);
 
@@ -175,15 +177,31 @@ public interface ClaimEditor {
                 .ifPresent(user::sendMessage);
     }
 
+    private void createAdminClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {
+        // Validate that the region is not already occupied
+        if (world.isRegionClaimed(region)) {
+            getPlugin().getLocales().getLocale("land_selection_overlaps")
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+
+        // Create the claim
+        world.cacheUser(user);
+        final Claim claim = getPlugin().createAdminClaimAt(user.getWorld(), region);
+        getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claim);
+        getPlugin().getLocales().getLocale("claim_created_admin")
+                .ifPresent(user::sendMessage);
+    }
+
     @NotNull
     private Optional<ClaimSelection> createClaimSelection(@NotNull OnlineUser user, @NotNull ClaimWorld world,
-                                                          @NotNull BlockPosition clicked) {
+                                                          @NotNull BlockPosition clicked, boolean isAdmin) {
         final Optional<Claim> clickedClaim = world.getParentClaimAt(clicked);
 
         // If there's no claim, create a selection at the clicked position
         final ClaimSelection.ClaimSelectionBuilder builder = ClaimSelection.builder().selectedPosition(clicked);
         if (clickedClaim.isEmpty()) {
-            if (!user.hasPermission(EDIT_CLAIMS)) {
+            if (!user.hasPermission(isAdmin ? EDIT_ADMIN_CLAIMS : EDIT_CLAIMS)) {
                 getPlugin().getLocales().getLocale("error_no_claiming_permission")
                         .ifPresent(user::sendMessage);
                 return Optional.empty();
@@ -233,10 +251,10 @@ public interface ClaimEditor {
     }
 
     @NotNull
-    private ClaimManager.ClaimingMode getClaimingMode(@NotNull User user) {
+    private ClaimingMode getClaimingMode(@NotNull User user) {
         return getPlugin().getUserPreferences(user.getUuid())
                 .map(Preferences::getClaimingMode)
-                .orElse(ClaimManager.ClaimingMode.CLAIMS);
+                .orElse(ClaimingMode.CLAIMS);
     }
 
     /**

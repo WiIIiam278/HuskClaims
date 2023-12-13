@@ -189,6 +189,11 @@ public class Locales {
     }
 
     @NotNull
+    public String getNone() {
+        return getRawLocale("none").orElse("(none)");
+    }
+
+    @NotNull
     public ListOptions.Builder getBaseList(int itemsPerPage) {
         return new ListOptions.Builder()
                 .setFooterFormat(getRawLocale("list_footer",

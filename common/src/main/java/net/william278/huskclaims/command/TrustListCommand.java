@@ -58,7 +58,7 @@ public class TrustListCommand extends InClaimCommand {
     private void sendTrustListRow(@NotNull OnlineUser executor, @NotNull TrustLevel level,
                                   @NotNull Claim claim, @NotNull ClaimWorld world) {
         final StringJoiner joiner = new StringJoiner(plugin.getLocales().getListJoiner());
-        plugin.getLocales().getRawLocale("none").ifPresent(joiner::setEmptyValue);
+        joiner.setEmptyValue(plugin.getLocales().getNone());
 
         // Add trusted users and groups
         claim.getTrustedUsers().entrySet().stream()

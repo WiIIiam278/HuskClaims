@@ -89,7 +89,7 @@ public class BukkitListener extends BukkitOperationListener implements ClaimsLis
 
     @Override
     public void setInspectionDistance(int i) {
-        throw new UnsupportedOperationException("Inspection distance is not supported in Bukkit");
+        throw new UnsupportedOperationException("Cannot change inspection distance");
     }
 
 }

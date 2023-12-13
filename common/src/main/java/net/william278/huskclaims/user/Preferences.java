@@ -22,7 +22,7 @@ package net.william278.huskclaims.user;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import lombok.*;
-import net.william278.huskclaims.claim.ClaimManager;
+import net.william278.huskclaims.claim.ClaimingMode;
 import org.jetbrains.annotations.NotNull;
 
 
@@ -49,11 +49,6 @@ public class Preferences {
     @Setter
     @Expose
     @SerializedName("claiming_mode")
-    private ClaimManager.ClaimingMode claimingMode = ClaimManager.ClaimingMode.CLAIMS;
-
-    @Setter
-    @Expose
-    @SerializedName("admin_claiming")
-    private boolean adminClaiming = false;
+    private ClaimingMode claimingMode = ClaimingMode.CLAIMS;
 
 }

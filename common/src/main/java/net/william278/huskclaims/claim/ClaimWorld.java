@@ -32,6 +32,7 @@ import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.position.BlockPosition;
 import net.william278.huskclaims.position.Position;
+import net.william278.huskclaims.user.Preferences;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 
@@ -119,8 +120,13 @@ public class ClaimWorld {
 
     public boolean isOperationAllowed(@NotNull Operation operation, @NotNull HuskClaims plugin) {
         return getClaimAt((Position) operation.getOperationPosition())
-                .map(claim -> claim.isOperationAllowed(operation, this, plugin))
+                .map(claim -> isIgnoring(operation, plugin) || claim.isOperationAllowed(operation, this, plugin))
                 .orElse(wildernessFlags.contains(operation.getType()));
+    }
+
+    private boolean isIgnoring(@NotNull Operation operation, @NotNull HuskClaims plugin) {
+        return operation.getUser().flatMap(u -> plugin.getUserPreferences(u.getUuid()))
+                .map(Preferences::isIgnoringClaims).orElse(false);
     }
 
     public int getClaimCount() {

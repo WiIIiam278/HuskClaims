@@ -305,13 +305,4 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
     @NotNull
     Database getDatabase();
 
-    /**
-     * Types of claim selection modes
-     *
-     * @since 1.0
-     */
-    enum ClaimingMode {
-        CLAIMS,
-        CHILD_CLAIMS
-    }
 }
