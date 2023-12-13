@@ -45,6 +45,10 @@ public record UserGroup(
         return members.stream().anyMatch(user -> user.getUuid().equals(uuid));
     }
 
+    public boolean removeMember(@NotNull UUID uuid) {
+        return members.removeIf(user -> user.getUuid().equals(uuid));
+    }
+
     @NotNull
     @Override
     public String getTrustIdentifier(@NotNull HuskClaims plugin) {

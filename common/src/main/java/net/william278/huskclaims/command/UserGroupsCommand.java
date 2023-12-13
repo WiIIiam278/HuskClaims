@@ -155,12 +155,11 @@ public class UserGroupsCommand extends OnlineUserCommand implements TabCompletab
 
     private void removePlayerFromGroup(@NotNull OnlineUser user, @NotNull String name, @NotNull String player) {
         getUserIfExists(user, player, (toRemove) -> editGroupIfExists(user, name, (group) -> {
-            if (!group.isMember(toRemove.getUuid())) {
+            if (!group.removeMember(toRemove.getUuid())) {
                 plugin.getLocales().getLocale("error_not_group_member", toRemove.getName())
                         .ifPresent(user::sendMessage);
                 return;
             }
-            group.members().remove(toRemove);
             plugin.getLocales().getLocale("group_removed_player", toRemove.getName(), group.name())
                     .ifPresent(user::sendMessage);
         }));
