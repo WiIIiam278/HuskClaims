@@ -64,7 +64,7 @@ public abstract class InClaimCommand extends OnlineUserCommand {
         final Claim claim = optionalClaim.get();
         final ClaimWorld world = optionalWorld.get();
         if (privilege != null && !claim.isPrivilegeAllowed(privilege, user, world, plugin)) {
-            plugin.getLocales().getLocale("error_no_permission")
+            plugin.getLocales().getLocale("no_claim_privilege")
                     .ifPresent(user::sendMessage);
             return;
         }
