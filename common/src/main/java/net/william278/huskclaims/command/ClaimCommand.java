@@ -34,14 +34,14 @@ public class ClaimCommand extends OnlineUserCommand {
     private final ClaimingMode mode;
 
     protected ClaimCommand(@NotNull ClaimingMode mode, @NotNull HuskClaims plugin) {
-        super(mode.getCommandAliases(), "[size]", plugin);
+        super(mode.getCommandAliases(), "[radius]", plugin);
         this.mode = mode;
     }
 
 
     @Override
     public void execute(@NotNull OnlineUser executor, @NotNull String[] args) {
-        final Optional<Integer> claimRadius = parseIntArg(args, 0).map(s -> Math.min(1, s / 2));
+        final Optional<Integer> claimRadius = parseIntArg(args, 0).map(s -> Math.max(1, s));
         if (claimRadius.isPresent()) {
             createClaim(executor, plugin.getClaimWorld(executor.getWorld()).orElse(null), claimRadius.get());
             return;
@@ -49,16 +49,18 @@ public class ClaimCommand extends OnlineUserCommand {
 
         plugin.editUserPreferences(executor, (preferences -> {
             final ClaimingMode currentMode = preferences.getClaimingMode();
+            final ClaimingMode newMode;
             if (currentMode != mode) {
-                preferences.setClaimingMode(mode);
-            } else if (mode != ClaimingMode.CLAIMS) {
-                plugin.getLocales().getLocale("error_invalid_syntax", String.format("/%s <size>", getName()))
+                newMode = mode;
+            } else if (mode == ClaimingMode.CLAIMS) {
+                plugin.getLocales().getLocale("error_invalid_syntax", String.format("/%s <radius>", getName()))
                         .ifPresent(executor::sendMessage);
                 return;
             } else {
-                preferences.setClaimingMode(ClaimingMode.CLAIMS);
+                newMode = ClaimingMode.CLAIMS;
             }
-            plugin.getLocales().getLocale("switched_claiming_mode", mode.getDisplayName(plugin.getLocales()))
+            preferences.setClaimingMode(newMode);
+            plugin.getLocales().getLocale("switched_claiming_mode", newMode.getDisplayName(plugin.getLocales()))
                     .ifPresent(executor::sendMessage);
         }));
     }

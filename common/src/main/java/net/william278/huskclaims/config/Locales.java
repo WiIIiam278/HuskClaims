@@ -26,7 +26,6 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.william278.huskclaims.util.PaginatedListProvider;
 import org.apache.commons.text.StringEscapeUtils;
-import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -153,20 +152,6 @@ public class Locales implements PaginatedListProvider {
             value.append(c);
         }
         return value.toString();
-    }
-
-    /**
-     * Formats a description string, wrapping text on whitespace after 40 characters
-     *
-     * @param string The string to format
-     * @return The line-break formatted string, or a String literal {@code "N/A"} if the input string is empty
-     */
-    @NotNull
-    public String wrapText(@NotNull String string, int wrapAfter) {
-        if (string.isBlank()) {
-            return getNotApplicable();
-        }
-        return WordUtils.wrap(string, wrapAfter, "\n", true);
     }
 
     @NotNull
