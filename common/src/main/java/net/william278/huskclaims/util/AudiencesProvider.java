@@ -19,10 +19,14 @@
 
 package net.william278.huskclaims.util;
 
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.Audiences;
 import net.kyori.adventure.platform.AudienceProvider;
 import net.william278.huskclaims.user.ConsoleUser;
+import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.UUID;
 
 /**
  * Interface for providing the {@link ConsoleUser} and {@link Audiences} instances
@@ -39,6 +43,17 @@ public interface AudiencesProvider {
      */
     @NotNull
     AudienceProvider getAudiences();
+
+    /**
+     * Get the {@link Audience} instance for the given {@link OnlineUser}
+     *
+     * @param user the {@link OnlineUser} to get the {@link Audience} for
+     * @return the {@link Audience} instance
+     */
+    @NotNull
+    default Audience getAudience(@NotNull UUID user) {
+        return getAudiences().player(user);
+    }
 
     /**
      * Get the {@link ConsoleUser} instance

@@ -51,7 +51,7 @@ public abstract class OnlineUser extends User implements OperationUser, CommandU
 
     @NotNull
     public Audience getAudience() {
-        return plugin.getAudiences().player(getUuid());
+        return plugin.getAudience(getUuid());
     }
 
     public void sendMessage(@NotNull Component message) {

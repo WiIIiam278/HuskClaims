@@ -20,12 +20,17 @@
 package net.william278.huskclaims;
 
 import lombok.NoArgsConstructor;
+import net.kyori.adventure.audience.Audience;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.user.BukkitUser;
 import net.william278.huskclaims.user.OnlineUser;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 @NoArgsConstructor
 public class PaperHuskClaims extends BukkitHuskClaims {
@@ -34,6 +39,13 @@ public class PaperHuskClaims extends BukkitHuskClaims {
     @SuppressWarnings("UnstableApiUsage")
     public void sendBlockUpdates(@NotNull OnlineUser user, @NotNull Map<Position, MaterialBlock> blocks) {
         ((BukkitUser) user).getBukkitPlayer().sendMultiBlockChange(Adapter.adapt(blocks));
+    }
+
+    @Override
+    @NotNull
+    public Audience getAudience(@NotNull UUID user) {
+        final Player player = getServer().getPlayer(user);
+        return player == null || !player.isOnline() ? Audience.empty() : player;
     }
 
 }

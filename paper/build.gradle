@@ -34,7 +34,6 @@ shadowJar {
     relocate 'org.json', 'net.william278.huskclaims.libraries.json'
     relocate 'dev.dejvokep.boostedyaml', 'net.william278.huskclaims.libraries.boostedyaml'
     relocate 'org.snakeyaml', 'net.william278.huskclaims.libraries.snakeyaml'
-    relocate 'net.kyori', 'net.william278.huskclaims.libraries'
     relocate 'com.google.gson', 'net.william278.huskclaims.libraries.gson'
     relocate 'com.fatboyindustrial', 'net.william278.huskclaims.libraries'
     relocate 'org.bstats', 'net.william278.huskclaims.libraries.bstats'
