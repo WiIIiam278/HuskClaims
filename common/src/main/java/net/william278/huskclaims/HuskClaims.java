@@ -35,7 +35,6 @@ import net.william278.huskclaims.util.*;
 import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.logging.Level;
 

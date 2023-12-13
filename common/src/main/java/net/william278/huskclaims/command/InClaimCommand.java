@@ -47,21 +47,29 @@ public abstract class InClaimCommand extends OnlineUserCommand {
 
     @Override
     public void execute(@NotNull OnlineUser user, @NotNull String[] args) {
-        final Optional<ClaimWorld> world = plugin.getClaimWorld(user.getWorld());
-        if (world.isEmpty()) {
+        final Optional<ClaimWorld> optionalWorld = plugin.getClaimWorld(user.getWorld());
+        if (optionalWorld.isEmpty()) {
             plugin.getLocales().getLocale("world_not_claimable")
                     .ifPresent(user::sendMessage);
             return;
         }
 
-        final Optional<Claim> claim = world.get().getClaimAt(user.getPosition());
-        if (claim.isEmpty()) {
+        final Optional<Claim> optionalClaim = optionalWorld.get().getClaimAt(user.getPosition());
+        if (optionalClaim.isEmpty()) {
             plugin.getLocales().getLocale("error_not_in_claim")
                     .ifPresent(user::sendMessage);
             return;
         }
 
-        this.execute(user, world.get(), claim.get(), args);
+        final Claim claim = optionalClaim.get();
+        final ClaimWorld world = optionalWorld.get();
+        if (privilege != null && !claim.isPrivilegeAllowed(privilege, user, world, plugin)) {
+            plugin.getLocales().getLocale("error_no_permission")
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+
+        this.execute(user, optionalWorld.get(), optionalClaim.get(), args);
     }
 
     /**
@@ -78,12 +86,6 @@ public abstract class InClaimCommand extends OnlineUserCommand {
                                          @NotNull ClaimWorld world, @NotNull Claim claim) {
         if (claim.getOwner().map(o -> o.equals(executor.getUuid())).orElse(false)) {
             return true;
-        }
-
-        if (privilege != null && !claim.isPrivilegeAllowed(privilege, executor, world, plugin)) {
-            plugin.getLocales().getLocale("no_claim_privilege")
-                    .ifPresent(executor::sendMessage);
-            return false;
         }
 
         // Check if the executor is allowed to set the trust level of the trustable
