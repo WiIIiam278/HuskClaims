@@ -35,8 +35,6 @@ import java.util.stream.Collectors;
 
 public class TrustListCommand extends InClaimCommand {
 
-    private static final int DESCRIPTION_WRAP = 40;
-
     protected TrustListCommand(@NotNull HuskClaims plugin) {
         super(List.of("trustlist"), TrustLevel.Privilege.MANAGE_TRUSTEES, plugin);
     }
@@ -71,7 +69,7 @@ public class TrustListCommand extends InClaimCommand {
         // Return the row
         plugin.getLocales().getRawLocale("trust_list_row",
                         Locales.escapeText(level.getDisplayName()),
-                        plugin.getLocales().wrapText(Locales.escapeText(level.getDescription()), DESCRIPTION_WRAP),
+                        Locales.escapeText(level.getDescription()),
                         joiner.toString()
                 )
                 .map(t -> plugin.getLocales().format(t))
