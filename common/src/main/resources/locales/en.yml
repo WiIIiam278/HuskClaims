@@ -43,7 +43,7 @@ locales:
   no_wilderness_permission: '[You are not allowed do that in the wilderness](#ff7e5e)'
   enabled_operation_group: '[Successfully enabled %1% in this claim](#00fb9a)'
   disabled_operation_group: '[Successfully disabled %1% in this claim](#00fb9a)'
-  trust_list_header: '[List of users with access to %1%''s claim:](#00fb9a)\n'
+  trust_list_header: '[List of users & groups with access to %1%''s claim:](#00fb9a)\n'
   trust_list_row: '[%1%:](#00fb9a show_text=&7%2%) %3%'
   trust_list_user: '[%1%](white)'
   trust_list_group: '[%1%](white show_text=&7Group of %2% players:\n\n&8)'
