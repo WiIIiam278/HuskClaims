@@ -139,7 +139,7 @@ public interface ClaimEditor {
                         Long.toString(claimBlockDifference)).ifPresent(user::sendMessage);
                 return;
             }
-            getPlugin().editClaimBlocks(user, (blocks) -> blocks - claimBlockDifference);
+            getPlugin().editClaimBlocks(user, (blocks) -> blocks + claimBlockDifference);
         }
 
         claim.setRegion(resized);
