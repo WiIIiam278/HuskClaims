@@ -200,7 +200,7 @@ public final class Settings {
                 Highlightable.HighlightType.EDGE, "minecraft:gold_block",
                 Highlightable.HighlightType.CORNER, "minecraft:glowstone",
                 Highlightable.HighlightType.ADMIN_CORNER, "minecraft:jack_o_lantern",
-                Highlightable.HighlightType.ADMIN_EDGE, "minecraft:carved_pumpkin",
+                Highlightable.HighlightType.ADMIN_EDGE, "minecraft:pumpkin",
                 Highlightable.HighlightType.CHILD_CORNER, "minecraft:iron_block",
                 Highlightable.HighlightType.CHILD_EDGE, "minecraft:white_wool",
                 Highlightable.HighlightType.SELECTION, "minecraft:diamond_block"
