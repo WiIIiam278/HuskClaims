@@ -19,6 +19,7 @@
 
 package net.william278.huskclaims.config;
 
+import com.google.common.collect.Maps;
 import de.exlll.configlib.Comment;
 import de.exlll.configlib.Configuration;
 import lombok.*;
@@ -73,12 +74,12 @@ public final class Settings {
         PoolOptions poolOptions;
 
         @Comment("Names of tables to use on your database. Don't modify this unless you know what you're doing!")
-        Map<Database.Table, String> tableNames = Map.of(
+        Map<Database.Table, String> tableNames = Maps.newLinkedHashMap(Map.of(
                 Database.Table.META_DATA, Database.Table.META_DATA.getDefaultName(),
                 Database.Table.USER_DATA, Database.Table.USER_DATA.getDefaultName(),
                 Database.Table.USER_GROUP_DATA, Database.Table.USER_GROUP_DATA.getDefaultName(),
                 Database.Table.CLAIM_DATA, Database.Table.CLAIM_DATA.getDefaultName()
-        );
+        ));
 
         @Getter
         @Configuration
@@ -145,6 +146,7 @@ public final class Settings {
     @Comment("Claim flags & world settings")
     private ClaimSettings claims = new ClaimSettings();
 
+    @SuppressWarnings("FieldMayBeFinal")
     @Getter
     @Configuration
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -196,15 +198,17 @@ public final class Settings {
         private int inspectionDistance = 40;
 
         @Comment("Blocks to use for the block highlighter")
-        private Map<Highlightable.HighlightType, String> blockHighlighterTypes = Map.of(
+        private Map<Highlightable.HighlightType, String> blockHighlighterTypes = Maps.newLinkedHashMap(Map.of(
                 Highlightable.HighlightType.EDGE, "minecraft:gold_block",
                 Highlightable.HighlightType.CORNER, "minecraft:glowstone",
                 Highlightable.HighlightType.ADMIN_CORNER, "minecraft:jack_o_lantern",
                 Highlightable.HighlightType.ADMIN_EDGE, "minecraft:pumpkin",
                 Highlightable.HighlightType.CHILD_CORNER, "minecraft:iron_block",
                 Highlightable.HighlightType.CHILD_EDGE, "minecraft:white_wool",
+                Highlightable.HighlightType.OVERLAP_CORNER, "minecraft:red_nether_bricks",
+                Highlightable.HighlightType.OVERLAP_EDGE, "minecraft:netherrack",
                 Highlightable.HighlightType.SELECTION, "minecraft:diamond_block"
-        );
+        ));
 
         public boolean isWorldUnclaimable(@NotNull World world) {
             return unclaimableWorlds.stream().anyMatch(world.getName()::equalsIgnoreCase);

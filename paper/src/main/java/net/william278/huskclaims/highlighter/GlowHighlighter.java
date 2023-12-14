@@ -30,7 +30,7 @@ public class GlowHighlighter implements Highlighter {
 
     @Override
     public void startHighlighting(@NotNull OnlineUser user, @NotNull World world,
-                                  @NotNull Collection<Highlightable> toHighlight) {
+                                  @NotNull Collection<? extends Highlightable> toHighlight, boolean showOverlap) {
 
     }
 

@@ -22,6 +22,7 @@ package net.william278.huskclaims.claim;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.william278.huskclaims.config.Locales;
+import net.william278.huskclaims.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -32,18 +33,25 @@ import java.util.Locale;
  *
  * @since 1.0
  */
-@Getter
 @AllArgsConstructor
 public enum ClaimingMode {
-    CLAIMS(List.of("claim")),
-    CHILD_CLAIMS(List.of("childclaim", "subdivideclaims")),
-    ADMIN_CLAIMS(List.of("adminclaim"));
+    CLAIMS(List.of("claim"), "huskclaims.claim"),
+    CHILD_CLAIMS(List.of("childclaim", "subdivideclaims"), "huskclaims.child_claim"),
+    ADMIN_CLAIMS(List.of("adminclaim"), "huskclaims.admin_claim");
 
-    private List<String> commandAliases;
+    @Getter
+    private final List<String> commandAliases;
+
+    // Permission required to create & resize
+    private final String usePermission;
 
     @NotNull
     public String getDisplayName(@NotNull Locales locales) {
         return locales.getRawLocale(String.format("claiming_mode_%s", getId())).orElse(getId());
+    }
+
+    public boolean canUse(@NotNull CommandUser user) {
+        return user.hasPermission(usePermission);
     }
 
     @NotNull

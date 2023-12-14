@@ -35,7 +35,6 @@ import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static net.william278.huskclaims.command.ClaimsListCommand.SortOption.SIZE;
 

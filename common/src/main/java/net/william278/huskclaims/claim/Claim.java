@@ -357,10 +357,10 @@ public class Claim implements Highlightable {
 
     @Override
     @NotNull
-    public Map<Region.Point, HighlightType> getHighlightPoints(@NotNull ClaimWorld world) {
-
+    public Map<Region.Point, HighlightType> getHighlightPoints(@NotNull ClaimWorld world, boolean showOverlap) {
         final Optional<Claim> parent = getParent(world);
         return region.getHighlightPoints(
+                showOverlap,
                 parent.isPresent(),
                 parent.map(claim -> claim.getOwner().isEmpty())
                         .orElse(getOwner().isEmpty())

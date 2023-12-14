@@ -137,6 +137,18 @@ public interface ConfigProvider {
     List<TrustLevel> getTrustLevels();
 
     /**
+     * Get the trust level with the highest weight
+     *
+     * @return the highest trust level
+     * @since 1.0
+     */
+    @NotNull
+    default TrustLevel getHighestTrustLevel() {
+        return getTrustLevels().stream().max(TrustLevel::compareTo)
+                .orElseThrow(() -> new IllegalStateException("No trust levels found"));
+    }
+
+    /**
      * Get a trust level by ID
      *
      * @param id The ID of the trust level

@@ -42,15 +42,15 @@ public interface Highlightable {
      * @since 1.0
      */
     @NotNull
-    Map<Region.Point, HighlightType> getHighlightPoints(@NotNull ClaimWorld world);
+    Map<Region.Point, HighlightType> getHighlightPoints(@NotNull ClaimWorld world, boolean showOverlap);
 
     @NotNull
     default BlockProvider.MaterialBlock getBlockFor(@NotNull ClaimWorld world, @NotNull Position position,
-                                                    @NotNull HuskClaims plugin) {
+                                                    @NotNull HuskClaims plugin, boolean showOverlap) {
         return plugin.getBlockFor(plugin.getSettings()
                 .getClaims().getBlockHighlighterTypes()
                 .getOrDefault(
-                        getHighlightPoints(world).entrySet().stream()
+                        getHighlightPoints(world, showOverlap).entrySet().stream()
                                 .filter(e -> e.getKey().equals(Region.Point.wrap(position))).map(Map.Entry::getValue)
                                 .findFirst().orElse(HighlightType.SELECTION),
                         "minecraft:yellow_concrete"
@@ -64,17 +64,22 @@ public interface Highlightable {
         CHILD_EDGE,
         ADMIN_CORNER,
         ADMIN_EDGE,
+        OVERLAP_CORNER,
+        OVERLAP_EDGE,
         SELECTION;
 
         @NotNull
-        public static HighlightType getClaimType(boolean isSubClaim, boolean isAdmin, boolean isCorner) {
-            if (isSubClaim) {
-                return isCorner ? CHILD_CORNER : CHILD_EDGE;
+        public static HighlightType getClaimType(boolean overlap, boolean child, boolean admin, boolean corner) {
+            if (overlap) {
+                return corner ? OVERLAP_CORNER : OVERLAP_EDGE;
             }
-            if (isAdmin) {
-                return isCorner ? ADMIN_CORNER : ADMIN_EDGE;
+            if (child) {
+                return corner ? CHILD_CORNER : CHILD_EDGE;
             }
-            return isCorner ? CORNER : EDGE;
+            if (admin) {
+                return corner ? ADMIN_CORNER : ADMIN_EDGE;
+            }
+            return corner ? CORNER : EDGE;
         }
     }
 

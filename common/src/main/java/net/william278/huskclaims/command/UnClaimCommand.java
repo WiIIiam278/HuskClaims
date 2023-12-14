@@ -22,6 +22,7 @@ package net.william278.huskclaims.command;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ClaimWorld;
+import net.william278.huskclaims.claim.ClaimingMode;
 import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,8 +37,8 @@ public class UnClaimCommand extends InClaimCommand {
     @Override
     public void execute(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
                         @NotNull Claim claim, @NotNull String[] args) {
-        //todo support deleting admin claims
-        if (!claim.getOwner().map(o -> o.equals(executor.getUuid())).orElse(false)) {
+        if ((claim.getOwner().isEmpty() && !ClaimingMode.ADMIN_CLAIMS.canUse(executor))
+                || claim.getOwner().map(owner -> owner.equals(executor.getUuid())).orElse(false)) {
             plugin.getLocales().getLocale("no_deletion_permission")
                     .ifPresent(executor::sendMessage);
             return;

@@ -221,15 +221,15 @@ public class Region {
     }
 
     @NotNull
-    public Map<Point, Highlightable.HighlightType> getHighlightPoints(boolean isChild, boolean isAdmin) {
+    public Map<Point, Highlightable.HighlightType> getHighlightPoints(boolean overlap, boolean isChild, boolean isAdmin) {
         final Map<Point, Highlightable.HighlightType> positions = Maps.newHashMap();
 
         // X boundaries
-        final Highlightable.HighlightType edge = getClaimType(isChild, isAdmin, false);
+        final Highlightable.HighlightType edge = getClaimType(overlap, isChild, isAdmin, false);
         addEdgePoints(positions, edge);
 
         // Add corners
-        final Highlightable.HighlightType corner = getClaimType(isChild, isAdmin, true);
+        final Highlightable.HighlightType corner = getClaimType(overlap, isChild, isAdmin, true);
         getCorners().forEach((c) -> positions.put(c, corner));
 
         return positions;

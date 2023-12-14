@@ -31,6 +31,7 @@ import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -42,8 +43,6 @@ import java.util.concurrent.ConcurrentMap;
  * @since 1.0
  */
 public interface ClaimEditor {
-    String EDIT_CLAIMS = "huskclaims.claims.edit";
-    String EDIT_ADMIN_CLAIMS = "huskclaims.claims.edit_admin";
 
     @NotNull
     ConcurrentMap<UUID, ClaimSelection> getClaimSelections();
@@ -118,9 +117,11 @@ public interface ClaimEditor {
         final Region resized = claim.getRegion().getResized(
                 selection.getResizedCornerIndex(), Region.Point.wrap(clickedBlock)
         );
-        if (world.isRegionClaimed(resized, claim.getRegion())) {
+        final List<Claim> overlapsWith = world.getParentClaimsWithin(resized, claim.getRegion());
+        if (!overlapsWith.isEmpty()) {
             getPlugin().getLocales().getLocale("land_selection_overlaps")
                     .ifPresent(user::sendMessage);
+            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), overlapsWith, true);
             return;
         }
 
@@ -153,9 +154,7 @@ public interface ClaimEditor {
 
     default void createClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {
         // Validate that the region is not already occupied
-        if (world.isRegionClaimed(region)) {
-            getPlugin().getLocales().getLocale("land_selection_overlaps")
-                    .ifPresent(user::sendMessage);
+        if (doesClaimOverlap(user, world, region)) {
             return;
         }
 
@@ -186,18 +185,32 @@ public interface ClaimEditor {
 
     default void createAdminClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {
         // Validate that the region is not already occupied
-        if (world.isRegionClaimed(region)) {
-            getPlugin().getLocales().getLocale("land_selection_overlaps")
-                    .ifPresent(user::sendMessage);
+        if (doesClaimOverlap(user, world, region)) {
             return;
         }
 
         // Create the claim
         world.cacheUser(user);
         final Claim claim = getPlugin().createAdminClaimAt(user.getWorld(), region);
+
+        // Grant the claim creator the highest trust level
+        claim.setTrustLevel(user, world, getPlugin().getHighestTrustLevel());
+
+        // Highlight the claim
         getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claim);
         getPlugin().getLocales().getLocale("claim_created_admin")
                 .ifPresent(user::sendMessage);
+    }
+
+    private boolean doesClaimOverlap(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {
+        final List<Claim> overlapsWith = world.getParentClaimsWithin(region);
+        if (!overlapsWith.isEmpty()) {
+            getPlugin().getLocales().getLocale("land_selection_overlaps")
+                    .ifPresent(user::sendMessage);
+            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), overlapsWith, true);
+            return true;
+        }
+        return false;
     }
 
     @NotNull
@@ -208,7 +221,7 @@ public interface ClaimEditor {
         // If there's no claim, create a selection at the clicked position
         final ClaimSelection.ClaimSelectionBuilder builder = ClaimSelection.builder().selectedPosition(clicked);
         if (clickedClaim.isEmpty()) {
-            if (!user.hasPermission(isAdmin ? EDIT_ADMIN_CLAIMS : EDIT_CLAIMS)) {
+            if (!(isAdmin ? ClaimingMode.ADMIN_CLAIMS : ClaimingMode.CLAIMS).canUse(user)) {
                 getPlugin().getLocales().getLocale("error_no_claiming_permission")
                         .ifPresent(user::sendMessage);
                 return Optional.empty();
@@ -302,20 +315,20 @@ public interface ClaimEditor {
             if (claimBeingResized.isChildClaim(world)) {
                 return claimBeingResized.isPrivilegeAllowed(
                         TrustLevel.Privilege.MANAGE_CHILD_CLAIMS, user, world, plugin
-                );
+                ) && ClaimingMode.CHILD_CLAIMS.canUse(user);
             }
 
             // Check claim resize privileges
             return claimBeingResized.getOwner()
-                    .map(uuid -> uuid.equals(user.getUuid()) && user.hasPermission(EDIT_CLAIMS))
-                    .orElseGet(() -> user.hasPermission(EDIT_ADMIN_CLAIMS));
+                    .map(uuid -> uuid.equals(user.getUuid()) && ClaimingMode.CLAIMS.canUse(user))
+                    .orElseGet(() -> ClaimingMode.ADMIN_CLAIMS.canUse(user));
         }
 
         @Override
         @NotNull
-        public Map<Region.Point, HighlightType> getHighlightPoints(@NotNull ClaimWorld world) {
+        public Map<Region.Point, HighlightType> getHighlightPoints(@NotNull ClaimWorld world, boolean showOverlap) {
             return isResizeSelection() && claimBeingResized != null
-                    ? claimBeingResized.getHighlightPoints(world)
+                    ? claimBeingResized.getHighlightPoints(world, showOverlap)
                     : Map.of(Region.Point.wrap(selectedPosition), HighlightType.SELECTION);
         }
     }

@@ -105,6 +105,24 @@ public class ClaimWorld {
         userCache.put(user.getUuid(), user.getName());
     }
 
+
+    /**
+     * Get the claims a region overlaps with, except for certain claims
+     *
+     * @param region    The region to check
+     * @param exceptFor claims to exclude from the check
+     * @return list of overlapping claims
+     * @since 1.0
+     */
+    @NotNull
+    public List<Claim> getParentClaimsWithin(@NotNull Region region, @NotNull Region... exceptFor) {
+        final List<Claim> claims = Lists.newArrayList(getParentClaimsWithin(region));
+        for (Region except : exceptFor) {
+            claims.removeIf(claim -> claim.getRegion().equals(except));
+        }
+        return claims;
+    }
+
     /**
      * Get if a region is claimed
      *
@@ -125,11 +143,7 @@ public class ClaimWorld {
      * @since 1.0
      */
     public boolean isRegionClaimed(@NotNull Region region, @NotNull Region... exceptFor) {
-        final List<Claim> claims = Lists.newArrayList(getParentClaimsWithin(region));
-        for (Region except : exceptFor) {
-            claims.removeIf(claim -> claim.getRegion().equals(except));
-        }
-        return !claims.isEmpty();
+        return !getParentClaimsWithin(region, exceptFor).isEmpty();
     }
 
     public boolean isOperationAllowed(@NotNull Operation operation, @NotNull HuskClaims plugin) {

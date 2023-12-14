@@ -47,7 +47,7 @@ public class BlockHighlighter implements Highlighter {
 
     @Override
     public void startHighlighting(@NotNull OnlineUser user, @NotNull World world,
-                                  @NotNull Collection<Highlightable> toHighlight) {
+                                  @NotNull Collection<? extends Highlightable> toHighlight, boolean showOverlap) {
         plugin.runSync(() -> {
             stopHighlighting(user);
 
@@ -60,13 +60,13 @@ public class BlockHighlighter implements Highlighter {
             final List<HighlightedBlock> activeBlocks = Lists.newArrayList();
             final List<HighlightedBlock> highlightBlocks = Lists.newArrayList();
             for (Highlightable highlight : toHighlight) {
-                plugin.getHighestBlocksAt(highlight.getHighlightPoints(claimWorld).keySet(), world)
+                plugin.getHighestBlocksAt(highlight.getHighlightPoints(claimWorld, showOverlap).keySet(), world)
                         .forEach((pos, material) -> {
                             activeBlocks.add(new HighlightedBlock(
                                     pos, material
                             ));
                             highlightBlocks.add(new HighlightedBlock(
-                                    pos, highlight.getBlockFor(claimWorld, pos, plugin)
+                                    pos, highlight.getBlockFor(claimWorld, pos, plugin, showOverlap)
                             ));
                         });
             }

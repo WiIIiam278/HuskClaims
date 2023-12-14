@@ -40,10 +40,38 @@ public interface Highlighter {
      * @param user        The user to visualize the highlightable to
      * @param world       The {@link ClaimWorld} the highlightable is in
      * @param toHighlight a collection of {@link Highlightable}s to visualize
+     * @param showOverlap whether to highlight overlapping claims
      * @since 1.0
      */
     void startHighlighting(@NotNull OnlineUser user, @NotNull World world,
-                           @NotNull Collection<Highlightable> toHighlight);
+                           @NotNull Collection<? extends Highlightable> toHighlight,
+                           boolean showOverlap);
+
+    /**
+     * Highlight something for a user
+     *
+     * @param user        The user to visualize the highlightable to
+     * @param world       The {@link ClaimWorld} the highlightable is in
+     * @param toHighlight a collection of {@link Highlightable}s to visualize
+     * @since 1.0
+     */
+    default void startHighlighting(@NotNull OnlineUser user, @NotNull World world,
+                                   @NotNull Collection<? extends Highlightable> toHighlight) {
+        startHighlighting(user, world, toHighlight, false);
+    }
+
+    /**
+     * Highlight something for a user
+     *
+     * @param user          The user to visualize the highlightable to
+     * @param world         The {@link ClaimWorld} the highlightable is in
+     * @param highlightable The {@link Highlightable} to visualize
+     * @since 1.0
+     */
+    default void startHighlighting(@NotNull OnlineUser user, @NotNull World world,
+                                   @NotNull Highlightable highlightable, boolean showOverlap) {
+        startHighlighting(user, world, List.of(highlightable), showOverlap);
+    }
 
     /**
      * Highlight something for a user
@@ -55,7 +83,7 @@ public interface Highlighter {
      */
     default void startHighlighting(@NotNull OnlineUser user, @NotNull World world,
                                    @NotNull Highlightable highlightable) {
-        startHighlighting(user, world, List.of(highlightable));
+        startHighlighting(user, world, highlightable, false);
     }
 
     /**
