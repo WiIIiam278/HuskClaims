@@ -53,7 +53,7 @@ public class TrustLevels {
                     .weight(400)
                     .displayName("Permission Trust")
                     .description("Allows users to manage trustees & make child claims")
-                    .commandAliases(List.of("permisiontrust"))
+                    .commandAliases(List.of("permissiontrust"))
                     .flags(List.of(
                             OperationType.BLOCK_BREAK,
                             OperationType.BLOCK_PLACE,
