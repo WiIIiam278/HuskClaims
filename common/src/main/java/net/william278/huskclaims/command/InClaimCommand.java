@@ -77,7 +77,7 @@ public abstract class InClaimCommand extends OnlineUserCommand {
      *
      * @param executor  The executor
      * @param trustable The trustable
-     * @param world     The world
+     * @param world     The serverWorld
      * @param claim     The claim
      * @return if the executor has access
      * @since 1.0

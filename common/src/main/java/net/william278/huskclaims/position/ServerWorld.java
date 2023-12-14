@@ -43,7 +43,7 @@ public record ServerWorld(@NotNull String server, @NotNull World world) {
 
     @Override
     public String toString() {
-        return server + "/" + world.getName();
+        return String.format("%s/%s", server, world.getName());
     }
 
 }

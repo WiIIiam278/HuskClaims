@@ -104,7 +104,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
         if (claimWorld.isRegionClaimed(region)) {
             throw new IllegalArgumentException("Region is already claimed");
         }
-        if (owner != null && region.getSmallestEdge() < getPlugin().getSettings().getClaims().getMinimumClaimSize()) {
+        if (owner != null && region.getShortestEdge() < getPlugin().getSettings().getClaims().getMinimumClaimSize()) {
             throw new IllegalArgumentException("Region is too small");
         }
 

@@ -63,6 +63,7 @@ public interface CommandProvider {
         commands.add(new TrustListCommand(getPlugin()));
         commands.add(new UserGroupsCommand(getPlugin()));
         commands.add(new UnClaimCommand(getPlugin()));
+        commands.add(new ClaimsListCommand(getPlugin()));
 
         // Register claim commands
         getPlugin().getSettings().getClaims().getEnabledClaimingModes().stream()

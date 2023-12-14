@@ -269,7 +269,7 @@ public class Region {
      * @return the length of the smallest edge of this region
      * @since 1.0
      */
-    public int getSmallestEdge() {
+    public int getShortestEdge() {
         return Math.min(
                 Math.abs(farCorner.getBlockX() - nearCorner.getBlockX()),
                 Math.abs(farCorner.getBlockZ() - nearCorner.getBlockZ())

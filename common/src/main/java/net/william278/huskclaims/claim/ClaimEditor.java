@@ -169,7 +169,7 @@ public interface ClaimEditor {
             return;
         }
 
-        if (region.getSmallestEdge() < getPlugin().getSettings().getClaims().getMinimumClaimSize()) {
+        if (region.getShortestEdge() < getPlugin().getSettings().getClaims().getMinimumClaimSize()) {
             getPlugin().getLocales().getLocale("error_claim_too_small",
                             Integer.toString(getPlugin().getSettings().getClaims().getMinimumClaimSize()))
                     .ifPresent(user::sendMessage);
