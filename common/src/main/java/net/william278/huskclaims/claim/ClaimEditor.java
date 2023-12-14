@@ -133,13 +133,15 @@ public interface ClaimEditor {
 
         // Check claim blocks (non-admin claims)
         if (claim.getOwner().isPresent()) {
-            final long claimBlockDifference = resized.getSurfaceArea() - claim.getRegion().getSurfaceArea();
-            if (getPlugin().getClaimBlocks(user.getUuid()) < claimBlockDifference) {
+            final long additionalBlocksNeeded = resized.getSurfaceArea() - claim.getRegion().getSurfaceArea();
+            if (additionalBlocksNeeded > 0 && getPlugin().getClaimBlocks(user.getUuid()) < additionalBlocksNeeded) {
                 getPlugin().getLocales().getLocale("error_not_enough_claim_blocks",
-                        Long.toString(claimBlockDifference)).ifPresent(user::sendMessage);
+                        Long.toString(additionalBlocksNeeded)).ifPresent(user::sendMessage);
                 return;
             }
-            getPlugin().editClaimBlocks(user, (blocks) -> blocks + claimBlockDifference);
+
+            // Gives blocks back or takes them away based on the difference in size
+            getPlugin().editClaimBlocks(user, (blocks) -> blocks - additionalBlocksNeeded);
         }
 
         claim.setRegion(resized);
@@ -159,8 +161,10 @@ public interface ClaimEditor {
 
         // Validate they have enough claim blocks
         final long surfaceArea = region.getSurfaceArea();
-        if (getPlugin().getClaimBlocks(user.getUuid()) < surfaceArea) {
-            getPlugin().getLocales().getLocale("error_not_enough_claim_blocks", Long.toString(surfaceArea))
+        final long userBlocks = getPlugin().getClaimBlocks(user.getUuid());
+        if (userBlocks < surfaceArea) {
+            getPlugin().getLocales().getLocale("error_not_enough_claim_blocks",
+                            Long.toString(surfaceArea - userBlocks))
                     .ifPresent(user::sendMessage);
             return;
         }

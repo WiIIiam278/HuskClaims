@@ -32,6 +32,7 @@ import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.position.BlockPosition;
 import net.william278.huskclaims.position.Position;
+import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.Preferences;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
@@ -133,8 +134,36 @@ public class ClaimWorld {
 
     public boolean isOperationAllowed(@NotNull Operation operation, @NotNull HuskClaims plugin) {
         return getClaimAt((Position) operation.getOperationPosition())
-                .map(claim -> isIgnoring(operation, plugin) || claim.isOperationAllowed(operation, this, plugin))
-                .orElse(wildernessFlags.contains(operation.getType()));
+                .map(claim -> isOperationAllowedInClaim(operation, claim, plugin))
+                .orElse(isOperationAllowedInWilderness(operation, plugin));
+    }
+
+    private boolean isOperationAllowedInClaim(@NotNull Operation operation, @NotNull Claim claim,
+                                              @NotNull HuskClaims plugin) {
+        if (isIgnoring(operation, plugin) || claim.isOperationAllowed(operation, this, plugin)) {
+            return true;
+        }
+        // Send user error message if verbose
+        if (operation.isVerbose()) {
+            operation.getUser().ifPresent(user -> plugin.getLocales()
+                    .getLocale("no_operation_permission", claim.getOwnerName(this, plugin))
+                    .ifPresent(((OnlineUser) user)::sendMessage));
+        }
+        return false;
+    }
+
+    private boolean isOperationAllowedInWilderness(@NotNull Operation operation, @NotNull HuskClaims plugin) {
+        if (wildernessFlags.contains(operation.getType())) {
+            return true;
+        }
+
+        // Send user error message if verbose
+        if (operation.isVerbose()) {
+            operation.getUser().ifPresent(user -> plugin.getLocales()
+                    .getLocale("no_wilderness_permission")
+                    .ifPresent(((OnlineUser) user)::sendMessage));
+        }
+        return false;
     }
 
     private boolean isIgnoring(@NotNull Operation operation, @NotNull HuskClaims plugin) {
