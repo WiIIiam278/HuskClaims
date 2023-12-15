@@ -36,6 +36,7 @@ public class ExtendClaimCommand extends InClaimCommand {
         }
 
         final ExtendDirection facing = ExtendDirection.getFrom(executor.getPosition().getYaw());
+        //todo this is not working lol
         int north = 0, south = 0, east = 0, west = 0;
         switch (facing) {
             case NORTH -> north = extendAmount.get();
