@@ -37,6 +37,7 @@ import java.util.Optional;
  *
  * @since 1.0
  */
+@SuppressWarnings("FieldMayBeFinal")
 @Configuration
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Locales implements PaginatedListProvider {

@@ -27,9 +27,9 @@ import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
+@Configuration
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Configuration
 public class Server {
 
     static final String CONFIG_HEADER = """

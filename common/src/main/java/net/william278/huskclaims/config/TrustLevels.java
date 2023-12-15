@@ -31,9 +31,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+@SuppressWarnings("FieldMayBeFinal")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Configuration
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TrustLevels {
 
     protected static final String CONFIG_HEADER = """
