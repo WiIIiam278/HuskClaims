@@ -56,13 +56,15 @@ public interface ClaimHandler extends Handler {
     default boolean cancelNature(@NotNull OperationWorld world,
                                  @NotNull OperationPosition position1, @NotNull OperationPosition position2) {
         // If this isn't in a claim world, we don't care
-        if (getClaimWorld((World) world).isEmpty()) {
+        final Optional<ClaimWorld> optionalClaimWorld = getClaimWorld((World) world);
+        if (optionalClaimWorld.isEmpty()) {
             return false;
         }
 
         // If the two claims are the same, allow it, otherwise, deny it
-        final Optional<Claim> claim1 = getClaimAt((Position) position1);
-        final Optional<Claim> claim2 = getClaimAt((Position) position2);
+        final ClaimWorld claimWorld = optionalClaimWorld.get();
+        final Optional<Claim> claim1 = claimWorld.getClaimAt((Position) position1);
+        final Optional<Claim> claim2 = claimWorld.getClaimAt((Position) position2);
         if (claim1.isPresent() && claim2.isPresent()) {
             return !claim1.get().equals(claim2.get());
         }
