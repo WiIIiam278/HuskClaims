@@ -39,7 +39,11 @@ import java.util.stream.Collectors;
 public class UserGroupsCommand extends OnlineUserCommand implements TabCompletable {
 
     protected UserGroupsCommand(@NotNull HuskClaims plugin) {
-        super(List.of("group", "usergroup"), "<create|delete|edit> [name] [args]", plugin);
+        super(
+                List.of("group", "usergroup"),
+                "<create|delete|edit> [name] [args]",
+                plugin
+        );
     }
 
     @Override

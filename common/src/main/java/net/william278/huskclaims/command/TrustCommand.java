@@ -36,7 +36,12 @@ public class TrustCommand extends InClaimCommand implements TrustableTabCompleta
     private final TrustLevel level;
 
     protected TrustCommand(@NotNull TrustLevel level, @NotNull HuskClaims plugin) {
-        super(level.getCommandAliases(), TrustLevel.Privilege.MANAGE_TRUSTEES, plugin);
+        super(
+                level.getCommandAliases(),
+                getUsageText(plugin.getSettings().getUserGroups()),
+                TrustLevel.Privilege.MANAGE_TRUSTEES,
+                plugin
+        );
         this.level = level;
     }
 

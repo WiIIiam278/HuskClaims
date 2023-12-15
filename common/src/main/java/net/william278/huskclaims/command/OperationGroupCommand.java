@@ -32,7 +32,12 @@ public class OperationGroupCommand extends InClaimCommand {
     private final Settings.OperationGroup group;
 
     protected OperationGroupCommand(@NotNull Settings.OperationGroup group, @NotNull HuskClaims plugin) {
-        super(group.getToggleCommandAliases(), TrustLevel.Privilege.MANAGE_OPERATION_GROUPS, plugin);
+        super(
+                group.getToggleCommandAliases(),
+                "",
+                TrustLevel.Privilege.MANAGE_OPERATION_GROUPS,
+                plugin
+        );
         this.group = group;
     }
 

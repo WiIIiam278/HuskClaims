@@ -39,9 +39,9 @@ public abstract class InClaimCommand extends OnlineUserCommand {
 
     private final TrustLevel.Privilege privilege;
 
-    protected InClaimCommand(@NotNull List<String> aliases, @Nullable TrustLevel.Privilege privilege,
-                             @NotNull HuskClaims plugin) {
-        super(aliases, getUsageText(plugin.getSettings().getUserGroups()), plugin);
+    protected InClaimCommand(@NotNull List<String> aliases, @NotNull String usage,
+                             @Nullable TrustLevel.Privilege privilege, @NotNull HuskClaims plugin) {
+        super(aliases, usage, plugin);
         this.privilege = privilege;
     }
 

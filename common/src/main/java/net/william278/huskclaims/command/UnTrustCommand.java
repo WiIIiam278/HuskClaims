@@ -40,7 +40,12 @@ import java.util.Optional;
 public class UnTrustCommand extends InClaimCommand implements TabCompletable {
 
     protected UnTrustCommand(@NotNull HuskClaims plugin) {
-        super(List.of("untrust"), TrustLevel.Privilege.MANAGE_TRUSTEES, plugin);
+        super(
+                List.of("untrust"),
+                getUsageText(plugin.getSettings().getUserGroups()),
+                TrustLevel.Privilege.MANAGE_TRUSTEES,
+                plugin
+        );
     }
 
     @Override

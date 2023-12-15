@@ -36,7 +36,12 @@ import java.util.stream.Collectors;
 public class TrustListCommand extends InClaimCommand {
 
     protected TrustListCommand(@NotNull HuskClaims plugin) {
-        super(List.of("trustlist"), TrustLevel.Privilege.MANAGE_TRUSTEES, plugin);
+        super(
+                List.of("trustlist"),
+                "",
+                TrustLevel.Privilege.MANAGE_TRUSTEES,
+                plugin
+        );
     }
 
     @Override

@@ -44,7 +44,11 @@ public class ClaimsListCommand extends Command implements UserListTabCompletable
     private final Map<UUID, List<ServerWorldClaim>> claimLists = Maps.newHashMap();
 
     protected ClaimsListCommand(@NotNull HuskClaims plugin) {
-        super(List.of("claimslist", "claims"), "<player>", plugin);
+        super(
+                List.of("claimslist", "claims"),
+                "[player] [sort_by] [ascending|descending] [page]",
+                plugin
+        );
     }
 
     @Override

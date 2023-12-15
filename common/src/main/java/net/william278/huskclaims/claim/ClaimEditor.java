@@ -74,8 +74,8 @@ public interface ClaimEditor {
         final ClaimSelection selection = optionalSelection.get();
         if (selection.isResizeSelection()) {
             switch (mode) {
-                case CLAIMS, ADMIN_CLAIMS -> resizeClaim(user, world, clicked, selection);
-                case CHILD_CLAIMS -> resizeChildClaim(user, world, clicked, selection);
+                case CLAIMS, ADMIN_CLAIMS -> userResizeClaim(user, world, clicked, selection);
+                case CHILD_CLAIMS -> userResizeChildClaim(user, world, clicked, selection);
             }
             clearClaimSelection(user);
             return;
@@ -83,9 +83,9 @@ public interface ClaimEditor {
 
         // Otherwise, create a new claim
         switch (mode) {
-            case CLAIMS -> createClaim(user, world, Region.from(selection.getSelectedPosition(), clicked));
-            case ADMIN_CLAIMS -> createAdminClaim(user, world, Region.from(selection.getSelectedPosition(), clicked));
-            case CHILD_CLAIMS -> createChildClaim(user, world, Region.from(selection.getSelectedPosition(), clicked));
+            case CLAIMS -> userCreateClaim(user, world, Region.from(selection.getSelectedPosition(), clicked));
+            case ADMIN_CLAIMS -> userCreateAdminClaim(user, world, Region.from(selection.getSelectedPosition(), clicked));
+            case CHILD_CLAIMS -> userCreateChildClaim(user, world, Region.from(selection.getSelectedPosition(), clicked));
         }
         clearClaimSelection(user);
     }
@@ -108,8 +108,8 @@ public interface ClaimEditor {
         });
     }
 
-    default void resizeClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world,
-                             @NotNull Position clickedBlock, @NotNull ClaimSelection selection) {
+    default void userResizeClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world,
+                                 @NotNull Position clickedBlock, @NotNull ClaimSelection selection) {
         final Claim claim = selection.getClaimBeingResized();
         assert claim != null : "Claim selection is not a resize selection";
 
@@ -117,6 +117,11 @@ public interface ClaimEditor {
         final Region resized = claim.getRegion().getResized(
                 selection.getResizedCornerIndex(), Region.Point.wrap(clickedBlock)
         );
+        userResizeClaim(user, world, claim, resized);
+    }
+
+    default void userResizeClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world,
+                                 @NotNull Claim claim, @NotNull Region resized) {
         final List<Claim> overlapsWith = world.getParentClaimsWithin(resized, claim.getRegion());
         if (!overlapsWith.isEmpty()) {
             getPlugin().getLocales().getLocale("land_selection_overlaps")
@@ -152,7 +157,7 @@ public interface ClaimEditor {
                 .ifPresent(user::sendMessage);
     }
 
-    default void createClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {
+    default void userCreateClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {
         // Validate that the region is not already occupied
         if (doesClaimOverlap(user, world, region)) {
             return;
@@ -183,7 +188,7 @@ public interface ClaimEditor {
                 .ifPresent(user::sendMessage);
     }
 
-    default void createAdminClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {
+    default void userCreateAdminClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {
         // Validate that the region is not already occupied
         if (doesClaimOverlap(user, world, region)) {
             return;
@@ -255,12 +260,12 @@ public interface ClaimEditor {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
-    default void resizeChildClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world,
-                                  @NotNull Position clickedBlock, @NotNull ClaimSelection selection) {
+    default void userResizeChildClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world,
+                                      @NotNull Position clickedBlock, @NotNull ClaimSelection selection) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
-    default void createChildClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {
+    default void userCreateChildClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 

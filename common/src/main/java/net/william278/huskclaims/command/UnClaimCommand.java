@@ -31,7 +31,12 @@ import java.util.List;
 public class UnClaimCommand extends InClaimCommand {
 
     protected UnClaimCommand(@NotNull HuskClaims plugin) {
-        super(List.of("unclaim", "delclaim", "abandonclaim"), null, plugin);
+        super(
+                List.of("unclaim", "delclaim", "abandonclaim"),
+                "",
+                null,
+                plugin
+        );
     }
 
     @Override
