@@ -15,7 +15,12 @@ import java.util.Optional;
 public class ExtendClaimCommand extends InClaimCommand {
 
     protected ExtendClaimCommand(@NotNull HuskClaims plugin) {
-        super(List.of("extendclaim"), "<blocks>", null, plugin);
+        super(
+                List.of("extendclaim"),
+                "<blocks>",
+                null,
+                plugin
+        );
     }
 
     @Override

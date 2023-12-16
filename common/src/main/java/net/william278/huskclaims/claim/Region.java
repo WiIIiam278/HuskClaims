@@ -214,7 +214,7 @@ public class Region {
     @NotNull
     public Region getResized(int extendNorth, int extendEast, int extendSouth, int extendWest) {
         return from(
-                Point.at(nearCorner.getBlockX() + extendWest, nearCorner.getBlockZ() + extendNorth),
+                Point.at(nearCorner.getBlockX() - extendWest, nearCorner.getBlockZ() - extendNorth),
                 Point.at(farCorner.getBlockX() + extendEast, farCorner.getBlockZ() + extendSouth)
         );
     }
