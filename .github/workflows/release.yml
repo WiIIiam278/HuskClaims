@@ -32,7 +32,7 @@ jobs:
         with:
           report_paths: '**/build/test-results/test/TEST-*.xml'
       - name: 'Upload GitHub Artifacts 📦'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: HuskClaims
           path: |
