@@ -20,7 +20,6 @@
 package net.william278.huskclaims.command;
 
 import de.themoep.minedown.adventure.MineDown;
-import net.kyori.adventure.text.Component;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ClaimWorld;
