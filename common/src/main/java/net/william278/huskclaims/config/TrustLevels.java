@@ -24,7 +24,6 @@ import de.exlll.configlib.Configuration;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import net.kyori.adventure.key.Key;
 import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.claim.TrustLevel;
 import org.jetbrains.annotations.NotNull;
@@ -50,7 +49,7 @@ public class TrustLevels {
     private List<TrustLevel> trustLevels = Lists.newArrayList(
             // Permission trust (manage trustees, make sub-divisions, etc.)
             TrustLevel.builder()
-                    .id(Key.key("huskclaims", "permission_trust").asString())
+                    .id("permission_trust")
                     .weight(400)
                     .displayName("Permission Trust")
                     .description("Allows users to manage trustees & make child claims")
@@ -85,7 +84,7 @@ public class TrustLevels {
 
             // Regular Build trust (place & break blocks, etc.)
             TrustLevel.builder()
-                    .id(Key.key("huskclaims", "build_trust").asString())
+                    .id("build_trust")
                     .weight(300)
                     .displayName("Build Trust")
                     .description("Allows users to build in the claim")
@@ -115,7 +114,7 @@ public class TrustLevels {
 
             // Container trust (chests, furnaces, etc.)
             TrustLevel.builder()
-                    .id(Key.key("huskclaims", "container_trust").asString())
+                    .id("container_trust")
                     .weight(200)
                     .displayName("Container Trust")
                     .description("Allows users to open chests & other containers")
@@ -131,7 +130,7 @@ public class TrustLevels {
 
             // Access trust (doors, buttons, levers, etc.)
             TrustLevel.builder()
-                    .id(Key.key("huskclaims", "access_trust").asString())
+                    .id("access_trust")
                     .weight(100)
                     .displayName("Access Trust")
                     .description("Allows users to use doors, buttons, levers, etc.")
