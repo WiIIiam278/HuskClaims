@@ -19,6 +19,8 @@
 
 package net.william278.huskclaims.command;
 
+import de.themoep.minedown.adventure.MineDown;
+import net.kyori.adventure.text.Component;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ClaimWorld;
@@ -29,6 +31,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -56,6 +59,7 @@ public class TrustListCommand extends InClaimCommand {
         final List<TrustLevel> levels = plugin.getTrustLevels();
         levels.sort((o1, o2) -> Integer.compare(o2.getWeight(), o1.getWeight()));
         levels.forEach(level -> sendTrustListRow(executor, level, claim, world));
+        executor.sendMessage(getFooter(levels));
     }
 
     private void sendTrustListRow(@NotNull OnlineUser executor, @NotNull TrustLevel level,
@@ -73,12 +77,27 @@ public class TrustListCommand extends InClaimCommand {
 
         // Return the row
         plugin.getLocales().getRawLocale("trust_list_row",
+                        level.getColor(),
                         Locales.escapeText(level.getDisplayName()),
                         Locales.escapeText(level.getDescription()),
                         joiner.toString()
                 )
                 .map(t -> plugin.getLocales().format(t))
                 .ifPresent(executor::sendMessage);
+    }
+
+    @NotNull
+    private MineDown getFooter(@NotNull List<TrustLevel> levels) {
+        return plugin.getLocales().format(levels.stream()
+                .map(level -> plugin.getLocales().getRawLocale(
+                        "trust_list_level_key",
+                        Locales.escapeText(level.getDisplayName()),
+                        level.getColor(),
+                        Locales.escapeText(level.getDescription()),
+                        level.getCommandAliases().stream().findFirst().orElse("untrust")
+                ))
+                .filter(Optional::isPresent).map(Optional::get)
+                .collect(Collectors.joining(" ")));
     }
 
     @NotNull
