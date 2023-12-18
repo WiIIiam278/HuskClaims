@@ -32,6 +32,8 @@ import java.util.function.Function;
 
 public interface UserManager {
 
+    static final String HOURLY_BLOCKS_PERMISSION = "huskclaims.hourly_blocks.";
+
     @NotNull
     ConcurrentMap<UUID, Preferences> getUserPreferences();
 
@@ -62,9 +64,13 @@ public interface UserManager {
         getClaimBlocks().put(uuid, claimBlocks);
     }
 
+    @Blocking
     default long getClaimBlocks(@NotNull UUID uuid) throws IllegalArgumentException {
         if (!getClaimBlocks().containsKey(uuid)) {
-            throw new IllegalArgumentException("No claim blocks found for UUID " + uuid);
+            final long blocks = getDatabase().getUser(uuid).map(SavedUser::claimBlocks)
+                    .orElseThrow(() -> new IllegalArgumentException("Could not find user with UUID: " + uuid));
+            setClaimBlocks(uuid, blocks);
+            return blocks;
         }
         return getClaimBlocks().get(uuid);
     }
@@ -75,6 +81,21 @@ public interface UserManager {
         final long claimBlocks = consumer.apply(getClaimBlocks(user.getUuid()));
         setClaimBlocks(user.getUuid(), claimBlocks);
         getDatabase().updateUserClaimBlocks(user, claimBlocks);
+    }
+
+    @Blocking
+    default void grantHourlyClaimBlocks(@NotNull OnlineUser user) {
+        final long hourlyBlocks = user.getNumericalPermission(HOURLY_BLOCKS_PERMISSION)
+                .orElse(getSettings().getClaims().getHourlyClaimBlocks());
+        if (hourlyBlocks <= 0) {
+            return;
+        }
+
+        getDatabase().getUser(user.getUuid()).ifPresent(savedUser -> {
+            final long newClaimBlocks = savedUser.claimBlocks() + hourlyBlocks;
+            setClaimBlocks(user.getUuid(), newClaimBlocks);
+            getDatabase().updateUserHourlyBlocks(user, newClaimBlocks, savedUser.hoursPlayed() + 1);
+        });
     }
 
     @Blocking

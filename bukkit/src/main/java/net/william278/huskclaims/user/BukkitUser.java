@@ -26,6 +26,9 @@ import net.william278.huskclaims.position.Position;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+import java.util.Optional;
+
 @Getter
 public class BukkitUser extends OnlineUser {
 
@@ -55,6 +58,22 @@ public class BukkitUser extends OnlineUser {
     @Override
     public boolean hasPermission(@NotNull String permission) {
         return bukkitPlayer.hasPermission(permission);
+    }
+
+    @Override
+    public Optional<Long> getNumericalPermission(@NotNull String prefix) {
+        return bukkitPlayer.getEffectivePermissions().stream()
+                .filter(perm -> perm.getPermission().startsWith(prefix))
+                .map(perm -> perm.getPermission().substring(prefix.length()))
+                .map(value -> {
+                    try {
+                        return Long.parseLong(value);
+                    } catch (NumberFormatException e) {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull).sorted()
+                .findFirst();
     }
 
 }

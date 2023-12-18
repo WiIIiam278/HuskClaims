@@ -29,12 +29,14 @@ import java.time.OffsetDateTime;
  * @param user        The user
  * @param lastLogin   The last time the user logged in
  * @param claimBlocks The number of claim blocks the user has
+ * @param hoursPlayed The number of hours this user has played
  * @param preferences The user's preferences
  */
 public record SavedUser(
         @NotNull User user,
         @NotNull OffsetDateTime lastLogin,
         long claimBlocks,
+        int hoursPlayed,
         @NotNull Preferences preferences
 ) {
 

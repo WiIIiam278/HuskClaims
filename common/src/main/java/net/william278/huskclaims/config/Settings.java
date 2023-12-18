@@ -183,7 +183,8 @@ public final class Settings {
         @Comment("The number of claim blocks a user gets when they first join the server")
         private long startingClaimBlocks = 100;
 
-        @Comment("The number of claim blocks a user gets hourly")
+        @Comment({"The number of claim blocks a user gets hourly.",
+                "Override with the \"huskclaims.hourly_blocks.(amount)\" permission"})
         private long hourlyClaimBlocks = 100;
 
         @Comment("Claim inspection tool (right click with this to inspect claims)")

@@ -22,6 +22,10 @@ package net.william278.huskclaims.command;
 import lombok.Getter;
 import lombok.Setter;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.user.CommandUser;
+import net.william278.huskclaims.user.OnlineUser;
+import net.william278.huskclaims.user.SavedUser;
+import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -61,6 +65,19 @@ public abstract class Node implements Executable {
     @NotNull
     public String getName() {
         return aliases.get(0);
+    }
+
+
+    @NotNull
+    protected Optional<User> resolveUser(@NotNull CommandUser executor, @NotNull String[] args) {
+        return parseStringArg(args, 0)
+                .flatMap(a -> plugin.getDatabase().getUser(a)).map(SavedUser::user)
+                .or(() -> {
+                    if (executor instanceof OnlineUser online) {
+                        return Optional.of(online);
+                    }
+                    return Optional.empty();
+                });
     }
 
     protected Optional<String> parseStringArg(@NotNull String[] args, int index) {

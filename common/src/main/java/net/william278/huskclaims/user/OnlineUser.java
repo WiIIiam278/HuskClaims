@@ -28,6 +28,7 @@ import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.position.World;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -65,5 +66,7 @@ public abstract class OnlineUser extends User implements OperationUser, CommandU
     public abstract void sendPluginMessage(@NotNull String channel, byte[] message);
 
     public abstract boolean hasPermission(@NotNull String permission);
+
+    public abstract Optional<Long> getNumericalPermission(@NotNull String prefix);
 
 }

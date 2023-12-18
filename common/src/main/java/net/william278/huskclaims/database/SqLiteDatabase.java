@@ -206,7 +206,7 @@ public class SqLiteDatabase extends Database {
     @Override
     public Optional<SavedUser> getUser(@NotNull UUID uuid) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `uuid`, `username`, `last_login`, `claim_blocks`, `preferences`
+                SELECT `uuid`, `username`, `last_login`, `claim_blocks`, `hours_played`, `preferences`
                 FROM `%user_data%`
                 WHERE uuid = ?"""))) {
             statement.setString(1, uuid.toString());
@@ -219,6 +219,7 @@ public class SqLiteDatabase extends Database {
                         resultSet.getTimestamp("last_login").toLocalDateTime()
                                 .atOffset(OffsetDateTime.now().getOffset()),
                         resultSet.getLong("claim_blocks"),
+                        resultSet.getInt("hours_played"),
                         plugin.getPreferencesFromJson(preferences)
                 ));
             }
@@ -231,7 +232,7 @@ public class SqLiteDatabase extends Database {
     @Override
     public Optional<SavedUser> getUser(@NotNull String username) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `uuid`, `username`, `last_login`, `claim_blocks`, `preferences`
+                SELECT `uuid`, `username`, `last_login`, `claim_blocks`, `hours_played`, `preferences`
                 FROM `%user_data%`
                 WHERE `username` = ?"""))) {
             statement.setString(1, username);
@@ -245,6 +246,7 @@ public class SqLiteDatabase extends Database {
                         resultSet.getTimestamp("last_login").toLocalDateTime()
                                 .atOffset(OffsetDateTime.now().getOffset()),
                         resultSet.getLong("claim_blocks"),
+                        resultSet.getInt("hours_played"),
                         plugin.getPreferencesFromJson(preferences)
                 ));
             }
@@ -258,7 +260,7 @@ public class SqLiteDatabase extends Database {
     public List<SavedUser> getInactiveUsers(long daysInactive) {
         final List<SavedUser> inactiveUsers = Lists.newArrayList();
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `uuid`, `username`, `last_login`, `preferences`, `claim_blocks`
+                SELECT `uuid`, `username`, `last_login`, `preferences`, `claim_blocks`, `hours_played`
                 FROM `%user_data%`
                 WHERE datetime(`last_login` / 1000, 'unixepoch') < datetime('now', ?);"""))) {
             statement.setString(1, String.format("-%d days", daysInactive));
@@ -272,6 +274,7 @@ public class SqLiteDatabase extends Database {
                         resultSet.getTimestamp("last_login").toLocalDateTime()
                                 .atOffset(OffsetDateTime.now().getOffset()),
                         resultSet.getLong("claim_blocks"),
+                        resultSet.getInt("hours_played"),
                         plugin.getPreferencesFromJson(preferences)
                 ));
             }
@@ -299,24 +302,6 @@ public class SqLiteDatabase extends Database {
     }
 
     @Override
-    public void updateUser(@NotNull User user, @NotNull OffsetDateTime lastLogin,
-                           long claimBlocks, @NotNull Preferences preferences) {
-        try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                UPDATE `%user_data%`
-                SET `username` = ?, `last_login` = ?, `claim_blocks` = ?, `preferences` = ?
-                WHERE `uuid` = ?"""))) {
-            statement.setString(1, user.getName());
-            statement.setTimestamp(2, Timestamp.valueOf(lastLogin.toLocalDateTime()));
-            statement.setLong(3, claimBlocks);
-            statement.setBytes(4, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
-            statement.setString(5, user.getUuid().toString());
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            plugin.log(Level.SEVERE, "Failed to update user in table", e);
-        }
-    }
-
-    @Override
     public void updateUserPreferences(@NotNull User user, @NotNull Preferences preferences) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 UPDATE `%user_data%`
@@ -327,6 +312,21 @@ public class SqLiteDatabase extends Database {
             statement.executeUpdate();
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to update user preferences in table", e);
+        }
+    }
+
+    @Override
+    public void updateUserHourlyBlocks(@NotNull User user, long claimBlocks, int hoursPlayed) {
+        try (PreparedStatement statement = getConnection().prepareStatement(format("""
+                UPDATE `%user_data%`
+                SET `claim_blocks` = ?, `hours_played` = ?
+                WHERE `uuid` = ?"""))) {
+            statement.setLong(1, claimBlocks);
+            statement.setLong(2, hoursPlayed);
+            statement.setString(3, user.getUuid().toString());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to update user claim blocks in table", e);
         }
     }
 

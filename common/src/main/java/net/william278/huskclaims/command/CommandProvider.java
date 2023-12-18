@@ -65,6 +65,7 @@ public interface CommandProvider {
         commands.add(new UnClaimCommand(getPlugin()));
         commands.add(new ClaimsListCommand(getPlugin()));
         commands.add(new ExtendClaimCommand(getPlugin()));
+        commands.add(new ClaimBlocksCommand(getPlugin()));
 
         // Register claim commands
         getPlugin().getSettings().getClaims().getEnabledClaimingModes().stream()

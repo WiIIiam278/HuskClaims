@@ -28,15 +28,11 @@ import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.config.Locales;
 import net.william278.huskclaims.position.ServerWorld;
 import net.william278.huskclaims.user.CommandUser;
-import net.william278.huskclaims.user.OnlineUser;
-import net.william278.huskclaims.user.SavedUser;
 import net.william278.huskclaims.user.User;
 import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-
-import static net.william278.huskclaims.command.ClaimsListCommand.SortOption.SIZE;
 
 public class ClaimsListCommand extends Command implements UserListTabCompletable {
 
@@ -54,7 +50,7 @@ public class ClaimsListCommand extends Command implements UserListTabCompletable
     @Override
     public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
         final Optional<User> optionalUser = resolveUser(executor, args);
-        final SortOption sort = parseSortArg(args, 0).or(() -> parseSortArg(args, 1)).orElse(SIZE);
+        final SortOption sort = parseSortArg(args, 0).or(() -> parseSortArg(args, 1)).orElse(SortOption.SIZE);
         final boolean ascend = parseOrderArg(args, 1).or(() -> parseOrderArg(args, 2)).orElse(true);
         final int page = Math.min(1, parseIntArg(args, 2).or(() -> parseIntArg(args, 3)).orElse(1));
         if (optionalUser.isEmpty()) {
@@ -123,18 +119,6 @@ public class ClaimsListCommand extends Command implements UserListTabCompletable
                         .filter(c -> user.getUuid().equals(c.getOwner().orElse(null)))
                         .map(c -> new ServerWorldClaim(e.getKey(), c)))
                 .toList();
-    }
-
-    @NotNull
-    private Optional<User> resolveUser(@NotNull CommandUser executor, @NotNull String[] args) {
-        return parseStringArg(args, 0)
-                .flatMap(a -> plugin.getDatabase().getUser(a)).map(SavedUser::user)
-                .or(() -> {
-                    if (executor instanceof OnlineUser online) {
-                        return Optional.of(online);
-                    }
-                    return Optional.empty();
-                });
     }
 
     private Optional<SortOption> parseSortArg(@NotNull String[] args, int index) {
