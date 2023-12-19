@@ -214,8 +214,10 @@ public class Region {
     @NotNull
     public Region getResized(int extendNorth, int extendEast, int extendSouth, int extendWest) {
         return from(
+                // Near corner: closest to 0, 0 (modify west/north)
                 Point.at(nearCorner.getBlockX() - extendWest, nearCorner.getBlockZ() - extendNorth),
-                Point.at(farCorner.getBlockX() + extendEast, farCorner.getBlockZ() + extendSouth)
+                // Far corner: furthest from 0, 0 (modify east/south)
+                Point.at(farCorner.getBlockX() + extendSouth, farCorner.getBlockZ() + extendEast)
         );
     }
 
