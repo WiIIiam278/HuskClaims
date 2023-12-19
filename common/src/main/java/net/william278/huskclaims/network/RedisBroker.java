@@ -48,7 +48,6 @@ public class RedisBroker extends PluginMessageBroker {
                 settings.getPort(),
                 0,
                 settings.getPassword().isEmpty() ? null : settings.getPassword(),
-                settings.getDatabase(),
                 settings.isUseSSL()
         );
 

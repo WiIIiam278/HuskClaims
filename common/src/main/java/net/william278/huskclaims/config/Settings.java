@@ -139,7 +139,6 @@ public final class Settings {
             private int port = 6379;
             private boolean useSSL = false;
             private String password = "";
-            private int database = 0;
         }
     }
 
