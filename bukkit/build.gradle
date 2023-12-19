@@ -20,6 +20,7 @@ shadowJar {
         exclude(dependency('com.mojang:brigadier'))
     }
 
+    relocate 'net.jodah', 'net.william278.huskclaims.libraries'
     relocate 'org.apache.commons.io', 'net.william278.huskclaims.libraries.commons.io'
     relocate 'org.apache.commons.text', 'net.william278.huskclaims.libraries.commons.text'
     relocate 'org.apache.commons.lang3', 'net.william278.huskclaims.libraries.commons.lang3'

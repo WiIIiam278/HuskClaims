@@ -20,9 +20,9 @@
 package net.william278.huskclaims.command;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import net.jodah.expiringmap.ExpiringMap;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.config.Locales;
@@ -34,11 +34,14 @@ import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class ClaimsListCommand extends Command implements UserListTabCompletable {
 
-    private static final int CLAIMS_PER_PAGE = 10;
-    private final Map<UUID, List<ServerWorldClaim>> claimLists = Maps.newHashMap();
+    private static final int LIST_CACHE_MINUTES = 5;
+    private static final int CLAIMS_PER_PAGE = 8;
+    private final ExpiringMap<UUID, List<ServerWorldClaim>> claimLists = ExpiringMap.builder()
+            .expiration(LIST_CACHE_MINUTES, TimeUnit.MINUTES).build();
 
     protected ClaimsListCommand(@NotNull HuskClaims plugin) {
         super(
@@ -51,9 +54,9 @@ public class ClaimsListCommand extends Command implements UserListTabCompletable
     @Override
     public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
         final Optional<User> optionalUser = resolveUser(executor, args);
-        final SortOption sort = parseSortArg(args, 0).or(() -> parseSortArg(args, 1)).orElse(SortOption.SIZE);
-        final boolean ascend = parseOrderArg(args, 1).or(() -> parseOrderArg(args, 2)).orElse(true);
-        final int page = Math.min(1, parseIntArg(args, 2).or(() -> parseIntArg(args, 3)).orElse(1));
+        final SortOption sort = parseSortArg(args, 1).or(() -> parseSortArg(args, 0)).orElse(SortOption.SIZE);
+        final boolean ascend = parseOrderArg(args, 2).or(() -> parseOrderArg(args, 1)).orElse(false);
+        final int page = parseIntArg(args, 3).or(() -> parseIntArg(args, 2)).orElse(1);
         if (optionalUser.isEmpty()) {
             plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                     .ifPresent(executor::sendMessage);
@@ -90,7 +93,7 @@ public class ClaimsListCommand extends Command implements UserListTabCompletable
                                final List<ServerWorldClaim> claims,
                                int page, @NotNull SortOption sort, boolean ascend) {
         final Locales locales = plugin.getLocales();
-        claims.sort(sort.getComparator());
+        claims.sort(ascend ? sort.getComparator().reversed() : sort.getComparator());
         executor.sendMessage(PaginatedList.of(
                 claims.stream().map(claim -> locales.getRawLocale(
                         "claim_list_item",
@@ -190,7 +193,7 @@ public class ClaimsListCommand extends Command implements UserListTabCompletable
     public enum SortOption {
         SIZE(Comparator.comparing(c -> c.claim().getRegion().getSurfaceArea())),
         WORLD(Comparator.comparing(c -> c.serverWorld().toString())),
-        TRUSTEES(Comparator.comparingInt(c -> c.claim().getTrustedUsers().size())),
+        MEMBERS(Comparator.comparingInt(c -> c.claim().getTrustedUsers().size())),
         CHILDREN(Comparator.comparingInt(c -> c.claim().getChildren().size()));
 
         private final Comparator<ServerWorldClaim> comparator;
