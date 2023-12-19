@@ -49,10 +49,10 @@ public class TrustLevels {
     private List<TrustLevel> trustLevels = Lists.newArrayList(
             // Permission trust (manage trustees, make sub-divisions, etc.)
             TrustLevel.builder()
-                    .id("permission_trust")
+                    .id("permission")
                     .weight(400)
-                    .color("#aaaaaa")
-                    .displayName("Permission Trust")
+                    .color("#94fc03")
+                    .displayName("Permission")
                     .description("Allows users to manage trustees & make child claims")
                     .commandAliases(List.of("permissiontrust"))
                     .flags(List.of(
@@ -85,10 +85,10 @@ public class TrustLevels {
 
             // Regular Build trust (place & break blocks, etc.)
             TrustLevel.builder()
-                    .id("build_trust")
+                    .id("build")
                     .weight(300)
-                    .color("#bbbbbb")
-                    .displayName("Build Trust")
+                    .color("#fcd303")
+                    .displayName("Build")
                     .description("Allows users to build in the claim")
                     .commandAliases(List.of("trust"))
                     .flags(List.of(
@@ -116,10 +116,10 @@ public class TrustLevels {
 
             // Container trust (chests, furnaces, etc.)
             TrustLevel.builder()
-                    .id("container_trust")
+                    .id("container")
                     .weight(200)
-                    .color("#bbbbbb")
-                    .displayName("Container Trust")
+                    .color("#94fc03")
+                    .displayName("Container")
                     .description("Allows users to open chests & other containers")
                     .commandAliases(List.of("containertrust"))
                     .flags(List.of(
@@ -133,10 +133,10 @@ public class TrustLevels {
 
             // Access trust (doors, buttons, levers, etc.)
             TrustLevel.builder()
-                    .id("access_trust")
+                    .id("access")
                     .weight(100)
-                    .color("#bbbbbb")
-                    .displayName("Access Trust")
+                    .color("#94fc03")
+                    .displayName("Access")
                     .description("Allows users to use doors, buttons, levers, etc.")
                     .commandAliases(List.of("accesstrust"))
                     .flags(List.of(

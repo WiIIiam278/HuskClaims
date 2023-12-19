@@ -79,6 +79,9 @@ public interface UserManager {
     default void editClaimBlocks(@NotNull User user, @NotNull Function<Long, Long> consumer)
             throws IllegalArgumentException {
         final long claimBlocks = consumer.apply(getClaimBlocks(user.getUuid()));
+        if (claimBlocks < 0) {
+            throw new IllegalArgumentException("Claim blocks cannot be negative");
+        }
         setClaimBlocks(user.getUuid(), claimBlocks);
         getDatabase().updateUserClaimBlocks(user, claimBlocks);
     }

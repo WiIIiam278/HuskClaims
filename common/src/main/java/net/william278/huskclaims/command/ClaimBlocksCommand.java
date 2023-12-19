@@ -59,7 +59,7 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
 
     private void changeClaimBlocks(@NotNull CommandUser executor, @NotNull User user, int changeBy, boolean set) {
         plugin.editClaimBlocks(user, (blocks) -> {
-            long newBlocks = set ? Math.max(0L, changeBy) : blocks + changeBy;
+            long newBlocks = Math.max(0, set ? changeBy : blocks + changeBy);
             plugin.getLocales().getLocale("claim_blocks_updated", user.getName(),
                     Long.toString(newBlocks)).ifPresent(executor::sendMessage);
             return newBlocks;
