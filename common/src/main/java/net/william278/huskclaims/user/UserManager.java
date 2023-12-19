@@ -19,11 +19,13 @@
 
 package net.william278.huskclaims.user;
 
-import net.william278.huskclaims.config.Settings;
-import net.william278.huskclaims.database.Database;
+import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.network.Message;
+import net.william278.huskclaims.network.Payload;
 import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
@@ -32,93 +34,100 @@ import java.util.function.Function;
 
 public interface UserManager {
 
-    static final String HOURLY_BLOCKS_PERMISSION = "huskclaims.hourly_blocks.";
+    String HOURLY_BLOCKS_PERMISSION = "huskclaims.hourly_blocks.";
 
     @NotNull
-    ConcurrentMap<UUID, Preferences> getUserPreferences();
+    ConcurrentMap<UUID, SavedUser> getUserCache();
 
-    default void setUserPreferences(@NotNull UUID uuid, @NotNull Preferences preferences) {
-        getUserPreferences().put(uuid, preferences);
+    default void invalidateUserCache(@NotNull UUID uuid) {
+        getUserCache().remove(uuid);
     }
 
+    @Blocking
+    default Optional<SavedUser> getSavedUser(@NotNull UUID uuid) {
+        return Optional.ofNullable(getUserCache().get(uuid)).or(() -> getPlugin().getDatabase().getUser(uuid));
+    }
+
+    @Blocking
     default Optional<Preferences> getUserPreferences(@NotNull UUID uuid) {
-        return Optional.ofNullable(getUserPreferences().get(uuid));
+        return getSavedUser(uuid).map(SavedUser::getPreferences);
+    }
+
+    @Blocking
+    default Optional<Long> getClaimBlocks(@NotNull UUID uuid) {
+        return getSavedUser(uuid).map(SavedUser::getClaimBlocks);
+    }
+
+    default long getClaimBlocks(@NotNull User user) {
+        return getClaimBlocks(user.getUuid()).orElseThrow(
+                () -> new IllegalArgumentException("Could not find claim blocks for user: " + user)
+        );
+    }
+
+    @Blocking
+    default void editUser(@NotNull UUID uuid, @NotNull Consumer<SavedUser> consumer) {
+        final Optional<SavedUser> optionalUser = getSavedUser(uuid);
+        if (optionalUser.isEmpty()) {
+            throw new IllegalArgumentException("Could not find user with UUID: " + uuid);
+        }
+        final SavedUser user = optionalUser.get();
+        consumer.accept(user);
+        getUserCache().put(uuid, user);
+        getPlugin().getDatabase().updateUser(user);
+        getPlugin().getBroker().ifPresent(broker -> getPlugin().getOnlineUsers().stream().findAny().ifPresent(
+                sender -> Message.builder()
+                        .type(Message.MessageType.INVALIDATE_USER_CACHE)
+                        .payload(Payload.uuid(uuid))
+                        .build()
+                        .send(broker, sender))
+        );
     }
 
     @Blocking
     default void editUserPreferences(@NotNull User user, @NotNull Consumer<Preferences> consumer) {
-        final Optional<Preferences> optionalPreferences = getUserPreferences(user.getUuid());
-        if (optionalPreferences.isEmpty()) {
-            return;
-        }
-        final Preferences preferences = optionalPreferences.get();
-        consumer.accept(preferences);
-        setUserPreferences(user.getUuid(), preferences);
-        getDatabase().updateUserPreferences(user, preferences);
-    }
-
-    @NotNull
-    ConcurrentMap<UUID, Long> getClaimBlocks();
-
-    default void setClaimBlocks(@NotNull UUID uuid, long claimBlocks) {
-        getClaimBlocks().put(uuid, claimBlocks);
+        editUser(user.getUuid(), savedUser -> consumer.accept(savedUser.getPreferences()));
     }
 
     @Blocking
-    default long getClaimBlocks(@NotNull UUID uuid) throws IllegalArgumentException {
-        if (!getClaimBlocks().containsKey(uuid)) {
-            final long blocks = getDatabase().getUser(uuid).map(SavedUser::claimBlocks)
-                    .orElseThrow(() -> new IllegalArgumentException("Could not find user with UUID: " + uuid));
-            setClaimBlocks(uuid, blocks);
-            return blocks;
-        }
-        return getClaimBlocks().get(uuid);
-    }
-
-    @Blocking
-    default void editClaimBlocks(@NotNull User user, @NotNull Function<Long, Long> consumer)
-            throws IllegalArgumentException {
-        final long claimBlocks = consumer.apply(getClaimBlocks(user.getUuid()));
-        if (claimBlocks < 0) {
-            throw new IllegalArgumentException("Claim blocks cannot be negative");
-        }
-        setClaimBlocks(user.getUuid(), claimBlocks);
-        getDatabase().updateUserClaimBlocks(user, claimBlocks);
+    default void editClaimBlocks(@NotNull User user, @NotNull Function<Long, Long> consumer) {
+        editUser(user.getUuid(), savedUser -> {
+            final long newClaimBlocks = consumer.apply(savedUser.getClaimBlocks());
+            if (newClaimBlocks < 0) {
+                throw new IllegalArgumentException("Claim blocks cannot be negative");
+            }
+            savedUser.setClaimBlocks(newClaimBlocks);
+        });
     }
 
     @Blocking
     default void grantHourlyClaimBlocks(@NotNull OnlineUser user) {
         final long hourlyBlocks = user.getNumericalPermission(HOURLY_BLOCKS_PERMISSION)
-                .orElse(getSettings().getClaims().getHourlyClaimBlocks());
+                .orElse(getPlugin().getSettings().getClaims().getHourlyClaimBlocks());
         if (hourlyBlocks <= 0) {
             return;
         }
-
-        getDatabase().getUser(user.getUuid()).ifPresent(savedUser -> {
-            final long newClaimBlocks = savedUser.claimBlocks() + hourlyBlocks;
-            setClaimBlocks(user.getUuid(), newClaimBlocks);
-            getDatabase().updateUserHourlyBlocks(user, newClaimBlocks, savedUser.hoursPlayed() + 1);
-        });
+        editClaimBlocks(user, blocks -> blocks + hourlyBlocks);
     }
 
     @Blocking
     default void loadUserData(@NotNull User user) {
-        getDatabase().getUser(user.getUuid()).ifPresentOrElse(data -> {
-            setUserPreferences(user.getUuid(), data.preferences());
-            setClaimBlocks(user.getUuid(), data.claimBlocks());
-        }, () -> {
-            final Preferences defaults = Preferences.DEFAULTS;
-            final long defaultClaimBlocks = getSettings().getClaims().getStartingClaimBlocks();
-            getDatabase().createUser(user, defaultClaimBlocks, defaults);
-            setUserPreferences(user.getUuid(), defaults);
-            setClaimBlocks(user.getUuid(), defaultClaimBlocks);
-        });
+        getPlugin().getDatabase().getUser(user.getUuid()).ifPresentOrElse(
+                data -> getUserCache().put(user.getUuid(), data),
+                () -> {
+                    final Preferences defaults = Preferences.DEFAULTS;
+                    final long defaultClaimBlocks = getPlugin().getSettings().getClaims().getStartingClaimBlocks();
+                    getPlugin().getDatabase().createUser(user, defaultClaimBlocks, defaults);
+                    getUserCache().put(user.getUuid(), new SavedUser(
+                            user,
+                            defaults,
+                            OffsetDateTime.now(),
+                            defaultClaimBlocks,
+                            0
+                    ));
+                });
     }
 
     @NotNull
-    Database getDatabase();
-
-    @NotNull
-    Settings getSettings();
+    HuskClaims getPlugin();
 
 }

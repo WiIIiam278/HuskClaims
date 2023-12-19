@@ -51,6 +51,8 @@ public abstract class Broker implements MessageHandler {
         switch (message.getType()) {
             case REQUEST_USER_LIST -> handleRequestUserList(message, receiver);
             case UPDATE_USER_LIST -> handleUpdateUserList(message);
+            case INVALIDATE_USER_GROUPS -> handleInvalidateUserGroups(message);
+            case INVALIDATE_USER_CACHE -> handleInvalidateUserCache(message);
             default -> plugin.log(Level.SEVERE, "Received unknown message type: " + message.getType());
         }
     }

@@ -142,7 +142,7 @@ public interface ClaimEditor {
         // Check claim blocks (non-admin claims)
         if (claim.getOwner().isPresent()) {
             final long additionalBlocksNeeded = resized.getSurfaceArea() - claim.getRegion().getSurfaceArea();
-            if (additionalBlocksNeeded > 0 && getPlugin().getClaimBlocks(user.getUuid()) < additionalBlocksNeeded) {
+            if (additionalBlocksNeeded > 0 && getPlugin().getClaimBlocks(user) < additionalBlocksNeeded) {
                 getPlugin().getLocales().getLocale("error_not_enough_claim_blocks",
                         Long.toString(additionalBlocksNeeded)).ifPresent(user::sendMessage);
                 return;
@@ -166,7 +166,7 @@ public interface ClaimEditor {
 
         // Validate they have enough claim blocks
         final long surfaceArea = region.getSurfaceArea();
-        final long userBlocks = getPlugin().getClaimBlocks(user.getUuid());
+        final long userBlocks = getPlugin().getClaimBlocks(user);
         if (userBlocks < surfaceArea) {
             getPlugin().getLocales().getLocale("error_not_enough_claim_blocks",
                             Long.toString(surfaceArea - userBlocks))

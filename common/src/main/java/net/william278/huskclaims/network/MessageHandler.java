@@ -47,6 +47,20 @@ public interface MessageHandler {
         );
     }
 
+    // Handle inbound user group updates
+    default void handleInvalidateUserGroups(@NotNull Message message) {
+        message.getPayload().getUuid().ifPresent(
+                uuid -> getPlugin().setUserGroups(uuid, getPlugin().getDatabase().getUserGroups(uuid))
+        );
+    }
+
+    // Handle inbound user cache invalidation
+    default void handleInvalidateUserCache(@NotNull Message message) {
+        message.getPayload().getUuid().ifPresent(
+                uuid -> getPlugin().invalidateUserCache(uuid)
+        );
+    }
+
     @NotNull
     Broker getBroker();
 

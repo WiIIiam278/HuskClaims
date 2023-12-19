@@ -149,7 +149,7 @@ public class Message {
         /**
          * Notify other servers of the need to update user groups for the user by payload.
          */
-        UPDATE_USER_GROUPS,
+        INVALIDATE_USER_GROUPS,
         /**
          * Request other servers to send a {@link MessageType#UPDATE_USER_LIST} to the sending server.
          */
@@ -157,6 +157,10 @@ public class Message {
         /**
          * Notify other servers of the need to update the user list for the sending server with the payload.
          */
-        UPDATE_USER_LIST
+        UPDATE_USER_LIST,
+        /**
+         * Invalidate the user cache for the user by payload.
+         */
+        INVALIDATE_USER_CACHE
     }
 }

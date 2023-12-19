@@ -61,7 +61,7 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
                                             @NotNull ClaimBlockOption option, int amount) {
         switch (option) {
             case SHOW -> plugin.getLocales().getLocale("claim_block_balance", user.getName(),
-                    Long.toString(plugin.getClaimBlocks(user.getUuid()))).ifPresent(executor::sendMessage);
+                    Long.toString(plugin.getClaimBlocks(user))).ifPresent(executor::sendMessage);
             case ADD -> changeClaimBlocks(executor, user, amount, false);
             case REMOVE -> changeClaimBlocks(executor, user, -amount, false);
             case SET -> changeClaimBlocks(executor, user, amount, true);

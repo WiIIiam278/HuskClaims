@@ -125,7 +125,7 @@ public abstract class InClaimCommand extends OnlineUserCommand {
 
     protected Optional<User> resolveUser(@NotNull OnlineUser user, @NotNull String name) {
         return plugin.getDatabase().getUser(name)
-                .map(SavedUser::user)
+                .map(SavedUser::getUser)
                 .or(() -> {
                     plugin.getLocales().getLocale("error_invalid_user", name)
                             .ifPresent(user::sendMessage);

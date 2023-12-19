@@ -171,7 +171,7 @@ public class UserGroupsCommand extends OnlineUserCommand implements TabCompletab
 
     private void getUserIfExists(@NotNull OnlineUser user, @NotNull String username,
                                  @NotNull Consumer<User> consumer) {
-        plugin.getDatabase().getUser(username).map(SavedUser::user).ifPresentOrElse(
+        plugin.getDatabase().getUser(username).map(SavedUser::getUser).ifPresentOrElse(
                 consumer, () -> plugin.getLocales().getLocale("error_invalid_player")
                         .ifPresent(user::sendMessage)
         );

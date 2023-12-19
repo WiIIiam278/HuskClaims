@@ -216,11 +216,11 @@ public class SqLiteDatabase extends Database {
                 final String preferences = new String(resultSet.getBytes("preferences"), StandardCharsets.UTF_8);
                 return Optional.of(new SavedUser(
                         User.of(uuid, name),
+                        plugin.getPreferencesFromJson(preferences),
                         resultSet.getTimestamp("last_login").toLocalDateTime()
                                 .atOffset(OffsetDateTime.now().getOffset()),
                         resultSet.getLong("claim_blocks"),
-                        resultSet.getInt("hours_played"),
-                        plugin.getPreferencesFromJson(preferences)
+                        resultSet.getInt("hours_played")
                 ));
             }
         } catch (SQLException e) {
@@ -243,11 +243,11 @@ public class SqLiteDatabase extends Database {
                 final String preferences = new String(resultSet.getBytes("preferences"), StandardCharsets.UTF_8);
                 return Optional.of(new SavedUser(
                         User.of(uuid, name),
+                        plugin.getPreferencesFromJson(preferences),
                         resultSet.getTimestamp("last_login").toLocalDateTime()
                                 .atOffset(OffsetDateTime.now().getOffset()),
                         resultSet.getLong("claim_blocks"),
-                        resultSet.getInt("hours_played"),
-                        plugin.getPreferencesFromJson(preferences)
+                        resultSet.getInt("hours_played")
                 ));
             }
         } catch (SQLException e) {
@@ -271,11 +271,11 @@ public class SqLiteDatabase extends Database {
                 final String preferences = new String(resultSet.getBytes("preferences"), StandardCharsets.UTF_8);
                 inactiveUsers.add(new SavedUser(
                         User.of(uuid, name),
+                        plugin.getPreferencesFromJson(preferences),
                         resultSet.getTimestamp("last_login").toLocalDateTime()
                                 .atOffset(OffsetDateTime.now().getOffset()),
                         resultSet.getLong("claim_blocks"),
-                        resultSet.getInt("hours_played"),
-                        plugin.getPreferencesFromJson(preferences)
+                        resultSet.getInt("hours_played")
                 ));
             }
         } catch (SQLException e) {
@@ -302,45 +302,19 @@ public class SqLiteDatabase extends Database {
     }
 
     @Override
-    public void updateUserPreferences(@NotNull User user, @NotNull Preferences preferences) {
+    public void updateUser(@NotNull SavedUser user) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 UPDATE `%user_data%`
-                SET `preferences` = ?
+                SET `claim_blocks` = ?, `hours_played` = ?, `preferences` = ?
                 WHERE `uuid` = ?"""))) {
-            statement.setBytes(1, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
-            statement.setString(2, user.getUuid().toString());
+            statement.setLong(1, user.getClaimBlocks());
+            statement.setInt(2, user.getHoursPlayed());
+            statement.setBytes(3, plugin.getGson().toJson(user.getPreferences())
+                    .getBytes(StandardCharsets.UTF_8));
+            statement.setString(4, user.getUser().getUuid().toString());
             statement.executeUpdate();
         } catch (SQLException e) {
-            plugin.log(Level.SEVERE, "Failed to update user preferences in table", e);
-        }
-    }
-
-    @Override
-    public void updateUserHourlyBlocks(@NotNull User user, long claimBlocks, int hoursPlayed) {
-        try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                UPDATE `%user_data%`
-                SET `claim_blocks` = ?, `hours_played` = ?
-                WHERE `uuid` = ?"""))) {
-            statement.setLong(1, claimBlocks);
-            statement.setLong(2, hoursPlayed);
-            statement.setString(3, user.getUuid().toString());
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            plugin.log(Level.SEVERE, "Failed to update user claim blocks in table", e);
-        }
-    }
-
-    @Override
-    public void updateUserClaimBlocks(@NotNull User user, long claimBlocks) {
-        try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                UPDATE `%user_data%`
-                SET `claim_blocks` = ?
-                WHERE `uuid` = ?"""))) {
-            statement.setLong(1, claimBlocks);
-            statement.setString(2, user.getUuid().toString());
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            plugin.log(Level.SEVERE, "Failed to update user claim blocks in table", e);
+            plugin.log(Level.SEVERE, "Failed to update Saved User data in table", e);
         }
     }
 

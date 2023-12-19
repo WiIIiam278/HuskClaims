@@ -19,26 +19,29 @@
 
 package net.william278.huskclaims.user;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.OffsetDateTime;
 
 /**
  * Record of a user's data
  *
- * @param user        The user
- * @param lastLogin   The last time the user logged in
- * @param claimBlocks The number of claim blocks the user has
- * @param hoursPlayed The number of hours this user has played
- * @param preferences The user's preferences
- */
-public record SavedUser(
-        @NotNull User user,
-        @NotNull OffsetDateTime lastLogin,
-        long claimBlocks,
-        int hoursPlayed,
-        @NotNull Preferences preferences
-) {
+ * @since 1.0
+ **/
+@Getter
+@AllArgsConstructor
+public class SavedUser {
+
+    private User user;
+    private Preferences preferences;
+    @Setter
+    private OffsetDateTime lastLogin;
+    @Setter
+    private long claimBlocks;
+    @Setter
+    private int hoursPlayed;
 
     public long getDaysSinceLastLogin() {
         return lastLogin.until(OffsetDateTime.now(), java.time.temporal.ChronoUnit.DAYS);

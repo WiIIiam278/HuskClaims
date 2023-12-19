@@ -79,9 +79,7 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     @Getter
     private ConcurrentMap<UUID, ClaimSelection> claimSelections = Maps.newConcurrentMap();
     @Getter
-    private ConcurrentMap<UUID, Preferences> userPreferences = Maps.newConcurrentMap();
-    @Getter
-    private ConcurrentMap<UUID, Long> claimBlocks = Maps.newConcurrentMap();
+    private ConcurrentMap<UUID, SavedUser> userCache = Maps.newConcurrentMap();
     @Getter
     private HashMap<String, ClaimWorld> claimWorlds = Maps.newHashMap();
     @Getter

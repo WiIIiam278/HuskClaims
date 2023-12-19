@@ -209,30 +209,12 @@ public abstract class Database {
     public abstract void createUser(@NotNull User user, long claimBlocks, @NotNull Preferences preferences);
 
     /**
-     * Update a user's preferences in the database
+     * Update a user in the database
      *
-     * @param user        The user to update
-     * @param preferences The user's preferences to update
-     */
-    public abstract void updateUserPreferences(@NotNull User user, @NotNull Preferences preferences);
-
-    /**
-     * Update the claim blocks and hours played of a user
-     *
-     * @param user        The user to update
-     * @param claimBlocks The number of claim blocks
-     * @param hoursPlayed The number of hours played
+     * @param user The user to update
      * @since 1.0
      */
-    public abstract void updateUserHourlyBlocks(@NotNull User user, long claimBlocks, int hoursPlayed);
-
-    /**
-     * Update a user's claim blocks in the database
-     *
-     * @param user        The user to update
-     * @param claimBlocks The user's claim blocks to update
-     */
-    public abstract void updateUserClaimBlocks(@NotNull User user, long claimBlocks);
+    public abstract void updateUser(@NotNull SavedUser user);
 
     /**
      * Get a list of a user's {@link UserGroup user groups}.

@@ -30,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -59,6 +60,11 @@ public interface GroupManager {
      * @param userGroups The list of user groups
      */
     void setUserGroups(@NotNull ConcurrentLinkedQueue<UserGroup> userGroups);
+
+    default void setUserGroups(@NotNull UUID owner, @NotNull Collection<UserGroup> userGroups) {
+        getUserGroups().removeIf(userGroup -> userGroup.groupOwner().equals(owner));
+        getUserGroups().addAll(userGroups);
+    }
 
     /**
      * Get a list of user groups owned by a player
@@ -143,7 +149,7 @@ public interface GroupManager {
 
     private void publishGroupChange(@NotNull OnlineUser user) {
         getPlugin().getBroker().ifPresent(broker -> Message.builder()
-                .type(Message.MessageType.UPDATE_USER_GROUPS)
+                .type(Message.MessageType.INVALIDATE_USER_GROUPS)
                 .payload(Payload.uuid(user.getUuid()))
                 .target(Message.TARGET_ALL, Message.TargetType.SERVER)
                 .build().send(broker, user));

@@ -75,7 +75,7 @@ public abstract class Node implements Executable {
     @NotNull
     protected Optional<User> resolveUser(@NotNull CommandUser executor, @NotNull String[] args) {
         return parseStringArg(args, 0)
-                .flatMap(a -> plugin.getDatabase().getUser(a)).map(SavedUser::user)
+                .flatMap(a -> plugin.getDatabase().getUser(a)).map(SavedUser::getUser)
                 .or(() -> {
                     if (executor instanceof OnlineUser online) {
                         return Optional.of(online);
