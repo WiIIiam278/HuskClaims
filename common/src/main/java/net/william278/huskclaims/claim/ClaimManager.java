@@ -95,13 +95,10 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
      * @since 1.0
      */
     @Blocking
-    default Claim createClaimAt(@NotNull World world, @NotNull Region region,
-                                @Nullable User owner) throws IllegalArgumentException {
-        final ClaimWorld claimWorld = getClaimWorld(world).orElseThrow(
-                () -> new IllegalArgumentException("No claim world for world" + world.getName()));
-
+    @NotNull
+    default Claim createClaimAt(@NotNull ClaimWorld world, @NotNull Region region, @Nullable User owner) {
         // Validate region is not yet claimed or too small
-        if (claimWorld.isRegionClaimed(region)) {
+        if (world.isRegionClaimed(region)) {
             throw new IllegalArgumentException("Region is already claimed");
         }
         if (owner != null && region.getShortestEdge() < getPlugin().getSettings().getClaims().getMinimumClaimSize()) {
@@ -112,8 +109,8 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
         final Claim claim = owner != null
                 ? Claim.create(owner, region, getPlugin())
                 : Claim.createAdminClaim(region, getPlugin());
-        claimWorld.getClaims().add(claim);
-        getDatabase().updateClaimWorld(claimWorld);
+        world.getClaims().add(claim);
+        getDatabase().updateClaimWorld(world);
 
         // Adjust the owner's claim block count
         if (owner != null) {
@@ -131,30 +128,29 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
      * @throws IllegalArgumentException if the region is already claimed, or if no claim world is present for the world
      * @since 1.0
      */
-    default Claim createAdminClaimAt(@NotNull World world, @NotNull Region region)
-            throws IllegalArgumentException {
+    @Blocking
+    @NotNull
+    default Claim createAdminClaimAt(@NotNull ClaimWorld world, @NotNull Region region) {
         return createClaimAt(world, region, null);
     }
+
 
     /**
      * Resize a claim and update the owner's claim block count
      *
-     * @param world     The world the claim is in
+     * @param world     The claim world the claim is in
      * @param claim     The claim to resize
      * @param newRegion The new region of the claim
      * @throws IllegalArgumentException if the new region overlaps with another claim, if no claim world is present,
      *                                  or if the new region does not fully enclose all the claim's children
+     * @since 1.0
      */
-    default void resizeClaim(@NotNull World world, @NotNull Claim claim,
-                             @NotNull Region newRegion) throws IllegalArgumentException {
-        final ClaimWorld claimWorld = getClaimWorld(world).orElseThrow(
-                () -> new IllegalArgumentException("No claim world for world" + world.getName()));
-
+    default void resizeClaim(@NotNull ClaimWorld world, @NotNull Claim claim, @NotNull Region newRegion) {
         // Ensure this is not a child claim and doesn't overlap with other claims
-        if (claim.isChildClaim(claimWorld)) {
+        if (claim.isChildClaim(world)) {
             throw new IllegalArgumentException("Cannot resize a child claim at the world level");
         }
-        if (claimWorld.isRegionClaimed(newRegion, claim.getRegion())) {
+        if (world.isRegionClaimed(newRegion, claim.getRegion())) {
             throw new IllegalArgumentException("New claim region would overlap with other claim(s)");
         }
 
@@ -166,19 +162,11 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
 
         // Update the claim
         claim.setRegion(newRegion);
-        getDatabase().updateClaimWorld(claimWorld);
+        getDatabase().updateClaimWorld(world);
 
         // Adjust the owner's claim block count
-        claim.getOwner().flatMap(claimWorld::getUser).ifPresent(user -> getPlugin().editClaimBlocks(
+        claim.getOwner().flatMap(world::getUser).ifPresent(user -> getPlugin().editClaimBlocks(
                 user, (blocks -> blocks + (oldSurfaceArea - newRegion.getSurfaceArea())))
-        );
-    }
-
-    default void deleteClaim(@NotNull World world, @NotNull Claim claim) throws IllegalStateException {
-        this.deleteClaim(
-                getClaimWorld(world).orElseThrow(
-                        () -> new IllegalArgumentException("No claim world for world" + world.getName())
-                ), claim
         );
     }
 
@@ -202,28 +190,59 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
     /**
      * Create a child claim over a region
      *
-     * @param world   The world to create the claim in
-     * @param region  The region to create the claim over
+     * @param world  The claim world to create the claim in
+     * @param region The region to create the claim over
      * @throws IllegalArgumentException if the region is already claimed, or if no claim world is present for the world
      * @since 1.0
      */
     @Blocking
-    default void createChildClaimAt(@NotNull World world, @NotNull Region region) throws IllegalArgumentException {
-        final ClaimWorld claimWorld = getClaimWorld(world).orElseThrow(
-                () -> new IllegalArgumentException("No claim world for world" + world.getName())
-        );
-
+    @NotNull
+    default Claim createChildClaimAt(@NotNull ClaimWorld world, @NotNull Region region) {
         // Create claim
-        final Claim parent = claimWorld.getClaimAt(region.getNearCorner())
+        final Claim parent = world.getClaimAt(region.getNearCorner())
                 .orElseThrow(() -> new IllegalArgumentException("No parent claim found"));
         if (parent.getRegion().equals(region)) {
             throw new IllegalArgumentException("Parent claim and child claim regions cannot be the same");
         }
 
         // Create and add child claim
-        parent.createAndAddChild(region, claimWorld, getPlugin());
-        getDatabase().updateClaimWorld(claimWorld);
+        final Claim child = parent.createAndAddChild(region, world, getPlugin());
+        getDatabase().updateClaimWorld(world);
+        return child;
     }
+
+    @Blocking
+    default void deleteChildClaim(@NotNull ClaimWorld world, @NotNull Claim parent, @NotNull Claim child) {
+        if (!parent.getChildren().remove(child)) {
+            throw new IllegalArgumentException("Parent does not contain child");
+        }
+        getDatabase().updateClaimWorld(world);
+    }
+
+    @Blocking
+    default void resizeChildClaim(@NotNull ClaimWorld world, @NotNull Claim claim, @NotNull Region newRegion) {
+        // Ensure this is a child claim
+        final Optional<Claim> optionalParent = claim.getParent(world);
+        if (optionalParent.isEmpty()) {
+            throw new IllegalArgumentException("Cannot resize a non-child claim");
+        }
+        final Claim parent = optionalParent.get();
+
+        // Ensure claim encloses all of its children
+        if (!parent.getRegion().fullyEncloses(newRegion)) {
+            throw new IllegalArgumentException("Parent region does not fully enclose new child region");
+        }
+
+        // Ensure this is not a child claim and doesn't overlap with other claims
+        if (!parent.getChildClaimsWithin(newRegion, claim.getRegion()).isEmpty()) {
+            throw new IllegalArgumentException("New claim region would overlap with other child claim(s)");
+        }
+
+        // Update the claim
+        claim.setRegion(newRegion);
+        getDatabase().updateClaimWorld(world);
+    }
+
 
     /**
      * Load the claim worlds from the database

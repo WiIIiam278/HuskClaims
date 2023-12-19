@@ -19,6 +19,7 @@
 
 package net.william278.huskclaims.claim;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
@@ -38,10 +39,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
@@ -249,7 +247,7 @@ public class Claim implements Highlightable {
      *
      * @param trustable the trustable to get the trust level for
      * @param plugin    the plugin instance
-     * @return the trustable's currnent level, if they have one defined
+     * @return the trustable's current level, if they have one defined
      * @since 1.0
      */
     public Optional<TrustLevel> getTrustLevel(@NotNull Trustable trustable, @NotNull HuskClaims plugin) {
@@ -328,6 +326,32 @@ public class Claim implements Highlightable {
         }
     }
 
+    @NotNull
+    public List<Claim> getChildClaimsWithin(@NotNull Region region) {
+        return getChildren().stream().filter(claim -> claim.getRegion().overlaps(region)).toList();
+    }
+
+    public Optional<Claim> getChildClaimAt(@NotNull Region.Point point) {
+        return getChildren().stream().filter(claim -> claim.getRegion().contains(point)).findFirst();
+    }
+
+    /**
+     * Get the child claims a region overlaps with, except for certain claims
+     *
+     * @param region    The region to check
+     * @param exceptFor claims to exclude from the check
+     * @return list of overlapping claims
+     * @since 1.0
+     */
+    @NotNull
+    public List<Claim> getChildClaimsWithin(@NotNull Region region, @NotNull Region... exceptFor) {
+        final List<Claim> claims = Lists.newArrayList(getChildClaimsWithin(region));
+        for (Region except : exceptFor) {
+            claims.removeIf(claim -> claim.getRegion().equals(except));
+        }
+        return claims;
+    }
+
     // Get the claim owner's username
     @NotNull
     public String getOwnerName(@NotNull ClaimWorld world, @NotNull HuskClaims plugin) {
@@ -350,7 +374,7 @@ public class Claim implements Highlightable {
         if (!region.fullyEncloses(subRegion)) {
             throw new IllegalArgumentException("Child claim must be fully enclosed within parent claim");
         }
-        final Claim child = new Claim(owner, region, plugin);
+        final Claim child = new Claim(owner, subRegion, plugin);
         children.add(child);
         return child;
     }

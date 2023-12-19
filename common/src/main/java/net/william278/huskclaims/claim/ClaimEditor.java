@@ -63,9 +63,9 @@ public interface ClaimEditor {
         // If no selection has been made yet, make one at the clicked position
         if (optionalSelection.isEmpty()) {
             switch (mode) {
-                case CLAIMS -> makeClaimSelection(user, world, clicked, false);
-                case ADMIN_CLAIMS -> makeClaimSelection(user, world, clicked, true);
-                case CHILD_CLAIMS -> makeChildClaimSelection(user, world, clicked);
+                case CLAIMS -> userMakeClaimSelection(user, world, clicked, false);
+                case ADMIN_CLAIMS -> userMakeClaimSelection(user, world, clicked, true);
+                case CHILD_CLAIMS -> userMakeChildClaimSelection(user, world, clicked);
             }
             return;
         }
@@ -84,15 +84,17 @@ public interface ClaimEditor {
         // Otherwise, create a new claim
         switch (mode) {
             case CLAIMS -> userCreateClaim(user, world, Region.from(selection.getSelectedPosition(), clicked));
-            case ADMIN_CLAIMS -> userCreateAdminClaim(user, world, Region.from(selection.getSelectedPosition(), clicked));
-            case CHILD_CLAIMS -> userCreateChildClaim(user, world, Region.from(selection.getSelectedPosition(), clicked));
+            case ADMIN_CLAIMS ->
+                    userCreateAdminClaim(user, world, Region.from(selection.getSelectedPosition(), clicked));
+            case CHILD_CLAIMS ->
+                    userCreateChildClaim(user, world, Region.from(selection.getSelectedPosition(), clicked));
         }
         clearClaimSelection(user);
     }
 
     // Make a claim selection and add it to the map if valid
-    private void makeClaimSelection(@NotNull OnlineUser user, @NotNull ClaimWorld world,
-                                    @NotNull Position clickedBlock, boolean isAdmin) {
+    private void userMakeClaimSelection(@NotNull OnlineUser user, @NotNull ClaimWorld world,
+                                        @NotNull Position clickedBlock, boolean isAdmin) {
         createClaimSelection(user, world, clickedBlock, isAdmin).ifPresent(selection -> {
             getClaimSelections().put(user.getUuid(), selection);
             getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), selection);
@@ -150,8 +152,7 @@ public interface ClaimEditor {
             getPlugin().editClaimBlocks(user, (blocks) -> blocks - additionalBlocksNeeded);
         }
 
-        claim.setRegion(resized);
-        getPlugin().getDatabase().updateClaimWorld(world);
+        getPlugin().resizeClaim(world, claim, resized);
         getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claim);
         getPlugin().getLocales().getLocale("claim_resized")
                 .ifPresent(user::sendMessage);
@@ -182,7 +183,7 @@ public interface ClaimEditor {
 
         // Create the claim
         world.cacheUser(user);
-        final Claim claim = getPlugin().createClaimAt(user.getWorld(), region, user);
+        final Claim claim = getPlugin().createClaimAt(world, region, user);
         getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claim);
         getPlugin().getLocales().getLocale("claim_created", Long.toString(surfaceArea))
                 .ifPresent(user::sendMessage);
@@ -196,14 +197,14 @@ public interface ClaimEditor {
 
         // Create the claim
         world.cacheUser(user);
-        final Claim claim = getPlugin().createAdminClaimAt(user.getWorld(), region);
+        final Claim claim = getPlugin().createAdminClaimAt(world, region);
 
         // Grant the claim creator the highest trust level
         claim.setTrustLevel(user, world, getPlugin().getHighestTrustLevel());
 
         // Highlight the claim
         getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claim);
-        getPlugin().getLocales().getLocale("claim_created_admin")
+        getPlugin().getLocales().getLocale("created_admin_claim")
                 .ifPresent(user::sendMessage);
     }
 
@@ -239,14 +240,13 @@ public interface ClaimEditor {
         final Claim claim = clickedClaim.get();
         if (claim.getRegion().getClickedCorner(Region.Point.wrap(clicked)) != -1) {
             final ClaimSelection selection = builder.claimBeingResized(claim).build();
-
             if (!selection.canResize(user, world, getPlugin())) {
                 getPlugin().getLocales().getLocale("no_resizing_permission")
                         .ifPresent(user::sendMessage);
                 return Optional.empty();
             }
 
-            return Optional.ofNullable(builder.claimBeingResized(claim).build());
+            return Optional.ofNullable(builder.build());
         }
 
         // Otherwise, the user clicked some other part of the claim
@@ -256,24 +256,132 @@ public interface ClaimEditor {
         return Optional.empty();
     }
 
-    private void makeChildClaimSelection(@NotNull OnlineUser user, @NotNull ClaimWorld world,
-                                         @NotNull Position clickedBlock) {
-        throw new UnsupportedOperationException("Not yet implemented");
+    private void userMakeChildClaimSelection(@NotNull OnlineUser user, @NotNull ClaimWorld world,
+                                             @NotNull Position clickedBlock) {
+        createChildClaimSelection(user, world, clickedBlock).ifPresent(selection -> {
+            getClaimSelections().put(user.getUuid(), selection);
+            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), selection);
+
+            if (selection.isResizeSelection()) {
+                getPlugin().getLocales().getLocale("claim_selection_resize_child")
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+
+            getPlugin().getLocales().getLocale("claim_selection_create_child")
+                    .ifPresent(user::sendMessage);
+        });
     }
 
     default void userResizeChildClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world,
                                       @NotNull Position clickedBlock, @NotNull ClaimSelection selection) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        final Claim claim = selection.getClaimBeingResized();
+        assert claim != null : "Child claim selection is not a resize selection";
+
+        // Get the resized claim
+        final Region resized = claim.getRegion().getResized(
+                selection.getResizedCornerIndex(), Region.Point.wrap(clickedBlock)
+        );
+        userResizeChildClaim(user, world, claim, resized);
+    }
+
+    default void userResizeChildClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world,
+                                      @NotNull Claim child, @NotNull Region resized) {
+        final Optional<Claim> optionalParent = child.getParent(world);
+        if (optionalParent.isEmpty()) {
+            getPlugin().getLocales().getLocale("error_parent_claim_deleted")
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+
+        final Claim parent = optionalParent.get();
+        if (!parent.getRegion().fullyEncloses(resized)) {
+            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), parent, true);
+            getPlugin().getLocales().getLocale("selection_child_not_enclosing_parent")
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+
+        final List<Claim> overlapsWith = parent.getChildClaimsWithin(resized, child.getRegion());
+        if (!overlapsWith.isEmpty()) {
+            getPlugin().getLocales().getLocale("land_selection_overlaps_child")
+                    .ifPresent(user::sendMessage);
+            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), overlapsWith, true);
+            return;
+        }
+
+        getPlugin().resizeChildClaim(world, child, resized);
+        getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), child);
+        getPlugin().getLocales().getLocale("child_claim_resized")
+                .ifPresent(user::sendMessage);
     }
 
     default void userCreateChildClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        final Optional<Claim> optionalParent = world.getParentClaimAt(region.getNearCorner());
+        if (optionalParent.isEmpty()) {
+            getPlugin().getLocales().getLocale("selection_child_no_parent")
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+
+        final Claim parent = optionalParent.get();
+        if (!parent.getRegion().fullyEncloses(region)) {
+            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), parent, true);
+            getPlugin().getLocales().getLocale("selection_child_not_enclosing_parent")
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+
+        final List<Claim> overlapsWith = parent.getChildClaimsWithin(region);
+        if (!overlapsWith.isEmpty()) {
+            getPlugin().getLocales().getLocale("land_selection_overlaps_child")
+                    .ifPresent(user::sendMessage);
+            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), overlapsWith, true);
+            return;
+        }
+
+        final Claim child = getPlugin().createChildClaimAt(world, region);
+        getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), List.of(parent, child));
+        getPlugin().getLocales().getLocale("created_child_claim")
+                .ifPresent(user::sendMessage);
     }
 
     @NotNull
     private Optional<ClaimSelection> createChildClaimSelection(@NotNull OnlineUser user, @NotNull ClaimWorld world,
-                                                               @NotNull Claim parent, @NotNull BlockPosition clicked) {
-        throw new UnsupportedOperationException("Not yet implemented");
+                                                               @NotNull BlockPosition clicked) {
+        final Optional<Claim> clickedClaim = world.getClaimAt(clicked);
+        if (clickedClaim.isEmpty()) {
+            getPlugin().getLocales().getLocale("selection_child_no_parent")
+                    .ifPresent(user::sendMessage);
+            return Optional.empty();
+        }
+
+        final Claim claim = clickedClaim.get();
+        final ClaimSelection.ClaimSelectionBuilder builder = ClaimSelection.builder().selectedPosition(clicked);
+        if (!claim.isChildClaim(world)) {
+            if (!claim.isPrivilegeAllowed(TrustLevel.Privilege.MANAGE_CHILD_CLAIMS, user, world, getPlugin())) {
+                getPlugin().getLocales().getLocale("no_claiming_child_permission")
+                        .ifPresent(user::sendMessage);
+                return Optional.empty();
+            }
+
+            return Optional.of(builder.build());
+        }
+
+        if (claim.getRegion().getClickedCorner(Region.Point.wrap(clicked)) != -1) {
+            final ClaimSelection selection = builder.claimBeingResized(claim).build();
+            if (!selection.canResize(user, world, getPlugin())) {
+                getPlugin().getLocales().getLocale("no_resizing_child_permission")
+                        .ifPresent(user::sendMessage);
+                return Optional.empty();
+            }
+
+            return Optional.ofNullable(builder.build());
+        }
+
+        getPlugin().getLocales().getLocale("land_already_child_claim")
+                .ifPresent(user::sendMessage);
+        return Optional.empty();
     }
 
     @NotNull

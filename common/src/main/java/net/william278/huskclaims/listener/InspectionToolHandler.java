@@ -19,6 +19,7 @@
 
 package net.william278.huskclaims.listener;
 
+import com.google.common.collect.Lists;
 import net.william278.cloplib.operation.OperationPosition;
 import net.william278.cloplib.operation.OperationUser;
 import net.william278.huskclaims.HuskClaims;
@@ -28,6 +29,7 @@ import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -62,7 +64,9 @@ public interface InspectionToolHandler {
 
     // Highlight the claim for the user and send a message
     private void highlightClaim(@NotNull OnlineUser user, @NotNull Claim claim, @NotNull ClaimWorld world) {
-        getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claim);
+        final List<Claim> claims = Lists.newArrayList(claim);
+        claims.addAll(claim.getChildren());
+        getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claims);
         getPlugin().getLocales().getLocale("land_claimed_by", claim.getOwnerName(world, getPlugin()))
                 .ifPresent(user::sendMessage);
     }
