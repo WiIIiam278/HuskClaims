@@ -56,6 +56,7 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvi
         log(Level.INFO, String.format("Initializing HuskClaims v%s...", getPluginVersion()));
         try {
             loadSettings();
+            loadServer();
             loadTrustLevels();
             loadLocales();
             loadDatabase();

@@ -108,7 +108,7 @@ public interface ConfigProvider {
             );
             setLocales(locales);
         } catch (Throwable e) {
-            getPlugin().log(Level.SEVERE, "An error occurred whilst loading the locales file", e);
+            getPlugin().log(Level.SEVERE, "An error occurred loading the locales (invalid lang code?)", e);
         }
     }
 

@@ -123,6 +123,7 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
 
     @Override
     public void disablePlugin() {
+        log(Level.INFO, "Disabling HuskClaims...");
         getServer().getPluginManager().disablePlugin(this);
     }
 
