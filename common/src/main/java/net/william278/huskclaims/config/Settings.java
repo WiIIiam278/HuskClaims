@@ -19,6 +19,7 @@
 
 package net.william278.huskclaims.config;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import de.exlll.configlib.Comment;
 import de.exlll.configlib.Configuration;
@@ -137,8 +138,23 @@ public final class Settings {
         public static class RedisSettings {
             private String host = "localhost";
             private int port = 6379;
-            private boolean useSSL = false;
+            @Comment("Password for your Redis server. Leave blank if you're not using a password.")
             private String password = "";
+            private boolean useSSL = false;
+
+            @Comment({"Settings for if you're using Redis Sentinels.",
+                    "If you're not sure what this is, please ignore this section."})
+            private SentinelSettings sentinel = new SentinelSettings();
+
+            @Getter
+            @Configuration
+            @NoArgsConstructor
+            public static class SentinelSettings {
+                private String masterName = "";
+                @Comment("List of host:port pairs")
+                private List<String> nodes = Lists.newArrayList();
+                private String password = "";
+            }
         }
     }
 
