@@ -252,6 +252,7 @@ public interface ClaimEditor {
         // Otherwise, the user clicked some other part of the claim
         getPlugin().getLocales().getLocale("land_already_claimed", claim.getOwnerName(world, getPlugin()))
                 .ifPresent(user::sendMessage);
+        getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claim, true);
         return Optional.empty();
     }
 

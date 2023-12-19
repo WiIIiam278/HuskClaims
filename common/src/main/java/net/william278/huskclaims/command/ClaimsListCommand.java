@@ -28,6 +28,7 @@ import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.config.Locales;
 import net.william278.huskclaims.position.ServerWorld;
 import net.william278.huskclaims.user.CommandUser;
+import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.User;
 import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
@@ -58,7 +59,14 @@ public class ClaimsListCommand extends Command implements UserListTabCompletable
                     .ifPresent(executor::sendMessage);
             return;
         }
-        showClaimList(executor, optionalUser.get(), page, sort, ascend);
+
+        final User user = optionalUser.get();
+        if (executor instanceof OnlineUser other && !other.equals(user) && !hasPermission(executor, "other")) {
+            plugin.getLocales().getLocale("error_no_permission")
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+        showClaimList(executor, user, page, sort, ascend);
     }
 
     private void showClaimList(@NotNull CommandUser executor, @NotNull User user,
@@ -67,7 +75,6 @@ public class ClaimsListCommand extends Command implements UserListTabCompletable
             showClaimList(executor, user, claimLists.get(user.getUuid()), page, sort, ascend);
             return;
         }
-
 
         final List<ServerWorldClaim> claims = Lists.newArrayList(getUserClaims(user));
         if (claims.isEmpty()) {

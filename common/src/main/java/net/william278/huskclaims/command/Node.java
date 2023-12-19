@@ -62,6 +62,10 @@ public abstract class Node implements Executable {
         return joiner.toString().trim();
     }
 
+    public boolean hasPermission(@NotNull CommandUser executor, @NotNull String... child) {
+        return executor.hasPermission(getPermission(child)) || executor.hasPermission(getPermission("*"));
+    }
+
     @NotNull
     public String getName() {
         return aliases.get(0);

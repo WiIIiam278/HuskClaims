@@ -21,6 +21,7 @@ package net.william278.huskclaims.command;
 
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.user.CommandUser;
+import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -48,16 +49,32 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
         }
 
         final User user = optionalUser.get();
+        if (executor instanceof OnlineUser other && !other.equals(user) && !hasPermission(executor, "other")) {
+            plugin.getLocales().getLocale("error_no_permission")
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+        performClaimBlockOperation(executor, user, option, amount.orElse(0));
+    }
+
+    private void performClaimBlockOperation(@NotNull CommandUser executor, @NotNull User user,
+                                            @NotNull ClaimBlockOption option, int amount) {
         switch (option) {
             case SHOW -> plugin.getLocales().getLocale("claim_block_balance", user.getName(),
                     Long.toString(plugin.getClaimBlocks(user.getUuid()))).ifPresent(executor::sendMessage);
-            case ADD -> changeClaimBlocks(executor, user, amount.get(), false);
-            case REMOVE -> changeClaimBlocks(executor, user, -amount.get(), false);
-            case SET -> changeClaimBlocks(executor, user, amount.get(), true);
+            case ADD -> changeClaimBlocks(executor, user, amount, false);
+            case REMOVE -> changeClaimBlocks(executor, user, -amount, false);
+            case SET -> changeClaimBlocks(executor, user, amount, true);
         }
     }
 
     private void changeClaimBlocks(@NotNull CommandUser executor, @NotNull User user, int changeBy, boolean set) {
+        if (!hasPermission(executor, "edit")) {
+            plugin.getLocales().getLocale("error_no_permission")
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
         plugin.editClaimBlocks(user, (blocks) -> {
             long newBlocks = Math.max(0, set ? changeBy : blocks + changeBy);
             plugin.getLocales().getLocale("claim_blocks_updated", user.getName(),
