@@ -58,7 +58,7 @@ public class TrustListCommand extends InClaimCommand {
         final List<TrustLevel> levels = plugin.getTrustLevels();
         levels.sort((o1, o2) -> Integer.compare(o2.getWeight(), o1.getWeight()));
         levels.forEach(level -> sendTrustListRow(executor, level, claim, world));
-        executor.sendMessage(getFooter(levels));
+        getFooter(levels).ifPresent(executor::sendMessage);
     }
 
     private void sendTrustListRow(@NotNull OnlineUser executor, @NotNull TrustLevel level,
@@ -86,17 +86,20 @@ public class TrustListCommand extends InClaimCommand {
     }
 
     @NotNull
-    private MineDown getFooter(@NotNull List<TrustLevel> levels) {
-        return plugin.getLocales().format(levels.stream()
-                .map(level -> plugin.getLocales().getRawLocale(
-                        "trust_list_level_key",
-                        Locales.escapeText(level.getDisplayName()),
-                        level.getColor(),
-                        Locales.escapeText(level.getDescription()),
-                        level.getCommandAliases().stream().findFirst().orElse("untrust")
-                ))
-                .filter(Optional::isPresent).map(Optional::get)
-                .collect(Collectors.joining(" ")));
+    private Optional<MineDown> getFooter(@NotNull List<TrustLevel> levels) {
+        return plugin.getLocales().getRawLocale(
+                "trust_list_key",
+                levels.stream()
+                        .map(level -> plugin.getLocales().getRawLocale(
+                                "trust_list_key_level",
+                                Locales.escapeText(level.getDisplayName()),
+                                level.getColor(),
+                                Locales.escapeText(level.getDescription()),
+                                level.getCommandAliases().stream().findFirst().orElse("untrust")
+                        ))
+                        .filter(Optional::isPresent).map(Optional::get)
+                        .collect(Collectors.joining(" "))
+        ).map(plugin.getLocales()::format);
     }
 
     @NotNull
