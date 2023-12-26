@@ -58,25 +58,18 @@ public class GlowHighlighter implements Highlighter {
         );
     }
 
-    /**
-     * Check if there are any duplicates in the given blocks based on the existing active highlights of the user.
-     *
-     * @param user   The online user
-     * @param blocks The map of positions to material blocks
-     * @return {@code true} if there are no duplicates, {@code false} if there are duplicates
-     */
-    private boolean checkDuplicate(@NotNull OnlineUser user, Map<Position, BlockProvider.MaterialBlock> blocks) {
+    // Check the block map for duplicates
+    private boolean checkDuplicate(@NotNull OnlineUser user, @NotNull Map<Position, BlockProvider.MaterialBlock> map) {
         final Collection<HighlightedBlock> existing = activeHighlights.get(user.getUuid());
         if (existing.isEmpty()) {
             return false;
         }
 
-        return existing.stream().allMatch(e -> blocks.keySet().stream().anyMatch(e.position::equals));
+        return existing.stream().allMatch(e -> map.keySet().stream().anyMatch(e.position::equals));
     }
 
     public void startHighlighting(@NotNull OnlineUser user, @NotNull World world,
                                   @NotNull Collection<? extends Highlightable> toHighlight, boolean showOverlap) {
-
         plugin.runSync(() -> {
             final Optional<ClaimWorld> optionalClaimWorld = plugin.getClaimWorld(world);
             if (optionalClaimWorld.isEmpty()) {
@@ -86,7 +79,6 @@ public class GlowHighlighter implements Highlighter {
             final ClaimWorld claimWorld = optionalClaimWorld.get();
             final Set<HighlightedBlock> activeBlocks = Sets.newHashSet();
             final Player player = Bukkit.getPlayer(user.getUuid());
-
             if (player == null) {
                 return;
             }
@@ -98,7 +90,7 @@ public class GlowHighlighter implements Highlighter {
 
             for (Highlightable highlight : toHighlight) {
                 final Map<Region.Point, Highlightable.HighlightType> type = highlight.getHighlightPoints(claimWorld, showOverlap);
-                plugin.getHighestBlocksAt(type.keySet(), world)
+                plugin.getSurfaceBlocksAt(type.keySet(), world, (int) player.getLocation().getY())
                         .forEach((pos, material) -> {
                             highlightPoints.put(pos, highlight);
                             blocks.put(pos, highlight.getBlockFor(claimWorld, pos, plugin, showOverlap));
@@ -111,7 +103,6 @@ public class GlowHighlighter implements Highlighter {
                                     .orElse(Highlightable.HighlightType.SELECTION));
                         });
             }
-
             if (checkDuplicate(user, blocks)) {
                 return;
             }
@@ -162,6 +153,7 @@ public class GlowHighlighter implements Highlighter {
             this.entityId = createEntity(player, plugin, type);
         }
 
+        @SuppressWarnings("UnstableApiUsage")
         private UUID createEntity(@NotNull Player player, @NotNull PaperHuskClaims plugin, @NotNull Highlightable.HighlightType type) {
             final org.bukkit.World world = Bukkit.getWorld(position.getWorld().getUuid());
             if (world == null) {
