@@ -43,17 +43,15 @@ import net.william278.huskclaims.listener.BukkitListener;
 import net.william278.huskclaims.listener.ClaimsListener;
 import net.william278.huskclaims.network.Broker;
 import net.william278.huskclaims.network.PluginMessageBroker;
-import net.william278.huskclaims.position.BlockPosition;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.position.World;
 import net.william278.huskclaims.user.*;
-import net.william278.huskclaims.util.BlockDataBlock;
 import net.william278.huskclaims.util.BlockProvider;
+import net.william278.huskclaims.util.BukkitBlockProvider;
 import net.william278.huskclaims.util.BukkitTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -69,7 +67,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 
 @NoArgsConstructor
-public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTask.Supplier, PluginMessageListener {
+public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTask.Supplier,
+        BukkitBlockProvider, PluginMessageListener {
 
     @Getter
     @Setter
@@ -234,30 +233,6 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
         }
     }
 
-    @NotNull
-    @Override
-    public MaterialBlock getBlockFor(@NotNull String materialKey) {
-        return BlockDataBlock.create(Objects.requireNonNull(
-                Material.matchMaterial(materialKey),
-                "Invalid material: " + materialKey
-        ));
-    }
-
-    @NotNull
-    @Override
-    public Map<Position, MaterialBlock> getHighestBlocksAt(@NotNull Collection<? extends BlockPosition> positions,
-                                                           @NotNull World world) {
-        final Map<Position, MaterialBlock> blocks = Maps.newHashMap();
-        for (BlockPosition pos : positions) {
-            final Location location = Adapter.adapt(Position.at(pos, 64, world));
-            if (location.isWorldLoaded() || location.getChunk().isLoaded()) {
-                final Block block = Objects.requireNonNull(location.getWorld()).getHighestBlockAt(location);
-                blocks.put(Adapter.adapt(block.getLocation()), new BlockDataBlock(block.getBlockData()));
-            }
-        }
-        return blocks;
-    }
-
     @Override
     public void sendBlockUpdates(@NotNull OnlineUser user, @NotNull Map<Position, MaterialBlock> blocks) {
         final Player player = ((BukkitUser) user).getBukkitPlayer();
@@ -289,9 +264,9 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
         }
 
         @NotNull
-        public static org.bukkit.World adapt(@NotNull World position) {
-            return Optional.ofNullable(Bukkit.getWorld(position.getUuid()))
-                    .or(() -> Optional.ofNullable(Bukkit.getWorld(position.getName())))
+        public static org.bukkit.World adapt(@NotNull World world) {
+            return Optional.ofNullable(Bukkit.getWorld(world.getUuid()))
+                    .or(() -> Optional.ofNullable(Bukkit.getWorld(world.getName())))
                     .orElseThrow(() -> new IllegalArgumentException("World not found"));
         }
 

@@ -51,16 +51,17 @@ public interface BlockProvider {
     MaterialBlock getBlockFor(@NotNull String materialKey);
 
     /**
-     * Get a Map of the highest blocks at a collection of positions
+     * Get a Map of the surface blocks at a collection of positions, relative to the base y level
      *
      * @param positions the positions
-     * @param world    the world
+     * @param world     the world
+     * @param yLevel    the base y level to check at
      * @return a Map of the highest block {@link Position}s to their {@link MaterialBlock}s
      * @since 1.0
      */
     @NotNull
-    Map<Position, MaterialBlock> getHighestBlocksAt(@NotNull Collection<? extends BlockPosition> positions,
-                                                    @NotNull World world);
+    Map<Position, MaterialBlock> getSurfaceBlocksAt(@NotNull Collection<? extends BlockPosition> positions,
+                                                    @NotNull World world, int yLevel);
 
     /**
      * Send a batch of block updates to a user

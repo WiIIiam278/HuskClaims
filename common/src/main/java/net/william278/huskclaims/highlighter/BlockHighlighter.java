@@ -59,8 +59,9 @@ public class BlockHighlighter implements Highlighter {
             final ClaimWorld claimWorld = optionalClaimWorld.get();
             final List<HighlightedBlock> activeBlocks = Lists.newArrayList();
             final List<HighlightedBlock> highlightBlocks = Lists.newArrayList();
+            final int userY = (int) user.getPosition().getY();
             for (Highlightable highlight : toHighlight) {
-                plugin.getHighestBlocksAt(highlight.getHighlightPoints(claimWorld, showOverlap).keySet(), world)
+                plugin.getSurfaceBlocksAt(highlight.getHighlightPoints(claimWorld, showOverlap).keySet(), world, userY)
                         .forEach((pos, material) -> {
                             activeBlocks.add(new HighlightedBlock(
                                     pos, material
