@@ -86,4 +86,13 @@ public class Position implements BlockPosition, OperationPosition {
     public int getBlockZ() {
         return (int) getZ();
     }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Position position) {
+            return position.x == x && position.y == y && position.z == z && position.world.equals(world);
+        }
+        return false;
+    }
 }

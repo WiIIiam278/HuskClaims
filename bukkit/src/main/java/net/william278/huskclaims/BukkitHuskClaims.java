@@ -269,6 +269,18 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
         ));
     }
 
+    @Override
+    public void sendBlockUpdates(@NotNull OnlineUser user, @NotNull List<Position> positions) {
+        final Player player = ((BukkitUser) user).getBukkitPlayer();
+        positions.forEach(position -> {
+            Location location = Adapter.adapt(position);
+            player.sendBlockChange(
+                    location,
+                    Objects.requireNonNull(location.getWorld()).getBlockAt(location).getBlockData()
+            );
+        });
+    }
+
     public static class Adapter {
         @NotNull
         public static Position adapt(@NotNull Location location) {

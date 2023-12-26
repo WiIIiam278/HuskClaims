@@ -32,9 +32,7 @@ import net.william278.huskclaims.network.Broker;
 import net.william278.huskclaims.position.World;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @SuppressWarnings("FieldMayBeFinal")
 @Getter
@@ -76,7 +74,7 @@ public final class Settings {
         PoolOptions poolOptions;
 
         @Comment("Names of tables to use on your database. Don't modify this unless you know what you're doing!")
-        Map<Database.Table, String> tableNames = Maps.newLinkedHashMap(Map.of(
+        Map<Database.Table, String> tableNames = new TreeMap<>(Map.of(
                 Database.Table.META_DATA, Database.Table.META_DATA.getDefaultName(),
                 Database.Table.USER_DATA, Database.Table.USER_DATA.getDefaultName(),
                 Database.Table.USER_GROUP_DATA, Database.Table.USER_GROUP_DATA.getDefaultName(),
@@ -215,7 +213,7 @@ public final class Settings {
         private int inspectionDistance = 40;
 
         @Comment("Blocks to use for the block highlighter")
-        private Map<Highlightable.HighlightType, String> blockHighlighterTypes = Maps.newLinkedHashMap(Map.of(
+        private Map<Highlightable.HighlightType, String> blockHighlighterTypes = new TreeMap<>(Map.of(
                 Highlightable.HighlightType.EDGE, "minecraft:gold_block",
                 Highlightable.HighlightType.CORNER, "minecraft:glowstone",
                 Highlightable.HighlightType.ADMIN_CORNER, "minecraft:jack_o_lantern",
@@ -226,6 +224,25 @@ public final class Settings {
                 Highlightable.HighlightType.OVERLAP_EDGE, "minecraft:netherrack",
                 Highlightable.HighlightType.SELECTION, "minecraft:diamond_block"
         ));
+
+
+        @Comment("Color of the glow effect for highlighted blocks. Works only on paper 1.19.4+. ")
+        private Map<Highlightable.HighlightType, Color> blockHighlighterColors = new TreeMap<>(Map.of(
+                Highlightable.HighlightType.EDGE, Color.YELLOW,
+                Highlightable.HighlightType.CORNER, Color.YELLOW,
+                Highlightable.HighlightType.ADMIN_CORNER, Color.ORANGE,
+                Highlightable.HighlightType.ADMIN_EDGE, Color.ORANGE,
+                Highlightable.HighlightType.CHILD_CORNER, Color.SILVER,
+                Highlightable.HighlightType.CHILD_EDGE, Color.SILVER,
+                Highlightable.HighlightType.OVERLAP_CORNER, Color.RED,
+                Highlightable.HighlightType.OVERLAP_EDGE, Color.RED,
+                Highlightable.HighlightType.SELECTION, Color.AQUA
+        ));
+
+        @NotNull
+        public Color getBlockHighlighterColor(@NotNull Highlightable.HighlightType highlightType) {
+            return Optional.ofNullable(blockHighlighterColors.get(highlightType)).orElse(Color.WHITE);
+        }
 
         public boolean isWorldUnclaimable(@NotNull World world) {
             return unclaimableWorlds.stream().anyMatch(world.getName()::equalsIgnoreCase);
@@ -282,6 +299,34 @@ public final class Settings {
 
         @Comment("Max groups per player")
         private int maxGroupsPerPlayer = 3;
+    }
+
+    @Getter
+    public enum Color {
+
+        WHITE(16777215),
+        SILVER(12632256),
+        GRAY(8421504),
+        BLACK(0),
+        RED(16711680),
+        MAROON(8388608),
+        YELLOW(16776960),
+        OLIVE(8421376),
+        LIME(65280),
+        GREEN(32768),
+        AQUA(65535),
+        TEAL(32896),
+        BLUE(255),
+        NAVY(128),
+        FUCHSIA(16711935),
+        PURPLE(8388736),
+        ORANGE(16753920);
+
+        private final int rgb;
+
+        Color(int rgb) {
+            this.rgb = rgb;
+        }
     }
 
 }
