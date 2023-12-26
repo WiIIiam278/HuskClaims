@@ -48,6 +48,14 @@ public interface Highlighter {
                            boolean showOverlap);
 
     /**
+     * Clear highlights for a user
+     *
+     * @param user The user to stop visualizing the highlightable to
+     * @since 1.0
+     */
+    void stopHighlighting(@NotNull OnlineUser user);
+
+    /**
      * Highlight something for a user
      *
      * @param user        The user to visualize the highlightable to
@@ -85,13 +93,4 @@ public interface Highlighter {
                                    @NotNull Highlightable highlightable) {
         startHighlighting(user, world, highlightable, false);
     }
-
-    /**
-     * Clear highlights for a user
-     *
-     * @param user The user to stop visualizing the highlightable to
-     * @since 1.0
-     */
-    void stopHighlighting(@NotNull OnlineUser user);
-
 }
