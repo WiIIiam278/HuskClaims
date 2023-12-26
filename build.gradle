@@ -15,13 +15,13 @@ defaultTasks 'licenseFormat', 'build'
 
 ext {
     set 'version', version.toString()
+    set 'description', description.toString()
+
     set 'jedis_version', jedis_version.toString()
     set 'mysql_driver_version', mysql_driver_version.toString()
     set 'mariadb_driver_version', mariadb_driver_version.toString()
     set 'sqlite_driver_version', sqlite_driver_version.toString()
-    set 'description', description.toString()
 }
-
 
 allprojects {
     apply plugin: 'com.github.johnrengelman.shadow'
@@ -51,10 +51,6 @@ allprojects {
         testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.10.1'
     }
 
-    test {
-        useJUnitPlatform()
-    }
-
     license {
         header = rootProject.file('HEADER')
         include '**/*.java'
@@ -77,11 +73,18 @@ subprojects {
         from '../LICENSE'
     }
 
+    test {
+        useJUnitPlatform()
+    }
+
     if (['bukkit', 'paper', 'plugin'].contains(project.name)) {
         shadowJar {
             destinationDirectory.set(file("$rootDir/target"))
             archiveClassifier.set('')
         }
+
+        jar.dependsOn shadowJar
+        clean.delete "$rootDir/target"
     }
 }
 
