@@ -73,6 +73,15 @@ public interface BlockProvider {
     void sendBlockUpdates(@NotNull OnlineUser user, @NotNull Map<Position, MaterialBlock> blocks);
 
     /**
+     * Sends block updates to a specific online user based on the given positions.
+     *
+     * @param user      the online user to send the block updates to
+     * @param positions the list of positions to update blocks at
+     * @since 1.0
+     */
+    void sendBlockUpdates(@NotNull OnlineUser user, @NotNull List<Position> positions);
+
+    /**
      * Abstract representation of a block with material data
      */
     abstract class MaterialBlock {

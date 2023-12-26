@@ -31,6 +31,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 
 /**
  * Plugin locale configuration
@@ -54,7 +55,7 @@ public class Locales implements PaginatedListProvider {
     protected static final String DEFAULT_LOCALE = "en-gb";
 
     // The raw set of locales loaded from yaml
-    private Map<String, String> locales = Maps.newLinkedHashMap();
+    private Map<String, String> locales = new TreeMap<>();
 
     /**
      * Returns a raw, unformatted locale loaded from the locales file
