@@ -41,6 +41,7 @@ import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -67,6 +68,13 @@ public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighli
 
     @Override
     public void showBlocks(@NotNull OnlineUser user, @NotNull Collection<DisplayHighlightBlock> blocks) {
+        final Collection<DisplayHighlightBlock> userBlocks = this.shownBlocks.get(user.getUuid());
+        if (!userBlocks.isEmpty() && userBlocks.size() == blocks.size() &&
+                blocks.stream().allMatch(b -> userBlocks.stream().anyMatch(b2 -> b2.getPosition().equals(b.getPosition())))) {
+            return;
+        }
+
+        this.stopHighlighting(user);
         blocks.forEach(block -> {
             block.show(plugin, user);
             shownBlocks.put(user.getUuid(), block);

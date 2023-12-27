@@ -52,8 +52,6 @@ public abstract class BlockHighlighter<B extends BlockHighlighter.HighlightBlock
     public void startHighlighting(@NotNull OnlineUser user, @NotNull World world,
                                   @NotNull Collection<? extends Highlightable> toHighlight, boolean showOverlap) {
         plugin.runSync(() -> {
-            stopHighlighting(user);
-
             final Optional<ClaimWorld> optionalClaimWorld = plugin.getClaimWorld(world);
             if (optionalClaimWorld.isEmpty()) {
                 return;
