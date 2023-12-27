@@ -19,10 +19,6 @@
 
 package net.william278.huskclaims.highlighter;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
-import lombok.Getter;
 import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.PaperHuskClaims;
@@ -61,17 +57,16 @@ public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighli
 
     @Override
     public void showBlocks(@NotNull OnlineUser user, @NotNull Collection<DisplayHighlightBlock> blocks) {
-        blocks.forEach(block -> {
-            block.show(plugin, user);
-        });
+        blocks.forEach(block -> block.show(plugin, user));
     }
 
     @Override
     public void stopHighlighting(@NotNull OnlineUser user) {
-        replacedBlocks.removeAll(user.getUuid()).stream()
-                .filter(block -> block instanceof DisplayHighlightBlock)
-                .map(block -> (DisplayHighlightBlock) block)
-                .forEach(DisplayHighlightBlock::remove);
+        replacedBlocks.removeAll(user.getUuid()).forEach(block -> {
+            if (block instanceof DisplayHighlightBlock display) {
+                display.remove();
+            }
+        });
     }
 
     public static final class DisplayHighlightBlock extends HighlightBlock {
@@ -113,6 +108,9 @@ public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighli
             display.setBrightness(FULL_BRIGHT);
             display.setVisibleByDefault(false);
 
+            // Scale to prevent z-fighting
+            display.setTransformation(SCALE_TRANSFORMATION);
+
             // Glow if needed
             if (plugin.getSettings().getClaims().isHighlighterGlow()) {
                 display.setGlowing(true);
@@ -120,10 +118,6 @@ public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighli
                         plugin.getSettings().getClaims().getBlockHighlighterColor(type).getRgb()
                 ));
             }
-
-            // Scale to prevent z-fighting
-            display.setTransformation(SCALE_TRANSFORMATION);
-
             return display;
         }
 
