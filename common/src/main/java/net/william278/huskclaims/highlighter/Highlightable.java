@@ -19,12 +19,9 @@
 
 package net.william278.huskclaims.highlighter;
 
-import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.claim.Region;
 import net.william278.huskclaims.position.BlockPosition;
-import net.william278.huskclaims.position.Position;
-import net.william278.huskclaims.util.BlockProvider;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -43,19 +40,6 @@ public interface Highlightable {
      */
     @NotNull
     Map<Region.Point, HighlightType> getHighlightPoints(@NotNull ClaimWorld world, boolean showOverlap);
-
-    @NotNull
-    default BlockProvider.MaterialBlock getBlockFor(@NotNull ClaimWorld world, @NotNull Position position,
-                                                    @NotNull HuskClaims plugin, boolean showOverlap) {
-        return plugin.getBlockFor(plugin.getSettings()
-                .getClaims().getBlockHighlighterTypes()
-                .getOrDefault(
-                        getHighlightPoints(world, showOverlap).entrySet().stream()
-                                .filter(e -> e.getKey().equals(Region.Point.wrap(position))).map(Map.Entry::getValue)
-                                .findFirst().orElse(HighlightType.SELECTION),
-                        "minecraft:yellow_concrete"
-                ));
-    }
 
     enum HighlightType {
         CORNER,

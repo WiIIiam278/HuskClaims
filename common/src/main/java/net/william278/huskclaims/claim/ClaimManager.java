@@ -21,7 +21,7 @@ package net.william278.huskclaims.claim;
 
 import com.google.common.collect.Maps;
 import net.william278.huskclaims.database.Database;
-import net.william278.huskclaims.highlighter.BlockHighlighter;
+import net.william278.huskclaims.highlighter.BlockUpdateHighlighter;
 import net.william278.huskclaims.highlighter.Highlighter;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.position.World;
@@ -282,7 +282,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
      * @since 1.0
      */
     default void loadClaimHighlighter() {
-        setHighlighter(new BlockHighlighter(getPlugin()));
+        setHighlighter(new BlockUpdateHighlighter(getPlugin()));
     }
 
     /**

@@ -19,13 +19,14 @@
 
 package net.william278.huskclaims.util;
 
+import net.william278.huskclaims.highlighter.BlockHighlighter;
+import net.william278.huskclaims.highlighter.Highlightable;
 import net.william278.huskclaims.position.BlockPosition;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.position.World;
 import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -60,8 +61,11 @@ public interface BlockProvider {
      * @since 1.0
      */
     @NotNull
-    Map<Position, MaterialBlock> getSurfaceBlocksAt(@NotNull Collection<? extends BlockPosition> positions,
-                                                    @NotNull World world, int yLevel);
+    Map<BlockHighlighter.HighlightBlock, Highlightable.HighlightType> getSurfaceBlocksAt(
+            @NotNull Map<? extends BlockPosition, Highlightable.HighlightType> positions,
+            @NotNull World world,
+            int yLevel
+    );
 
     /**
      * Send a batch of block updates to a user
@@ -71,15 +75,6 @@ public interface BlockProvider {
      * @since 1.0
      */
     void sendBlockUpdates(@NotNull OnlineUser user, @NotNull Map<Position, MaterialBlock> blocks);
-
-    /**
-     * Sends block updates to a specific online user based on the given positions.
-     *
-     * @param user      the online user to send the block updates to
-     * @param positions the list of positions to update blocks at
-     * @since 1.0
-     */
-    void sendBlockUpdates(@NotNull OnlineUser user, @NotNull List<Position> positions);
 
     /**
      * Abstract representation of a block with material data

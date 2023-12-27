@@ -19,7 +19,6 @@
 
 package net.william278.huskclaims.config;
 
-import com.google.common.collect.Maps;
 import de.exlll.configlib.Configuration;
 import de.themoep.minedown.adventure.MineDown;
 import lombok.AccessLevel;

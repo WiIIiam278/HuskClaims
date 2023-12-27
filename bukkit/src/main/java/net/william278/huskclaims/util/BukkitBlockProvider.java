@@ -21,6 +21,8 @@ package net.william278.huskclaims.util;
 
 import com.google.common.collect.Maps;
 import net.william278.huskclaims.BukkitHuskClaims.Adapter;
+import net.william278.huskclaims.highlighter.BlockHighlighter;
+import net.william278.huskclaims.highlighter.Highlightable;
 import net.william278.huskclaims.position.BlockPosition;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.position.World;
@@ -30,7 +32,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
@@ -47,17 +48,20 @@ public interface BukkitBlockProvider extends BlockProvider {
 
     @NotNull
     @Override
-    default Map<Position, MaterialBlock> getSurfaceBlocksAt(@NotNull Collection<? extends BlockPosition> positions,
-                                                            @NotNull World surfaceWorld, int yLevel) {
-        final Map<Position, MaterialBlock> blocks = Maps.newHashMap();
-        for (BlockPosition pos : positions) {
-            final Location location = Adapter.adapt(Position.at(pos, yLevel, surfaceWorld));
+    default Map<BlockHighlighter.HighlightBlock, Highlightable.HighlightType> getSurfaceBlocksAt(
+            @NotNull Map<? extends BlockPosition, Highlightable.HighlightType> positions,
+            @NotNull World surfaceWorld,
+            int yLevel
+    ) {
+        final Map<BlockHighlighter.HighlightBlock, Highlightable.HighlightType> blocks = Maps.newHashMap();
+        positions.forEach((position, highlightType) -> {
+            final Location location = Adapter.adapt(Position.at(position, yLevel, surfaceWorld));
             final org.bukkit.World world = Objects.requireNonNull(location.getWorld(), "World is null");
             if (location.getChunk().isLoaded()) {
                 final Block block = getSurfaceBlockAt(location.getBlock(), world.getMinHeight(), world.getMaxHeight());
-                blocks.put(Adapter.adapt(block.getLocation()), new BlockDataBlock(block.getBlockData()));
+                blocks.put(new BlockHighlighter.HighlightBlock(Adapter.adapt(block.getLocation()), new BlockDataBlock(block.getBlockData())), highlightType);
             }
-        }
+        });
         return blocks;
     }
 

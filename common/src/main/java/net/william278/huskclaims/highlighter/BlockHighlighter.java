@@ -21,6 +21,10 @@ package net.william278.huskclaims.highlighter;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.position.Position;
@@ -30,19 +34,18 @@ import net.william278.huskclaims.util.BlockProvider;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-/**
- * Highlighter that uses ghost blocks - used to highlight {@link Highlightable}s to a user in-game
- */
-public class BlockHighlighter implements Highlighter {
+public abstract class BlockHighlighter<B extends BlockHighlighter.HighlightBlock> implements Highlighter {
 
-    private final HuskClaims plugin;
-    private final ConcurrentMap<UUID, List<HighlightedBlock>> activeHighlights;
+    protected final HuskClaims plugin;
+    protected final Multimap<UUID, HighlightBlock> replacedBlocks;
 
-    public BlockHighlighter(@NotNull HuskClaims plugin) {
+    protected BlockHighlighter(@NotNull HuskClaims plugin) {
         this.plugin = plugin;
-        this.activeHighlights = Maps.newConcurrentMap();
+        this.replacedBlocks = Multimaps.newListMultimap(
+                Maps.newConcurrentMap(), CopyOnWriteArrayList::new
+        );
     }
 
     @Override
@@ -57,58 +60,51 @@ public class BlockHighlighter implements Highlighter {
             }
 
             final ClaimWorld claimWorld = optionalClaimWorld.get();
-            final List<HighlightedBlock> activeBlocks = Lists.newArrayList();
-            final List<HighlightedBlock> highlightBlocks = Lists.newArrayList();
+            final List<B> highlightBlocks = Lists.newArrayList();
             final int userY = (int) user.getPosition().getY();
             for (Highlightable highlight : toHighlight) {
-                plugin.getSurfaceBlocksAt(highlight.getHighlightPoints(claimWorld, showOverlap).keySet(), world, userY)
-                        .forEach((pos, material) -> {
-                            activeBlocks.add(new HighlightedBlock(
-                                    pos, material
-                            ));
-                            highlightBlocks.add(new HighlightedBlock(
-                                    pos, highlight.getBlockFor(claimWorld, pos, plugin, showOverlap)
-                            ));
-                        });
+                final Map<BlockHighlighter.HighlightBlock, Highlightable.HighlightType> blocks = plugin
+                        .getSurfaceBlocksAt(highlight.getHighlightPoints(claimWorld, showOverlap), world, userY);
+                replacedBlocks.putAll(user.getUuid(), blocks.keySet());
+                blocks.forEach((b, t) -> highlightBlocks.add(getHighlightBLock(b.getPosition(), t, plugin)));
             }
 
-            activeHighlights.put(user.getUuid(), activeBlocks);
-            plugin.sendBlockUpdates(user, HighlightedBlock.getMap(highlightBlocks));
+            this.showBlocks(user, highlightBlocks);
         });
     }
 
-    @Override
-    public void stopHighlighting(@NotNull OnlineUser user) {
-        final List<HighlightedBlock> blocks = activeHighlights.remove(user.getUuid());
-        if (blocks != null) {
-            plugin.sendBlockUpdates(user, HighlightedBlock.getMap(blocks));
-        }
-    }
+    @NotNull
+    public abstract B getHighlightBLock(@NotNull Position position,
+                                        @NotNull Highlightable.HighlightType type,
+                                        @NotNull HuskClaims plugin);
 
+    public abstract void showBlocks(@NotNull OnlineUser user, @NotNull Collection<B> blocks);
 
     /**
      * Represents a highlighted block
      *
-     * @param position The position of the block
-     * @param block    The Material/BlockData to highlight the block with
      * @since 1.0
      */
-    private record HighlightedBlock(@NotNull Position position, @NotNull BlockProvider.MaterialBlock block) {
+    @Getter
+    @AllArgsConstructor
+    public static class HighlightBlock {
+
+        protected final Position position;
+        protected final BlockProvider.MaterialBlock block;
+
 
         @NotNull
         private Map.Entry<Position, BlockProvider.MaterialBlock> toEntry() {
-            return Map.entry(position, block);
+            return Map.entry(getPosition(), getBlock());
         }
 
         @NotNull
-        private static Map<Position, BlockProvider.MaterialBlock> getMap(@NotNull Collection<HighlightedBlock> blocks) {
-            return blocks.stream().map(HighlightedBlock::toEntry).collect(
+        protected static Map<Position, BlockProvider.MaterialBlock> getMap(@NotNull Collection<? extends HighlightBlock> blocks) {
+            return blocks.stream().map(HighlightBlock::toEntry).collect(
                     Maps::newHashMap,
                     (m, v) -> m.put(v.getKey(), v.getValue()),
                     Map::putAll
             );
         }
-
     }
-
 }

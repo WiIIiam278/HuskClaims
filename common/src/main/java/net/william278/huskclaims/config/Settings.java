@@ -20,19 +20,23 @@
 package net.william278.huskclaims.config;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import de.exlll.configlib.Comment;
 import de.exlll.configlib.Configuration;
 import lombok.*;
 import net.william278.cloplib.operation.OperationType;
+import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.ClaimingMode;
 import net.william278.huskclaims.database.Database;
 import net.william278.huskclaims.highlighter.Highlightable;
 import net.william278.huskclaims.network.Broker;
 import net.william278.huskclaims.position.World;
+import net.william278.huskclaims.util.BlockProvider;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TreeMap;
 
 @SuppressWarnings("FieldMayBeFinal")
 @Getter
@@ -212,8 +216,8 @@ public final class Settings {
         @Comment("Max range of inspector tools")
         private int inspectionDistance = 40;
 
-        @Comment("Blocks to use for the block highlighter")
-        private Map<Highlightable.HighlightType, String> blockHighlighterTypes = new TreeMap<>(Map.of(
+        @Comment("The blocks to use when highlighting claims")
+        private Map<Highlightable.HighlightType, String> highlighterBlockTypes = new TreeMap<>(Map.of(
                 Highlightable.HighlightType.EDGE, "minecraft:gold_block",
                 Highlightable.HighlightType.CORNER, "minecraft:glowstone",
                 Highlightable.HighlightType.ADMIN_CORNER, "minecraft:jack_o_lantern",
@@ -225,23 +229,33 @@ public final class Settings {
                 Highlightable.HighlightType.SELECTION, "minecraft:diamond_block"
         ));
 
+        @NotNull
+        public BlockProvider.MaterialBlock getHighlighterBlockType(@NotNull Highlightable.HighlightType type,
+                                                                   @NotNull HuskClaims plugin) {
+            return Optional.ofNullable(highlighterBlockTypes.get(type))
+                    .map(plugin::getBlockFor)
+                    .orElse(plugin.getBlockFor("minecraft:yellow_concrete"));
+        }
 
-        @Comment("Color of the glow effect for highlighted blocks. Works only on paper 1.19.4+. ")
-        private Map<Highlightable.HighlightType, Color> blockHighlighterColors = new TreeMap<>(Map.of(
-                Highlightable.HighlightType.EDGE, Color.YELLOW,
-                Highlightable.HighlightType.CORNER, Color.YELLOW,
-                Highlightable.HighlightType.ADMIN_CORNER, Color.ORANGE,
-                Highlightable.HighlightType.ADMIN_EDGE, Color.ORANGE,
-                Highlightable.HighlightType.CHILD_CORNER, Color.SILVER,
-                Highlightable.HighlightType.CHILD_EDGE, Color.SILVER,
-                Highlightable.HighlightType.OVERLAP_CORNER, Color.RED,
-                Highlightable.HighlightType.OVERLAP_EDGE, Color.RED,
-                Highlightable.HighlightType.SELECTION, Color.AQUA
+        @Comment("Whether blocks should glow when highlighting claims (requires Paper 1.19.4+ servers)")
+        private boolean highlighterGlow = true;
+
+        @Comment("The color of the glow effect used for blocks when highlighting claims")
+        private Map<Highlightable.HighlightType, GlowColor> highlighterGlowColors = new TreeMap<>(Map.of(
+                Highlightable.HighlightType.EDGE, GlowColor.YELLOW,
+                Highlightable.HighlightType.CORNER, GlowColor.YELLOW,
+                Highlightable.HighlightType.ADMIN_CORNER, GlowColor.ORANGE,
+                Highlightable.HighlightType.ADMIN_EDGE, GlowColor.ORANGE,
+                Highlightable.HighlightType.CHILD_CORNER, GlowColor.SILVER,
+                Highlightable.HighlightType.CHILD_EDGE, GlowColor.SILVER,
+                Highlightable.HighlightType.OVERLAP_CORNER, GlowColor.RED,
+                Highlightable.HighlightType.OVERLAP_EDGE, GlowColor.RED,
+                Highlightable.HighlightType.SELECTION, GlowColor.AQUA
         ));
 
         @NotNull
-        public Color getBlockHighlighterColor(@NotNull Highlightable.HighlightType highlightType) {
-            return Optional.ofNullable(blockHighlighterColors.get(highlightType)).orElse(Color.WHITE);
+        public Settings.GlowColor getBlockHighlighterColor(@NotNull Highlightable.HighlightType type) {
+            return Optional.ofNullable(highlighterGlowColors.get(type)).orElse(GlowColor.WHITE);
         }
 
         public boolean isWorldUnclaimable(@NotNull World world) {
@@ -302,7 +316,7 @@ public final class Settings {
     }
 
     @Getter
-    public enum Color {
+    public enum GlowColor {
 
         WHITE(16777215),
         SILVER(12632256),
@@ -324,7 +338,7 @@ public final class Settings {
 
         private final int rgb;
 
-        Color(int rgb) {
+        GlowColor(int rgb) {
             this.rgb = rgb;
         }
     }
