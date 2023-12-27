@@ -60,12 +60,26 @@ public abstract class BlockHighlighter<B extends BlockHighlighter.HighlightBlock
             final ClaimWorld claimWorld = optionalClaimWorld.get();
             final List<B> highlightBlocks = Lists.newArrayList();
             final int userY = (int) user.getPosition().getY();
+            final Map<HighlightBlock, Highlightable.HighlightType> totalBlocks = new HashMap<>();
             for (Highlightable highlight : toHighlight) {
                 final Map<BlockHighlighter.HighlightBlock, Highlightable.HighlightType> blocks = plugin
                         .getSurfaceBlocksAt(highlight.getHighlightPoints(claimWorld, showOverlap), world, userY);
-                replacedBlocks.putAll(user.getUuid(), blocks.keySet());
-                blocks.forEach((b, t) -> highlightBlocks.add(getHighlightBLock(b.getPosition(), t, plugin)));
+                totalBlocks.putAll(blocks);
             }
+
+            final Collection<HighlightBlock> userBlocks = replacedBlocks.get(user.getUuid());
+            if (!userBlocks.isEmpty() && userBlocks.size() == totalBlocks.size() &&
+                    totalBlocks.entrySet().stream().allMatch(b -> userBlocks.stream().anyMatch(b2 -> b2.getPosition().equals(b.getKey().position)))) {
+                return;
+            }
+
+            this.stopHighlighting(user);
+
+            totalBlocks.forEach((b, t) -> {
+                B block = getHighlightBLock(b.getPosition(), t, plugin);
+                replacedBlocks.put(user.getUuid(), block);
+                highlightBlocks.add(block);
+            });
 
             this.showBlocks(user, highlightBlocks);
         });

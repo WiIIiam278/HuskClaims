@@ -44,7 +44,6 @@ public class BlockUpdateHighlighter extends BlockHighlighter<BlockUpdateHighligh
 
     @Override
     public void showBlocks(@NotNull OnlineUser user, @NotNull Collection<UpdateHighlightBlock> blocks) {
-        this.stopHighlighting(user);
         this.sendBlockUpdates(user, blocks);
     }
 
