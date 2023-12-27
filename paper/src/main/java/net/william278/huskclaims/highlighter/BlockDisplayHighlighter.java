@@ -22,6 +22,7 @@ package net.william278.huskclaims.highlighter;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+import lombok.Getter;
 import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.PaperHuskClaims;
@@ -40,21 +41,15 @@ import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
 
 import java.util.Collection;
-import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Highlighter that uses {@link BlockDisplay} entities - used to highlight {@link Highlightable}s to a user in-game
  */
 public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighlighter.DisplayHighlightBlock> {
 
-    protected final Multimap<UUID, DisplayHighlightBlock> shownBlocks;
 
     public BlockDisplayHighlighter(@NotNull HuskClaims plugin) {
         super(plugin);
-        this.shownBlocks = Multimaps.newListMultimap(
-                Maps.newConcurrentMap(), CopyOnWriteArrayList::new
-        );
     }
 
     @NotNull
@@ -68,13 +63,15 @@ public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighli
     public void showBlocks(@NotNull OnlineUser user, @NotNull Collection<DisplayHighlightBlock> blocks) {
         blocks.forEach(block -> {
             block.show(plugin, user);
-            shownBlocks.put(user.getUuid(), block);
         });
     }
 
     @Override
     public void stopHighlighting(@NotNull OnlineUser user) {
-        shownBlocks.removeAll(user.getUuid()).forEach(DisplayHighlightBlock::remove);
+        replacedBlocks.removeAll(user.getUuid()).stream()
+                .filter(block -> block instanceof DisplayHighlightBlock)
+                .map(block -> (DisplayHighlightBlock) block)
+                .forEach(DisplayHighlightBlock::remove);
     }
 
     public static final class DisplayHighlightBlock extends HighlightBlock {

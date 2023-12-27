@@ -41,6 +41,8 @@ shadowJar {
     relocate 'space.arim', 'net.william278.huskclaims.libraries.paperlib'
     relocate 'me.lucko', 'net.william278.huskclaims.libraries'
     relocate 'net.roxeez', 'net.william278.huskclaims.libraries'
+
+    minimize()
 }
 
 tasks {
