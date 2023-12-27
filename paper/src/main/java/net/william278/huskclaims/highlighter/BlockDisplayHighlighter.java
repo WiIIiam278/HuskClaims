@@ -22,7 +22,6 @@ package net.william278.huskclaims.highlighter;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
-import lombok.Getter;
 import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.PaperHuskClaims;
@@ -78,18 +77,17 @@ public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighli
         shownBlocks.removeAll(user.getUuid()).forEach(DisplayHighlightBlock::remove);
     }
 
-    @Getter
     public static final class DisplayHighlightBlock extends HighlightBlock {
 
         // Block display brightness value
         private static final Display.Brightness FULL_BRIGHT = new Display.Brightness(15, 15);
 
         // Block display scale constants
-        private static final float SCALE = 0.0012f;
-        private static final Transformation SCALED_UP = new Transformation(
-                new Vector3f(-(SCALE / 2), -(SCALE / 2), -(SCALE / 2)),
+        private static final float SCALAR = 0.0012f;
+        private static final Transformation SCALE_TRANSFORMATION = new Transformation(
+                new Vector3f(-(SCALAR / 2), -(SCALAR / 2), -(SCALAR / 2)),
                 new AxisAngle4f(0, 0, 0, 0),
-                new Vector3f(1 + SCALE, 1 + SCALE, 1 + SCALE),
+                new Vector3f(1 + SCALAR, 1 + SCALAR, 1 + SCALAR),
                 new AxisAngle4f(0, 0, 0, 0)
         );
 
@@ -126,8 +124,8 @@ public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighli
                 ));
             }
 
-            // Scale to 1.0012 to prevent z-fighting
-            display.setTransformation(SCALED_UP);
+            // Scale to prevent z-fighting
+            display.setTransformation(SCALE_TRANSFORMATION);
 
             return display;
         }
