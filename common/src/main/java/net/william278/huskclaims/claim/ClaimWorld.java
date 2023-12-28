@@ -22,6 +22,7 @@ package net.william278.huskclaims.claim;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
+import com.google.common.collect.Sets;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import lombok.AccessLevel;
@@ -38,9 +39,7 @@ import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
@@ -50,7 +49,7 @@ public class ClaimWorld {
 
     private transient int id;
     @Expose
-    private ConcurrentLinkedQueue<Claim> claims;
+    private Set<Claim> claims;
     @Expose
     @SerializedName("user_cache")
     private ConcurrentMap<UUID, String> userCache;
@@ -60,7 +59,7 @@ public class ClaimWorld {
 
     private ClaimWorld(@NotNull HuskClaims plugin) {
         this.id = 0;
-        this.claims = Queues.newConcurrentLinkedQueue();
+        this.claims = Sets.newConcurrentHashSet();
         this.userCache = Maps.newConcurrentMap();
         this.wildernessFlags = Lists.newArrayList(plugin.getSettings().getClaims().getWildernessRules());
     }
