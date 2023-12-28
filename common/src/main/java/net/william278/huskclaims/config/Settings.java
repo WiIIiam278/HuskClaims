@@ -181,7 +181,8 @@ public final class Settings {
         private List<OperationType> adminFlags = List.of(
                 OperationType.PLAYER_DAMAGE_MONSTER,
                 OperationType.EXPLOSION_DAMAGE_ENTITY,
-                OperationType.PLAYER_DAMAGE_PLAYER
+                OperationType.PLAYER_DAMAGE_PLAYER,
+                OperationType.MONSTER_SPAWN
         );
 
         @Comment("List of enabled claim types. Must include at least the regular \"CLAIMS\" mode")
