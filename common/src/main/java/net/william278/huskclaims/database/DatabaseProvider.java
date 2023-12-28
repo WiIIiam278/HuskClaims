@@ -55,7 +55,7 @@ public interface DatabaseProvider {
         final Database.Type type = getPlugin().getSettings().getDatabase().getType();
         switch (type) {
             case MYSQL, MARIADB -> {
-                throw new UnsupportedOperationException("MySQL/MariaDB support is not yet implemented");
+                return new MySqlDatabase(getPlugin());
             }
             case SQLITE -> {
                 return new SqLiteDatabase(getPlugin());

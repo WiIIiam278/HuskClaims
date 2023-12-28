@@ -366,7 +366,7 @@ public abstract class Database {
         ADD_METADATA_TABLE(
                 0, "add_metadata_table",
                 Type.MYSQL, Type.MARIADB, Type.SQLITE
-        );
+                );
 
         private final int version;
         private final String migrationName;
