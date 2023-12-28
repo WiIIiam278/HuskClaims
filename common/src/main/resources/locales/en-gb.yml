@@ -77,7 +77,7 @@ locales:
   land_not_claimed: '[This land has not been claimed](#ff7e5e)'
   land_claimed_by: '[This land has been claimed by %1%](#00fb9a)'
   user_claim_list_title: '%1% [List of %2%''s claims (%3%):](#00fb9a) %4%\n'
-  admin_claim_list_title: '%1% [List of admin claims (%3%):](#00fb9a) %4%\n'
+  admin_claim_list_title: '%1% [List of admin claims (%2%):](#00fb9a) %3%\n'
   claim_list_sort_options: '[(](white)%1%[)](white)'
   claim_list_sort_option_separator: '[/](white)'
   claim_list_sort_option: '[%1%](white show_text=&7Click to sort by %1% run_command=/claimslist %2% %3% %4%)'
