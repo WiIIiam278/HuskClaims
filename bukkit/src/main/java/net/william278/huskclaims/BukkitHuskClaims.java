@@ -133,6 +133,18 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     }
 
     @Override
+    @NotNull
+    public String getServerType() {
+        return String.format("%s/%s", getServer().getName(), getServer().getVersion());
+    }
+
+    @Override
+    @NotNull
+    public Version getMinecraftVersion() {
+        return Version.fromString(getServer().getBukkitVersion());
+    }
+
+    @Override
     public List<? extends OnlineUser> getOnlineUsers() {
         return getServer().getOnlinePlayers().stream()
                 .map(player -> BukkitUser.adapt(player, this))

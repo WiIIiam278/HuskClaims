@@ -20,9 +20,7 @@
 package net.william278.huskclaims;
 
 import net.kyori.adventure.key.Key;
-import net.william278.desertwell.util.Version;
 import net.william278.huskclaims.claim.ClaimManager;
-import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.command.CommandProvider;
 import net.william278.huskclaims.config.ConfigProvider;
 import net.william278.huskclaims.database.DatabaseProvider;
@@ -45,7 +43,7 @@ import java.util.logging.Level;
  */
 public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvider, GsonProvider, UserManager,
         ClaimManager, GroupManager, ListenerProvider, UserListProvider, CommandProvider, BrokerProvider, TextValidator,
-        AudiencesProvider, BlockProvider {
+        AudiencesProvider, BlockProvider, MetaProvider {
 
     /**
      * Initialize all plugin systems
@@ -72,6 +70,7 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvi
             return;
         }
         log(Level.INFO, String.format("Successfully initialized HuskClaims v%s", getPluginVersion()));
+        checkForUpdates();
     }
 
     /**
@@ -96,15 +95,6 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvi
      * @since 1.0
      */
     void disablePlugin();
-
-    /**
-     * Get a list of all {@link ClaimWorld}s
-     *
-     * @return A list of all {@link ClaimWorld}s
-     * @since 1.0
-     */
-    @NotNull
-    Version getPluginVersion();
 
     /**
      * Get a list of all {@link OnlineUser online users} on this server
