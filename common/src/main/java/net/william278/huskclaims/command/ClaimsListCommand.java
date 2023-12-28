@@ -19,79 +19,32 @@
 
 package net.william278.huskclaims.command;
 
-import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import net.jodah.expiringmap.ExpiringMap;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.config.Locales;
 import net.william278.huskclaims.position.ServerWorld;
 import net.william278.huskclaims.user.CommandUser;
-import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.User;
 import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
-public class ClaimsListCommand extends Command implements UserListTabCompletable {
+public abstract class ClaimsListCommand extends Command {
 
-    private static final int LIST_CACHE_MINUTES = 5;
+    protected static final int LIST_CACHE_MINUTES = 5;
     private static final int CLAIMS_PER_PAGE = 8;
-    private final ExpiringMap<UUID, List<ServerWorldClaim>> claimLists = ExpiringMap.builder()
-            .expiration(LIST_CACHE_MINUTES, TimeUnit.MINUTES).build();
 
-    protected ClaimsListCommand(@NotNull HuskClaims plugin) {
-        super(
-                List.of("claimslist", "claims"),
-                "[player] [sort_by] [ascending|descending] [page]",
-                plugin
-        );
+    protected ClaimsListCommand(@NotNull List<String> aliases, @NotNull String usage, @NotNull HuskClaims plugin) {
+        super(aliases, usage, plugin);
     }
 
-    @Override
-    public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
-        final Optional<User> optionalUser = resolveUser(executor, args);
-        final SortOption sort = parseSortArg(args, 1).or(() -> parseSortArg(args, 0)).orElse(SortOption.SIZE);
-        final boolean ascend = parseOrderArg(args, 2).or(() -> parseOrderArg(args, 1)).orElse(false);
-        final int page = parseIntArg(args, 3).or(() -> parseIntArg(args, 2)).orElse(1);
-        if (optionalUser.isEmpty()) {
-            plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                    .ifPresent(executor::sendMessage);
-            return;
-        }
-
-        final User user = optionalUser.get();
-        if (executor instanceof OnlineUser other && !other.equals(user) && !hasPermission(executor, "other")) {
-            plugin.getLocales().getLocale("error_no_permission")
-                    .ifPresent(executor::sendMessage);
-            return;
-        }
-        showClaimList(executor, user, page, sort, ascend);
-    }
-
-    private void showClaimList(@NotNull CommandUser executor, @NotNull User user,
-                               int page, @NotNull SortOption sort, boolean ascend) {
-        if (claimLists.containsKey(user.getUuid())) {
-            showClaimList(executor, user, claimLists.get(user.getUuid()), page, sort, ascend);
-            return;
-        }
-
-        final List<ServerWorldClaim> claims = Lists.newArrayList(getUserClaims(user));
-        if (claims.isEmpty()) {
-            plugin.getLocales().getLocale("error_no_claims_made", user.getName())
-                    .ifPresent(executor::sendMessage);
-            return;
-        }
-        claimLists.put(user.getUuid(), claims);
-        showClaimList(executor, user, claims, page, sort, ascend);
-    }
-
-    private void showClaimList(@NotNull CommandUser executor, @NotNull User user,
-                               final List<ServerWorldClaim> claims,
-                               int page, @NotNull SortOption sort, boolean ascend) {
+    protected void showClaimList(@NotNull CommandUser executor, @Nullable User user,
+                                 final List<ServerWorldClaim> claims,
+                                 int page, @NotNull SortOption sort, boolean ascend) {
         final Locales locales = plugin.getLocales();
         claims.sort(ascend ? sort.getComparator().reversed() : sort.getComparator());
         executor.sendMessage(PaginatedList.of(
@@ -114,28 +67,19 @@ public class ClaimsListCommand extends Command implements UserListTabCompletable
                         .setHeaderFormat(getListTitle(locales, user, claims.size(), sort, ascend))
                         .setItemSeparator("\n")
                         .setCommand(String.format(
-                                "/claimslist %s %s %s",
-                                user.getName(),
+                                "/%s %s %s",
+                                String.format("%s%s", getName(), user == null ? "" : " " + user.getName()),
                                 sort.getId(),
                                 (ascend ? "ascending" : "descending")
                         )).build()
         ).getNearestValidPage(page));
     }
 
-    @NotNull
-    private List<ServerWorldClaim> getUserClaims(@NotNull User user) {
-        return plugin.getDatabase().getAllClaimWorlds().entrySet().stream()
-                .flatMap(e -> e.getValue().getClaims().stream()
-                        .filter(c -> user.getUuid().equals(c.getOwner().orElse(null)))
-                        .map(c -> new ServerWorldClaim(e.getKey(), c)))
-                .toList();
-    }
-
-    private Optional<SortOption> parseSortArg(@NotNull String[] args, int index) {
+    protected Optional<SortOption> parseSortArg(@NotNull String[] args, int index) {
         return parseStringArg(args, index).flatMap(SortOption::matchSortOption);
     }
 
-    private Optional<Boolean> parseOrderArg(@NotNull String[] args, int index) {
+    protected Optional<Boolean> parseOrderArg(@NotNull String[] args, int index) {
         return parseStringArg(args, index).flatMap(s -> {
             if (s.equalsIgnoreCase("ascending")) {
                 return Optional.of(true);
@@ -147,26 +91,11 @@ public class ClaimsListCommand extends Command implements UserListTabCompletable
     }
 
     @NotNull
-    private String getListTitle(@NotNull Locales locales, @NotNull User user, int claimCount,
-                                @NotNull SortOption sort, boolean ascend) {
-        return locales.getRawLocale(
-                "claim_list_title",
-                locales.getRawLocale(
-                        String.format("claim_list_sort_%s", ascend ? "ascending" : "descending"),
-                        sort.getId(),
-                        "%current_page%"
-                ).orElse(""),
-                Locales.escapeText(user.getName()),
-                Integer.toString(claimCount),
-                locales.getRawLocale(
-                        "claim_list_sort_options",
-                        getSortButtons(locales, sort, ascend)
-                ).orElse("")
-        ).orElse("");
-    }
+    protected abstract String getListTitle(@NotNull Locales locales, @Nullable User user, int claimCount,
+                                           @NotNull SortOption sort, boolean ascend);
 
     @NotNull
-    private String getSortButtons(@NotNull Locales locales, @NotNull SortOption sort, boolean ascend) {
+    protected String getSortButtons(@NotNull Locales locales, @NotNull SortOption sort, boolean ascend) {
         final StringJoiner options = new StringJoiner(
                 locales.getRawLocale("claim_list_sort_option_separator").orElse("|")
         );
@@ -213,7 +142,7 @@ public class ClaimsListCommand extends Command implements UserListTabCompletable
         }
     }
 
-    private record ServerWorldClaim(@NotNull ServerWorld serverWorld, @NotNull Claim claim) {
+    protected record ServerWorldClaim(@NotNull ServerWorld serverWorld, @NotNull Claim claim) {
     }
 
 }

@@ -75,7 +75,7 @@ public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighli
         private static final Display.Brightness FULL_BRIGHT = new Display.Brightness(15, 15);
 
         // Block display scale constants
-        private static final float SCALAR = 0.0012f;
+        private static final float SCALAR = 0.002f;
         private static final Transformation SCALE_TRANSFORMATION = new Transformation(
                 new Vector3f(-(SCALAR / 2), -(SCALAR / 2), -(SCALAR / 2)),
                 new AxisAngle4f(0, 0, 0, 0),
