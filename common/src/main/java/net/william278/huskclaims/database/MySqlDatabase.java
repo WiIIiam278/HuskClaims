@@ -131,7 +131,7 @@ public class MySqlDatabase extends Database {
         if (!isCreated()) {
             plugin.log(Level.INFO, "Creating MySql database tables");
             try {
-                executeScript(getConnection(), "mysql_schema.sql");
+                executeScript(getConnection(), String.format("%s_schema.sql", flavor));
             } catch (SQLException e) {
                 plugin.log(Level.SEVERE, "Failed to create MySql database tables", e);
                 setLoaded(false);
