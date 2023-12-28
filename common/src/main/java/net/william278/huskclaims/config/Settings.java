@@ -75,10 +75,10 @@ public final class Settings {
 
         @Comment({"MYSQL / MARIADB database Hikari connection pool properties",
                 "Don't modify this unless you know what you're doing!"})
-        PoolOptions poolOptions;
+        private PoolOptions poolOptions = new PoolOptions();
 
         @Comment("Names of tables to use on your database. Don't modify this unless you know what you're doing!")
-        Map<Database.Table, String> tableNames = new TreeMap<>(Map.of(
+        private Map<Database.Table, String> tableNames = new TreeMap<>(Map.of(
                 Database.Table.META_DATA, Database.Table.META_DATA.getDefaultName(),
                 Database.Table.USER_DATA, Database.Table.USER_DATA.getDefaultName(),
                 Database.Table.USER_GROUP_DATA, Database.Table.USER_GROUP_DATA.getDefaultName(),
@@ -102,7 +102,7 @@ public final class Settings {
         @NoArgsConstructor(access = AccessLevel.PRIVATE)
         public static class PoolOptions {
             private int size = 12;
-            private long idle = 12;
+            private int idle = 12;
             private long lifetime = 1800000;
             private long keepAlive = 30000;
             private long timeout = 20000;
