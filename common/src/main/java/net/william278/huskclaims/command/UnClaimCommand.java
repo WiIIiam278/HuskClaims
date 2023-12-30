@@ -28,6 +28,7 @@ import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class UnClaimCommand extends InClaimCommand {
@@ -39,6 +40,7 @@ public class UnClaimCommand extends InClaimCommand {
                 null,
                 plugin
         );
+        addAdditionalPermissions(Map.of("other", true));
     }
 
     @Override

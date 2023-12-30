@@ -19,11 +19,11 @@
 
 package net.william278.huskclaims.command;
 
+import com.google.common.collect.Maps;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +35,7 @@ public abstract class Command extends Node {
     protected Command(@NotNull List<String> aliases, @NotNull String usage, @NotNull HuskClaims plugin) {
         super(aliases, plugin);
         this.usage = usage;
-        this.additionalPermissions = new HashMap<>();
+        this.additionalPermissions = Maps.newTreeMap();
     }
 
     @Override

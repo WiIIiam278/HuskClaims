@@ -42,6 +42,7 @@ public class AdminClaimsListCommand extends ClaimsListCommand {
                 "[sort_by] [ascending|descending] [page]",
                 plugin
         );
+        setOperatorCommand(true);
     }
 
     @Override

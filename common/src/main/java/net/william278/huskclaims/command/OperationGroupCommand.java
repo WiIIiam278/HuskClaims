@@ -34,7 +34,7 @@ public class OperationGroupCommand extends InClaimCommand {
     protected OperationGroupCommand(@NotNull Settings.OperationGroup group, @NotNull HuskClaims plugin) {
         super(
                 group.getToggleCommandAliases(),
-                "",
+                "[on|off]",
                 TrustLevel.Privilege.MANAGE_OPERATION_GROUPS,
                 plugin
         );
@@ -44,7 +44,8 @@ public class OperationGroupCommand extends InClaimCommand {
     @Override
     public void execute(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
                         @NotNull Claim claim, @NotNull String[] args) {
-        if (isOperationGroupSet(claim)) {
+        boolean disableGroup = !parseBooleanArg(args, 0).orElse(isOperationGroupSet(claim));
+        if (disableGroup) {
             group.getAllowedOperations().forEach(claim.getDefaultFlags()::remove);
             plugin.getLocales().getLocale("disabled_operation_group", group.getName())
                     .ifPresent(executor::sendMessage);

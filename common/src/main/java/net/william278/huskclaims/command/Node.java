@@ -29,6 +29,7 @@ import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.StringJoiner;
 
@@ -56,7 +57,7 @@ public abstract class Node implements Executable {
         final StringJoiner joiner = new StringJoiner(".")
                 .add(PERMISSION_PREFIX)
                 .add(getName());
-        for (final String node : child) {
+        for (String node : child) {
             joiner.add(node);
         }
         return joiner.toString().trim();
@@ -99,6 +100,19 @@ public abstract class Node implements Executable {
                 return Optional.empty();
             }
         });
+    }
+
+    protected Optional<Boolean> parseBooleanArg(@NotNull String[] args, int index) {
+        if (args.length <= index) {
+            return Optional.empty();
+        }
+        final String arg = args[index].toLowerCase(Locale.ROOT);
+        if (arg.equals("true") || arg.equals("enable") || arg.equals("on")) {
+            return Optional.of(true);
+        } else if (arg.equals("false") || arg.equals("disable") || arg.equals("off")) {
+            return Optional.of(false);
+        }
+        return Optional.empty();
     }
 
     protected Optional<String> parseGreedyArguments(@NotNull String[] args) {

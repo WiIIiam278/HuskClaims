@@ -52,4 +52,13 @@ public class User implements Trustable {
     public String getTrustIdentifier(@NotNull HuskClaims plugin) {
         return name;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof User user)) {
+            return false;
+        }
+        return user.getUuid().equals(uuid);
+    }
+
 }

@@ -33,17 +33,21 @@ import java.util.Locale;
  *
  * @since 1.0
  */
+@Getter
 @AllArgsConstructor
 public enum ClaimingMode {
-    CLAIMS(List.of("claim"), "huskclaims.claim"),
-    CHILD_CLAIMS(List.of("childclaim", "subdivideclaims"), "huskclaims.child_claim"),
-    ADMIN_CLAIMS(List.of("adminclaim"), "huskclaims.admin_claim");
+    CLAIMS(List.of("claim"), "huskclaims.claim", false),
+    CHILD_CLAIMS(List.of("childclaim", "subdivideclaims"), "huskclaims.child_claim", false),
+    ADMIN_CLAIMS(List.of("adminclaim"), "huskclaims.admin_claim", true);
 
-    @Getter
+    // Command aliases
     private final List<String> commandAliases;
 
     // Permission required to create & resize
     private final String usePermission;
+
+    // Should this claiming mode restricted to operators by default
+    private final boolean adminRequired;
 
     @NotNull
     public String getDisplayName(@NotNull Locales locales) {
@@ -58,4 +62,5 @@ public enum ClaimingMode {
     private String getId() {
         return name().toLowerCase(Locale.ENGLISH);
     }
+
 }

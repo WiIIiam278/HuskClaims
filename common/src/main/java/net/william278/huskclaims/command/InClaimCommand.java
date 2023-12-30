@@ -33,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public abstract class InClaimCommand extends OnlineUserCommand {
@@ -43,6 +44,7 @@ public abstract class InClaimCommand extends OnlineUserCommand {
                              @Nullable TrustLevel.Privilege privilege, @NotNull HuskClaims plugin) {
         super(aliases, usage, plugin);
         this.privilege = privilege;
+        addAdditionalPermissions(Map.of("other", true));
     }
 
     @Override
@@ -63,7 +65,8 @@ public abstract class InClaimCommand extends OnlineUserCommand {
 
         final Claim claim = optionalClaim.get();
         final ClaimWorld world = optionalWorld.get();
-        if (privilege != null && !claim.isPrivilegeAllowed(privilege, user, world, plugin)) {
+        if (privilege != null && !claim.isPrivilegeAllowed(privilege, user, world, plugin)
+                && !hasPermission(user, "other")) {
             plugin.getLocales().getLocale("no_claim_privilege")
                     .ifPresent(user::sendMessage);
             return;

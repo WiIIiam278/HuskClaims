@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.StringJoiner;
 
 public class ClaimCommand extends OnlineUserCommand {
 
@@ -36,8 +37,18 @@ public class ClaimCommand extends OnlineUserCommand {
     protected ClaimCommand(@NotNull ClaimingMode mode, @NotNull HuskClaims plugin) {
         super(mode.getCommandAliases(), "[radius]", plugin);
         this.mode = mode;
+        this.setOperatorCommand(mode.isAdminRequired());
     }
 
+    @Override
+    @NotNull
+    public String getPermission(@NotNull String... child) {
+        final StringJoiner joiner = new StringJoiner(".").add(mode.getUsePermission());
+        for (String node : child) {
+            joiner.add(node);
+        }
+        return joiner.toString();
+    }
 
     @Override
     public void execute(@NotNull OnlineUser executor, @NotNull String[] args) {

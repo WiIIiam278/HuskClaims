@@ -26,15 +26,16 @@ import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 
 public class ClaimBlocksCommand extends Command implements UserListTabCompletable {
 
     protected ClaimBlocksCommand(@NotNull HuskClaims plugin) {
         super(List.of("claimblocks"), "[user] [<set|add|remove> <amount>]", plugin);
+        addAdditionalPermissions(Map.of(
+                "other", true,
+                "edit", true
+        ));
     }
 
     @Override
@@ -49,7 +50,7 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
         }
 
         final User user = optionalUser.get();
-        if (executor instanceof OnlineUser other && !other.equals(user) && !hasPermission(executor, "other")) {
+        if (!hasPermission(executor, "other") && (executor instanceof OnlineUser other && !other.equals(user))) {
             plugin.getLocales().getLocale("error_no_permission")
                     .ifPresent(executor::sendMessage);
             return;

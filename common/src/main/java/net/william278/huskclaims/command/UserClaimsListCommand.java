@@ -30,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -45,6 +46,7 @@ public class UserClaimsListCommand extends ClaimsListCommand implements UserList
                 "[player] [sort_by] [ascending|descending] [page]",
                 plugin
         );
+        addAdditionalPermissions(Map.of("other", true));
     }
 
     @Override

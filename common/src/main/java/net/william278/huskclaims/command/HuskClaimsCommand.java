@@ -27,7 +27,9 @@ import net.kyori.adventure.text.format.TextColor;
 import net.william278.desertwell.about.AboutMenu;
 import net.william278.desertwell.util.UpdateChecker;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.config.Locales;
 import net.william278.huskclaims.user.CommandUser;
+import net.william278.paginedown.PaginatedList;
 import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -41,8 +43,10 @@ import java.util.logging.Level;
 
 public class HuskClaimsCommand extends Command implements TabCompletable {
 
+    private static final int COMMANDS_PER_HELP_PAGE = 8;
     private static final Map<String, Boolean> SUB_COMMANDS = Map.of(
             "about", false,
+            "help", false,
             "status", true,
             "reload", true,
             "update", true
@@ -82,6 +86,7 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
 
         switch (subCommand) {
             case "about" -> executor.sendMessage(aboutMenu.toComponent());
+            case "help" -> executor.sendMessage(getCommandList(executor, parseIntArg(args, 1).orElse(1)));
             case "status" -> {
                 getPlugin().getLocales().getLocale("system_status_header").ifPresent(executor::sendMessage);
                 executor.sendMessage(Component.join(
@@ -121,6 +126,27 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
             case 0, 1 -> SUB_COMMANDS.keySet().stream().sorted().toList();
             default -> null;
         };
+    }
+
+    @NotNull
+    private MineDown getCommandList(@NotNull CommandUser executor, int page) {
+        final Locales locales = plugin.getLocales();
+        return PaginatedList.of(
+                        plugin.getCommands().stream()
+                                .filter(command -> command.hasPermission(executor))
+                                .map(command -> locales.getRawLocale("command_list_row",
+                                        Locales.escapeText(String.format("/%s", command.getName())),
+                                        Locales.escapeText(command.getUsage()),
+                                        Locales.escapeText(locales.truncateText(command.getDescription(), 40)),
+                                        Locales.escapeText(command.getDescription())
+                                ).orElse(command.getUsage()))
+                                .toList(),
+                        locales.getBaseList(COMMANDS_PER_HELP_PAGE)
+                                .setHeaderFormat(locales.getRawLocale("command_list_header").orElse(""))
+                                .setItemSeparator("\n").setCommand(String.format("/%s help", getName()))
+                                .build()
+                )
+                .getNearestValidPage(page);
     }
 
     private enum StatusLine {

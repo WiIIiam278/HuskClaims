@@ -74,7 +74,7 @@ public interface MetaProvider {
                 return;
             }
             getPlugin().log(Level.WARNING, String.format(
-                    "A new version of HuskSync is available: v%s (running v%s)",
+                    "A new version of HuskClaims is available: v%s (running v%s)",
                     checked.getLatestVersion(), getPluginVersion())
             );
         });
