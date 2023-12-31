@@ -34,9 +34,6 @@ public interface TrustableTabCompletable extends UserListTabCompletable {
     @Override
     default List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
         final OnlineUser onlineUser = (OnlineUser) user;
-        if (args.length > 1) {
-            return null;
-        }
 
         // Suggest group names
         final Settings.UserGroupSettings groups = getPlugin().getSettings().getUserGroups();

@@ -28,6 +28,7 @@ import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -48,21 +49,28 @@ public class TrustCommand extends InClaimCommand implements TrustableTabCompleta
     @Override
     public void execute(@NotNull OnlineUser executor, @NotNull ClaimWorld world, @NotNull Claim claim,
                         @NotNull String[] args) {
-        final Optional<String> toTrust = parseStringArg(args, 0);
+        final List<String> toTrust = parseMultiStringArg(args, 0);
         if (toTrust.isEmpty()) {
             plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                     .ifPresent(executor::sendMessage);
             return;
         }
 
-        // Resolve the trustable and check the executor has access
-        resolveTrustable(executor, toTrust.get(), claim)
-                .flatMap(t -> checkUserHasAccess(executor, t, world, claim) ? Optional.of(t) : Optional.empty())
-                .ifPresent(t -> setTrustLevel(executor, t, world, claim));
+        toTrust.forEach(name -> setTrust(executor, name, world, claim));
     }
 
-    private void setTrustLevel(@NotNull OnlineUser executor, @NotNull Trustable trustable,
-                               @NotNull ClaimWorld world, @NotNull Claim claim) {
+
+    // Resolve the trustable and check the executor has access
+    private void setTrust(@NotNull OnlineUser executor, @NotNull String name,
+                          @NotNull ClaimWorld world, @NotNull Claim claim) {
+        resolveTrustable(executor, name, claim)
+                .flatMap(t -> checkUserHasAccess(executor, t, world, claim) ? Optional.of(t) : Optional.empty())
+                .ifPresent(t -> setTrust(executor, t, world, claim));
+    }
+
+    // Set the trust level
+    private void setTrust(@NotNull OnlineUser executor, @NotNull Trustable trustable,
+                          @NotNull ClaimWorld world, @NotNull Claim claim) {
         claim.setTrustLevel(trustable, world, level);
         plugin.getDatabase().updateClaimWorld(world);
         plugin.getLocales().getLocale("trust_level_set",

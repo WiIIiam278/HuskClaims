@@ -19,6 +19,7 @@
 
 package net.william278.huskclaims.command;
 
+import com.google.common.collect.Lists;
 import lombok.Getter;
 import lombok.Setter;
 import net.william278.huskclaims.HuskClaims;
@@ -28,10 +29,7 @@ import net.william278.huskclaims.user.SavedUser;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.StringJoiner;
+import java.util.*;
 
 public abstract class Node implements Executable {
 
@@ -83,6 +81,15 @@ public abstract class Node implements Executable {
                     }
                     return Optional.empty();
                 });
+    }
+
+    @NotNull
+    protected List<String> parseMultiStringArg(@NotNull String[] args, int index) {
+        final List<String> arguments = Lists.newArrayList();
+        if (args.length > index) {
+            arguments.addAll(Arrays.asList(args).subList(index, args.length));
+        }
+        return arguments;
     }
 
     protected Optional<String> parseStringArg(@NotNull String[] args, int index) {

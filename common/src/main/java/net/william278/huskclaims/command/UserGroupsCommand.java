@@ -41,31 +41,31 @@ public class UserGroupsCommand extends OnlineUserCommand implements TabCompletab
     protected UserGroupsCommand(@NotNull HuskClaims plugin) {
         super(
                 List.of("group", "usergroup"),
-                "<create|delete|edit> [name] [args]",
+                "<create|delete|edit> [name] [user(s)]",
                 plugin
         );
     }
 
     @Override
-    public void execute(@NotNull OnlineUser user, @NotNull String[] args) {
+    public void execute(@NotNull OnlineUser executor, @NotNull String[] args) {
         final Optional<String> operation = parseStringArg(args, 0);
-        final Optional<String> name = parseStringArg(args, 1);
-        if (operation.isEmpty() || name.isEmpty()) {
-            showGroupList(user);
+        final Optional<String> groupName = parseStringArg(args, 1);
+        if (operation.isEmpty() || groupName.isEmpty()) {
+            showGroupList(executor);
             return;
         }
 
         switch (operation.get().toLowerCase(Locale.ENGLISH)) {
-            case "create" -> createGroup(user, name.get());
-            case "delete" -> deleteGroup(user, name.get());
+            case "create" -> createGroup(executor, groupName.get());
+            case "delete" -> deleteGroup(executor, groupName.get());
             case "edit" -> {
                 final Optional<String> action = parseStringArg(args, 2);
-                final Optional<String> player = parseStringArg(args, 3);
-                if (player.isEmpty() || action.isEmpty()) {
-                    showGroupMemberList(user, name.get());
+                final List<String> userList = parseMultiStringArg(args, 3);
+                if (userList.isEmpty() || action.isEmpty()) {
+                    showGroupMemberList(executor, groupName.get());
                     return;
                 }
-                editGroupPlayers(user, name.get(), action.get(), player.get());
+                editGroupPlayers(executor, groupName.get(), action.get(), userList);
             }
         }
     }
@@ -95,10 +95,10 @@ public class UserGroupsCommand extends OnlineUserCommand implements TabCompletab
     }
 
     private void editGroupPlayers(@NotNull OnlineUser user, @NotNull String name,
-                                  @NotNull String action, @NotNull String player) {
+                                  @NotNull String action, @NotNull List<String> players) {
         switch (action.toLowerCase(Locale.ENGLISH)) {
-            case "add" -> addPlayerToGroup(user, name, player);
-            case "remove" -> removePlayerFromGroup(user, name, player);
+            case "add" -> players.forEach(player -> addPlayerToGroup(user, name, player));
+            case "remove" -> players.forEach(player -> removePlayerFromGroup(user, name, player));
             default -> showGroupMemberList(user, name);
         }
     }

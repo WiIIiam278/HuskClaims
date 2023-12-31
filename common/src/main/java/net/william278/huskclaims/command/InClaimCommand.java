@@ -139,8 +139,8 @@ public abstract class InClaimCommand extends OnlineUserCommand {
     @NotNull
     protected static String getUsageText(@NotNull Settings.UserGroupSettings groupSettings) {
         return String.format(
-                "[<player%s>]",
-                groupSettings.isEnabled() ? String.format("|%s<group>", groupSettings.getGroupSpecifierPrefix()) : ""
+                "[<player(s)%s>]",
+                groupSettings.isEnabled() ? String.format("|%s<group(s)>", groupSettings.getGroupSpecifierPrefix()) : ""
         );
     }
 
