@@ -36,6 +36,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.StringJoiner;
 
 public abstract class InClaimCommand extends OnlineUserCommand {
 
@@ -153,11 +154,16 @@ public abstract class InClaimCommand extends OnlineUserCommand {
     }
 
     @NotNull
-    protected static String getUsageText(@NotNull Settings.UserGroupSettings groupSettings) {
-        return String.format(
-                "[<player(s)%s>]",
-                groupSettings.isEnabled() ? String.format("|%s<group(s)>", groupSettings.getGroupSpecifierPrefix()) : ""
-        );
+    protected static String getUsageText(@NotNull Settings settings) {
+        final StringJoiner joiner = new StringJoiner("|");
+        joiner.add("players");
+        if (settings.getUserGroups().isEnabled()) {
+            joiner.add("%sgroups".formatted(settings.getUserGroups().getGroupSpecifierPrefix()));
+        }
+        if (settings.getTrustedTags().isEnabled()) {
+            joiner.add("%stags".formatted(settings.getTrustedTags().getTagSpecifierPrefix()));
+        }
+        return "<%s>".formatted(joiner.toString());
     }
 
     public abstract void execute(@NotNull OnlineUser executor, @NotNull ClaimWorld world, @NotNull Claim claim,

@@ -47,7 +47,7 @@ public abstract class ClaimsListCommand extends Command {
                                  int page, @NotNull SortOption sort, boolean ascend) {
         final Locales locales = plugin.getLocales();
         final boolean crossServer = plugin.getSettings().getCrossServer().isEnabled();
-        claims.sort(ascend ? sort.getComparator().reversed() : sort.getComparator());
+        claims.sort(ascend ? sort.getComparator() : sort.getComparator().reversed());
         executor.sendMessage(PaginatedList.of(
                 claims.stream().map(claim -> locales.getRawLocale(
                         "claim_list_item",

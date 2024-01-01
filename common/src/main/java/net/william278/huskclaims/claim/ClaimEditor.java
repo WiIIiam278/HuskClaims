@@ -146,22 +146,37 @@ public interface ClaimEditor {
             return;
         }
 
-        // Check claim blocks (non-admin claims)
+        // Checks for non-admin claims
+        long neededBlocks = resized.getSurfaceArea() - claim.getRegion().getSurfaceArea();
         if (claim.getOwner().isPresent()) {
-            final long additionalBlocksNeeded = resized.getSurfaceArea() - claim.getRegion().getSurfaceArea();
-            if (additionalBlocksNeeded > 0 && getPlugin().getClaimBlocks(user) < additionalBlocksNeeded) {
-                getPlugin().getLocales().getLocale("error_not_enough_claim_blocks",
-                        Long.toString(additionalBlocksNeeded)).ifPresent(user::sendMessage);
+            // Check minimum claim size
+            if (resized.getShortestEdge() < getPlugin().getSettings().getClaims().getMinimumClaimSize()) {
+                getPlugin().getLocales().getLocale("error_claim_too_small",
+                                Integer.toString(getPlugin().getSettings().getClaims().getMinimumClaimSize()))
+                        .ifPresent(user::sendMessage);
                 return;
             }
 
-            // Gives blocks back or takes them away based on the difference in size
-            getPlugin().editClaimBlocks(user, (blocks) -> blocks - additionalBlocksNeeded);
+            // Check claim blocks
+            if (getPlugin().getClaimBlocks(user) < neededBlocks) {
+                getPlugin().getLocales().getLocale("error_not_enough_claim_blocks",
+                        Long.toString(neededBlocks)).ifPresent(user::sendMessage);
+                return;
+            }
         }
 
         getPlugin().resizeClaim(world, claim, resized);
         getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claim);
-        getPlugin().getLocales().getLocale("claim_resized")
+
+        // Send the correct message
+        if (claim.getOwner().isEmpty()) {
+            getPlugin().getLocales().getLocale("admin_claim_resized")
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+        getPlugin().getLocales().getLocale(
+                        (neededBlocks > 0 ? "claim_resized_spent_blocks" : "claim_resized_reclaimed_blocks"),
+                        Long.toString(Math.abs(neededBlocks)))
                 .ifPresent(user::sendMessage);
     }
 
@@ -425,10 +440,6 @@ public interface ClaimEditor {
 
         public boolean isResizeSelection() {
             return claimBeingResized != null;
-        }
-
-        public boolean isChildResizeSelection(@NotNull ClaimWorld world) {
-            return claimBeingResized != null && claimBeingResized.isChildClaim(world);
         }
 
         public int getResizedCornerIndex() {

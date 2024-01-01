@@ -104,6 +104,9 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
         if (owner != null && region.getShortestEdge() < getPlugin().getSettings().getClaims().getMinimumClaimSize()) {
             throw new IllegalArgumentException("Region is too small");
         }
+        if (owner != null && getPlugin().getClaimBlocks(owner) < region.getSurfaceArea()) {
+            throw new IllegalArgumentException("Owner does not have enough claim blocks");
+        }
 
         // Create the claim and add it
         final Claim claim = owner != null
@@ -159,17 +162,23 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
         if (!claim.getChildren().stream().map(Claim::getRegion).allMatch(newRegion::fullyEncloses)) {
             throw new IllegalArgumentException("Region does not fully enclose its children");
         }
-        final int oldSurfaceArea = claim.getRegion().getSurfaceArea();
+
+        // Ensure the owner has enough claim blocks
+        long neededBlocks = newRegion.getSurfaceArea() - claim.getRegion().getSurfaceArea();
+        if (claim.getOwner().isPresent() && neededBlocks > 0
+                && getPlugin().getClaimBlocks(claim.getOwner().get()) < neededBlocks) {
+            throw new IllegalArgumentException("Owner does not have enough claim blocks to resize claim");
+        }
 
         // Update the claim
         claim.setRegion(newRegion);
         getDatabase().updateClaimWorld(world);
+        getPlugin().invalidateClaimListCache(claim.getOwner().orElse(null));
 
         // Adjust the owner's claim block count
         claim.getOwner().flatMap(world::getUser).ifPresent(user -> getPlugin().editClaimBlocks(
-                user, (blocks -> blocks + (oldSurfaceArea - newRegion.getSurfaceArea())))
+                user, (blocks -> blocks - neededBlocks))
         );
-        getPlugin().invalidateClaimListCache(claim.getOwner().orElse(null));
     }
 
     default void deleteClaim(@NotNull ClaimWorld claimWorld, @NotNull Claim claim) {

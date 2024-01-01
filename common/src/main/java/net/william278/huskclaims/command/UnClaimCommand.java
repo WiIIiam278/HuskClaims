@@ -78,8 +78,9 @@ public class UnClaimCommand extends InClaimCommand {
 
         // Send the correct deletion message
         if (!isAdminClaim) {
-            plugin.getLocales().getLocale("claim_deleted")
+            plugin.getLocales().getLocale("claim_deleted", Integer.toString(claim.getRegion().getSurfaceArea()))
                     .ifPresent(executor::sendMessage);
+            return;
         }
         plugin.getLocales().getLocale("admin_claim_deleted")
                 .ifPresent(executor::sendMessage);

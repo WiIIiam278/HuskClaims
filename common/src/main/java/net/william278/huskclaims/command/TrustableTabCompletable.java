@@ -37,8 +37,8 @@ public interface TrustableTabCompletable extends UserListTabCompletable {
 
         // Suggest group names
         final Settings.UserGroupSettings groups = getPlugin().getSettings().getUserGroups();
-        if (groups.isEnabled() && getGroupOwner(onlineUser) != null
-                && args[0].startsWith(groups.getGroupSpecifierPrefix())) {
+        if (getGroupOwner(onlineUser) != null && groups.isEnabled()
+                && (args.length > 0 && args[args.length - 1].startsWith(groups.getGroupSpecifierPrefix()))) {
             return getPlugin().getUserGroups().stream()
                     .filter(group -> group.groupOwner().equals(getGroupOwner(onlineUser)))
                     .map(group -> group.getTrustIdentifier(getPlugin()))
@@ -47,7 +47,7 @@ public interface TrustableTabCompletable extends UserListTabCompletable {
 
         // Suggest tags
         final Settings.TrustedTagSettings tags = getPlugin().getSettings().getTrustedTags();
-        if (tags.isEnabled() && args[0].startsWith(tags.getTagSpecifierPrefix())) {
+        if (tags.isEnabled() && (args.length > 0 && args[args.length - 1].startsWith(tags.getTagSpecifierPrefix()))) {
             return getPlugin().getTrustedTags().stream()
                     .map(tag -> tag.getTrustIdentifier(getPlugin()))
                     .toList();

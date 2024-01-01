@@ -56,14 +56,13 @@ public interface UserManager {
     }
 
     @Blocking
-    default Optional<Long> getClaimBlocks(@NotNull UUID uuid) {
-        return getSavedUser(uuid).map(SavedUser::getClaimBlocks);
+    default long getClaimBlocks(@NotNull UUID uuid) {
+        return getSavedUser(uuid).map(SavedUser::getClaimBlocks)
+                .orElseThrow(() -> new IllegalArgumentException("Could not find claim blocks for UUID: " + uuid));
     }
 
     default long getClaimBlocks(@NotNull User user) {
-        return getClaimBlocks(user.getUuid()).orElseThrow(
-                () -> new IllegalArgumentException("Could not find claim blocks for user: " + user)
-        );
+        return getClaimBlocks(user.getUuid());
     }
 
     @Blocking
@@ -93,7 +92,7 @@ public interface UserManager {
 
     @Blocking
     default void editClaimBlocks(@NotNull User user, @NotNull Function<Long, Long> consumer) {
-        editUser(user.getUuid(), savedUser -> {
+        editUser(user.getUuid(), (savedUser) -> {
             final long newClaimBlocks = consumer.apply(savedUser.getClaimBlocks());
             if (newClaimBlocks < 0) {
                 throw new IllegalArgumentException("Claim blocks cannot be negative");
