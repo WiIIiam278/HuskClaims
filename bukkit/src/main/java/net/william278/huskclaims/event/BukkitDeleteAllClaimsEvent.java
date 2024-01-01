@@ -30,13 +30,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.Optional;
 
-@Getter
 public class BukkitDeleteAllClaimsEvent extends BukkitPlayerEvent implements DeleteAllClaimsEvent, Cancellable {
 
     @Nullable
     private final User claimOwner;
+    @Getter
     private final Collection<ServerWorldClaim> claims;
+    @Getter
     @Setter
     private boolean cancelled;
 
@@ -47,4 +49,8 @@ public class BukkitDeleteAllClaimsEvent extends BukkitPlayerEvent implements Del
         this.claims = claims;
     }
 
+    @Override
+    public Optional<User> getClaimOwner() {
+        return Optional.ofNullable(claimOwner);
+    }
 }

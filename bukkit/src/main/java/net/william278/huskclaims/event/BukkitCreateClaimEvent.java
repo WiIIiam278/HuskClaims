@@ -30,14 +30,18 @@ import org.bukkit.event.Cancellable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@Getter
+import java.util.Optional;
+
 public class BukkitCreateClaimEvent extends BukkitPlayerEvent implements CreateClaimEvent, Cancellable {
 
     @Nullable
     private final User claimOwner;
+    @Getter
     private final Region region;
+    @Getter
     private final ClaimWorld claimWorld;
     @Setter
+    @Getter
     private boolean cancelled;
 
     public BukkitCreateClaimEvent(@NotNull OnlineUser user, @Nullable User claimOwner, @NotNull Region region,
@@ -48,4 +52,8 @@ public class BukkitCreateClaimEvent extends BukkitPlayerEvent implements CreateC
         this.claimWorld = claimWorld;
     }
 
+    @Override
+    public Optional<User> getClaimOwner() {
+        return Optional.ofNullable(claimOwner);
+    }
 }

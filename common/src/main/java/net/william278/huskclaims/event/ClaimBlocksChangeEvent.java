@@ -28,14 +28,14 @@ public interface ClaimBlocksChangeEvent extends CancellableEvent {
     @NotNull
     User getUser();
 
-    int getOldBlocks();
+    long getOldBlocks();
 
-    int getNewBlocks();
+    long getNewBlocks();
 
     @NotNull
     UserManager.ClaimBlockSource getReason();
 
-    default int getClaimBlocksChange() {
+    default long getClaimBlocksChange() {
         return getNewBlocks() - getOldBlocks();
     }
 }
