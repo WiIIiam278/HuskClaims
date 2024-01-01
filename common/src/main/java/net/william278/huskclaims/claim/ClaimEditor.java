@@ -114,12 +114,18 @@ public interface ClaimEditor {
     default void userResizeClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world,
                                  @NotNull Position clickedBlock, @NotNull ClaimSelection selection) {
         final Claim claim = selection.getClaimBeingResized();
-        assert claim != null : "Claim selection is not a resize selection";
+
+        // Get the corner being resized
+        final int corner;
+        if (claim == null || (corner = selection.getResizedCornerIndex()) == -1) {
+            clearClaimSelection(user);
+            getPlugin().getLocales().getLocale("claim_selection_cancelled")
+                    .ifPresent(user::sendMessage);
+            return;
+        }
 
         // Get the resized claim
-        final Region resized = claim.getRegion().getResized(
-                selection.getResizedCornerIndex(), Region.Point.wrap(clickedBlock)
-        );
+        final Region resized = claim.getRegion().getResized(corner, Region.Point.wrap(clickedBlock));
         userResizeClaim(user, world, claim, resized);
     }
 
@@ -284,12 +290,16 @@ public interface ClaimEditor {
     default void userResizeChildClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world,
                                       @NotNull Position clickedBlock, @NotNull ClaimSelection selection) {
         final Claim claim = selection.getClaimBeingResized();
-        assert claim != null : "Child claim selection is not a resize selection";
 
         // Get the resized claim
-        final Region resized = claim.getRegion().getResized(
-                selection.getResizedCornerIndex(), Region.Point.wrap(clickedBlock)
-        );
+        final int corner;
+        if (claim == null || (corner = selection.getResizedCornerIndex()) == -1) {
+            clearClaimSelection(user);
+            getPlugin().getLocales().getLocale("claim_selection_cancelled")
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+        final Region resized = claim.getRegion().getResized(corner, Region.Point.wrap(clickedBlock));
         userResizeChildClaim(user, world, claim, resized);
     }
 
