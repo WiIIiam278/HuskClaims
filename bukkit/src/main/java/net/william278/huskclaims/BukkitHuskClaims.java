@@ -21,7 +21,7 @@ package net.william278.huskclaims;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Queues;
+import com.google.common.collect.Sets;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -29,7 +29,6 @@ import net.kyori.adventure.platform.AudienceProvider;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.william278.desertwell.util.Version;
 import net.william278.huskclaims.claim.ClaimWorld;
-import net.william278.huskclaims.claim.TrustLevel;
 import net.william278.huskclaims.command.BukkitCommand;
 import net.william278.huskclaims.command.Command;
 import net.william278.huskclaims.config.Locales;
@@ -37,7 +36,6 @@ import net.william278.huskclaims.config.Server;
 import net.william278.huskclaims.config.Settings;
 import net.william278.huskclaims.config.TrustLevels;
 import net.william278.huskclaims.database.Database;
-import net.william278.huskclaims.group.UserGroup;
 import net.william278.huskclaims.highlighter.Highlighter;
 import net.william278.huskclaims.listener.BukkitListener;
 import net.william278.huskclaims.listener.ClaimsListener;
@@ -45,6 +43,9 @@ import net.william278.huskclaims.network.Broker;
 import net.william278.huskclaims.network.PluginMessageBroker;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.position.World;
+import net.william278.huskclaims.trust.TrustLevel;
+import net.william278.huskclaims.trust.TrustedTag;
+import net.william278.huskclaims.trust.UserGroup;
 import net.william278.huskclaims.user.*;
 import net.william278.huskclaims.util.BlockProvider;
 import net.william278.huskclaims.util.BukkitBlockProvider;
@@ -62,7 +63,6 @@ import space.arim.morepaperlib.MorePaperLib;
 
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 
@@ -72,7 +72,9 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
 
     @Getter
     @Setter
-    private ConcurrentLinkedQueue<UserGroup> userGroups = Queues.newConcurrentLinkedQueue();
+    private Set<UserGroup> userGroups = Sets.newConcurrentHashSet();
+    @Getter
+    private Set<TrustedTag> trustedTags = Sets.newConcurrentHashSet();
     @Getter
     private ConcurrentMap<String, List<User>> globalUserList = Maps.newConcurrentMap();
     @Getter

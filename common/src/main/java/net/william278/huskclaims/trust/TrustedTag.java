@@ -17,48 +17,33 @@
  *  limitations under the License.
  */
 
-package net.william278.huskclaims.user;
+package net.william278.huskclaims.trust;
 
-import com.google.gson.annotations.Expose;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import net.william278.huskclaims.HuskClaims;
-import net.william278.huskclaims.trust.Trustable;
+import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.UUID;
-
 @Getter
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class User implements Trustable {
+@AllArgsConstructor
+public abstract class TrustedTag implements TrustableCollection {
 
-    @Expose
-    @NotNull
-    private String name;
-    @Expose
-    @NotNull
-    private UUID uuid;
+    protected String name;
 
-    @NotNull
-    public static User of(@NotNull UUID uuid, @NotNull String name) {
-        return new User(name, uuid);
-    }
+    protected String description;
 
     @NotNull
     @Override
     public String getTrustIdentifier(@NotNull HuskClaims plugin) {
-        return name;
+        return String.format(
+                "%s%s",
+                plugin.getSettings().getTrustedTags().getTagSpecifierPrefix(),
+                name.replaceAll(" ", "_")
+        );
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof User user)) {
-            return false;
-        }
-        return user.getUuid().equals(uuid);
-    }
+    public abstract boolean includes(@NotNull User trustable);
 
 }

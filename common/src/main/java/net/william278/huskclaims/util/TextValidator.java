@@ -28,13 +28,14 @@ public interface TextValidator {
     int MAX_GROUP_NAME_LENGTH = 32;
 
     // Check a group name contains only valid characters
-    default boolean isValidGroupName(@NotNull String name) {
+    default boolean isValidGroupOrTagName(@NotNull String name) {
         return (name.matches(getSettings().getUserGroups().getGroupNameRegex())
                 || !getSettings().getUserGroups().isRestrictGroupNames())
                 && !name.contains("\u0000")
                 && isValidNameLength(name)
                 && !containsWhitespace(name)
-                && !name.contains(getSettings().getUserGroups().getGroupSpecifierPrefix());
+                && !name.contains(getSettings().getUserGroups().getGroupSpecifierPrefix())
+                && !name.contains(getSettings().getTrustedTags().getTagSpecifierPrefix());
     }
 
     // Check a group name is of a valid length

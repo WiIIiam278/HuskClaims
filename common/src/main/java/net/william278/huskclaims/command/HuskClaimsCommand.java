@@ -166,7 +166,11 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
         USING_REDIS_PASSWORD(plugin -> getBoolean(!plugin.getSettings().getCrossServer().getRedis().getPassword()
                 .isBlank())),
         REDIS_USING_SSL(plugin -> getBoolean(!plugin.getSettings().getCrossServer().getRedis().isUseSSL())),
-        IS_REDIS_LOCAL(plugin -> getLocalhostBoolean(plugin.getSettings().getCrossServer().getRedis().getHost()));
+        IS_REDIS_LOCAL(plugin -> getLocalhostBoolean(plugin.getSettings().getCrossServer().getRedis().getHost())),
+        REGISTERED_TRUSTED_TAGS(plugin -> Component.join(
+                JoinConfiguration.commas(true),
+                plugin.getTrustedTags().stream().map(tag -> Component.text(tag.getName())).toList()
+        ));
 
         private final Function<HuskClaims, Component> supplier;
 

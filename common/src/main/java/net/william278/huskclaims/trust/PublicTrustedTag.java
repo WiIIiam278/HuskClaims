@@ -17,14 +17,29 @@
  *  limitations under the License.
  */
 
-package net.william278.huskclaims.claim;
+package net.william278.huskclaims.trust;
 
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 
-public interface Trustable {
+public final class PublicTrustedTag extends TrustedTag {
+
+    private PublicTrustedTag(@NotNull HuskClaims plugin) {
+        super(
+                plugin.getSettings().getTrustedTags().getPublicAccessTag(),
+                plugin.getLocales().getRawLocale("public_tag_description").orElse("")
+        );
+    }
 
     @NotNull
-    String getTrustIdentifier(@NotNull HuskClaims plugin);
+    public static PublicTrustedTag create(@NotNull HuskClaims plugin) {
+        return new PublicTrustedTag(plugin);
+    }
+
+    @Override
+    public boolean includes(@NotNull User trustable) {
+        return true;
+    }
 
 }

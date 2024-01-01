@@ -17,7 +17,7 @@
  *  limitations under the License.
  */
 
-package net.william278.huskclaims.claim;
+package net.william278.huskclaims.trust;
 
 import de.exlll.configlib.Configuration;
 import lombok.*;

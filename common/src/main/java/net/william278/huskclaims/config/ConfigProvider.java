@@ -25,7 +25,7 @@ import de.exlll.configlib.YamlConfigurationStore;
 import de.exlll.configlib.YamlConfigurations;
 import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.HuskClaims;
-import net.william278.huskclaims.claim.TrustLevel;
+import net.william278.huskclaims.trust.TrustLevel;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;

@@ -23,8 +23,8 @@ import de.themoep.minedown.adventure.MineDown;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ClaimWorld;
-import net.william278.huskclaims.claim.TrustLevel;
 import net.william278.huskclaims.config.Locales;
+import net.william278.huskclaims.trust.TrustLevel;
 import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -73,6 +73,9 @@ public class TrustListCommand extends InClaimCommand {
         claim.getOwner().ifPresent(owner -> claim.getTrustedGroups().entrySet().stream()
                 .filter(e -> e.getValue().equals(level.getId()))
                 .forEach(e -> joiner.add(getGroupEntry(e.getKey(), owner, plugin))));
+        claim.getTrustedTags().entrySet().stream()
+                .filter(e -> e.getValue().equals(level.getId()))
+                .forEach(e -> joiner.add(getTagEntry(e.getKey(), plugin)));
 
         // Return the row
         plugin.getLocales().getRawLocale("trust_list_row",
@@ -125,6 +128,19 @@ public class TrustListCommand extends InClaimCommand {
                 ))
                 .or(() -> plugin.getLocales().getRawLocale("trust_list_deleted_group",
                         String.format("%s%s", plugin.getSettings().getUserGroups().getGroupSpecifierPrefix(), name)
+                ))
+                .orElse(getPlugin().getLocales().getNotApplicable());
+    }
+
+    @NotNull
+    private String getTagEntry(@NotNull String name, @NotNull HuskClaims plugin) {
+        return plugin.getTrustedTag(name)
+                .flatMap(tag -> plugin.getLocales().getRawLocale("trust_list_tag",
+                        Locales.escapeText(tag.getTrustIdentifier(plugin)),
+                        tag.getDescription()
+                ))
+                .or(() -> plugin.getLocales().getRawLocale("trust_list_unregistered_tag",
+                        String.format("%s%s", plugin.getSettings().getTrustedTags().getTagSpecifierPrefix(), name)
                 ))
                 .orElse(getPlugin().getLocales().getNotApplicable());
     }

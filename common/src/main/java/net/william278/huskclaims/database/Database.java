@@ -23,9 +23,9 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.ClaimWorld;
-import net.william278.huskclaims.group.UserGroup;
 import net.william278.huskclaims.position.ServerWorld;
 import net.william278.huskclaims.position.World;
+import net.william278.huskclaims.trust.UserGroup;
 import net.william278.huskclaims.user.Preferences;
 import net.william278.huskclaims.user.SavedUser;
 import net.william278.huskclaims.user.User;
@@ -232,7 +232,7 @@ public abstract class Database {
      * @return A map of everyone's {@link UserGroup user groups}.
      */
     @NotNull
-    public abstract ConcurrentLinkedQueue<UserGroup> getAllUserGroups();
+    public abstract Set<UserGroup> getAllUserGroups();
 
     /**
      * Add a {@link UserGroup} to the database

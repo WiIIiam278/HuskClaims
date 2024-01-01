@@ -17,7 +17,7 @@
  *  limitations under the License.
  */
 
-package net.william278.huskclaims.group;
+package net.william278.huskclaims.trust;
 
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.database.Database;
@@ -30,16 +30,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
 /**
- * Interface for managing {@link UserGroup}s &mdash; groups of multiple users for easier management of claims
+ * Interface for managing {@link UserGroup}s &mdash; groups of multiple trustable users for easier management of claims
  *
  * @since 1.0
  */
@@ -48,18 +44,17 @@ public interface GroupManager {
     /**
      * Get a list of user groups
      *
-     * @return the list of user groups
      * @since 1.0
      */
     @NotNull
-    ConcurrentLinkedQueue<UserGroup> getUserGroups();
+    Set<UserGroup> getUserGroups();
 
     /**
      * Set the list of user groups
      *
      * @param userGroups The list of user groups
      */
-    void setUserGroups(@NotNull ConcurrentLinkedQueue<UserGroup> userGroups);
+    void setUserGroups(@NotNull Set<UserGroup> userGroups);
 
     default void setUserGroups(@NotNull UUID owner, @NotNull Collection<UserGroup> userGroups) {
         getUserGroups().removeIf(userGroup -> userGroup.groupOwner().equals(owner));
@@ -100,7 +95,7 @@ public interface GroupManager {
      */
     @Blocking
     default void createUserGroup(@NotNull OnlineUser owner, @NotNull String name, @NotNull List<User> members) throws IllegalArgumentException {
-        if (!getPlugin().isValidGroupName(name) || getUserGroup(owner.getUuid(), name).isPresent()) {
+        if (!getPlugin().isValidGroupOrTagName(name) || getUserGroup(owner.getUuid(), name).isPresent()) {
             throw new IllegalArgumentException("Invalid or already taken group name");
         }
         final UserGroup group = new UserGroup(owner.getUuid(), name, members);
@@ -167,7 +162,7 @@ public interface GroupManager {
         LocalTime startTime = LocalTime.now();
 
         // Load all users groups from the database
-        final ConcurrentLinkedQueue<UserGroup> groups = getDatabase().getAllUserGroups();
+        final Set<UserGroup> groups = getDatabase().getAllUserGroups();
         this.setUserGroups(groups);
 
         final long uniqueGroups = groups.stream().map(UserGroup::groupOwner).toList().stream().distinct().count();

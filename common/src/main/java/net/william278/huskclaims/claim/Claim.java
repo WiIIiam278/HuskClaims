@@ -21,7 +21,6 @@ package net.william278.huskclaims.claim;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -32,15 +31,18 @@ import lombok.Setter;
 import net.william278.cloplib.operation.Operation;
 import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.HuskClaims;
-import net.william278.huskclaims.group.UserGroup;
 import net.william278.huskclaims.highlighter.Highlightable;
+import net.william278.huskclaims.trust.TrustLevel;
+import net.william278.huskclaims.trust.Trustable;
+import net.william278.huskclaims.trust.TrustedTag;
+import net.william278.huskclaims.trust.UserGroup;
+import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
 /**
@@ -69,7 +71,7 @@ public class Claim implements Highlightable {
     private UUID owner;
 
     /**
-     * Map of TrustLevels to a list of UUID players with that TrustLevel
+     * Map of UUID players to their {@link TrustLevel} in this claim
      */
     @Expose
     @Getter
@@ -77,7 +79,7 @@ public class Claim implements Highlightable {
     private Map<UUID, String> trustedUsers;
 
     /**
-     * Map of TrustLevels to a list of UUID groups with that TrustLevel
+     * Map of group names to their {@link TrustLevel} in this claim
      */
     @Expose
     @Getter
@@ -85,11 +87,19 @@ public class Claim implements Highlightable {
     private Map<String, String> trustedGroups;
 
     /**
+     * Map of tag names to their {@link TrustLevel} in this claim
+     */
+    @Expose
+    @Getter
+    @SerializedName("trusted_tags")
+    private Map<String, String> trustedTags;
+
+    /**
      * List of child claims
      */
     @Getter
     @Expose
-    private ConcurrentLinkedQueue<Claim> children;
+    private Set<Claim> children;
 
     /**
      * List of OperationTypes allowed on this claim to everyone
@@ -110,13 +120,14 @@ public class Claim implements Highlightable {
     @SerializedName("inherit_parent")
     private boolean inheritParent;
 
-    private Claim(@Nullable UUID owner, @NotNull Region region, @NotNull ConcurrentMap<UUID, String> trustedUsers,
-                  @NotNull ConcurrentMap<String, String> trustedGroups, @NotNull ConcurrentLinkedQueue<Claim> children,
-                  boolean inheritParent, @NotNull Set<OperationType> defaultFlags) {
+    private Claim(@Nullable UUID owner, @NotNull Region region, @NotNull ConcurrentMap<UUID, String> users,
+                  @NotNull ConcurrentMap<String, String> groups, @NotNull ConcurrentMap<String, String> tags,
+                  @NotNull Set<Claim> children, boolean inheritParent, @NotNull Set<OperationType> defaultFlags) {
         this.owner = owner;
         this.region = region;
-        this.trustedUsers = trustedUsers;
-        this.trustedGroups = trustedGroups;
+        this.trustedUsers = users;
+        this.trustedGroups = groups;
+        this.trustedTags = tags;
         this.children = children;
         this.defaultFlags = defaultFlags;
         this.inheritParent = inheritParent;
@@ -124,8 +135,9 @@ public class Claim implements Highlightable {
 
     private Claim(@Nullable UUID owner, @NotNull Region region, @NotNull HuskClaims plugin) {
         this(
-                owner, region, Maps.newConcurrentMap(), Maps.newConcurrentMap(),
-                Queues.newConcurrentLinkedQueue(), true,
+                owner, region,
+                Maps.newConcurrentMap(), Maps.newConcurrentMap(), Maps.newConcurrentMap(),
+                Sets.newHashSet(), true,
                 Sets.newHashSet(owner != null
                         ? plugin.getSettings().getClaims().getDefaultFlags()
                         : plugin.getSettings().getClaims().getAdminFlags())
@@ -150,6 +162,44 @@ public class Claim implements Highlightable {
      */
     public Optional<UUID> getOwner() {
         return Optional.ofNullable(owner);
+    }
+
+    /**
+     * Get the map of {@link TrustedTag}s to {@link TrustLevel}s in this claim
+     *
+     * @param plugin the plugin instance
+     * @return the map of trusted tags
+     * @since 1.0
+     */
+    @NotNull
+    private Map<TrustedTag, TrustLevel> getTrustedTagMap(@NotNull HuskClaims plugin) {
+        final Map<TrustedTag, TrustLevel> map = Maps.newHashMap();
+        for (Map.Entry<String, String> entry : trustedTags.entrySet()) {
+            plugin.getTrustedTag(entry.getKey()).ifPresent(tag -> plugin.getTrustLevel(entry.getValue())
+                    .ifPresent(level -> map.put(tag, level)));
+        }
+        return map;
+    }
+
+    /**
+     * Get the map of {@link UserGroup}s to {@link TrustLevel}s in this claim
+     *
+     * @param plugin the plugin instance
+     * @return the map of trusted groups
+     * @since 1.0
+     */
+    @NotNull
+    private Map<UserGroup, TrustLevel> getTrustedGroupMap(@NotNull HuskClaims plugin) {
+        if (owner == null) {
+            return Map.of();
+        }
+
+        final Map<UserGroup, TrustLevel> map = Maps.newHashMap();
+        for (Map.Entry<String, String> entry : trustedGroups.entrySet()) {
+            plugin.getUserGroup(owner, entry.getKey()).ifPresent(group -> plugin.getTrustLevel(entry.getValue())
+                    .ifPresent(level -> map.put(group, level)));
+        }
+        return map;
     }
 
     /**
@@ -191,14 +241,35 @@ public class Claim implements Highlightable {
         trustedGroups.put(group.name(), level.getId());
     }
 
+    /**
+     * Set the {@link TrustLevel} of the given tag in this claim
+     *
+     * @param tag   the tag to set the trust level for
+     * @param level the trust level to set
+     * @since 1.0
+     */
+    public void setTagTrustLevel(@NotNull TrustedTag tag, @NotNull TrustLevel level) {
+        trustedTags.put(tag.getName(), level.getId());
+    }
+
+    /**
+     * Set the {@link TrustLevel} of the given {@link Trustable} in this claim
+     *
+     * @param trustable the trustable to set the trust level for
+     * @param world     the world the claim is in
+     * @param level     the trust level to set
+     * @since 1.0
+     */
     public void setTrustLevel(@NotNull Trustable trustable, @NotNull ClaimWorld world, @NotNull TrustLevel level) {
         if (trustable instanceof User user) {
             setUserTrustLevel(user.getUuid(), level);
             world.cacheUser(user);
         } else if (trustable instanceof UserGroup group) {
             setGroupTrustLevel(group, level);
+        } else if (trustable instanceof TrustedTag tag) {
+            setTagTrustLevel(tag, level);
         } else {
-            throw new IllegalArgumentException("Trustable must be a User or UserGroup");
+            throw new IllegalArgumentException("Trustable must be a User, UserGroup, or TrustedTag");
         }
     }
 
@@ -218,28 +289,55 @@ public class Claim implements Highlightable {
     }
 
     /**
+     * Get the {@link TrustLevel} of the given tag in this claim
+     *
+     * @param tag    the tag to get the trust level for
+     * @param plugin the plugin instance
+     * @return the tag's trust level, if they have one defined
+     */
+    public Optional<TrustLevel> getTagTrustLevel(@NotNull String tag, @NotNull HuskClaims plugin) {
+        if (trustedTags.containsKey(tag)) {
+            return plugin.getTrustLevel(trustedTags.get(tag));
+        }
+        return Optional.empty();
+    }
+
+    /**
      * Get the user's explicit {@link TrustLevel} in this claim. This does not take into account parent claims;
      * see {@link #getEffectiveTrustLevel(Trustable, ClaimWorld, HuskClaims)}.
+     * <p>
+     * Level priority checks are handled by order of explicitness:
+     * <ol>
+     *     <li>Individual {@link User}s</li>
+     *     <li>{@link UserGroup}s</li>
+     *     <li>{@link TrustedTag}s</li>
+     *     </ol>
      *
      * @param user   the user to get the trust level for
      * @param plugin the plugin instance
      * @return the user's trust level, if they have one defined
+     * @since 1.0
      */
-    public Optional<TrustLevel> getTrustLevel(@NotNull UUID user, @NotNull HuskClaims plugin) {
-        if (trustedUsers.containsKey(user)) {
-            return plugin.getTrustLevel(trustedUsers.get(user));
+    public Optional<TrustLevel> getUserTrustLevel(@NotNull User user, @NotNull HuskClaims plugin) {
+        // Handle explicit user permissions
+        if (trustedUsers.containsKey(user.getUuid())) {
+            return plugin.getTrustLevel(trustedUsers.get(user.getUuid()));
         }
 
-        if (owner == null) {
-            return Optional.empty();
+        // Check if the user is in a trusted group
+        final Map<UserGroup, TrustLevel> groups = getTrustedGroupMap(plugin);
+        final Optional<TrustLevel> groupLevel = groups.entrySet().stream()
+                .filter(entry -> entry.getKey().includes(user)).map(Map.Entry::getValue)
+                .sorted().findFirst();
+        if (groupLevel.isPresent()) {
+            return groupLevel;
         }
 
-        return trustedGroups.entrySet().stream()
-                .filter(entry -> plugin.getUserGroup(owner, entry.getKey())
-                        .map(group -> group.isMember(user))
-                        .orElse(false)
-                ).findFirst()
-                .flatMap(entry -> plugin.getTrustLevel(entry.getValue()));
+        // Finally, check trusted tags
+        final Map<TrustedTag, TrustLevel> tags = getTrustedTagMap(plugin);
+        return tags.entrySet().stream()
+                .filter(entry -> entry.getKey().includes(user)).map(Map.Entry::getValue)
+                .sorted().findFirst();
     }
 
     /**
@@ -252,11 +350,13 @@ public class Claim implements Highlightable {
      */
     public Optional<TrustLevel> getTrustLevel(@NotNull Trustable trustable, @NotNull HuskClaims plugin) {
         if (trustable instanceof User user) {
-            return getTrustLevel(user.getUuid(), plugin);
+            return getUserTrustLevel(user, plugin);
         } else if (trustable instanceof UserGroup group) {
             return getGroupTrustLevel(group.name(), plugin);
+        } else if (trustable instanceof TrustedTag tag) {
+            return getTagTrustLevel(tag.getName(), plugin);
         }
-        throw new IllegalArgumentException("Trustable must be a User or UserGroup");
+        throw new IllegalArgumentException("Trustable must be a User, UserGroup, or TrustedTag");
     }
 
     /**
@@ -298,7 +398,7 @@ public class Claim implements Highlightable {
 
                 // Or, if there's a user involved in this operation, check their rights
                 || (operation.getUser()
-                .flatMap(user -> getTrustLevel(user.getUuid(), plugin)
+                .flatMap(user -> getUserTrustLevel((OnlineUser) user, plugin)
                         .map(level -> level.getFlags().contains(operation.getType())))
                 .orElse(false))
 

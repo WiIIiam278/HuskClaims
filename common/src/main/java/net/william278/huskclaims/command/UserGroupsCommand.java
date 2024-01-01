@@ -22,7 +22,7 @@ package net.william278.huskclaims.command;
 import com.google.common.collect.Lists;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.config.Locales;
-import net.william278.huskclaims.group.UserGroup;
+import net.william278.huskclaims.trust.UserGroup;
 import net.william278.huskclaims.user.CommandUser;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.SavedUser;
@@ -114,7 +114,7 @@ public class UserGroupsCommand extends OnlineUserCommand implements TabCompletab
     }
 
     private void addGroupUsers(@NotNull OnlineUser executor, @NotNull String name, @NotNull List<String> users) {
-        if (!getPlugin().isValidGroupName(name)) {
+        if (!getPlugin().isValidGroupOrTagName(name)) {
             plugin.getLocales().getLocale("error_invalid_group_name", name)
                     .ifPresent(executor::sendMessage);
             return;
@@ -123,7 +123,7 @@ public class UserGroupsCommand extends OnlineUserCommand implements TabCompletab
         editUserGroup(
                 executor, name, users,
                 (group, user) -> {
-                    if (group.isMember(user.getUuid())) {
+                    if (group.includes(user)) {
                         plugin.getLocales().getLocale("error_already_group_member", user.getName())
                                 .ifPresent(executor::sendMessage);
                         return;
@@ -149,7 +149,7 @@ public class UserGroupsCommand extends OnlineUserCommand implements TabCompletab
         editUserGroup(
                 executor, name, users,
                 (group, user) -> {
-                    if (!group.isMember(user.getUuid())) {
+                    if (!group.includes(user)) {
                         plugin.getLocales().getLocale("error_not_group_member", user.getName(), group.name())
                                 .ifPresent(executor::sendMessage);
                         return;

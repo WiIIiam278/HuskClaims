@@ -22,14 +22,15 @@ package net.william278.huskclaims.database;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
+import com.google.common.collect.Sets;
 import com.google.gson.JsonSyntaxException;
 import com.zaxxer.hikari.HikariDataSource;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.config.Settings;
-import net.william278.huskclaims.group.UserGroup;
 import net.william278.huskclaims.position.ServerWorld;
 import net.william278.huskclaims.position.World;
+import net.william278.huskclaims.trust.UserGroup;
 import net.william278.huskclaims.user.Preferences;
 import net.william278.huskclaims.user.SavedUser;
 import net.william278.huskclaims.user.User;
@@ -369,13 +370,13 @@ public class MySqlDatabase extends Database {
 
     @NotNull
     @Override
-    public ConcurrentLinkedQueue<UserGroup> getAllUserGroups() {
+    public Set<UserGroup> getAllUserGroups() {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
                     SELECT `uuid`, `name`, `members`
                     FROM `%user_group_data%`"""))) {
                 final ResultSet resultSet = statement.executeQuery();
-                final ConcurrentLinkedQueue<UserGroup> userGroups = Queues.newConcurrentLinkedQueue();
+                final Set<UserGroup> userGroups = Sets.newConcurrentHashSet();
                 while (resultSet.next()) {
                     userGroups.add(new UserGroup(
                             UUID.fromString(resultSet.getString("uuid")),
@@ -390,7 +391,7 @@ public class MySqlDatabase extends Database {
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to fetch user groups from table", e);
         }
-        return Queues.newConcurrentLinkedQueue();
+        return Sets.newConcurrentHashSet();
     }
 
     @Override

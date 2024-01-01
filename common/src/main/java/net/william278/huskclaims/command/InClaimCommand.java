@@ -22,10 +22,11 @@ package net.william278.huskclaims.command;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ClaimWorld;
-import net.william278.huskclaims.claim.TrustLevel;
-import net.william278.huskclaims.claim.Trustable;
 import net.william278.huskclaims.config.Settings;
-import net.william278.huskclaims.group.UserGroup;
+import net.william278.huskclaims.trust.TrustLevel;
+import net.william278.huskclaims.trust.Trustable;
+import net.william278.huskclaims.trust.TrustedTag;
+import net.william278.huskclaims.trust.UserGroup;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.SavedUser;
 import net.william278.huskclaims.user.User;
@@ -112,6 +113,12 @@ public abstract class InClaimCommand extends OnlineUserCommand {
             return resolveGroup(user, name.substring(groups.getGroupSpecifierPrefix().length()), claim, groups);
         }
 
+        // Resolve tag
+        final Settings.TrustedTagSettings tags = plugin.getSettings().getTrustedTags();
+        if (tags.isEnabled() && name.startsWith(plugin.getSettings().getTrustedTags().getTagSpecifierPrefix())) {
+            return resolveTag(user, name.substring(plugin.getSettings().getTrustedTags().getTagSpecifierPrefix().length()));
+        }
+
         // Resolve user
         return resolveUser(user, name);
     }
@@ -131,6 +138,15 @@ public abstract class InClaimCommand extends OnlineUserCommand {
                 .map(SavedUser::getUser)
                 .or(() -> {
                     plugin.getLocales().getLocale("error_invalid_user", name)
+                            .ifPresent(user::sendMessage);
+                    return Optional.empty();
+                });
+    }
+
+    protected Optional<TrustedTag> resolveTag(@NotNull OnlineUser user, @NotNull String name) {
+        return plugin.getTrustedTag(name)
+                .or(() -> {
+                    plugin.getLocales().getLocale("error_invalid_tag", name)
                             .ifPresent(user::sendMessage);
                     return Optional.empty();
                 });

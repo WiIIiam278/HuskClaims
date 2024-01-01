@@ -250,8 +250,8 @@ public final class Settings {
         private List<OperationType> allowedOperations;
     }
 
-    @Comment("User group settings")
-    public UserGroupSettings userGroups = new UserGroupSettings();
+    @Comment("Settings for user groups, letting users quickly manage trust for groups of multiple players at once")
+    private UserGroupSettings userGroups = new UserGroupSettings();
 
     @Getter
     @Configuration
@@ -274,6 +274,24 @@ public final class Settings {
 
         @Comment("Max groups per player")
         private int maxGroupsPerPlayer = 3;
+    }
+
+    @Comment("Settings for trusted tags, special representations of things you can trust in a claim")
+    private TrustedTagSettings trustedTags = new TrustedTagSettings();
+
+    @Getter
+    @Configuration
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class TrustedTagSettings {
+        @Comment("Whether to enable trusted tags")
+        private boolean enabled = true;
+
+        @Comment("The prefix to use when specifying a trusted tag in a trust command (e.g. /trust #tagname)")
+        private String tagSpecifierPrefix = "#";
+
+        @Comment("The name of the default public access tag (to let anyone access certain claim levels)")
+        private String publicAccessTag = "public";
+
     }
 
     @Comment("Settings for the claim inspection/creation highlighter")

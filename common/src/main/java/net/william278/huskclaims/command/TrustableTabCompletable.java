@@ -41,7 +41,15 @@ public interface TrustableTabCompletable extends UserListTabCompletable {
                 && args[0].startsWith(groups.getGroupSpecifierPrefix())) {
             return getPlugin().getUserGroups().stream()
                     .filter(group -> group.groupOwner().equals(getGroupOwner(onlineUser)))
-                    .map(group -> groups.getGroupSpecifierPrefix() + group.name())
+                    .map(group -> group.getTrustIdentifier(getPlugin()))
+                    .toList();
+        }
+
+        // Suggest tags
+        final Settings.TrustedTagSettings tags = getPlugin().getSettings().getTrustedTags();
+        if (tags.isEnabled() && args[0].startsWith(tags.getTagSpecifierPrefix())) {
+            return getPlugin().getTrustedTags().stream()
+                    .map(tag -> tag.getTrustIdentifier(getPlugin()))
                     .toList();
         }
 

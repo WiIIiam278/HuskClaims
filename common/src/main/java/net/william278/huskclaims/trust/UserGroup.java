@@ -17,10 +17,9 @@
  *  limitations under the License.
  */
 
-package net.william278.huskclaims.group;
+package net.william278.huskclaims.trust;
 
 import net.william278.huskclaims.HuskClaims;
-import net.william278.huskclaims.claim.Trustable;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,10 +38,11 @@ public record UserGroup(
         @NotNull UUID groupOwner,
         @NotNull String name,
         @NotNull List<User> members
-) implements Trustable {
+) implements TrustableCollection {
 
-    public boolean isMember(@NotNull UUID uuid) {
-        return members.stream().anyMatch(user -> user.getUuid().equals(uuid));
+    @Override
+    public boolean includes(@NotNull User member) {
+        return members.contains(member);
     }
 
     public boolean removeMember(@NotNull UUID uuid) {
