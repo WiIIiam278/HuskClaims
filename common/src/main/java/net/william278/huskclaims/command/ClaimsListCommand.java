@@ -22,6 +22,7 @@ package net.william278.huskclaims.command;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.claim.ServerWorldClaim;
 import net.william278.huskclaims.config.Locales;
 import net.william278.huskclaims.user.CommandUser;
 import net.william278.huskclaims.user.User;

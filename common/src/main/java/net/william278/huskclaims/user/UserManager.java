@@ -90,15 +90,21 @@ public interface UserManager {
         editUser(user.getUuid(), savedUser -> consumer.accept(savedUser.getPreferences()));
     }
 
-    @Blocking
-    default void editClaimBlocks(@NotNull User user, @NotNull Function<Long, Long> consumer) {
-        editUser(user.getUuid(), (savedUser) -> {
-            final long newClaimBlocks = consumer.apply(savedUser.getClaimBlocks());
-            if (newClaimBlocks < 0) {
-                throw new IllegalArgumentException("Claim blocks cannot be negative");
-            }
-            savedUser.setClaimBlocks(newClaimBlocks);
-        });
+    default void editClaimBlocks(@NotNull User user, @NotNull ClaimBlockSource source,
+                                 @NotNull Function<Long, Long> consumer) {
+        final long originalBlocks = getClaimBlocks(user);
+        final long newBlocks = consumer.apply(originalBlocks);
+        if (newBlocks < 0) {
+            throw new IllegalArgumentException("Claim blocks cannot be negative (" + newBlocks + ")");
+        }
+
+        getPlugin().fireClaimBlocksChangeEvent(
+                user, originalBlocks, newBlocks, source,
+                (event) -> editUser(user.getUuid(), (savedUser) -> {
+                    savedUser.getPreferences().getAuditLog().log(source, newBlocks);
+                    savedUser.setClaimBlocks(newBlocks);
+                })
+        );
     }
 
     @Blocking
@@ -108,7 +114,7 @@ public interface UserManager {
         if (hourlyBlocks <= 0) {
             return;
         }
-        editClaimBlocks(user, blocks -> blocks + hourlyBlocks);
+        editClaimBlocks(user, UserManager.ClaimBlockSource.HOURLY_BLOCKS, (blocks -> blocks + hourlyBlocks));
     }
 
     @Blocking
@@ -131,5 +137,13 @@ public interface UserManager {
 
     @NotNull
     HuskClaims getPlugin();
+
+    enum ClaimBlockSource {
+        ADMIN_ADJUSTMENT,
+        HOURLY_BLOCKS,
+        CLAIM_RESIZED,
+        CLAIM_CREATED,
+        CLAIM_DELETED
+    }
 
 }

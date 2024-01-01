@@ -21,9 +21,11 @@ package net.william278.huskclaims.command;
 
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.ClaimingMode;
+import net.william278.huskclaims.claim.ServerWorldClaim;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.Preferences;
 import net.william278.huskclaims.user.User;
+import net.william278.huskclaims.user.UserManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -47,7 +49,7 @@ public class UnClaimAllCommand extends OnlineUserCommand implements UserListTabC
 
         // Handle contextually based on current claiming mode
         switch (mode) {
-            case ADMIN_CLAIMS -> deleteAllAdminClaims(executor, confirm);
+            case ADMIN_CLAIMS -> userDeleteAllAdminClaims(executor, confirm);
             case CLAIMS -> {
                 final Optional<User> optionalUser = resolveUser(executor, args);
                 if (optionalUser.isEmpty()) {
@@ -55,14 +57,21 @@ public class UnClaimAllCommand extends OnlineUserCommand implements UserListTabC
                             .ifPresent(executor::sendMessage);
                     return;
                 }
-                deleteAllUserClaims(executor, optionalUser.get(), confirm);
+                final User user = optionalUser.get();
+
+                if (!hasPermission(executor, "other") && !executor.equals(user)) {
+                    plugin.getLocales().getLocale("error_no_permission")
+                            .ifPresent(executor::sendMessage);
+                    return;
+                }
+                userDeleteAllUserClaims(executor, user, confirm);
             }
             case CHILD_CLAIMS -> plugin.getLocales().getLocale("error_delete_all_children")
                     .ifPresent(executor::sendMessage);
         }
     }
 
-    private void deleteAllAdminClaims(@NotNull OnlineUser executor, boolean confirm) {
+    private void userDeleteAllAdminClaims(@NotNull OnlineUser executor, boolean confirm) {
         // Require admin claiming permission
         if (!ClaimingMode.ADMIN_CLAIMS.canUse(executor)) {
             plugin.getLocales().getLocale("error_no_permission")
@@ -86,20 +95,17 @@ public class UnClaimAllCommand extends OnlineUserCommand implements UserListTabC
             return;
         }
 
-        // Remove the claims and return the blocks
-        plugin.deleteAllAdminClaims(executor);
-        plugin.getLocales().getLocale("delete_all_admin_claims", Integer.toString(claims.size()))
-                .ifPresent(executor::sendMessage);
-        plugin.getHighlighter().stopHighlighting(executor);
+        // Remove the admin claims
+        plugin.fireDeleteAllClaimsEvent(executor, null, claims, (event) -> {
+            plugin.deleteAllAdminClaims(executor);
+            plugin.getLocales().getLocale("delete_all_admin_claims", Integer.toString(claims.size()))
+                    .ifPresent(executor::sendMessage);
+            plugin.getHighlighter().stopHighlighting(executor);
+        });
     }
 
-    private void deleteAllUserClaims(@NotNull OnlineUser executor, @NotNull User user, boolean confirm) {
+    private void userDeleteAllUserClaims(@NotNull OnlineUser executor, @NotNull User user, boolean confirm) {
         // Validate the user has permission
-        if (!hasPermission(executor, "other") && !executor.equals(user)) {
-            plugin.getLocales().getLocale("error_no_permission")
-                    .ifPresent(executor::sendMessage);
-            return;
-        }
 
         // Check the user has claims
         final List<ServerWorldClaim> claims = getUserClaims(user);
@@ -118,12 +124,14 @@ public class UnClaimAllCommand extends OnlineUserCommand implements UserListTabC
         }
 
         // Remove the claims and return the blocks
-        long reclaimedBlocks = claims.stream().mapToLong(ServerWorldClaim::getSurfaceArea).sum();
-        plugin.deleteAllClaims(executor, user);
-        plugin.editClaimBlocks(user, (blocks) -> blocks + reclaimedBlocks);
-        plugin.getLocales().getLocale("delete_all_claims", user.getName(), Integer.toString(claims.size()),
-                Long.toString(reclaimedBlocks)).ifPresent(executor::sendMessage);
-        plugin.getHighlighter().stopHighlighting(executor);
+        getPlugin().fireDeleteAllClaimsEvent(executor, user, claims, (event) -> {
+            long reclaimedBlocks = claims.stream().mapToLong(ServerWorldClaim::getSurfaceArea).sum();
+            plugin.deleteAllClaims(executor, user);
+            plugin.editClaimBlocks(user, UserManager.ClaimBlockSource.CLAIM_DELETED, (blocks) -> blocks + reclaimedBlocks);
+            plugin.getLocales().getLocale("delete_all_claims", user.getName(), Integer.toString(claims.size()),
+                    Long.toString(reclaimedBlocks)).ifPresent(executor::sendMessage);
+            plugin.getHighlighter().stopHighlighting(executor);
+        });
     }
 
 }

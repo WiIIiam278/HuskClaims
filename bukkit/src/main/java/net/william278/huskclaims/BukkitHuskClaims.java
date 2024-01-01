@@ -36,6 +36,7 @@ import net.william278.huskclaims.config.Server;
 import net.william278.huskclaims.config.Settings;
 import net.william278.huskclaims.config.TrustLevels;
 import net.william278.huskclaims.database.Database;
+import net.william278.huskclaims.event.BukkitEventDispatcher;
 import net.william278.huskclaims.highlighter.Highlighter;
 import net.william278.huskclaims.listener.BukkitListener;
 import net.william278.huskclaims.listener.ClaimsListener;
@@ -68,7 +69,7 @@ import java.util.logging.Level;
 
 @NoArgsConstructor
 public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTask.Supplier,
-        BukkitBlockProvider, PluginMessageListener {
+        BukkitBlockProvider, BukkitEventDispatcher, PluginMessageListener {
 
     @Getter
     @Setter

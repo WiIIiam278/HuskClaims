@@ -23,7 +23,6 @@ import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.claim.ClaimingMode;
-import net.william278.huskclaims.trust.TrustLevel;
 import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
@@ -49,13 +48,12 @@ public class UnClaimCommand extends InClaimCommand {
         final boolean confirmed = parseConfirmArg(args);
         final Optional<Claim> optionalParent = claim.getParent(world);
         if (optionalParent.isPresent()) {
-            deleteChildClaim(executor, world, claim, optionalParent.get());
+            plugin.userDeleteChildClaim(executor, world, claim, optionalParent.get());
             return;
         }
 
         // Check if the user can delete the claim
-        boolean isAdminClaim = claim.getOwner().isEmpty();
-        if ((isAdminClaim && !ClaimingMode.ADMIN_CLAIMS.canUse(executor))
+        if ((claim.getOwner().isEmpty() && !ClaimingMode.ADMIN_CLAIMS.canUse(executor))
                 || (claim.getOwner().map(owner -> !owner.equals(executor.getUuid())).orElse(true)
                 && !hasPermission(executor, "other"))) {
             plugin.getLocales().getLocale("no_deletion_permission")
@@ -71,32 +69,8 @@ public class UnClaimCommand extends InClaimCommand {
             return;
         }
 
-        plugin.deleteClaim(world, claim);
-        plugin.getHighlighter().stopHighlighting(executor);
-
-        // Send the correct deletion message
-        if (!isAdminClaim) {
-            plugin.getLocales().getLocale("claim_deleted", Integer.toString(claim.getRegion().getSurfaceArea()))
-                    .ifPresent(executor::sendMessage);
-            return;
-        }
-        plugin.getLocales().getLocale("admin_claim_deleted")
-                .ifPresent(executor::sendMessage);
-    }
-
-    // Handle deletion of a child claim
-    private void deleteChildClaim(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
-                                  @NotNull Claim claim, @NotNull Claim parent) {
-        if (!claim.isPrivilegeAllowed(TrustLevel.Privilege.MANAGE_CHILD_CLAIMS, executor, world, plugin)) {
-            plugin.getLocales().getLocale("no_child_deletion_permission")
-                    .ifPresent(executor::sendMessage);
-            return;
-        }
-
-        plugin.deleteChildClaim(world, parent, claim);
-        plugin.getHighlighter().startHighlighting(executor, executor.getWorld(), parent);
-        plugin.getLocales().getLocale("child_claim_deleted")
-                .ifPresent(executor::sendMessage);
+        // Delete the claim
+        plugin.userDeleteClaim(executor, world, claim);
     }
 
 }

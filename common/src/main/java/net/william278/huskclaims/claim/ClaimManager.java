@@ -29,6 +29,7 @@ import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.position.World;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.User;
+import net.william278.huskclaims.user.UserManager;
 import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -119,7 +120,10 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
 
         // Adjust the owner's claim block count
         if (owner != null) {
-            getPlugin().editClaimBlocks(owner, (blocks -> blocks - region.getSurfaceArea()));
+            getPlugin().editClaimBlocks(
+                    owner, UserManager.ClaimBlockSource.CLAIM_CREATED,
+                    (blocks -> blocks - region.getSurfaceArea())
+            );
         }
         getPlugin().invalidateClaimListCache(owner == null ? null : owner.getUuid());
         return claim;
@@ -179,7 +183,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
 
         // Adjust the owner's claim block count
         claim.getOwner().flatMap(world::getUser).ifPresent(user -> getPlugin().editClaimBlocks(
-                user, (blocks -> blocks - neededBlocks))
+                user, UserManager.ClaimBlockSource.HOURLY_BLOCKS, (blocks -> blocks - neededBlocks))
         );
     }
 
@@ -196,7 +200,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
 
         // Adjust the owner's claim block count
         claim.getOwner().flatMap(claimWorld::getUser).ifPresent(user -> getPlugin().editClaimBlocks(
-                user, (blocks -> blocks + surfaceArea))
+                user, UserManager.ClaimBlockSource.CLAIM_DELETED, (blocks -> blocks + surfaceArea))
         );
         getPlugin().invalidateClaimListCache(claim.getOwner().orElse(null));
     }

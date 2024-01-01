@@ -23,6 +23,7 @@ import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.user.CommandUser;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.User;
+import net.william278.huskclaims.user.UserManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -76,7 +77,7 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
             return;
         }
 
-        plugin.editClaimBlocks(user, (blocks) -> {
+        plugin.editClaimBlocks(user, UserManager.ClaimBlockSource.ADMIN_ADJUSTMENT, (blocks) -> {
             long newBlocks = Math.max(0, set ? changeBy : blocks + changeBy);
             plugin.getLocales().getLocale("claim_blocks_updated", user.getName(),
                     Long.toString(newBlocks)).ifPresent(executor::sendMessage);

@@ -33,8 +33,8 @@ import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.highlighter.Highlightable;
 import net.william278.huskclaims.trust.TrustLevel;
-import net.william278.huskclaims.trust.Trustable;
 import net.william278.huskclaims.trust.TrustTag;
+import net.william278.huskclaims.trust.Trustable;
 import net.william278.huskclaims.trust.UserGroup;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.User;
@@ -268,6 +268,26 @@ public class Claim implements Highlightable {
             setGroupTrustLevel(group, level);
         } else if (trustable instanceof TrustTag tag) {
             setTagTrustLevel(tag, level);
+        } else {
+            throw new IllegalArgumentException("Trustable must be a User, UserGroup, or TrustTag");
+        }
+    }
+
+    /**
+     * Remove the {@link TrustLevel} of the given {@link Trustable} in this claim
+     *
+     * @param trustable the trustable to remove the trust level for
+     * @param world     the world the claim is in
+     * @since 1.0
+     */
+    public void removeTrustLevel(@NotNull Trustable trustable, @NotNull ClaimWorld world) {
+        if (trustable instanceof User user) {
+            trustedUsers.remove(user.getUuid());
+            world.cacheUser(user);
+        } else if (trustable instanceof UserGroup group) {
+            trustedGroups.remove(group.name());
+        } else if (trustable instanceof TrustTag tag) {
+            trustedTags.remove(tag.getName());
         } else {
             throw new IllegalArgumentException("Trustable must be a User, UserGroup, or TrustTag");
         }

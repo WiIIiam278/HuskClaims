@@ -71,11 +71,13 @@ public class TrustCommand extends InClaimCommand implements TrustableTabCompleta
     // Set the trust level
     private void setTrust(@NotNull OnlineUser executor, @NotNull Trustable trustable,
                           @NotNull ClaimWorld world, @NotNull Claim claim) {
-        claim.setTrustLevel(trustable, world, level);
-        plugin.getDatabase().updateClaimWorld(world);
-        plugin.getLocales().getLocale("trust_level_set", trustable.getTrustIdentifier(plugin),
-                        level.getDisplayName(), level.getColor(), level.getDescription())
-                .ifPresent(executor::sendMessage);
+        plugin.fireTrustEvent(executor, level, trustable, claim, world, (event) -> {
+            claim.setTrustLevel(trustable, world, level);
+            plugin.getDatabase().updateClaimWorld(world);
+            plugin.getLocales().getLocale("trust_level_set", trustable.getTrustIdentifier(plugin),
+                            level.getDisplayName(), level.getColor(), level.getDescription())
+                    .ifPresent(executor::sendMessage);
+        });
     }
 
     @Nullable

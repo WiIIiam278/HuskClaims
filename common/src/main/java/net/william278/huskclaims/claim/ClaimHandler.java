@@ -27,6 +27,7 @@ import net.william278.cloplib.operation.OperationWorld;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.position.World;
+import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -48,7 +49,22 @@ public interface ClaimHandler extends Handler {
     @Override
     default boolean cancelMovement(@NotNull OperationUser user,
                                    @NotNull OperationPosition from, @NotNull OperationPosition to) {
-        // We don't care, just yet. Future todo: enter claim event
+        final Optional<ClaimWorld> optionalClaimWorld = getClaimWorld((World) to.getWorld());
+        if (optionalClaimWorld.isEmpty()) {
+            return false;
+        }
+        final ClaimWorld world = optionalClaimWorld.get();
+
+        // Fire the event
+        final Optional<Claim> toClaim = world.getClaimAt((Position) to);
+        if (toClaim.isPresent() && !toClaim.equals(world.getClaimAt((Position) from))) {
+            final Claim claim = toClaim.get();
+            return getPlugin().fireIsCancelledEnterClaimEvent(
+                    (OnlineUser) user,
+                    claim, world,
+                    (Position) from, (Position) to
+            );
+        }
         return false;
     }
 

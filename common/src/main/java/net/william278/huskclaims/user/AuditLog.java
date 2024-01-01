@@ -19,9 +19,11 @@
 
 package net.william278.huskclaims.user;
 
+import com.google.common.collect.Maps;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import lombok.*;
+import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,34 +37,42 @@ public final class AuditLog {
 
     @Expose
     @SerializedName("log_entries")
-    private TreeMap<OffsetDateTime, LogEntry> logEntries = new TreeMap<>();
+    private TreeMap<String, Entry> logEntries = Maps.newTreeMap();
 
-    public void log(@Nullable User user, @NotNull LogAction action) {
-        if (logEntries.get(OffsetDateTime.now()) == null) {
-            logEntries.put(OffsetDateTime.now(), LogEntry.builder().action(action).user(user).build());
-        }
+    public void log(@Nullable User user, @NotNull AuditLog.Action action, @Nullable String message) {
+        logEntries.putIfAbsent(
+                OffsetDateTime.now().toString(),
+                Entry.builder().action(action).user(user).message(message).build()
+        );
     }
 
-    public void log(@NotNull LogAction action) {
-        log(null, action);
+    public void log(@NotNull UserManager.ClaimBlockSource blockSource, long newBalance) {
+        log(
+                null, Action.CLAIM_BLOCKS,
+                "%s (%s)".formatted(WordUtils.capitalizeFully(blockSource.name()), newBalance)
+        );
+    }
+
+    public void log(@NotNull AuditLog.Action action) {
+        log(null, action, null);
     }
 
     @Builder
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    private static final class LogEntry {
+    private static final class Entry {
         @Nullable
         @Expose
         private User user;
         @Expose
-        private LogAction action;
+        private Action action;
+        @Nullable
+        @Expose
+        private String message;
     }
 
-    public enum LogAction {
-        SET_BONUS_CLAIM_BLOCKS,
-        CREATE_CLAIM,
-        RESIZE_CLAIM,
-        MANAGE_CLAIM_MEMBERS
+    public enum Action {
+        CLAIM_BLOCKS
     }
 
 }

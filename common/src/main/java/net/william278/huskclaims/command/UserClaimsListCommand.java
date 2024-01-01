@@ -24,6 +24,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.claim.ServerWorldClaim;
 import net.william278.huskclaims.config.Locales;
 import net.william278.huskclaims.user.CommandUser;
 import net.william278.huskclaims.user.OnlineUser;

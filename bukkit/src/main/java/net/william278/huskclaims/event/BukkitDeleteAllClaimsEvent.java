@@ -17,35 +17,34 @@
  *  limitations under the License.
  */
 
-package net.william278.huskclaims.command;
+package net.william278.huskclaims.event;
 
+import lombok.Getter;
+import lombok.Setter;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.ServerWorldClaim;
+import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.User;
+import org.bukkit.event.Cancellable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
+import java.util.Collection;
 
-public interface GlobalClaimsProvider {
+@Getter
+public class BukkitDeleteAllClaimsEvent extends BukkitPlayerEvent implements DeleteAllClaimsEvent, Cancellable {
 
-    @NotNull
-    default List<ServerWorldClaim> getUserClaims(@NotNull User user) {
-        return getPlugin().getDatabase().getAllClaimWorlds().entrySet().stream()
-                .flatMap(e -> e.getValue().getClaims().stream()
-                        .filter(c -> user.getUuid().equals(c.getOwner().orElse(null)))
-                        .map(c -> new ServerWorldClaim(e.getKey(), c)))
-                .toList();
+    @Nullable
+    private final User claimOwner;
+    private final Collection<ServerWorldClaim> claims;
+    @Setter
+    private boolean cancelled;
+
+    protected BukkitDeleteAllClaimsEvent(@NotNull OnlineUser user, @Nullable User claimOwner,
+                                      @NotNull Collection<ServerWorldClaim> claims, @NotNull HuskClaims plugin) {
+        super(user, plugin);
+        this.claimOwner = claimOwner;
+        this.claims = claims;
     }
-
-    @NotNull
-    default List<ServerWorldClaim> getAdminClaims() {
-        return getPlugin().getDatabase().getAllClaimWorlds().entrySet().stream()
-                .flatMap(e -> e.getValue().getAdminClaims().stream()
-                        .map(c -> new ServerWorldClaim(e.getKey(), c)))
-                .toList();
-    }
-
-    @NotNull
-    HuskClaims getPlugin();
 
 }

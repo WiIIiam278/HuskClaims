@@ -165,19 +165,22 @@ public interface ClaimEditor {
             }
         }
 
-        getPlugin().resizeClaim(world, claim, resized);
-        getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claim);
+        // Resize the claim
+        getPlugin().fireResizeClaimEvent(user, claim, resized, world, (event) -> {
+            getPlugin().resizeClaim(world, claim, resized);
+            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claim);
 
-        // Send the correct message
-        if (claim.getOwner().isEmpty()) {
-            getPlugin().getLocales().getLocale("admin_claim_resized")
+            // Send the correct message
+            if (claim.getOwner().isEmpty()) {
+                getPlugin().getLocales().getLocale("admin_claim_resized")
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+            getPlugin().getLocales().getLocale(
+                            (neededBlocks > 0 ? "claim_resized_spent_blocks" : "claim_resized_reclaimed_blocks"),
+                            Long.toString(Math.abs(neededBlocks)))
                     .ifPresent(user::sendMessage);
-            return;
-        }
-        getPlugin().getLocales().getLocale(
-                        (neededBlocks > 0 ? "claim_resized_spent_blocks" : "claim_resized_reclaimed_blocks"),
-                        Long.toString(Math.abs(neededBlocks)))
-                .ifPresent(user::sendMessage);
+        });
     }
 
     default void userCreateClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {
@@ -204,18 +207,20 @@ public interface ClaimEditor {
         }
 
         // Create the claim
-        world.cacheUser(user);
-        final Claim claim = getPlugin().createClaimAt(world, region, user);
-        getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claim);
+        getPlugin().fireCreateClaimEvent(user, user, region, world, (event) -> {
+            world.cacheUser(user);
+            final Claim claim = getPlugin().createClaimAt(world, region, user);
+            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claim);
 
-        // Indicate that the claim has been created, suggest a trust level command
-        getPlugin().getLocales().getLocale("claim_created", Long.toString(surfaceArea))
-                .ifPresent(user::sendMessage);
-        getPlugin().getBuildTrustLevel().flatMap(level -> level
-                .getCommandAliases().stream().findFirst()
-                .flatMap(alias -> getPlugin().getLocales().getLocale("claim_created_trust_prompt",
-                        alias, level.getDisplayName(), level.getColor(), level.getDescription()
-                ))).ifPresent(user::sendMessage);
+            // Indicate that the claim has been created, suggest a trust level command
+            getPlugin().getLocales().getLocale("claim_created", Long.toString(surfaceArea))
+                    .ifPresent(user::sendMessage);
+            getPlugin().getBuildTrustLevel().flatMap(level -> level
+                    .getCommandAliases().stream().findFirst()
+                    .flatMap(alias -> getPlugin().getLocales().getLocale("claim_created_trust_prompt",
+                            alias, level.getDisplayName(), level.getColor(), level.getDescription()
+                    ))).ifPresent(user::sendMessage);
+        });
     }
 
     default void userCreateAdminClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {
@@ -225,16 +230,37 @@ public interface ClaimEditor {
         }
 
         // Create the claim
-        world.cacheUser(user);
-        final Claim claim = getPlugin().createAdminClaimAt(world, region);
+        getPlugin().fireCreateClaimEvent(user, null, region, world, (event) -> {
+            world.cacheUser(user);
+            final Claim claim = getPlugin().createAdminClaimAt(world, region);
 
-        // Grant the claim creator the highest trust level
-        claim.setTrustLevel(user, world, getPlugin().getHighestTrustLevel());
+            // Grant the claim creator the highest trust level
+            claim.setTrustLevel(user, world, getPlugin().getHighestTrustLevel());
 
-        // Highlight the claim
-        getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claim);
-        getPlugin().getLocales().getLocale("created_admin_claim")
-                .ifPresent(user::sendMessage);
+            // Highlight the claim
+            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claim);
+            getPlugin().getLocales().getLocale("created_admin_claim")
+                    .ifPresent(user::sendMessage);
+        });
+    }
+
+    // Handle deletion of a claim
+    default void userDeleteClaim(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
+                                 @NotNull Claim claim) {
+        getPlugin().fireDeleteClaimEvent(executor, claim, world, (event) -> {
+            getPlugin().deleteClaim(world, claim);
+            getPlugin().getHighlighter().stopHighlighting(executor);
+
+            // Send the correct deletion message
+            if (claim.getOwner().isPresent()) {
+                getPlugin().getLocales().getLocale("claim_deleted",
+                                Integer.toString(claim.getRegion().getSurfaceArea()))
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+            getPlugin().getLocales().getLocale("admin_claim_deleted")
+                    .ifPresent(executor::sendMessage);
+        });
     }
 
     private boolean doesClaimOverlap(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {
@@ -343,10 +369,13 @@ public interface ClaimEditor {
             return;
         }
 
-        getPlugin().resizeChildClaim(world, child, resized);
-        getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), child);
-        getPlugin().getLocales().getLocale("child_claim_resized")
-                .ifPresent(user::sendMessage);
+        // Resize the child claim
+        getPlugin().fireResizeChildClaimEvent(user, parent, child, resized, world, (event) -> {
+            getPlugin().resizeChildClaim(world, child, resized);
+            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), child);
+            getPlugin().getLocales().getLocale("child_claim_resized")
+                    .ifPresent(user::sendMessage);
+        });
     }
 
     default void userCreateChildClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {
@@ -373,10 +402,30 @@ public interface ClaimEditor {
             return;
         }
 
-        final Claim child = getPlugin().createChildClaimAt(world, region);
-        getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), List.of(parent, child));
-        getPlugin().getLocales().getLocale("created_child_claim")
-                .ifPresent(user::sendMessage);
+        // Create the child claim
+        getPlugin().fireCreateChildClaimEvent(user, parent, region, world, (event) -> {
+            final Claim child = getPlugin().createChildClaimAt(world, region);
+            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), List.of(parent, child));
+            getPlugin().getLocales().getLocale("created_child_claim")
+                    .ifPresent(user::sendMessage);
+        });
+    }
+
+    // Handle deletion of a child claim
+    default void userDeleteChildClaim(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
+                                      @NotNull Claim claim, @NotNull Claim parent) {
+        if (!claim.isPrivilegeAllowed(TrustLevel.Privilege.MANAGE_CHILD_CLAIMS, executor, world, getPlugin())) {
+            getPlugin().getLocales().getLocale("no_child_deletion_permission")
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        getPlugin().fireDeleteChildClaimEvent(executor, parent, claim, world, (event) -> {
+            getPlugin().deleteChildClaim(world, parent, claim);
+            getPlugin().getHighlighter().startHighlighting(executor, executor.getWorld(), parent);
+            getPlugin().getLocales().getLocale("child_claim_deleted")
+                    .ifPresent(executor::sendMessage);
+        });
     }
 
     @NotNull

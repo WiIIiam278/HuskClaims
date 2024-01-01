@@ -72,22 +72,21 @@ public class UnTrustCommand extends InClaimCommand implements TabCompletable {
     @Blocking
     private void removeTrust(@NotNull OnlineUser executor, @NotNull Trustable toUntrust,
                              @NotNull ClaimWorld world, @NotNull Claim claim) {
-        boolean removed = false;
-        if (toUntrust instanceof User user) {
-            removed = claim.getTrustedUsers().remove(user.getUuid()) != null;
-        } else if (toUntrust instanceof UserGroup group) {
-            removed = claim.getTrustedGroups().remove(group.name()) != null;
-        }
-
         final String identifier = toUntrust.getTrustIdentifier(plugin);
-        if (!removed) {
+        final Optional<TrustLevel> trustLevel = claim.getTrustLevel(toUntrust, plugin);
+        if (trustLevel.isEmpty()) {
             plugin.getLocales().getLocale("error_not_trusted", identifier)
                     .ifPresent(executor::sendMessage);
             return;
         }
-        plugin.getLocales().getLocale("trust_level_removed", identifier)
-                .ifPresent(executor::sendMessage);
-        plugin.getDatabase().updateClaimWorld(world);
+
+        // Remove the trust level from the trustable
+        plugin.fireUntrustEvent(executor, trustLevel.get(), toUntrust, claim, world, (event) -> {
+            claim.removeTrustLevel(toUntrust, world);
+            plugin.getLocales().getLocale("trust_level_removed", identifier)
+                    .ifPresent(executor::sendMessage);
+            plugin.getDatabase().updateClaimWorld(world);
+        });
     }
 
     // We allow the resolution of deleted user groups as we need to be able to remove them from the claim
