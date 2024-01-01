@@ -67,6 +67,9 @@ public abstract class Node implements Executable {
 
     @NotNull
     public String getName() {
+        if (aliases.isEmpty()) {
+            throw new IllegalStateException("Primary alias of command node is blank");
+        }
         return aliases.get(0);
     }
 

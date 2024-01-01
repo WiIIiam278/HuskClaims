@@ -47,7 +47,7 @@ public class AdminClaimsListCommand extends ClaimsListCommand {
 
     @Override
     public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
-        final SortOption sort = parseSortArg(args, 0).orElse(SortOption.SIZE);
+        final SortOption sort = parseSortArg(args, 0).orElse(SortOption.DIMENSION);
         final boolean ascend = parseOrderArg(args, 1).orElse(false);
         final int page = parseIntArg(args, 2).orElse(1);
 
@@ -91,6 +91,7 @@ public class AdminClaimsListCommand extends ClaimsListCommand {
                 "admin_claim_list_title",
                 locales.getRawLocale(
                         String.format("claim_list_sort_%s", ascend ? "ascending" : "descending"),
+                        getName(),
                         sort.getId(),
                         "%current_page%"
                 ).orElse(""),

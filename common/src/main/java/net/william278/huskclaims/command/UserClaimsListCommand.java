@@ -52,8 +52,10 @@ public class UserClaimsListCommand extends ClaimsListCommand implements UserList
     @Override
     public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
         final Optional<User> optionalUser = resolveUser(executor, args);
-        final SortOption sort = parseSortArg(args, 1).or(() -> parseSortArg(args, 0)).orElse(SortOption.SIZE);
-        final boolean ascend = parseOrderArg(args, 2).or(() -> parseOrderArg(args, 1)).orElse(false);
+        final SortOption sort = parseSortArg(args, 1)
+                .or(() -> parseSortArg(args, 0)).orElse(SortOption.DIMENSION);
+        final boolean ascend = parseOrderArg(args, 2)
+                .or(() -> parseOrderArg(args, 1)).orElse(false);
         final int page = parseIntArg(args, 3).or(() -> parseIntArg(args, 2)).orElse(1);
         if (optionalUser.isEmpty()) {
             plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
@@ -105,6 +107,7 @@ public class UserClaimsListCommand extends ClaimsListCommand implements UserList
                 "user_claim_list_title",
                 locales.getRawLocale(
                         String.format("claim_list_sort_%s", ascend ? "ascending" : "descending"),
+                        getName(),
                         sort.getId(),
                         "%current_page%"
                 ).orElse(""),

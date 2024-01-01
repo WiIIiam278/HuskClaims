@@ -46,29 +46,50 @@ public abstract class ClaimsListCommand extends Command {
                                  final List<ServerWorldClaim> claims,
                                  int page, @NotNull SortOption sort, boolean ascend) {
         final Locales locales = plugin.getLocales();
+        final boolean crossServer = plugin.getSettings().getCrossServer().isEnabled();
         claims.sort(ascend ? sort.getComparator().reversed() : sort.getComparator());
         executor.sendMessage(PaginatedList.of(
                 claims.stream().map(claim -> locales.getRawLocale(
                         "claim_list_item",
-                        claim.serverWorld().toString(),
-                        locales.getRawLocale("claim_position",
+                        locales.getRawLocale(
+                                switch (claim.serverWorld().world().getEnvironment().toLowerCase(Locale.ENGLISH)) {
+                                    case "nether" -> "claim_list_dimension_nether";
+                                    case "the_end" -> "claim_list_dimension_end";
+                                    default -> "claim_list_dimension_overworld";
+                                },
+                                crossServer ? claim.serverWorld().toString() : claim.serverWorld.world().getName(),
+                                locales.getRawLocale(
+                                        "claim_list_%sworld_tooltip".formatted(!crossServer ? "" : "server_")
+                                ).orElse("")
+                        ).orElse(""),
+                        locales.getRawLocale(
+                                "claim_list_coordinates",
                                 Integer.toString(claim.claim().getRegion().getNearCorner().getBlockX()),
                                 Integer.toString(claim.claim().getRegion().getNearCorner().getBlockZ())
                         ).orElse(""),
-                        Integer.toString(claim.claim().getRegion().getLongestEdge()),
-                        Integer.toString(claim.claim().getRegion().getShortestEdge()),
-                        Long.toString(claim.claim().getRegion().getSurfaceArea()),
-                        Integer.toString(claim.claim().getChildren().size()),
-                        Integer.toString(
-                                claim.claim().getTrustedUsers().size() + claim.claim().getTrustedGroups().size()
-                        )
+                        locales.getRawLocale(
+                                "claim_list_blocks",
+                                Long.toString(claim.claim().getRegion().getSurfaceArea()),
+                                Integer.toString(claim.claim().getRegion().getLongestEdge()),
+                                Integer.toString(claim.claim().getRegion().getShortestEdge())
+                        ).orElse(""),
+                        locales.getRawLocale(
+                                "claim_list_children",
+                                Integer.toString(claim.claim().getChildren().size())
+                        ).orElse(""),
+                        locales.getRawLocale(
+                                "claim_list_trustees",
+                                Integer.toString(claim.claim().getTrustedUsers().size()
+                                        + claim.claim().getTrustedGroups().size())
+                        ).orElse("")
                 ).orElse("")).toList(),
                 locales.getBaseList(CLAIMS_PER_PAGE)
                         .setHeaderFormat(getListTitle(locales, user, claims.size(), sort, ascend))
                         .setItemSeparator("\n")
                         .setCommand(String.format(
-                                "/%s %s %s",
-                                String.format("%s%s", getName(), user == null ? "" : " " + user.getName()),
+                                "/%s%s %s %s",
+                                getName(),
+                                (user == null ? "" : " " + user.getName()),
                                 sort.getId(),
                                 (ascend ? "ascending" : "descending")
                         )).build()
@@ -100,7 +121,7 @@ public abstract class ClaimsListCommand extends Command {
                 locales.getRawLocale("claim_list_sort_option_separator").orElse("|")
         );
 
-        for (SortOption option : SortOption.values()) {
+        for (SortOption option : SortOption.LISTED_OPTIONS) {
             boolean selected = option == sort;
             if (selected) {
                 options.add(locales.getRawLocale("claim_list_sort_option_selected",
@@ -110,6 +131,7 @@ public abstract class ClaimsListCommand extends Command {
             }
             options.add(locales.getRawLocale("claim_list_sort_option",
                             option.getDisplayName(plugin.getLocales()),
+                            getName(),
                             option.getId(),
                             ascend ? "ascending" : "descending", "%current_page%")
                     .orElse(option.getId()));
@@ -121,9 +143,13 @@ public abstract class ClaimsListCommand extends Command {
     @AllArgsConstructor
     public enum SortOption {
         SIZE(Comparator.comparing(c -> c.claim().getRegion().getSurfaceArea())),
-        WORLD(Comparator.comparing(c -> c.serverWorld().toString())),
+        WORLD(Comparator.comparing(c -> c.serverWorld().world().getName())),
+        SERVER(Comparator.comparing(c -> c.serverWorld().server())),
+        DIMENSION(Comparator.comparing(c -> c.serverWorld().world().getEnvironment().toLowerCase(Locale.ENGLISH))),
         MEMBERS(Comparator.comparingInt(c -> c.claim().getTrustedUsers().size())),
         CHILDREN(Comparator.comparingInt(c -> c.claim().getChildren().size()));
+
+        public static final List<SortOption> LISTED_OPTIONS = List.of(SIZE, DIMENSION, CHILDREN);
 
         private final Comparator<ServerWorldClaim> comparator;
 

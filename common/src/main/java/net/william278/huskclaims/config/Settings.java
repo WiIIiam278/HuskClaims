@@ -216,6 +216,9 @@ public final class Settings {
         @Comment("Max range of inspector tools")
         private int inspectionDistance = 64;
 
+        @Comment("Whether to require confirmation when deleting claims that have children")
+        private boolean confirmDeletingParentClaims = true;
+
         public boolean isWorldUnclaimable(@NotNull World world) {
             return unclaimableWorlds.stream().anyMatch(world.getName()::equalsIgnoreCase);
         }

@@ -27,7 +27,9 @@ import net.william278.huskclaims.claim.TrustLevel;
 import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
+import javax.print.DocFlavor;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -36,7 +38,7 @@ public class UnClaimCommand extends InClaimCommand {
     protected UnClaimCommand(@NotNull HuskClaims plugin) {
         super(
                 List.of("unclaim", "abandonclaim"),
-                "",
+                "[confirm]",
                 null,
                 plugin
         );
@@ -46,23 +48,17 @@ public class UnClaimCommand extends InClaimCommand {
     @Override
     public void execute(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
                         @NotNull Claim claim, @NotNull String[] args) {
+        final boolean confirmed = parseStringArg(args, 0).map(a -> a.toLowerCase(Locale.ENGLISH))
+                .map(a -> a.equals("confirm")).orElse(false);
         final Optional<Claim> optionalParent = claim.getParent(world);
         if (optionalParent.isPresent()) {
-            final Claim parent = optionalParent.get();
-            if (!claim.isPrivilegeAllowed(TrustLevel.Privilege.MANAGE_CHILD_CLAIMS, executor, world, plugin)) {
-                plugin.getLocales().getLocale("no_child_deletion_permission")
-                        .ifPresent(executor::sendMessage);
-                return;
-            }
-
-            plugin.deleteChildClaim(world, parent, claim);
-            plugin.getHighlighter().startHighlighting(executor, executor.getWorld(), parent);
-            plugin.getLocales().getLocale("child_claim_deleted")
-                    .ifPresent(executor::sendMessage);
+            deleteChildClaim(executor, world, claim, optionalParent.get());
             return;
         }
 
-        if ((claim.getOwner().isEmpty() && !ClaimingMode.ADMIN_CLAIMS.canUse(executor))
+        // Check if the user can delete the claim
+        boolean isAdminClaim = claim.getOwner().isEmpty();
+        if ((isAdminClaim && !ClaimingMode.ADMIN_CLAIMS.canUse(executor))
                 || (claim.getOwner().map(owner -> !owner.equals(executor.getUuid())).orElse(true)
                 && !hasPermission(executor, "other"))) {
             plugin.getLocales().getLocale("no_deletion_permission")
@@ -70,9 +66,38 @@ public class UnClaimCommand extends InClaimCommand {
             return;
         }
 
+        // Require confirmation for deleting a parent claim
+        if (plugin.getSettings().getClaims().isConfirmDeletingParentClaims() &&
+                !claim.getChildren().isEmpty() && !confirmed) {
+            plugin.getLocales().getLocale("confirm_deletion_parent_claim",
+                    String.format("/%s confirm", getName())).ifPresent(executor::sendMessage);
+            return;
+        }
+
         plugin.deleteClaim(world, claim);
         plugin.getHighlighter().stopHighlighting(executor);
-        plugin.getLocales().getLocale("claim_deleted")
+
+        // Send the correct deletion message
+        if (!isAdminClaim) {
+            plugin.getLocales().getLocale("claim_deleted")
+                    .ifPresent(executor::sendMessage);
+        }
+        plugin.getLocales().getLocale("admin_claim_deleted")
+                .ifPresent(executor::sendMessage);
+    }
+
+    // Handle deletion of a child claim
+    private void deleteChildClaim(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
+                                  @NotNull Claim claim, @NotNull Claim parent) {
+        if (!claim.isPrivilegeAllowed(TrustLevel.Privilege.MANAGE_CHILD_CLAIMS, executor, world, plugin)) {
+            plugin.getLocales().getLocale("no_child_deletion_permission")
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        plugin.deleteChildClaim(world, parent, claim);
+        plugin.getHighlighter().startHighlighting(executor, executor.getWorld(), parent);
+        plugin.getLocales().getLocale("child_claim_deleted")
                 .ifPresent(executor::sendMessage);
     }
 

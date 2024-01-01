@@ -150,7 +150,7 @@ public class UserGroupsCommand extends OnlineUserCommand implements TabCompletab
                 executor, name, users,
                 (group, user) -> {
                     if (!group.isMember(user.getUuid())) {
-                        plugin.getLocales().getLocale("error_not_group_member", user.getName())
+                        plugin.getLocales().getLocale("error_not_group_member", user.getName(), group.name())
                                 .ifPresent(executor::sendMessage);
                         return;
                     }

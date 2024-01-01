@@ -49,12 +49,12 @@ public class TrustLevels {
     private List<TrustLevel> trustLevels = Lists.newArrayList(
             // Permission trust (manage trustees, make sub-divisions, etc.)
             TrustLevel.builder()
-                    .id("permission")
+                    .id("manage")
                     .weight(400)
                     .color("#fc4e03")
-                    .displayName("Permission")
+                    .displayName("Manage")
                     .description("Allows users to manage trustees & make child claims")
-                    .commandAliases(List.of("permissiontrust"))
+                    .commandAliases(List.of("managetrust", "permissiontrust"))
                     .flags(List.of(
                             OperationType.BLOCK_BREAK,
                             OperationType.BLOCK_PLACE,
@@ -90,7 +90,7 @@ public class TrustLevels {
                     .color("#fcd303")
                     .displayName("Build")
                     .description("Allows users to build in the claim")
-                    .commandAliases(List.of("trust"))
+                    .commandAliases(List.of("trust", "buildtrust"))
                     .flags(List.of(
                             OperationType.BLOCK_BREAK,
                             OperationType.BLOCK_PLACE,

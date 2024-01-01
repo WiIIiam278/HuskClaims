@@ -153,7 +153,7 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
         PLUGIN_VERSION(plugin -> Component.text("v" + plugin.getPluginVersion().toStringWithoutMetadata())
                 .appendSpace().append(plugin.getPluginVersion().getMetadata().isBlank() ? Component.empty()
                         : Component.text("(build " + plugin.getPluginVersion().getMetadata() + ")"))),
-        SERVER_TYPE(plugin -> Component.text(plugin.getServerType())),
+        SERVER_VERSION(plugin -> Component.text(plugin.getServerType())),
         LANGUAGE(plugin -> Component.text(plugin.getSettings().getLanguage())),
         MINECRAFT_VERSION(plugin -> Component.text(plugin.getMinecraftVersion().toString())),
         JAVA_VERSION(plugin -> Component.text(System.getProperty("java.version"))),
