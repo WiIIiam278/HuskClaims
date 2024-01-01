@@ -43,21 +43,45 @@ public interface MessageHandler {
     // Handle inbound user list updates (returned from requests)
     default void handleUpdateUserList(@NotNull Message message) {
         message.getPayload().getUserList().ifPresent(
-                players -> getPlugin().setUserList(message.getSourceServer(), players)
+                (players) -> getPlugin().setUserList(message.getSourceServer(), players)
         );
+    }
+
+    // Handle inbound delete all claims requests
+    default void handleDeleteAllClaims(@NotNull Message message) {
+        message.getPayload().getUuid().ifPresentOrElse(
+                // Delete all claims by a UUID-given user
+                (uuid) -> {
+                    getPlugin().getSavedUser(uuid).ifPresent(
+                            (saved) -> getPlugin().getClaimWorlds().entrySet().stream()
+                                    .filter((world) -> world.getValue().removeClaimsBy(saved.getUser()))
+                                    .forEach((world) -> getPlugin().getDatabase().updateClaimWorld(world.getValue()))
+                    );
+                    getPlugin().invalidateUserCache(uuid);
+                },
+                // Delete all admin claims
+                () -> {
+                    getPlugin().getClaimWorlds().values().forEach((world) -> {
+                        if (!world.getAdminClaims().isEmpty()) {
+                            world.getAdminClaims().clear();
+                            getPlugin().getDatabase().updateClaimWorld(world);
+                        }
+                    });
+                    getPlugin().invalidateAdminClaimListCache();
+                });
     }
 
     // Handle inbound user group updates
     default void handleInvalidateUserGroups(@NotNull Message message) {
         message.getPayload().getUuid().ifPresent(
-                uuid -> getPlugin().setUserGroups(uuid, getPlugin().getDatabase().getUserGroups(uuid))
+                (uuid) -> getPlugin().setUserGroups(uuid, getPlugin().getDatabase().getUserGroups(uuid))
         );
     }
 
     // Handle inbound user cache invalidation
     default void handleInvalidateUserCache(@NotNull Message message) {
         message.getPayload().getUuid().ifPresent(
-                uuid -> getPlugin().invalidateUserCache(uuid)
+                (uuid) -> getPlugin().invalidateUserCache(uuid)
         );
     }
 

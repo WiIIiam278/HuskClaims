@@ -70,6 +70,10 @@ public class ClaimWorld {
         return new ClaimWorld(plugin);
     }
 
+    public boolean removeClaimsBy(@NotNull User owner) {
+        return claims.removeIf(claim -> claim.getOwner().map(owner.getUuid()::equals).orElse(false));
+    }
+
     public Optional<User> getUser(@NotNull UUID uuid) {
         return Optional.ofNullable(userCache.get(uuid)).map(name -> User.of(uuid, name));
     }

@@ -147,10 +147,6 @@ public class Message {
      */
     public enum MessageType {
         /**
-         * Notify other servers of the need to update user groups for the user by payload.
-         */
-        INVALIDATE_USER_GROUPS,
-        /**
          * Request other servers to send a {@link MessageType#UPDATE_USER_LIST} to the sending server.
          */
         REQUEST_USER_LIST,
@@ -159,8 +155,16 @@ public class Message {
          */
         UPDATE_USER_LIST,
         /**
+         * Request all servers to delete all claims for the user by payload.
+         */
+        DELETE_ALL_CLAIMS,
+        /**
          * Invalidate the user cache for the user by payload.
          */
-        INVALIDATE_USER_CACHE
+        INVALIDATE_USER_CACHE,
+        /**
+         * Notify other servers of the need to update user groups for the user by payload.
+         */
+        INVALIDATE_USER_GROUPS
     }
 }

@@ -20,7 +20,9 @@
 package net.william278.huskclaims.command;
 
 import com.google.common.collect.Lists;
-import net.jodah.expiringmap.ExpiringMap;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.config.Locales;
 import net.william278.huskclaims.user.CommandUser;
@@ -33,12 +35,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-public class UserClaimsListCommand extends ClaimsListCommand implements UserListTabCompletable {
+public class UserClaimsListCommand extends ClaimsListCommand implements UserListTabCompletable, GlobalClaimsProvider {
 
-    private final ExpiringMap<UUID, List<ServerWorldClaim>> claimLists = ExpiringMap.builder()
-            .expiration(LIST_CACHE_MINUTES, TimeUnit.MINUTES).build();
+    private final Multimap<UUID, ServerWorldClaim> claimLists;
 
     protected UserClaimsListCommand(@NotNull HuskClaims plugin) {
         super(
@@ -47,6 +48,10 @@ public class UserClaimsListCommand extends ClaimsListCommand implements UserList
                 plugin
         );
         addAdditionalPermissions(Map.of("other", true));
+
+        this.claimLists = Multimaps.newListMultimap(
+                Maps.newConcurrentMap(), CopyOnWriteArrayList::new
+        );
     }
 
     @Override
@@ -76,7 +81,7 @@ public class UserClaimsListCommand extends ClaimsListCommand implements UserList
     protected void showUserClaimList(@NotNull CommandUser executor, @NotNull User user,
                                      int page, @NotNull SortOption sort, boolean ascend) {
         if (claimLists.containsKey(user.getUuid())) {
-            showClaimList(executor, user, claimLists.get(user.getUuid()), page, sort, ascend);
+            showClaimList(executor, user, Lists.newArrayList(claimLists.get(user.getUuid())), page, sort, ascend);
             return;
         }
 
@@ -86,22 +91,13 @@ public class UserClaimsListCommand extends ClaimsListCommand implements UserList
                     .ifPresent(executor::sendMessage);
             return;
         }
-        claimLists.put(user.getUuid(), claims);
+        claimLists.putAll(user.getUuid(), claims);
 
         showClaimList(executor, user, claims, page, sort, ascend);
     }
 
-    @NotNull
-    private List<ServerWorldClaim> getUserClaims(@NotNull User user) {
-        return plugin.getDatabase().getAllClaimWorlds().entrySet().stream()
-                .flatMap(e -> e.getValue().getClaims().stream()
-                        .filter(c -> user.getUuid().equals(c.getOwner().orElse(null)))
-                        .map(c -> new ServerWorldClaim(e.getKey(), c)))
-                .toList();
-    }
-
     protected void invalidateCache(@NotNull UUID userUuid) {
-        claimLists.remove(userUuid);
+        claimLists.removeAll(userUuid);
     }
 
     @Override

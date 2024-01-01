@@ -23,6 +23,8 @@ import com.google.common.collect.Maps;
 import net.william278.huskclaims.database.Database;
 import net.william278.huskclaims.highlighter.BlockUpdateHighlighter;
 import net.william278.huskclaims.highlighter.Highlighter;
+import net.william278.huskclaims.network.Message;
+import net.william278.huskclaims.network.Payload;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.position.World;
 import net.william278.huskclaims.user.OnlineUser;
@@ -197,6 +199,46 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
                 user, (blocks -> blocks + surfaceArea))
         );
         getPlugin().invalidateClaimListCache(claim.getOwner().orElse(null));
+    }
+
+    /**
+     * Delete all claims owned by a user
+     *
+     * @param executor The user who is deleting the claims
+     * @param user     The user whose claims are being deleted
+     * @since 1.0
+     */
+    default void deleteAllClaims(@NotNull OnlineUser executor, @NotNull User user) {
+        getClaimWorlds().entrySet().stream()
+                .filter((world) -> world.getValue().removeClaimsBy(user))
+                .forEach((world) -> getDatabase().updateClaimWorld(world.getValue()));
+        getPlugin().getBroker().ifPresent(broker -> Message.builder()
+                .type(Message.MessageType.DELETE_ALL_CLAIMS)
+                .payload(Payload.uuid(user.getUuid()))
+                .target(Message.TARGET_ALL, Message.TargetType.SERVER).build()
+                .send(broker, executor));
+    }
+
+    /**
+     * Delete all admin claims
+     *
+     * @param executor The user who is deleting the claims
+     * @since 1.0
+     */
+    default void deleteAllAdminClaims(@NotNull OnlineUser executor) {
+        getClaimWorlds().entrySet().stream()
+                .filter((world) -> {
+                    if (!world.getValue().getAdminClaims().isEmpty()) {
+                        world.getValue().getAdminClaims().clear();
+                        return true;
+                    }
+                    return false;
+                })
+                .forEach((world) -> getDatabase().updateClaimWorld(world.getValue()));
+        getPlugin().getBroker().ifPresent(broker -> Message.builder()
+                .type(Message.MessageType.DELETE_ALL_CLAIMS)
+                .target(Message.TARGET_ALL, Message.TargetType.SERVER).build()
+                .send(broker, executor));
     }
 
     /**

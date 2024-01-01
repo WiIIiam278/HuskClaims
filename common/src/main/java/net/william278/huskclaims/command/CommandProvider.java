@@ -24,6 +24,7 @@ import net.william278.huskclaims.HuskClaims;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -61,10 +62,11 @@ public interface CommandProvider {
 
         // Register built-in commands
         commands.add(new HuskClaimsCommand(getPlugin()));
-        commands.add(new UnTrustCommand(getPlugin()));
         commands.add(new TrustListCommand(getPlugin()));
+        commands.add(new UnTrustCommand(getPlugin()));
         commands.add(new UserGroupsCommand(getPlugin()));
         commands.add(new UnClaimCommand(getPlugin()));
+        commands.add(new UnClaimAllCommand(getPlugin()));
         commands.add(new UserClaimsListCommand(getPlugin()));
         commands.add(new AdminClaimsListCommand(getPlugin()));
         commands.add(new ExtendClaimCommand(getPlugin()));
@@ -87,6 +89,8 @@ public interface CommandProvider {
                 .filter(group -> !group.getToggleCommandAliases().isEmpty())
                 .forEach((group) -> commands.add(new OperationGroupCommand(group, getPlugin())));
 
+        // Sort and register
+        commands.sort(Comparator.comparing(Node::getName));
         registerCommands(commands);
     }
 

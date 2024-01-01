@@ -27,12 +27,10 @@ import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 
-public class AdminClaimsListCommand extends ClaimsListCommand {
-    private List<ServerWorldClaim> claimList = Lists.newArrayList();
-    private OffsetDateTime cacheExpiry = OffsetDateTime.now().minusMinutes(1);
+public class AdminClaimsListCommand extends ClaimsListCommand implements GlobalClaimsProvider {
+    private List<ServerWorldClaim> adminClaims = Lists.newArrayList();
 
     protected AdminClaimsListCommand(@NotNull HuskClaims plugin) {
         super(
@@ -54,9 +52,8 @@ public class AdminClaimsListCommand extends ClaimsListCommand {
 
     protected void showAdminClaimList(@NotNull CommandUser executor, int page,
                                       @NotNull SortOption sort, boolean ascend) {
-        final OffsetDateTime now = OffsetDateTime.now();
-        if (cacheExpiry.isAfter(now)) {
-            showClaimList(executor, null, claimList, page, sort, ascend);
+        if (adminClaims != null) {
+            showClaimList(executor, null, Lists.newArrayList(adminClaims), page, sort, ascend);
             return;
         }
 
@@ -66,29 +63,20 @@ public class AdminClaimsListCommand extends ClaimsListCommand {
                     .ifPresent(executor::sendMessage);
             return;
         }
-        claimList = claims;
-        cacheExpiry = now.plusMinutes(LIST_CACHE_MINUTES);
+        adminClaims = claims;
 
         showClaimList(executor, null, claims, page, sort, ascend);
     }
 
     protected void invalidateCache() {
-        cacheExpiry = OffsetDateTime.now().minusMinutes(1);
+        adminClaims = null;
     }
-
-    @NotNull
-    private List<ServerWorldClaim> getAdminClaims() {
-        return plugin.getDatabase().getAllClaimWorlds().entrySet().stream()
-                .flatMap(e -> e.getValue().getAdminClaims().stream()
-                        .map(c -> new ServerWorldClaim(e.getKey(), c)))
-                .toList();
-    }
-
 
 
     @Override
     @NotNull
-    protected String getListTitle(@NotNull Locales locales, @Nullable User user, int claimCount, @NotNull SortOption sort, boolean ascend) {
+    protected String getListTitle(@NotNull Locales locales, @Nullable User user, int claimCount,
+                                  @NotNull SortOption sort, boolean ascend) {
         return locales.getRawLocale(
                 "admin_claim_list_title",
                 locales.getRawLocale(

@@ -28,7 +28,6 @@ import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -47,8 +46,7 @@ public class UnClaimCommand extends InClaimCommand {
     @Override
     public void execute(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
                         @NotNull Claim claim, @NotNull String[] args) {
-        final boolean confirmed = parseStringArg(args, 0).map(a -> a.toLowerCase(Locale.ENGLISH))
-                .map(a -> a.equals("confirm")).orElse(false);
+        final boolean confirmed = parseConfirmArg(args);
         final Optional<Claim> optionalParent = claim.getParent(world);
         if (optionalParent.isPresent()) {
             deleteChildClaim(executor, world, claim, optionalParent.get());

@@ -105,6 +105,12 @@ public abstract class Node implements Executable {
         return Optional.empty();
     }
 
+    protected boolean parseConfirmArg(@NotNull String[] args) {
+        return parseStringArg(args, args.length - 1)
+                .map(arg -> arg.toLowerCase(Locale.ENGLISH).equals("confirm"))
+                .orElse(false);
+    }
+
     protected Optional<Integer> parseIntArg(@NotNull String[] args, int index) {
         return parseStringArg(args, index).flatMap(arg -> {
             try {

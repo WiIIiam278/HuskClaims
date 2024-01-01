@@ -51,6 +51,7 @@ public abstract class Broker implements MessageHandler {
         switch (message.getType()) {
             case REQUEST_USER_LIST -> handleRequestUserList(message, receiver);
             case UPDATE_USER_LIST -> handleUpdateUserList(message);
+            case DELETE_ALL_CLAIMS -> handleDeleteAllClaims(message);
             case INVALIDATE_USER_GROUPS -> handleInvalidateUserGroups(message);
             case INVALIDATE_USER_CACHE -> handleInvalidateUserCache(message);
             default -> plugin.log(Level.SEVERE, "Received unknown message type: " + message.getType());
@@ -71,14 +72,6 @@ public abstract class Broker implements MessageHandler {
      * @param sender  the sender of the message
      */
     protected abstract void send(@NotNull Message message, @NotNull OnlineUser sender);
-
-    /**
-     * Move an {@link OnlineUser} to a new server on the proxy network
-     *
-     * @param user   the user to move
-     * @param server the server to move the user to
-     */
-    public abstract void changeServer(@NotNull OnlineUser user, @NotNull String server);
 
     /**
      * Terminate the broker

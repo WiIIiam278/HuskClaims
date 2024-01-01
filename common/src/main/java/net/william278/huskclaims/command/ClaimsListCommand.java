@@ -22,9 +22,7 @@ package net.william278.huskclaims.command;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.william278.huskclaims.HuskClaims;
-import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.config.Locales;
-import net.william278.huskclaims.position.ServerWorld;
 import net.william278.huskclaims.user.CommandUser;
 import net.william278.huskclaims.user.User;
 import net.william278.paginedown.PaginatedList;
@@ -33,9 +31,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public abstract class ClaimsListCommand extends Command {
-
-    protected static final int LIST_CACHE_MINUTES = 5;
+public abstract class ClaimsListCommand extends Command implements GlobalClaimsProvider {
     private static final int CLAIMS_PER_PAGE = 8;
 
     protected ClaimsListCommand(@NotNull List<String> aliases, @NotNull String usage, @NotNull HuskClaims plugin) {
@@ -57,7 +53,7 @@ public abstract class ClaimsListCommand extends Command {
                                     case "the_end" -> "claim_list_dimension_end";
                                     default -> "claim_list_dimension_overworld";
                                 },
-                                crossServer ? claim.serverWorld().toString() : claim.serverWorld.world().getName(),
+                                crossServer ? claim.serverWorld().toString() : claim.serverWorld().world().getName(),
                                 locales.getRawLocale(
                                         "claim_list_%sworld_tooltip".formatted(!crossServer ? "" : "server_")
                                 ).orElse("")
@@ -166,9 +162,6 @@ public abstract class ClaimsListCommand extends Command {
         public static Optional<SortOption> matchSortOption(@NotNull String text) {
             return Arrays.stream(values()).filter(o -> o.getId().equals(text.toLowerCase(Locale.ENGLISH))).findFirst();
         }
-    }
-
-    protected record ServerWorldClaim(@NotNull ServerWorld serverWorld, @NotNull Claim claim) {
     }
 
 }
