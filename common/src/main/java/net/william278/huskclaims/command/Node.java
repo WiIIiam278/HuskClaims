@@ -84,12 +84,15 @@ public abstract class Node implements Executable {
     }
 
     @NotNull
-    protected List<String> parseMultiStringArg(@NotNull String[] args, int index) {
-        final List<String> arguments = Lists.newArrayList();
-        if (args.length > index) {
-            arguments.addAll(Arrays.asList(args).subList(index, args.length));
+    protected List<String> parseDistinctNameList(@NotNull String[] args, int index) {
+        final List<String> names = Lists.newArrayList();
+        if (args.length <= index) {
+            return names;
         }
-        return arguments;
+        Arrays.asList(args).subList(index, args.length).stream()
+                .filter(n -> names.stream().noneMatch(n::equalsIgnoreCase))
+                .forEach(names::add);
+        return names;
     }
 
     protected Optional<String> parseStringArg(@NotNull String[] args, int index) {
@@ -118,17 +121,6 @@ public abstract class Node implements Executable {
             return Optional.of(true);
         } else if (arg.equals("false") || arg.equals("disable") || arg.equals("off")) {
             return Optional.of(false);
-        }
-        return Optional.empty();
-    }
-
-    protected Optional<String> parseGreedyArguments(@NotNull String[] args) {
-        if (args.length > 1) {
-            final StringJoiner sentence = new StringJoiner(" ");
-            for (int i = 1; i < args.length; i++) {
-                sentence.add(args[i]);
-            }
-            return Optional.of(sentence.toString().trim());
         }
         return Optional.empty();
     }

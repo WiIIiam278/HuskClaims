@@ -19,6 +19,7 @@
 
 package net.william278.huskclaims.command;
 
+import com.google.common.collect.Lists;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.config.Locales;
 import net.william278.huskclaims.group.UserGroup;
@@ -33,7 +34,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 public class UserGroupsCommand extends OnlineUserCommand implements TabCompletable {
@@ -41,32 +42,25 @@ public class UserGroupsCommand extends OnlineUserCommand implements TabCompletab
     protected UserGroupsCommand(@NotNull HuskClaims plugin) {
         super(
                 List.of("group", "usergroup"),
-                "<create|delete|edit> [name] [user(s)]",
+                "[name] [<add|remove> <user(s)>|delete] ",
                 plugin
         );
     }
 
     @Override
     public void execute(@NotNull OnlineUser executor, @NotNull String[] args) {
-        final Optional<String> operation = parseStringArg(args, 0);
-        final Optional<String> groupName = parseStringArg(args, 1);
-        if (operation.isEmpty() || groupName.isEmpty()) {
+        final Optional<String> groupName = parseStringArg(args, 0);
+        if (groupName.isEmpty()) {
             showGroupList(executor);
             return;
         }
 
-        switch (operation.get().toLowerCase(Locale.ENGLISH)) {
-            case "create" -> createGroup(executor, groupName.get());
+        final String operation = parseStringArg(args, 1).orElse("list");
+        switch (operation.toLowerCase(Locale.ENGLISH)) {
+            case "add" -> addGroupUsers(executor, groupName.get(), parseDistinctNameList(args, 2));
+            case "remove" -> removeGroupUsers(executor, groupName.get(), parseDistinctNameList(args, 2));
+            case "list" -> listGroupUsers(executor, groupName.get());
             case "delete" -> deleteGroup(executor, groupName.get());
-            case "edit" -> {
-                final Optional<String> action = parseStringArg(args, 2);
-                final List<String> userList = parseMultiStringArg(args, 3);
-                if (userList.isEmpty() || action.isEmpty()) {
-                    showGroupMemberList(executor, groupName.get());
-                    return;
-                }
-                editGroupPlayers(executor, groupName.get(), action.get(), userList);
-            }
         }
     }
 
@@ -94,35 +88,9 @@ public class UserGroupsCommand extends OnlineUserCommand implements TabCompletab
         ).orElse(group.name());
     }
 
-    private void editGroupPlayers(@NotNull OnlineUser user, @NotNull String name,
-                                  @NotNull String action, @NotNull List<String> players) {
-        switch (action.toLowerCase(Locale.ENGLISH)) {
-            case "add" -> players.forEach(player -> addPlayerToGroup(user, name, player));
-            case "remove" -> players.forEach(player -> removePlayerFromGroup(user, name, player));
-            default -> showGroupMemberList(user, name);
-        }
-    }
-
-    private void createGroup(@NotNull OnlineUser user, @NotNull String name) {
-        if (plugin.getUserGroup(user.getUuid(), name).isPresent()) {
-            plugin.getLocales().getLocale("error_group_already_exists", name)
-                    .ifPresent(user::sendMessage);
-            return;
-        }
-        if (!getPlugin().isValidGroupName(name)) {
-            plugin.getLocales().getLocale("error_invalid_group_name")
-                    .ifPresent(user::sendMessage);
-            return;
-        }
-
-        plugin.createUserGroup(user, name);
-        plugin.getLocales().getLocale("group_created", name)
-                .ifPresent(user::sendMessage);
-    }
-
     private void deleteGroup(@NotNull OnlineUser user, @NotNull String name) {
         if (!plugin.deleteUserGroup(user, name)) {
-            plugin.getLocales().getLocale("error_invalid_group")
+            plugin.getLocales().getLocale("error_invalid_group", name)
                     .ifPresent(user::sendMessage);
             return;
         }
@@ -130,9 +98,8 @@ public class UserGroupsCommand extends OnlineUserCommand implements TabCompletab
                 .ifPresent(user::sendMessage);
     }
 
-    private void showGroupMemberList(@NotNull OnlineUser user, @NotNull String name) {
-        editGroupIfExists(
-                user, name,
+    private void listGroupUsers(@NotNull OnlineUser user, @NotNull String name) {
+        plugin.getUserGroup(user.getUuid(), name).ifPresentOrElse(
                 (group) -> plugin.getLocales().getRawLocale(
                         "group_member_list",
                         Locales.escapeText(group.name()),
@@ -140,69 +107,95 @@ public class UserGroupsCommand extends OnlineUserCommand implements TabCompletab
                                 ? plugin.getLocales().getNone()
                                 : group.members().stream().map(User::getName).map(Locales::escapeText)
                                 .collect(Collectors.joining(plugin.getLocales().getListJoiner()))
-                ).map(l -> plugin.getLocales().format(l)).ifPresent(user::sendMessage)
-        );
-    }
-
-    private void addPlayerToGroup(@NotNull OnlineUser user, @NotNull String name, @NotNull String player) {
-        getUserIfExists(user, player, (toAdd) -> editGroupIfExists(user, name, (group) -> {
-            if (group.isMember(toAdd.getUuid())) {
-                plugin.getLocales().getLocale("error_already_group_member", toAdd.getName())
-                        .ifPresent(user::sendMessage);
-                return;
-            }
-            group.members().add(toAdd);
-            plugin.getLocales().getLocale("group_added_player", toAdd.getName(), group.name())
-                    .ifPresent(user::sendMessage);
-        }));
-    }
-
-    private void removePlayerFromGroup(@NotNull OnlineUser user, @NotNull String name, @NotNull String player) {
-        getUserIfExists(user, player, (toRemove) -> editGroupIfExists(user, name, (group) -> {
-            if (!group.removeMember(toRemove.getUuid())) {
-                plugin.getLocales().getLocale("error_not_group_member", toRemove.getName())
-                        .ifPresent(user::sendMessage);
-                return;
-            }
-            plugin.getLocales().getLocale("group_removed_player", toRemove.getName(), group.name())
-                    .ifPresent(user::sendMessage);
-        }));
-    }
-
-    private void getUserIfExists(@NotNull OnlineUser user, @NotNull String username,
-                                 @NotNull Consumer<User> consumer) {
-        plugin.getDatabase().getUser(username).map(SavedUser::getUser).ifPresentOrElse(
-                consumer, () -> plugin.getLocales().getLocale("error_invalid_player")
+                ).map(l -> plugin.getLocales().format(l)).ifPresent(user::sendMessage),
+                () -> plugin.getLocales().getLocale("error_invalid_group", name)
                         .ifPresent(user::sendMessage)
         );
     }
 
-    private void editGroupIfExists(@NotNull OnlineUser user, @NotNull String name,
-                                   @NotNull Consumer<UserGroup> consumer) {
+    private void addGroupUsers(@NotNull OnlineUser executor, @NotNull String name, @NotNull List<String> users) {
+        if (!getPlugin().isValidGroupName(name)) {
+            plugin.getLocales().getLocale("error_invalid_group_name", name)
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        editUserGroup(
+                executor, name, users,
+                (group, user) -> {
+                    if (group.isMember(user.getUuid())) {
+                        plugin.getLocales().getLocale("error_already_group_member", user.getName())
+                                .ifPresent(executor::sendMessage);
+                        return;
+                    }
+                    group.members().add(user);
+                    plugin.getLocales().getLocale("group_added_player", user.getName(), group.name())
+                            .ifPresent(executor::sendMessage);
+                }, () -> {
+                    final List<User> names = resolveUsers(executor, users);
+                    if (names.isEmpty()) {
+                        return;
+                    }
+                    plugin.createUserGroup(executor, name, Lists.newArrayList(names));
+                    plugin.getLocales().getLocale("group_created", name,
+                            users.stream().collect(
+                                    Collectors.joining(plugin.getLocales().getListJoiner())
+                            )).ifPresent(executor::sendMessage);
+                }
+        );
+    }
+
+    private void removeGroupUsers(@NotNull OnlineUser executor, @NotNull String name, @NotNull List<String> users) {
+        editUserGroup(
+                executor, name, users,
+                (group, user) -> {
+                    if (!group.isMember(user.getUuid())) {
+                        plugin.getLocales().getLocale("error_not_group_member", user.getName())
+                                .ifPresent(executor::sendMessage);
+                        return;
+                    }
+                    group.members().remove(user);
+                    plugin.getLocales().getLocale("group_removed_player", user.getName(), group.name())
+                            .ifPresent(executor::sendMessage);
+                }, () -> plugin.getLocales().getLocale("error_invalid_group", name)
+                        .ifPresent(executor::sendMessage)
+        );
+    }
+
+    private void editUserGroup(@NotNull OnlineUser executor, @NotNull String groupName, @NotNull List<String> users,
+                               @NotNull BiConsumer<UserGroup, User> editor, @NotNull Runnable noGroup) {
         plugin.editUserGroup(
-                user, name, consumer,
-                () -> plugin.getLocales().getLocale("error_invalid_group")
-                        .ifPresent(user::sendMessage)
+                executor,
+                groupName,
+                (group) -> resolveUsers(executor, users).forEach(user -> editor.accept(group, user)),
+                noGroup
         );
+    }
+
+    @NotNull
+    private List<User> resolveUsers(@NotNull OnlineUser user, @NotNull List<String> users) {
+        return users.stream().map(username -> plugin.getDatabase().getUser(username))
+                .filter(optional -> {
+                    if (optional.isEmpty()) {
+                        plugin.getLocales().getLocale("error_invalid_user")
+                                .ifPresent(user::sendMessage);
+                        return false;
+                    }
+                    return true;
+                })
+                .map(Optional::get).map(SavedUser::getUser)
+                .toList();
     }
 
     @Nullable
     @Override
     public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
         return switch (args.length) {
-            case 0, 1 -> List.of("create", "delete", "edit", "list");
-            case 2 -> List.of("edit", "delete").contains(args[0].toLowerCase(Locale.ENGLISH))
-                    ? user instanceof OnlineUser online ? getUserGroupNames(online.getUuid()) : null
-                    : null;
-            case 3 -> args[0].equals(args[0].toLowerCase(Locale.ENGLISH))
-                    ? List.of("add", "remove", "list")
-                    : null;
-            case 4 -> args[0].equals("edit")
-                    ? user instanceof OnlineUser online ? (args[2].equals("remove")
+            case 0, 1 -> user instanceof OnlineUser online ? getUserGroupNames(online.getUuid()) : null;
+            case 2 -> List.of("add", "remove", "delete");
+            default -> !args[1].equals("delete") && user instanceof OnlineUser online ? (args[0].equals("remove")
                     ? plugin.getUserGroup(online.getUuid(), args[1]).map(UserGroup::members).orElse(List.of())
-                    : plugin.getUserList()).stream().map(User::getName).toList() : null
-                    : null;
-            default -> null;
+                    : plugin.getUserList()).stream().map(User::getName).toList() : null;
         };
     }
 

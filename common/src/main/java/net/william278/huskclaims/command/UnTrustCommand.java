@@ -51,7 +51,7 @@ public class UnTrustCommand extends InClaimCommand implements TabCompletable {
     @Override
     public void execute(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
                         @NotNull Claim claim, @NotNull String[] args) {
-        final List<String> toUnTrust = parseMultiStringArg(args, 0);
+        final List<String> toUnTrust = parseDistinctNameList(args, 0);
         if (toUnTrust.isEmpty()) {
             plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                     .ifPresent(executor::sendMessage);
@@ -79,12 +79,13 @@ public class UnTrustCommand extends InClaimCommand implements TabCompletable {
             removed = claim.getTrustedGroups().remove(group.name()) != null;
         }
 
+        final String identifier = toUntrust.getTrustIdentifier(plugin);
         if (!removed) {
-            plugin.getLocales().getLocale("error_not_trusted", toUntrust.getTrustIdentifier(plugin))
+            plugin.getLocales().getLocale("error_not_trusted", identifier)
                     .ifPresent(executor::sendMessage);
             return;
         }
-        plugin.getLocales().getLocale("trust_level_removed", toUntrust.getTrustIdentifier(plugin))
+        plugin.getLocales().getLocale("trust_level_removed", identifier)
                 .ifPresent(executor::sendMessage);
         plugin.getDatabase().updateClaimWorld(world);
     }

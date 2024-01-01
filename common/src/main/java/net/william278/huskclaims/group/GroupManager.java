@@ -19,12 +19,12 @@
 
 package net.william278.huskclaims.group;
 
-import com.google.common.collect.Lists;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.database.Database;
 import net.william278.huskclaims.network.Message;
 import net.william278.huskclaims.network.Payload;
 import net.william278.huskclaims.user.OnlineUser;
+import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.NotNull;
 
@@ -93,16 +93,17 @@ public interface GroupManager {
     /**
      * Create a user group
      *
-     * @param owner The user creating the group
-     * @param name  The name of the group
+     * @param owner   The user creating the group
+     * @param name    The name of the group
+     * @param members The members of the group
      * @since 1.0
      */
     @Blocking
-    default void createUserGroup(@NotNull OnlineUser owner, @NotNull String name) throws IllegalArgumentException {
+    default void createUserGroup(@NotNull OnlineUser owner, @NotNull String name, @NotNull List<User> members) throws IllegalArgumentException {
         if (!getPlugin().isValidGroupName(name) || getUserGroup(owner.getUuid(), name).isPresent()) {
             throw new IllegalArgumentException("Invalid or already taken group name");
         }
-        final UserGroup group = new UserGroup(owner.getUuid(), name, Lists.newArrayList());
+        final UserGroup group = new UserGroup(owner.getUuid(), name, members);
         getUserGroups().add(group);
         getDatabase().addUserGroup(group);
         publishGroupChange(owner);

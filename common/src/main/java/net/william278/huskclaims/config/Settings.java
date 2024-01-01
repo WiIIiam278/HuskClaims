@@ -301,7 +301,7 @@ public final class Settings {
         private boolean enabled = true;
 
         @Comment("The prefix to use when specifying a group in a trust command (e.g. /trust #groupname)")
-        private String groupSpecifierPrefix = "#";
+        private String groupSpecifierPrefix = "@";
 
         @Comment("Whether to restrict group names with a regex filter")
         private boolean restrictGroupNames = true;

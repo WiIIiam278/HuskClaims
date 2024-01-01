@@ -41,7 +41,7 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
     @Override
     public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
         final Optional<User> optionalUser = resolveUser(executor, args);
-        final ClaimBlockOption option = parseClaimBlockOption(args, 1).orElse(ClaimBlockOption.SHOW);
+        final ClaimBlockOption option = parseClaimBlockOption(args).orElse(ClaimBlockOption.SHOW);
         final Optional<Integer> amount = parseIntArg(args, 2).map(i -> Math.max(0, i));
         if (optionalUser.isEmpty() || (amount.isEmpty() && option != ClaimBlockOption.SHOW)) {
             plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
@@ -84,8 +84,8 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
         });
     }
 
-    private Optional<ClaimBlockOption> parseClaimBlockOption(@NotNull String[] args, int index) {
-        return parseStringArg(args, index).flatMap(ClaimBlockOption::matchClaimBlockOption);
+    private Optional<ClaimBlockOption> parseClaimBlockOption(@NotNull String[] args) {
+        return parseStringArg(args, 1).flatMap(ClaimBlockOption::matchClaimBlockOption);
     }
 
     private enum ClaimBlockOption {
@@ -99,8 +99,17 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
         }
 
         @NotNull
-        public static List<String> getSuggestions() {
-            return Arrays.stream(values()).map(ClaimBlockOption::getId).toList();
+        public static List<String> getSuggestions(@NotNull CommandUser user, @NotNull Command command) {
+            return Arrays.stream(values())
+                    .filter(o -> o.hasPermission(user, command))
+                    .map(ClaimBlockOption::getId).toList();
+        }
+
+        public boolean hasPermission(@NotNull CommandUser user, @NotNull Command command) {
+            return switch (this) {
+                case SHOW -> command.hasPermission(user);
+                case SET, ADD, REMOVE -> command.hasPermission(user, "edit");
+            };
         }
 
         @NotNull
@@ -114,7 +123,7 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
     public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
         return switch (args.length) {
             case 0, 1 -> UserListTabCompletable.super.suggest(user, args);
-            case 2 -> ClaimBlockOption.getSuggestions();
+            case 2 -> ClaimBlockOption.getSuggestions(user, this);
             default -> null;
         };
     }

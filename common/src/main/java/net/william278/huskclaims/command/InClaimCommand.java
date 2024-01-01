@@ -97,7 +97,7 @@ public abstract class InClaimCommand extends OnlineUserCommand {
         final int executorWeight = claim.getEffectiveTrustLevel(executor, world, plugin)
                 .map(TrustLevel::getWeight).orElse(Integer.MAX_VALUE);
         if (trustableWeight.isPresent() && executorWeight < trustableWeight.get()) {
-            plugin.getLocales().getLocale("error_trust_level_rank")
+            plugin.getLocales().getLocale("error_trust_level_rank", trustable.getTrustIdentifier(plugin))
                     .ifPresent(executor::sendMessage);
             return false;
         }
