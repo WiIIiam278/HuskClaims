@@ -22,8 +22,10 @@ package net.william278.huskclaims.command;
 import com.google.common.collect.Lists;
 import net.william278.huskclaims.HuskClaims;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Provider for HuskClaims commands
@@ -86,6 +88,35 @@ public interface CommandProvider {
                 .forEach((group) -> commands.add(new OperationGroupCommand(group, getPlugin())));
 
         registerCommands(commands);
+    }
+
+    /**
+     * Invalidates the cached claim lists for a user
+     *
+     * @param userUuid the UUID of the user to invalidate the claim lists for,
+     *                 or null to invalidate all admin claim lists
+     * @since 1.0
+     */
+    default void invalidateClaimListCache(@Nullable UUID userUuid) {
+        boolean admin = userUuid == null;
+        getCommands().stream()
+                .filter(c -> admin ? c instanceof AdminClaimsListCommand : c instanceof UserClaimsListCommand)
+                .findFirst().ifPresent(c -> {
+                    if (admin) {
+                        ((AdminClaimsListCommand) c).invalidateCache();
+                    } else {
+                        ((UserClaimsListCommand) c).invalidateCache(userUuid);
+                    }
+                });
+    }
+
+    /**
+     * Invalidates all cached admin claim lists
+     *
+     * @since 1.0
+     */
+    default void invalidateAdminClaimListCache() {
+        invalidateClaimListCache(null);
     }
 
     @NotNull

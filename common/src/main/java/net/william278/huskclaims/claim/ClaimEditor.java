@@ -302,7 +302,7 @@ public interface ClaimEditor {
         }
 
         final Claim parent = optionalParent.get();
-        if (!parent.getRegion().fullyEncloses(resized)) {
+        if (!parent.getRegion().fullyEncloses(resized) || parent.getRegion().equals(resized)) {
             getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), parent, true);
             getPlugin().getLocales().getLocale("selection_child_not_enclosing_parent")
                     .ifPresent(user::sendMessage);
@@ -332,7 +332,7 @@ public interface ClaimEditor {
         }
 
         final Claim parent = optionalParent.get();
-        if (!parent.getRegion().fullyEncloses(region)) {
+        if (!parent.getRegion().fullyEncloses(region) || parent.getRegion().equals(region)) {
             getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), parent, true);
             getPlugin().getLocales().getLocale("selection_child_not_enclosing_parent")
                     .ifPresent(user::sendMessage);

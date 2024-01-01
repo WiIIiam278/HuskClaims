@@ -142,10 +142,10 @@ public abstract class ClaimsListCommand extends Command {
     @Getter
     @AllArgsConstructor
     public enum SortOption {
-        SIZE(Comparator.comparing(c -> c.claim().getRegion().getSurfaceArea())),
+        DIMENSION(Comparator.comparing(c -> c.serverWorld().world().getEnvironment().toLowerCase(Locale.ENGLISH))),
         WORLD(Comparator.comparing(c -> c.serverWorld().world().getName())),
         SERVER(Comparator.comparing(c -> c.serverWorld().server())),
-        DIMENSION(Comparator.comparing(c -> c.serverWorld().world().getEnvironment().toLowerCase(Locale.ENGLISH))),
+        SIZE(Comparator.comparing(c -> c.claim().getRegion().getSurfaceArea())),
         MEMBERS(Comparator.comparingInt(c -> c.claim().getTrustedUsers().size())),
         CHILDREN(Comparator.comparingInt(c -> c.claim().getChildren().size()));
 

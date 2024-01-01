@@ -31,8 +31,6 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 public class AdminClaimsListCommand extends ClaimsListCommand {
-
-    private static final int LIST_CACHE_MINUTES = 5;
     private List<ServerWorldClaim> claimList = Lists.newArrayList();
     private OffsetDateTime cacheExpiry = OffsetDateTime.now().minusMinutes(1);
 
@@ -72,6 +70,10 @@ public class AdminClaimsListCommand extends ClaimsListCommand {
         cacheExpiry = now.plusMinutes(LIST_CACHE_MINUTES);
 
         showClaimList(executor, null, claims, page, sort, ascend);
+    }
+
+    protected void invalidateCache() {
+        cacheExpiry = OffsetDateTime.now().minusMinutes(1);
     }
 
     @NotNull

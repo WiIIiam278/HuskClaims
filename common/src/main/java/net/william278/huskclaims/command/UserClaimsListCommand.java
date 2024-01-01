@@ -100,6 +100,10 @@ public class UserClaimsListCommand extends ClaimsListCommand implements UserList
                 .toList();
     }
 
+    protected void invalidateCache(@NotNull UUID userUuid) {
+        claimLists.remove(userUuid);
+    }
+
     @Override
     @NotNull
     protected String getListTitle(@NotNull Locales locales, @Nullable User user, int claimCount, @NotNull SortOption sort, boolean ascend) {

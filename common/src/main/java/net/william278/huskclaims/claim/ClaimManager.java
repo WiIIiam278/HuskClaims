@@ -116,6 +116,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
         if (owner != null) {
             getPlugin().editClaimBlocks(owner, (blocks -> blocks - region.getSurfaceArea()));
         }
+        getPlugin().invalidateClaimListCache(owner == null ? null : owner.getUuid());
         return claim;
     }
 
@@ -168,6 +169,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
         claim.getOwner().flatMap(world::getUser).ifPresent(user -> getPlugin().editClaimBlocks(
                 user, (blocks -> blocks + (oldSurfaceArea - newRegion.getSurfaceArea())))
         );
+        getPlugin().invalidateClaimListCache(claim.getOwner().orElse(null));
     }
 
     default void deleteClaim(@NotNull ClaimWorld claimWorld, @NotNull Claim claim) {
@@ -185,6 +187,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
         claim.getOwner().flatMap(claimWorld::getUser).ifPresent(user -> getPlugin().editClaimBlocks(
                 user, (blocks -> blocks + surfaceArea))
         );
+        getPlugin().invalidateClaimListCache(claim.getOwner().orElse(null));
     }
 
     /**
@@ -208,6 +211,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
         // Create and add child claim
         final Claim child = parent.createAndAddChild(region, world, getPlugin());
         getDatabase().updateClaimWorld(world);
+        getPlugin().invalidateClaimListCache(parent.getOwner().orElse(null));
         return child;
     }
 
@@ -217,6 +221,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
             throw new IllegalArgumentException("Parent does not contain child");
         }
         getDatabase().updateClaimWorld(world);
+        getPlugin().invalidateClaimListCache(parent.getOwner().orElse(null));
     }
 
     @Blocking
@@ -231,6 +236,9 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
         // Ensure claim encloses all of its children
         if (!parent.getRegion().fullyEncloses(newRegion)) {
             throw new IllegalArgumentException("Parent region does not fully enclose new child region");
+        }
+        if (parent.getRegion().equals(newRegion)) {
+            throw new IllegalArgumentException("Parent claim and child claim regions cannot be the same");
         }
 
         // Ensure this is not a child claim and doesn't overlap with other claims

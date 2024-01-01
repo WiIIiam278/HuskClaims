@@ -27,7 +27,6 @@ import net.william278.huskclaims.claim.TrustLevel;
 import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
-import javax.print.DocFlavor;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
