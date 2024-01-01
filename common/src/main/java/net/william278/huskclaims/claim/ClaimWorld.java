@@ -74,6 +74,10 @@ public class ClaimWorld {
         return claims.removeIf(claim -> claim.getOwner().map(owner.getUuid()::equals).orElse(false));
     }
 
+    public boolean removeAdminClaims() {
+        return claims.removeIf(claim -> claim.getOwner().isEmpty());
+    }
+
     public Optional<User> getUser(@NotNull UUID uuid) {
         return Optional.ofNullable(userCache.get(uuid)).map(name -> User.of(uuid, name));
     }

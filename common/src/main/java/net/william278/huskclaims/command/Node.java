@@ -106,7 +106,7 @@ public abstract class Node implements Executable {
     }
 
     protected boolean parseConfirmArg(@NotNull String[] args) {
-        return parseStringArg(args, args.length - 1)
+        return args.length > 0 && parseStringArg(args, args.length - 1)
                 .map(arg -> arg.toLowerCase(Locale.ENGLISH).equals("confirm"))
                 .orElse(false);
     }

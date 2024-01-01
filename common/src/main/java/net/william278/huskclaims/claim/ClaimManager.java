@@ -227,13 +227,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
      */
     default void deleteAllAdminClaims(@NotNull OnlineUser executor) {
         getClaimWorlds().entrySet().stream()
-                .filter((world) -> {
-                    if (!world.getValue().getAdminClaims().isEmpty()) {
-                        world.getValue().getAdminClaims().clear();
-                        return true;
-                    }
-                    return false;
-                })
+                .filter((world) -> world.getValue().removeAdminClaims())
                 .forEach((world) -> getDatabase().updateClaimWorld(world.getValue()));
         getPlugin().getBroker().ifPresent(broker -> Message.builder()
                 .type(Message.MessageType.DELETE_ALL_CLAIMS)

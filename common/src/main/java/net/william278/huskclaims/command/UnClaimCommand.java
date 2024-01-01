@@ -67,7 +67,7 @@ public class UnClaimCommand extends InClaimCommand {
         if (plugin.getSettings().getClaims().isConfirmDeletingParentClaims() &&
                 !claim.getChildren().isEmpty() && !confirmed) {
             plugin.getLocales().getLocale("confirm_deletion_parent_claim",
-                    String.format("/%s confirm", getName())).ifPresent(executor::sendMessage);
+                    String.format("%s confirm", getName())).ifPresent(executor::sendMessage);
             return;
         }
 

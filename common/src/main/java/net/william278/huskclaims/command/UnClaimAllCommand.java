@@ -70,11 +70,18 @@ public class UnClaimAllCommand extends OnlineUserCommand implements UserListTabC
             return;
         }
 
-        // Require confirmation if not confirmed
+        // Check there are admin claims
         final List<ServerWorldClaim> claims = getAdminClaims();
+        if (claims.isEmpty()) {
+            plugin.getLocales().getLocale("error_no_admin_claims_made")
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        // Require confirmation
         if (!confirm) {
             plugin.getLocales().getLocale("delete_all_admin_claims_confirm",
-                            Integer.toString(claims.size()), String.format("/%s confirm", getName()))
+                            Integer.toString(claims.size()), String.format("%s confirm", getName()))
                     .ifPresent(executor::sendMessage);
             return;
         }
@@ -94,11 +101,18 @@ public class UnClaimAllCommand extends OnlineUserCommand implements UserListTabC
             return;
         }
 
-        // Require confirmation if not confirmed
+        // Check the user has claims
         final List<ServerWorldClaim> claims = getUserClaims(user);
+        if (claims.isEmpty()) {
+            plugin.getLocales().getLocale("error_no_claims_made", user.getName())
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        // Require confirmation
         if (!confirm) {
-            plugin.getLocales().getLocale("delete_all_claims_confirm", Integer.toString(claims.size()),
-                            user.getName(), String.format("/%s %s confirm", getName(), user.getName()))
+            plugin.getLocales().getLocale("delete_all_claims_confirm", user.getName(),
+                            Integer.toString(claims.size()), String.format("%s %s confirm", getName(), user.getName()))
                     .ifPresent(executor::sendMessage);
             return;
         }
@@ -107,9 +121,8 @@ public class UnClaimAllCommand extends OnlineUserCommand implements UserListTabC
         long reclaimedBlocks = claims.stream().mapToLong(ServerWorldClaim::getSurfaceArea).sum();
         plugin.deleteAllClaims(executor, user);
         plugin.editClaimBlocks(user, (blocks) -> blocks + reclaimedBlocks);
-        plugin.getLocales().getLocale("delete_all_claims", Integer.toString(claims.size()),
-                        user.getName(), Long.toString(reclaimedBlocks))
-                .ifPresent(executor::sendMessage);
+        plugin.getLocales().getLocale("delete_all_claims", user.getName(), Integer.toString(claims.size()),
+                Long.toString(reclaimedBlocks)).ifPresent(executor::sendMessage);
         plugin.getHighlighter().stopHighlighting(executor);
     }
 

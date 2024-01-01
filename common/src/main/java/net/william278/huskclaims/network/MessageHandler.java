@@ -20,6 +20,7 @@
 package net.william278.huskclaims.network;
 
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
@@ -61,12 +62,9 @@ public interface MessageHandler {
                 },
                 // Delete all admin claims
                 () -> {
-                    getPlugin().getClaimWorlds().values().forEach((world) -> {
-                        if (!world.getAdminClaims().isEmpty()) {
-                            world.getAdminClaims().clear();
-                            getPlugin().getDatabase().updateClaimWorld(world);
-                        }
-                    });
+                    getPlugin().getClaimWorlds().values()
+                            .stream().filter(ClaimWorld::removeAdminClaims)
+                            .forEach((world) -> getPlugin().getDatabase().updateClaimWorld(world));
                     getPlugin().invalidateAdminClaimListCache();
                 });
     }
