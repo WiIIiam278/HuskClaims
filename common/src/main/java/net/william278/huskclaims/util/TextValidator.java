@@ -35,7 +35,7 @@ public interface TextValidator {
                 && isValidNameLength(name)
                 && !containsWhitespace(name)
                 && !name.contains(getSettings().getUserGroups().getGroupSpecifierPrefix())
-                && !name.contains(getSettings().getTrustedTags().getTagSpecifierPrefix());
+                && !name.contains(getSettings().getTrustTags().getTagSpecifierPrefix());
     }
 
     // Check a group name is of a valid length

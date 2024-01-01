@@ -276,17 +276,17 @@ public final class Settings {
         private int maxGroupsPerPlayer = 3;
     }
 
-    @Comment("Settings for trusted tags, special representations of things you can trust in a claim")
-    private TrustedTagSettings trustedTags = new TrustedTagSettings();
+    @Comment("Settings for trust tags, special representations of things you can trust in a claim")
+    private TrustTagSettings trustTags = new TrustTagSettings();
 
     @Getter
     @Configuration
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class TrustedTagSettings {
-        @Comment("Whether to enable trusted tags")
+    public static class TrustTagSettings {
+        @Comment("Whether to enable trust tags")
         private boolean enabled = true;
 
-        @Comment("The prefix to use when specifying a trusted tag in a trust command (e.g. /trust #tagname)")
+        @Comment("The prefix to use when specifying a trust tag in a trust command (e.g. /trust #tagname)")
         private String tagSpecifierPrefix = "#";
 
         @Comment("The name of the default public access tag (to let anyone access certain claim levels)")

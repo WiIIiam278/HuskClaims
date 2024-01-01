@@ -34,7 +34,7 @@ import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.highlighter.Highlightable;
 import net.william278.huskclaims.trust.TrustLevel;
 import net.william278.huskclaims.trust.Trustable;
-import net.william278.huskclaims.trust.TrustedTag;
+import net.william278.huskclaims.trust.TrustTag;
 import net.william278.huskclaims.trust.UserGroup;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.User;
@@ -165,17 +165,17 @@ public class Claim implements Highlightable {
     }
 
     /**
-     * Get the map of {@link TrustedTag}s to {@link TrustLevel}s in this claim
+     * Get the map of {@link TrustTag}s to {@link TrustLevel}s in this claim
      *
      * @param plugin the plugin instance
      * @return the map of trusted tags
      * @since 1.0
      */
     @NotNull
-    private Map<TrustedTag, TrustLevel> getTrustedTagMap(@NotNull HuskClaims plugin) {
-        final Map<TrustedTag, TrustLevel> map = Maps.newHashMap();
+    private Map<TrustTag, TrustLevel> getTrustTagMap(@NotNull HuskClaims plugin) {
+        final Map<TrustTag, TrustLevel> map = Maps.newHashMap();
         for (Map.Entry<String, String> entry : trustedTags.entrySet()) {
-            plugin.getTrustedTag(entry.getKey()).ifPresent(tag -> plugin.getTrustLevel(entry.getValue())
+            plugin.getTrustTag(entry.getKey()).ifPresent(tag -> plugin.getTrustLevel(entry.getValue())
                     .ifPresent(level -> map.put(tag, level)));
         }
         return map;
@@ -248,7 +248,7 @@ public class Claim implements Highlightable {
      * @param level the trust level to set
      * @since 1.0
      */
-    public void setTagTrustLevel(@NotNull TrustedTag tag, @NotNull TrustLevel level) {
+    public void setTagTrustLevel(@NotNull TrustTag tag, @NotNull TrustLevel level) {
         trustedTags.put(tag.getName(), level.getId());
     }
 
@@ -266,10 +266,10 @@ public class Claim implements Highlightable {
             world.cacheUser(user);
         } else if (trustable instanceof UserGroup group) {
             setGroupTrustLevel(group, level);
-        } else if (trustable instanceof TrustedTag tag) {
+        } else if (trustable instanceof TrustTag tag) {
             setTagTrustLevel(tag, level);
         } else {
-            throw new IllegalArgumentException("Trustable must be a User, UserGroup, or TrustedTag");
+            throw new IllegalArgumentException("Trustable must be a User, UserGroup, or TrustTag");
         }
     }
 
@@ -310,7 +310,7 @@ public class Claim implements Highlightable {
      * <ol>
      *     <li>Individual {@link User}s</li>
      *     <li>{@link UserGroup}s</li>
-     *     <li>{@link TrustedTag}s</li>
+     *     <li>{@link TrustTag}s</li>
      *     </ol>
      *
      * @param user   the user to get the trust level for
@@ -334,7 +334,7 @@ public class Claim implements Highlightable {
         }
 
         // Finally, check trusted tags
-        final Map<TrustedTag, TrustLevel> tags = getTrustedTagMap(plugin);
+        final Map<TrustTag, TrustLevel> tags = getTrustTagMap(plugin);
         return tags.entrySet().stream()
                 .filter(entry -> entry.getKey().includes(user)).map(Map.Entry::getValue)
                 .sorted().findFirst();
@@ -353,7 +353,7 @@ public class Claim implements Highlightable {
             return getUserTrustLevel(user, plugin);
         } else if (trustable instanceof UserGroup group) {
             return getGroupTrustLevel(group.name(), plugin);
-        } else if (trustable instanceof TrustedTag tag) {
+        } else if (trustable instanceof TrustTag tag) {
             return getTagTrustLevel(tag.getName(), plugin);
         }
         throw new IllegalArgumentException("Trustable must be a User, UserGroup, or TrustedTag");

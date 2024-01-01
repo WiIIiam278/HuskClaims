@@ -46,9 +46,9 @@ public interface TrustableTabCompletable extends UserListTabCompletable {
         }
 
         // Suggest tags
-        final Settings.TrustedTagSettings tags = getPlugin().getSettings().getTrustedTags();
+        final Settings.TrustTagSettings tags = getPlugin().getSettings().getTrustTags();
         if (tags.isEnabled() && (args.length > 0 && args[args.length - 1].startsWith(tags.getTagSpecifierPrefix()))) {
-            return getPlugin().getTrustedTags().stream()
+            return getPlugin().getTrustTags().stream()
                     .map(tag -> tag.getTrustIdentifier(getPlugin()))
                     .toList();
         }

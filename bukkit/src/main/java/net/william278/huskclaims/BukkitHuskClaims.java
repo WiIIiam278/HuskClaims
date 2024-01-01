@@ -44,7 +44,7 @@ import net.william278.huskclaims.network.PluginMessageBroker;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.position.World;
 import net.william278.huskclaims.trust.TrustLevel;
-import net.william278.huskclaims.trust.TrustedTag;
+import net.william278.huskclaims.trust.TrustTag;
 import net.william278.huskclaims.trust.UserGroup;
 import net.william278.huskclaims.user.*;
 import net.william278.huskclaims.util.BlockProvider;
@@ -74,7 +74,7 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     @Setter
     private Set<UserGroup> userGroups = Sets.newConcurrentHashSet();
     @Getter
-    private Set<TrustedTag> trustedTags = Sets.newConcurrentHashSet();
+    private Set<TrustTag> trustTags = Sets.newConcurrentHashSet();
     @Getter
     private ConcurrentMap<String, List<User>> globalUserList = Maps.newConcurrentMap();
     @Getter

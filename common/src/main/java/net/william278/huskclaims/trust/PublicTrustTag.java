@@ -19,31 +19,27 @@
 
 package net.william278.huskclaims.trust;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 
-@Getter
-@AllArgsConstructor
-public abstract class TrustedTag implements TrustableCollection {
+public final class PublicTrustTag extends TrustTag {
 
-    protected String name;
-
-    protected String description;
-
-    @NotNull
-    @Override
-    public String getTrustIdentifier(@NotNull HuskClaims plugin) {
-        return String.format(
-                "%s%s",
-                plugin.getSettings().getTrustedTags().getTagSpecifierPrefix(),
-                name.replaceAll(" ", "_")
+    private PublicTrustTag(@NotNull HuskClaims plugin) {
+        super(
+                plugin.getSettings().getTrustTags().getPublicAccessTag(),
+                plugin.getLocales().getRawLocale("public_tag_description").orElse("")
         );
     }
 
+    @NotNull
+    public static PublicTrustTag create(@NotNull HuskClaims plugin) {
+        return new PublicTrustTag(plugin);
+    }
+
     @Override
-    public abstract boolean includes(@NotNull User trustable);
+    public boolean includes(@NotNull User trustable) {
+        return true;
+    }
 
 }

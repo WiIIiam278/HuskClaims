@@ -27,7 +27,7 @@ import net.william278.huskclaims.database.DatabaseProvider;
 import net.william278.huskclaims.listener.ListenerProvider;
 import net.william278.huskclaims.network.BrokerProvider;
 import net.william278.huskclaims.trust.GroupManager;
-import net.william278.huskclaims.trust.TrustedTagManager;
+import net.william278.huskclaims.trust.TrustTagManager;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.UserManager;
 import net.william278.huskclaims.util.*;
@@ -43,7 +43,7 @@ import java.util.logging.Level;
  * @since 1.0
  */
 public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvider, GsonProvider, UserManager,
-        ClaimManager, GroupManager, TrustedTagManager, ListenerProvider, UserListProvider, CommandProvider,
+        ClaimManager, GroupManager, TrustTagManager, ListenerProvider, UserListProvider, CommandProvider,
         BrokerProvider, TextValidator, AudiencesProvider, BlockProvider, MetaProvider {
 
     /**
@@ -62,7 +62,7 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvi
             loadClaimWorlds();
             loadClaimHighlighter();
             loadUserGroups();
-            loadTrustedTags();
+            loadTrustTags();
             loadBroker();
             loadCommands();
             loadListeners();

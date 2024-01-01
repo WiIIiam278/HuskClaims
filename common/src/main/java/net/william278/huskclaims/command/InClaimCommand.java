@@ -25,7 +25,7 @@ import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.config.Settings;
 import net.william278.huskclaims.trust.TrustLevel;
 import net.william278.huskclaims.trust.Trustable;
-import net.william278.huskclaims.trust.TrustedTag;
+import net.william278.huskclaims.trust.TrustTag;
 import net.william278.huskclaims.trust.UserGroup;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.SavedUser;
@@ -115,9 +115,9 @@ public abstract class InClaimCommand extends OnlineUserCommand {
         }
 
         // Resolve tag
-        final Settings.TrustedTagSettings tags = plugin.getSettings().getTrustedTags();
-        if (tags.isEnabled() && name.startsWith(plugin.getSettings().getTrustedTags().getTagSpecifierPrefix())) {
-            return resolveTag(user, name.substring(plugin.getSettings().getTrustedTags().getTagSpecifierPrefix().length()));
+        final Settings.TrustTagSettings tags = plugin.getSettings().getTrustTags();
+        if (tags.isEnabled() && name.startsWith(plugin.getSettings().getTrustTags().getTagSpecifierPrefix())) {
+            return resolveTag(user, name.substring(plugin.getSettings().getTrustTags().getTagSpecifierPrefix().length()));
         }
 
         // Resolve user
@@ -144,8 +144,8 @@ public abstract class InClaimCommand extends OnlineUserCommand {
                 });
     }
 
-    protected Optional<TrustedTag> resolveTag(@NotNull OnlineUser user, @NotNull String name) {
-        return plugin.getTrustedTag(name)
+    protected Optional<TrustTag> resolveTag(@NotNull OnlineUser user, @NotNull String name) {
+        return plugin.getTrustTag(name)
                 .or(() -> {
                     plugin.getLocales().getLocale("error_invalid_tag", name)
                             .ifPresent(user::sendMessage);
@@ -160,8 +160,8 @@ public abstract class InClaimCommand extends OnlineUserCommand {
         if (settings.getUserGroups().isEnabled()) {
             joiner.add("%sgroups".formatted(settings.getUserGroups().getGroupSpecifierPrefix()));
         }
-        if (settings.getTrustedTags().isEnabled()) {
-            joiner.add("%stags".formatted(settings.getTrustedTags().getTagSpecifierPrefix()));
+        if (settings.getTrustTags().isEnabled()) {
+            joiner.add("%stags".formatted(settings.getTrustTags().getTagSpecifierPrefix()));
         }
         return "<%s>".formatted(joiner.toString());
     }

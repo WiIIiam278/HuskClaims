@@ -134,13 +134,13 @@ public class TrustListCommand extends InClaimCommand {
 
     @NotNull
     private String getTagEntry(@NotNull String name, @NotNull HuskClaims plugin) {
-        return plugin.getTrustedTag(name)
+        return plugin.getTrustTag(name)
                 .flatMap(tag -> plugin.getLocales().getRawLocale("trust_list_tag",
                         Locales.escapeText(tag.getTrustIdentifier(plugin)),
                         tag.getDescription()
                 ))
                 .or(() -> plugin.getLocales().getRawLocale("trust_list_unregistered_tag",
-                        String.format("%s%s", plugin.getSettings().getTrustedTags().getTagSpecifierPrefix(), name)
+                        String.format("%s%s", plugin.getSettings().getTrustTags().getTagSpecifierPrefix(), name)
                 ))
                 .orElse(getPlugin().getLocales().getNotApplicable());
     }
