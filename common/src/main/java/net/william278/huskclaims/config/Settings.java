@@ -210,6 +210,9 @@ public final class Settings {
         @Comment("Claim creation & resize tool (right click with this to create/resize claims)")
         private String claimTool = "minecraft:golden_shovel";
 
+        @Comment("Require players to hold the claim tool to use claim commands (e.g. /claim <radius>, /extendclaim)")
+        private boolean requireToolForCommands = true;
+
         @Comment("Minimum size of claims. This does not affect child or admin claims.")
         private int minimumClaimSize = 5;
 

@@ -24,6 +24,7 @@ import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.position.Position;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -58,6 +59,13 @@ public class BukkitUser extends OnlineUser {
     @Override
     public boolean hasPermission(@NotNull String permission) {
         return bukkitPlayer.hasPermission(permission);
+    }
+
+    @Override
+    public boolean isHolding(@NotNull String material) {
+        final PlayerInventory inventory = bukkitPlayer.getInventory();
+        return inventory.getItemInMainHand().getType().getKey().toString().equals(material)
+                || inventory.getItemInOffHand().getType().getKey().toString().equals(material);
     }
 
     @Override

@@ -45,14 +45,16 @@ public interface UserListener {
         getPlugin().runAsync(() -> getPlugin().grantHourlyClaimBlocks(user));
     }
 
-    default void onUserSwitchHeldItem(@NotNull OnlineUser user, @NotNull String nowHolding) {
-        final Settings.ClaimSettings claimSettings = getPlugin().getSettings().getClaims();
-        if (!claimSettings.getClaimTool().equals(nowHolding) && !claimSettings.getInspectionTool().equals(nowHolding)) {
-            getPlugin().getHighlighter().stopHighlighting(user);
-            if (getPlugin().clearClaimSelection(user)) {
-                getPlugin().getLocales().getLocale("claim_selection_cancelled")
-                        .ifPresent(user::sendMessage);
-            }
+    default void onUserChangeHeldItem(@NotNull OnlineUser user) {
+        final Settings.ClaimSettings claims = getPlugin().getSettings().getClaims();
+        if (user.isHolding(claims.getClaimTool()) || user.isHolding(claims.getInspectionTool())) {
+            return;
+        }
+
+        getPlugin().getHighlighter().stopHighlighting(user);
+        if (getPlugin().clearClaimSelection(user)) {
+            getPlugin().getLocales().getLocale("claim_selection_cancelled")
+                    .ifPresent(user::sendMessage);
         }
     }
 

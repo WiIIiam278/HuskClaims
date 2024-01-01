@@ -26,15 +26,11 @@ import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.user.BukkitUser;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerStatisticIncrementEvent;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.*;
 import org.jetbrains.annotations.NotNull;
 
 public class BukkitListener extends BukkitOperationListener implements ClaimsListener, UserListener {
@@ -69,13 +65,14 @@ public class BukkitListener extends BukkitOperationListener implements ClaimsLis
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onPlayerSwitchHeldItem(@NotNull PlayerItemHeldEvent e) {
-        final ItemStack selected = e.getPlayer().getInventory().getItem(e.getNewSlot());
-        this.onUserSwitchHeldItem(
-                BukkitUser.adapt(e.getPlayer(), plugin),
-                (selected != null ? selected.getType() : Material.AIR).getKey().toString()
-        );
+        this.onUserChangeHeldItem(BukkitUser.adapt(e.getPlayer(), plugin));
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void onPlayerSwapHands(@NotNull PlayerSwapHandItemsEvent e) {
+        this.onUserChangeHeldItem(BukkitUser.adapt(e.getPlayer(), plugin));
     }
 
     @Override

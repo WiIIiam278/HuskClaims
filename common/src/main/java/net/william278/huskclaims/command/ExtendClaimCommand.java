@@ -25,6 +25,7 @@ import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.claim.ClaimingMode;
 import net.william278.huskclaims.claim.Region;
+import net.william278.huskclaims.config.Settings;
 import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
@@ -52,15 +53,25 @@ public class ExtendClaimCommand extends InClaimCommand {
             return;
         }
 
-        final Optional<Integer> extendAmount = parseIntArg(args, 0);
-        if (extendAmount.isEmpty() || extendAmount.get() <= 0) {
+        final Optional<Integer> distance = parseIntArg(args, 0);
+        if (distance.isEmpty() || distance.get() <= 0) {
             plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                     .ifPresent(executor::sendMessage);
             return;
         }
-        final int amount = extendAmount.get();
-        final ExtendDirection facing = ExtendDirection.getFrom(executor.getPosition().getYaw());
+        extendClaim(executor, world, claim, ExtendDirection.getFrom(executor.getPosition().getYaw()), distance.get());
+    }
 
+    private void extendClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Claim claim,
+                             @NotNull ExtendDirection facing, int amount) {
+        final Settings.ClaimSettings claims = plugin.getSettings().getClaims();
+        if (claims.isRequireToolForCommands() && !user.isHolding(claims.getClaimTool())) {
+            plugin.getLocales().getLocale("claim_tool_required")
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+
+        // Calculate the number of blocks to extend in each direction
         int north = 0, south = 0, east = 0, west = 0;
         switch (facing) {
             case NORTH -> north = amount;
@@ -69,8 +80,9 @@ public class ExtendClaimCommand extends InClaimCommand {
             case WEST -> west = amount;
         }
 
+        // Resize the claim
         final Region resized = claim.getRegion().getResized(north, south, east, west);
-        plugin.userResizeClaim(executor, world, claim, resized);
+        plugin.userResizeClaim(user, world, claim, resized);
     }
 
     @AllArgsConstructor

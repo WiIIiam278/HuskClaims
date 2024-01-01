@@ -67,6 +67,8 @@ public abstract class OnlineUser extends User implements OperationUser, CommandU
 
     public abstract boolean hasPermission(@NotNull String permission);
 
+    public abstract boolean isHolding(@NotNull String material);
+
     public abstract Optional<Long> getNumericalPermission(@NotNull String prefix);
 
 }

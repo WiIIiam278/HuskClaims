@@ -23,6 +23,7 @@ import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.claim.ClaimingMode;
 import net.william278.huskclaims.claim.Region;
+import net.william278.huskclaims.config.Settings;
 import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -77,6 +78,13 @@ public class ClaimCommand extends OnlineUserCommand {
     }
 
     private void createClaim(@NotNull OnlineUser user, @Nullable ClaimWorld world, int radius) {
+        final Settings.ClaimSettings claims = plugin.getSettings().getClaims();
+        if (claims.isRequireToolForCommands() && !user.isHolding(claims.getClaimTool())) {
+            plugin.getLocales().getLocale("claim_tool_required")
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+
         if (world == null) {
             plugin.getLocales().getLocale("world_not_claimable")
                     .ifPresent(user::sendMessage);
