@@ -65,8 +65,8 @@ public abstract class Database {
     @NotNull
     protected final String[] getScript(@NotNull String name) {
         name = (name.startsWith("database/") ? "" : "database/") + name + (name.endsWith(".sql") ? "" : ".sql");
-        try (InputStream schemaStream = Objects.requireNonNull(plugin.getResource(name))) {
-            final String schema = new String(schemaStream.readAllBytes(), StandardCharsets.UTF_8);
+        try (InputStream file = Objects.requireNonNull(plugin.getResource(name), "Invalid script %s".formatted(name))) {
+            final String schema = new String(file.readAllBytes(), StandardCharsets.UTF_8);
             return format(schema).split(";");
         } catch (IOException e) {
             plugin.log(Level.SEVERE, "Failed to load database schema", e);

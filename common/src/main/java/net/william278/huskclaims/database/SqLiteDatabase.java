@@ -20,6 +20,7 @@
 package net.william278.huskclaims.database;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import com.google.gson.JsonSyntaxException;
 import net.william278.huskclaims.HuskClaims;
@@ -43,6 +44,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 
+@SuppressWarnings("DuplicatedCode")
 public class SqLiteDatabase extends Database {
 
     /**
@@ -104,6 +106,7 @@ public class SqLiteDatabase extends Database {
         }
     }
 
+    @SuppressWarnings("SqlSourceToSinkFlow")
     @Override
     protected void executeScript(@NotNull Connection connection, @NotNull String name) throws SQLException {
         try (Statement statement = connection.createStatement()) {
@@ -414,7 +417,7 @@ public class SqLiteDatabase extends Database {
     @NotNull
     @Override
     public Map<World, ClaimWorld> getClaimWorlds(@NotNull String server) throws IllegalStateException {
-        final Map<World, ClaimWorld> worlds = new HashMap<>();
+        final Map<World, ClaimWorld> worlds = Maps.newHashMap();
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 SELECT `id`, `world_uuid`, `world_name`, `world_environment`, `data`
                 FROM `%claim_data%`
@@ -424,7 +427,8 @@ public class SqLiteDatabase extends Database {
             while (resultSet.next()) {
                 final World world = World.of(
                         resultSet.getString("world_name"),
-                        UUID.fromString(resultSet.getString("world_uuid"))
+                        UUID.fromString(resultSet.getString("world_uuid")),
+                        resultSet.getString("world_environment")
                 );
                 final ClaimWorld claimWorld = plugin.getClaimWorldFromJson(
                         new String(resultSet.getBytes("data"), StandardCharsets.UTF_8)
@@ -443,7 +447,7 @@ public class SqLiteDatabase extends Database {
     @NotNull
     @Override
     public Map<ServerWorld, ClaimWorld> getAllClaimWorlds() throws IllegalStateException {
-        final Map<ServerWorld, ClaimWorld> worlds = new HashMap<>();
+        final Map<ServerWorld, ClaimWorld> worlds = Maps.newHashMap();
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 SELECT `id`, `server_name`, `world_uuid`, `world_name`, `world_environment`, `data`
                 FROM `%claim_data%`"""))) {
@@ -451,7 +455,8 @@ public class SqLiteDatabase extends Database {
             while (resultSet.next()) {
                 final World world = World.of(
                         resultSet.getString("world_name"),
-                        UUID.fromString(resultSet.getString("world_uuid"))
+                        UUID.fromString(resultSet.getString("world_uuid")),
+                        resultSet.getString("world_environment")
                 );
                 final ClaimWorld claimWorld = plugin.getClaimWorldFromJson(
                         new String(resultSet.getBytes("data"), StandardCharsets.UTF_8)
