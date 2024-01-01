@@ -49,7 +49,7 @@ public class BlockUpdateHighlighter extends BlockHighlighter<BlockUpdateHighligh
 
     @Override
     public void stopHighlighting(@NotNull OnlineUser user) {
-        this.sendBlockUpdates(user, replacedBlocks.removeAll(user.getUuid()));
+        plugin.runSync(() -> this.sendBlockUpdates(user, replacedBlocks.removeAll(user.getUuid())));
     }
 
     private void sendBlockUpdates(@NotNull OnlineUser user, @NotNull Collection<? extends HighlightBlock> blocks) {

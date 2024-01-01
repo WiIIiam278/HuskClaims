@@ -56,6 +56,10 @@ public interface BukkitTask extends Task {
             if (delayTicks > 0) {
                 this.task = getScheduler().globalRegionalScheduler().runDelayed(runnable, delayTicks);
             } else {
+                if (getScheduler().isOnGlobalRegionThread()) {
+                    runnable.run();
+                    return;
+                }
                 this.task = getScheduler().globalRegionalScheduler().run(runnable);
             }
         }

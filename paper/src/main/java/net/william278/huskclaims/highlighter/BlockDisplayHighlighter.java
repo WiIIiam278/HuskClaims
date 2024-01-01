@@ -63,11 +63,11 @@ public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighli
 
     @Override
     public void stopHighlighting(@NotNull OnlineUser user) {
-        replacedBlocks.removeAll(user.getUuid()).forEach(block -> {
+        plugin.runSync(() -> replacedBlocks.removeAll(user.getUuid()).forEach(block -> {
             if (block instanceof DisplayHighlightBlock display) {
                 display.remove();
             }
-        });
+        }));
     }
 
     public static final class DisplayHighlightBlock extends HighlightBlock {
