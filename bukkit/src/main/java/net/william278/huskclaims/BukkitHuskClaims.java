@@ -284,7 +284,7 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
 
         @NotNull
         public static World adapt(@NotNull org.bukkit.World world) {
-            return World.of(world.getName(), world.getUID());
+            return World.of(world.getName(), world.getUID(), world.getEnvironment().name().toLowerCase(Locale.ENGLISH));
         }
 
         @NotNull

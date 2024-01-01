@@ -29,6 +29,7 @@ import net.william278.huskclaims.position.World;
 import net.william278.huskclaims.user.Preferences;
 import net.william278.huskclaims.user.SavedUser;
 import net.william278.huskclaims.user.User;
+import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -82,7 +83,7 @@ public abstract class Database {
      * @return The formatted SQL statement
      */
     @NotNull
-    protected final String format(@NotNull String statement) {
+    protected final String format(@NotNull @Language("SQL") String statement) {
         final Pattern pattern = Pattern.compile("%(\\w+)%");
         final Matcher matcher = pattern.matcher(statement);
         final StringBuilder sb = new StringBuilder();
@@ -366,7 +367,7 @@ public abstract class Database {
         ADD_METADATA_TABLE(
                 0, "add_metadata_table",
                 Type.MYSQL, Type.MARIADB, Type.SQLITE
-                );
+        );
 
         private final int version;
         private final String migrationName;

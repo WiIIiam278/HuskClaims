@@ -45,7 +45,9 @@ public interface UserManager {
 
     @Blocking
     default Optional<SavedUser> getSavedUser(@NotNull UUID uuid) {
-        return Optional.ofNullable(getUserCache().get(uuid)).or(() -> getPlugin().getDatabase().getUser(uuid));
+        return Optional.ofNullable(getUserCache().get(uuid)).or(
+                () -> getPlugin().getDatabase().getUser(uuid).map(data -> getUserCache().put(uuid, data))
+        );
     }
 
     @Blocking
@@ -70,6 +72,7 @@ public interface UserManager {
         if (optionalUser.isEmpty()) {
             throw new IllegalArgumentException("Could not find user with UUID: " + uuid);
         }
+
         final SavedUser user = optionalUser.get();
         consumer.accept(user);
         getUserCache().put(uuid, user);

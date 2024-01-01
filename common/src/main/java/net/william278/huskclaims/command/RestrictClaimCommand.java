@@ -29,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Map;
 
-public class RestrictClaimCommand extends InClaimCommand {
+public class RestrictClaimCommand extends InClaimCommand implements ToggleTabCompletable {
 
     protected RestrictClaimCommand(@NotNull HuskClaims plugin) {
         super(List.of("restrictclaim"), "[on|off]", null, plugin);

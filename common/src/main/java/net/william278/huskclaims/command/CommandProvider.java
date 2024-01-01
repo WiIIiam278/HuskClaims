@@ -68,6 +68,7 @@ public interface CommandProvider {
         commands.add(new ExtendClaimCommand(getPlugin()));
         commands.add(new ClaimBlocksCommand(getPlugin()));
         commands.add(new RestrictClaimCommand(getPlugin()));
+        commands.add(new IgnoreClaimsCommand(getPlugin()));
 
         // Register claim commands
         getPlugin().getSettings().getClaims().getEnabledClaimingModes().stream()

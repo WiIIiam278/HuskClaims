@@ -38,10 +38,12 @@ public class World implements OperationWorld {
     private String name;
     @Expose
     private UUID uuid;
+    @Expose
+    private String environment;
 
     @NotNull
-    public static World of(@NotNull String name, @NotNull UUID uuid) {
-        return new World(name, uuid);
+    public static World of(@NotNull String name, @NotNull UUID uuid, @NotNull String environment) {
+        return new World(name, uuid, environment);
     }
 
     @Override

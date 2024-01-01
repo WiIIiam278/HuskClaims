@@ -32,6 +32,8 @@ import java.util.Map;
 
 public interface BlockProvider {
 
+    int BLOCK_VIEW_DISTANCE = 78;
+
     /**
      * Get the server worlds
      *
@@ -54,17 +56,16 @@ public interface BlockProvider {
     /**
      * Get a Map of the surface blocks at a collection of positions, relative to the base y level
      *
-     * @param positions the positions
-     * @param world     the world
-     * @param yLevel    the base y level to check at
+     * @param positions      the positions
+     * @param world          the world
+     * @param viewerPosition the viewer's position
      * @return a Map of the highest block {@link Position}s to their {@link MaterialBlock}s
      * @since 1.0
      */
     @NotNull
     Map<BlockHighlighter.HighlightBlock, Highlightable.HighlightType> getSurfaceBlocksAt(
             @NotNull Map<? extends BlockPosition, Highlightable.HighlightType> positions,
-            @NotNull World world,
-            int yLevel
+            @NotNull World world, @NotNull Position viewerPosition
     );
 
     /**

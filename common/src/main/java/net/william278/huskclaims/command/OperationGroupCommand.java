@@ -27,7 +27,7 @@ import net.william278.huskclaims.config.Settings;
 import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
-public class OperationGroupCommand extends InClaimCommand {
+public class OperationGroupCommand extends InClaimCommand implements ToggleTabCompletable {
 
     private final Settings.OperationGroup group;
 

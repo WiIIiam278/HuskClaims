@@ -26,6 +26,7 @@ import net.william278.huskclaims.highlighter.Highlightable;
 import net.william278.huskclaims.position.BlockPosition;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.position.World;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -50,16 +51,19 @@ public interface BukkitBlockProvider extends BlockProvider {
     @Override
     default Map<BlockHighlighter.HighlightBlock, Highlightable.HighlightType> getSurfaceBlocksAt(
             @NotNull Map<? extends BlockPosition, Highlightable.HighlightType> positions,
-            @NotNull World surfaceWorld,
-            int yLevel
+            @NotNull World surfaceWorld, @NotNull Position viewerPosition
     ) {
         final Map<BlockHighlighter.HighlightBlock, Highlightable.HighlightType> blocks = Maps.newHashMap();
+        final Location viewerLocation = Adapter.adapt(viewerPosition);
         positions.forEach((position, highlightType) -> {
-            final Location location = Adapter.adapt(Position.at(position, yLevel, surfaceWorld));
+            final Location location = Adapter.adapt(Position.at(position, viewerPosition.getY(), surfaceWorld));
             final org.bukkit.World world = Objects.requireNonNull(location.getWorld(), "World is null");
-            if (location.getChunk().isLoaded()) {
+            if (location.getChunk().isLoaded() && location.distance(viewerLocation) <= BLOCK_VIEW_DISTANCE) {
                 final Block block = getSurfaceBlockAt(location.getBlock(), world.getMinHeight(), world.getMaxHeight());
-                blocks.put(new BlockHighlighter.HighlightBlock(Adapter.adapt(block.getLocation()), new BlockDataBlock(block.getBlockData())), highlightType);
+                blocks.put(new BlockHighlighter.HighlightBlock(
+                        Adapter.adapt(block.getLocation()),
+                        new BlockDataBlock(block.getBlockData())
+                ), highlightType);
             }
         });
         return blocks;

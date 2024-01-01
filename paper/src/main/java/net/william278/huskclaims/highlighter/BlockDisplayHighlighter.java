@@ -26,6 +26,7 @@ import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.user.BukkitUser;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.util.BlockDataBlock;
+import net.william278.huskclaims.util.BlockProvider;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.entity.BlockDisplay;
@@ -87,11 +88,12 @@ public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighli
 
         private DisplayHighlightBlock(@NotNull Position position, @NotNull Highlightable.HighlightType type,
                                       @NotNull HuskClaims plugin) {
-            super(position, plugin.getSettings().getClaims().getHighlighterBlockType(type, plugin));
+            super(position, plugin.getSettings().getHighlighter().getBlock(type, plugin));
             this.display = createEntity(plugin, type);
         }
 
         @SuppressWarnings("UnstableApiUsage")
+        @NotNull
         private BlockDisplay createEntity(@NotNull HuskClaims plugin, @NotNull Highlightable.HighlightType type) {
             final Location location = BukkitHuskClaims.Adapter.adapt(position);
             if (!location.isWorldLoaded() || !location.getChunk().isLoaded()) {
@@ -103,6 +105,7 @@ public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighli
                     location, EntityType.BLOCK_DISPLAY
             );
             display.setBlock(((BlockDataBlock) this.block).getData());
+            display.setViewRange(BlockProvider.BLOCK_VIEW_DISTANCE);
             display.setGravity(false);
             display.setPersistent(false);
             display.setBrightness(FULL_BRIGHT);
@@ -112,10 +115,10 @@ public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighli
             display.setTransformation(SCALE_TRANSFORMATION);
 
             // Glow if needed
-            if (plugin.getSettings().getClaims().isHighlighterGlow()) {
+            if (plugin.getSettings().getHighlighter().isGlowEffect()) {
                 display.setGlowing(true);
                 display.setGlowColorOverride(Color.fromRGB(
-                        plugin.getSettings().getClaims().getBlockHighlighterColor(type).getRgb()
+                        plugin.getSettings().getHighlighter().getGlowColor(type).getRgb()
                 ));
             }
             return display;

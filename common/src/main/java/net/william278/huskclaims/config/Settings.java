@@ -164,7 +164,6 @@ public final class Settings {
     @Comment("Claim flags & world settings")
     private ClaimSettings claims = new ClaimSettings();
 
-    @SuppressWarnings("FieldMayBeFinal")
     @Getter
     @Configuration
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -215,49 +214,7 @@ public final class Settings {
         private int minimumClaimSize = 5;
 
         @Comment("Max range of inspector tools")
-        private int inspectionDistance = 40;
-
-        @Comment("The blocks to use when highlighting claims")
-        private Map<Highlightable.HighlightType, String> highlighterBlockTypes = new TreeMap<>(Map.of(
-                Highlightable.HighlightType.EDGE, "minecraft:gold_block",
-                Highlightable.HighlightType.CORNER, "minecraft:glowstone",
-                Highlightable.HighlightType.ADMIN_CORNER, "minecraft:jack_o_lantern",
-                Highlightable.HighlightType.ADMIN_EDGE, "minecraft:pumpkin",
-                Highlightable.HighlightType.CHILD_CORNER, "minecraft:iron_block",
-                Highlightable.HighlightType.CHILD_EDGE, "minecraft:white_wool",
-                Highlightable.HighlightType.OVERLAP_CORNER, "minecraft:red_nether_bricks",
-                Highlightable.HighlightType.OVERLAP_EDGE, "minecraft:netherrack",
-                Highlightable.HighlightType.SELECTION, "minecraft:diamond_block"
-        ));
-
-        @NotNull
-        public BlockProvider.MaterialBlock getHighlighterBlockType(@NotNull Highlightable.HighlightType type,
-                                                                   @NotNull HuskClaims plugin) {
-            return Optional.ofNullable(highlighterBlockTypes.get(type))
-                    .map(plugin::getBlockFor)
-                    .orElse(plugin.getBlockFor("minecraft:yellow_concrete"));
-        }
-
-        @Comment("Whether blocks should glow when highlighting claims (requires Paper 1.19.4+ servers)")
-        private boolean highlighterGlow = true;
-
-        @Comment("The color of the glow effect used for blocks when highlighting claims")
-        private Map<Highlightable.HighlightType, GlowColor> highlighterGlowColors = new TreeMap<>(Map.of(
-                Highlightable.HighlightType.EDGE, GlowColor.YELLOW,
-                Highlightable.HighlightType.CORNER, GlowColor.YELLOW,
-                Highlightable.HighlightType.ADMIN_CORNER, GlowColor.ORANGE,
-                Highlightable.HighlightType.ADMIN_EDGE, GlowColor.ORANGE,
-                Highlightable.HighlightType.CHILD_CORNER, GlowColor.SILVER,
-                Highlightable.HighlightType.CHILD_EDGE, GlowColor.SILVER,
-                Highlightable.HighlightType.OVERLAP_CORNER, GlowColor.RED,
-                Highlightable.HighlightType.OVERLAP_EDGE, GlowColor.RED,
-                Highlightable.HighlightType.SELECTION, GlowColor.AQUA
-        ));
-
-        @NotNull
-        public Settings.GlowColor getBlockHighlighterColor(@NotNull Highlightable.HighlightType type) {
-            return Optional.ofNullable(highlighterGlowColors.get(type)).orElse(GlowColor.WHITE);
-        }
+        private int inspectionDistance = 64;
 
         public boolean isWorldUnclaimable(@NotNull World world) {
             return unclaimableWorlds.stream().anyMatch(world.getName()::equalsIgnoreCase);
@@ -300,7 +257,7 @@ public final class Settings {
         @Comment("Whether to enable user groups")
         private boolean enabled = true;
 
-        @Comment("The prefix to use when specifying a group in a trust command (e.g. /trust #groupname)")
+        @Comment("The prefix to use when specifying a group in a trust command (e.g. /trust @groupname)")
         private String groupSpecifierPrefix = "@";
 
         @Comment("Whether to restrict group names with a regex filter")
@@ -316,32 +273,84 @@ public final class Settings {
         private int maxGroupsPerPlayer = 3;
     }
 
+    @Comment("Settings for the claim inspection/creation highlighter")
+    private HighlighterSettings highlighter = new HighlighterSettings();
+
     @Getter
-    public enum GlowColor {
+    @Configuration
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class HighlighterSettings {
+        @Comment("Whether to use block display entities for glowing (requires Paper 1.19.4+)")
+        private boolean blockDisplays = true;
 
-        WHITE(16777215),
-        SILVER(12632256),
-        GRAY(8421504),
-        BLACK(0),
-        RED(16711680),
-        MAROON(8388608),
-        YELLOW(16776960),
-        OLIVE(8421376),
-        LIME(65280),
-        GREEN(32768),
-        AQUA(65535),
-        TEAL(32896),
-        BLUE(255),
-        NAVY(128),
-        FUCHSIA(16711935),
-        PURPLE(8388736),
-        ORANGE(16753920);
+        @Comment("If using block displays, whether highlights should use a glow effect (requires Paper 1.19.4+)")
+        private boolean glowEffect = true;
 
-        private final int rgb;
+        @Comment("The blocks to use when highlighting claims")
+        private Map<Highlightable.HighlightType, String> blockTypes = new TreeMap<>(Map.of(
+                Highlightable.HighlightType.EDGE, "minecraft:gold_block",
+                Highlightable.HighlightType.CORNER, "minecraft:glowstone",
+                Highlightable.HighlightType.ADMIN_CORNER, "minecraft:glowstone",
+                Highlightable.HighlightType.ADMIN_EDGE, "minecraft:pumpkin",
+                Highlightable.HighlightType.CHILD_CORNER, "minecraft:iron_block",
+                Highlightable.HighlightType.CHILD_EDGE, "minecraft:white_wool",
+                Highlightable.HighlightType.OVERLAP_CORNER, "minecraft:red_nether_bricks",
+                Highlightable.HighlightType.OVERLAP_EDGE, "minecraft:netherrack",
+                Highlightable.HighlightType.SELECTION, "minecraft:diamond_block"
+        ));
 
-        GlowColor(int rgb) {
-            this.rgb = rgb;
+        @NotNull
+        public BlockProvider.MaterialBlock getBlock(@NotNull Highlightable.HighlightType type,
+                                                    @NotNull HuskClaims plugin) {
+            return Optional.ofNullable(blockTypes.get(type))
+                    .map(plugin::getBlockFor)
+                    .orElse(plugin.getBlockFor("minecraft:yellow_concrete"));
+        }
+
+        @Comment("The color of the glow effect used for blocks when highlighting claims")
+        private Map<Highlightable.HighlightType, GlowColor> glowColors = new TreeMap<>(Map.of(
+                Highlightable.HighlightType.EDGE, GlowColor.YELLOW,
+                Highlightable.HighlightType.CORNER, GlowColor.YELLOW,
+                Highlightable.HighlightType.ADMIN_CORNER, GlowColor.ORANGE,
+                Highlightable.HighlightType.ADMIN_EDGE, GlowColor.ORANGE,
+                Highlightable.HighlightType.CHILD_CORNER, GlowColor.SILVER,
+                Highlightable.HighlightType.CHILD_EDGE, GlowColor.SILVER,
+                Highlightable.HighlightType.OVERLAP_CORNER, GlowColor.RED,
+                Highlightable.HighlightType.OVERLAP_EDGE, GlowColor.RED,
+                Highlightable.HighlightType.SELECTION, GlowColor.AQUA
+        ));
+
+        @NotNull
+        public Settings.HighlighterSettings.GlowColor getGlowColor(@NotNull Highlightable.HighlightType type) {
+            return Optional.ofNullable(glowColors.get(type)).orElse(GlowColor.WHITE);
+        }
+
+        @Getter
+        public enum GlowColor {
+
+            WHITE(16777215),
+            SILVER(12632256),
+            GRAY(8421504),
+            BLACK(0),
+            RED(16711680),
+            MAROON(8388608),
+            YELLOW(16776960),
+            OLIVE(8421376),
+            LIME(65280),
+            GREEN(32768),
+            AQUA(65535),
+            TEAL(32896),
+            BLUE(255),
+            NAVY(128),
+            FUCHSIA(16711935),
+            PURPLE(8388736),
+            ORANGE(16753920);
+
+            private final int rgb;
+
+            GlowColor(int rgb) {
+                this.rgb = rgb;
+            }
         }
     }
-
 }

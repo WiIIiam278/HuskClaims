@@ -59,22 +59,22 @@ public abstract class BlockHighlighter<B extends BlockHighlighter.HighlightBlock
 
             final ClaimWorld claimWorld = optionalClaimWorld.get();
             final List<B> highlightBlocks = Lists.newArrayList();
-            final int userY = (int) user.getPosition().getY();
-            final Map<HighlightBlock, Highlightable.HighlightType> totalBlocks = new HashMap<>();
+            final Position position = user.getPosition();
+            final Map<HighlightBlock, Highlightable.HighlightType> totalBlocks = Maps.newHashMap();
             for (Highlightable highlight : toHighlight) {
                 final Map<BlockHighlighter.HighlightBlock, Highlightable.HighlightType> blocks = plugin
-                        .getSurfaceBlocksAt(highlight.getHighlightPoints(claimWorld, showOverlap), world, userY);
+                        .getSurfaceBlocksAt(highlight.getHighlightPoints(claimWorld, showOverlap), world, position);
                 totalBlocks.putAll(blocks);
             }
 
             final Collection<HighlightBlock> userBlocks = replacedBlocks.get(user.getUuid());
-            if (!userBlocks.isEmpty() && userBlocks.size() == totalBlocks.size() &&
-                    totalBlocks.entrySet().stream().allMatch(b -> userBlocks.stream().anyMatch(b2 -> b2.getPosition().equals(b.getKey().position)))) {
+            if (!userBlocks.isEmpty() && userBlocks.size() == totalBlocks.size()
+                    && totalBlocks.entrySet().stream().allMatch(b -> userBlocks.stream()
+                    .anyMatch(b2 -> b2.getPosition().equals(b.getKey().position)))) {
                 return;
             }
 
             this.stopHighlighting(user);
-
             totalBlocks.forEach((b, t) -> {
                 B block = getHighlightBLock(b.getPosition(), t, plugin);
                 replacedBlocks.put(user.getUuid(), block);
@@ -86,8 +86,7 @@ public abstract class BlockHighlighter<B extends BlockHighlighter.HighlightBlock
     }
 
     @NotNull
-    public abstract B getHighlightBLock(@NotNull Position position,
-                                        @NotNull Highlightable.HighlightType type,
+    public abstract B getHighlightBLock(@NotNull Position position, @NotNull Highlightable.HighlightType type,
                                         @NotNull HuskClaims plugin);
 
     public abstract void showBlocks(@NotNull OnlineUser user, @NotNull Collection<B> blocks);

@@ -60,7 +60,7 @@ public class BlockUpdateHighlighter extends BlockHighlighter<BlockUpdateHighligh
 
         private UpdateHighlightBlock(@NotNull Position position, @NotNull Highlightable.HighlightType block,
                                      @NotNull HuskClaims plugin) {
-            super(position, plugin.getSettings().getClaims().getHighlighterBlockType(block, plugin));
+            super(position, plugin.getSettings().getHighlighter().getBlock(block, plugin));
         }
 
     }

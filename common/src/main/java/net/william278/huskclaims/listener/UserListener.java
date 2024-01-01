@@ -22,12 +22,19 @@ package net.william278.huskclaims.listener;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.config.Settings;
 import net.william278.huskclaims.user.OnlineUser;
+import net.william278.huskclaims.user.Preferences;
 import org.jetbrains.annotations.NotNull;
 
 public interface UserListener {
 
     default void onUserJoin(@NotNull OnlineUser user) {
-        getPlugin().loadUserData(user);
+        getPlugin().runAsync(() -> {
+            getPlugin().loadUserData(user);
+            if (getPlugin().getUserPreferences(user.getUuid()).map(Preferences::isIgnoringClaims).orElse(false)) {
+                getPlugin().getLocales().getLocale("ignoring_claims_reminder")
+                        .ifPresent(user::sendMessage);
+            }
+        });
     }
 
     default void onUserQuit(@NotNull OnlineUser user) {
