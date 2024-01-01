@@ -185,8 +185,15 @@ public interface ClaimEditor {
         world.cacheUser(user);
         final Claim claim = getPlugin().createClaimAt(world, region, user);
         getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claim);
+
+        // Indicate that the claim has been created, suggest a trust level command
         getPlugin().getLocales().getLocale("claim_created", Long.toString(surfaceArea))
                 .ifPresent(user::sendMessage);
+        getPlugin().getBuildTrustLevel().flatMap(level -> level
+                .getCommandAliases().stream().findFirst()
+                .flatMap(alias -> getPlugin().getLocales().getLocale("claim_created_trust_prompt",
+                        alias, level.getDisplayName(), level.getColor(), level.getDescription()
+                ))).ifPresent(user::sendMessage);
     }
 
     default void userCreateAdminClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {

@@ -23,6 +23,7 @@ import de.exlll.configlib.NameFormatters;
 import de.exlll.configlib.YamlConfigurationProperties;
 import de.exlll.configlib.YamlConfigurationStore;
 import de.exlll.configlib.YamlConfigurations;
+import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.TrustLevel;
 import org.jetbrains.annotations.NotNull;
@@ -146,6 +147,19 @@ public interface ConfigProvider {
     default TrustLevel getHighestTrustLevel() {
         return getTrustLevels().stream().max(TrustLevel::compareTo)
                 .orElseThrow(() -> new IllegalStateException("No trust levels found"));
+    }
+
+    /**
+     * Get the lowest trust level that grants build trust
+     *
+     * @return the lowest trust level that grants build trust
+     * @since 1.0
+     */
+    @NotNull
+    default Optional<TrustLevel> getBuildTrustLevel() {
+        return getTrustLevels().stream()
+                .filter(level -> level.getFlags().contains(OperationType.BLOCK_PLACE))
+                .min(TrustLevel::compareTo);
     }
 
     /**
