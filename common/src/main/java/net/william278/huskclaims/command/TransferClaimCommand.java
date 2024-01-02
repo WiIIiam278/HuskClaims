@@ -23,7 +23,7 @@ import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.user.OnlineUser;
-import net.william278.huskclaims.user.User;
+import net.william278.huskclaims.user.SavedUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -51,21 +51,21 @@ public class TransferClaimCommand extends InClaimCommand implements UserListTabC
                     .ifPresent(executor::sendMessage);
             return;
         }
-        if (claim.getOwner().map(o -> o.equals(executor.getUuid())).orElse(false)
-                || hasPermission(executor, "other")) {
+        if (!claim.getOwner().map(o -> o.equals(executor.getUuid())).orElse(false)
+                && !hasPermission(executor, "other")) {
             plugin.getLocales().getLocale("no_transfer_permission")
                     .ifPresent(executor::sendMessage);
             return;
         }
 
         // Get the name of the target user
-        final Optional<User> user = resolveUser(executor, args);
+        final Optional<SavedUser> user = parseStringArg(args, 0).flatMap(u -> plugin.getDatabase().getUser(u));
         if (user.isEmpty()) {
             plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                     .ifPresent(executor::sendMessage);
             return;
         }
 
-        plugin.userTransferClaim(executor, claim, world, user.get());
+        plugin.userTransferClaim(executor, claim, world, user.get().getUser());
     }
 }
