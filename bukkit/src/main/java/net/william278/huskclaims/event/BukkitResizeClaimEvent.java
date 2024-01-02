@@ -38,7 +38,7 @@ public class BukkitResizeClaimEvent extends BukkitPlayerEvent implements ResizeC
     private boolean cancelled;
 
     protected BukkitResizeClaimEvent(@NotNull OnlineUser user, @NotNull Claim claim, @NotNull Region newRegion,
-                                  @NotNull ClaimWorld claimWorld, @NotNull HuskClaims plugin) {
+                                     @NotNull ClaimWorld claimWorld, @NotNull HuskClaims plugin) {
         super(user, plugin);
         this.newRegion = newRegion;
         this.claimWorld = claimWorld;

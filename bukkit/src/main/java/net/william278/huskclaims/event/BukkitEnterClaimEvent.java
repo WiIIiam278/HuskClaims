@@ -40,8 +40,8 @@ public class BukkitEnterClaimEvent extends BukkitPlayerEvent implements EnterCla
     private boolean cancelled;
 
     protected BukkitEnterClaimEvent(@NotNull OnlineUser user, @NotNull Claim claim, @NotNull ClaimWorld claimWorld,
-                                 @NotNull Position enteredFrom, @NotNull Position enteredTo,
-                                 @NotNull HuskClaims plugin) {
+                                    @NotNull Position enteredFrom, @NotNull Position enteredTo,
+                                    @NotNull HuskClaims plugin) {
         super(user, plugin);
         this.claim = claim;
         this.claimWorld = claimWorld;

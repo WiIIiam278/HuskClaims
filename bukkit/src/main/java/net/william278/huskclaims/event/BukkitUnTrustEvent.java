@@ -41,7 +41,7 @@ public class BukkitUnTrustEvent extends BukkitPlayerEvent implements UnTrustEven
     private boolean cancelled;
 
     protected BukkitUnTrustEvent(@NotNull OnlineUser user, @NotNull Claim claim, @NotNull ClaimWorld claimWorld,
-                              @NotNull TrustLevel trustLevel, @NotNull Trustable trusted, @NotNull HuskClaims plugin) {
+                                 @NotNull TrustLevel trustLevel, @NotNull Trustable trusted, @NotNull HuskClaims plugin) {
         super(user, plugin);
         this.claim = claim;
         this.claimWorld = claimWorld;

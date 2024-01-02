@@ -36,7 +36,7 @@ public class BukkitDeleteClaimEvent extends BukkitPlayerEvent implements DeleteC
     private boolean cancelled;
 
     protected BukkitDeleteClaimEvent(@NotNull OnlineUser user, @NotNull Claim claim,
-                                  @NotNull ClaimWorld claimWorld, @NotNull HuskClaims plugin) {
+                                     @NotNull ClaimWorld claimWorld, @NotNull HuskClaims plugin) {
         super(user, plugin);
         this.claim = claim;
         this.claimWorld = claimWorld;

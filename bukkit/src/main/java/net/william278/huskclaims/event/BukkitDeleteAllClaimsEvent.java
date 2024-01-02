@@ -43,7 +43,7 @@ public class BukkitDeleteAllClaimsEvent extends BukkitPlayerEvent implements Del
     private boolean cancelled;
 
     protected BukkitDeleteAllClaimsEvent(@NotNull OnlineUser user, @Nullable User claimOwner,
-                                      @NotNull Collection<ServerWorldClaim> claims, @NotNull HuskClaims plugin) {
+                                         @NotNull Collection<ServerWorldClaim> claims, @NotNull HuskClaims plugin) {
         super(user, plugin);
         this.claimOwner = claimOwner;
         this.claims = claims;
