@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.sql.*;
+import java.sql.Date;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -319,6 +320,25 @@ public class SqLiteDatabase extends Database {
             statement.executeUpdate();
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to update Saved User data in table", e);
+        }
+    }
+
+    @Override
+    public void createOrUpdateUser(@NotNull UUID uuid, @NotNull String name, long totalBlocks, @NotNull Date lastLogin) {
+        try (PreparedStatement statement = getConnection().prepareStatement(format("""
+                INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT(`uuid`) DO UPDATE SET `username` = ?, `last_login` = ?, `claim_blocks` = ?"""))) {
+            statement.setString(1, uuid.toString());
+            statement.setString(2, name);
+            statement.setTimestamp(3, new Timestamp(lastLogin.getTime()));
+            statement.setLong(4, totalBlocks);
+            statement.setString(5, name);
+            statement.setTimestamp(6, new Timestamp(lastLogin.getTime()));
+            statement.setLong(7, totalBlocks);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to create or update user in table", e);
         }
     }
 

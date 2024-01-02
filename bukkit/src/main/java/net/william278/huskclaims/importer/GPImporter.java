@@ -24,14 +24,18 @@ import com.zaxxer.hikari.HikariDataSource;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.william278.huskclaims.BukkitHuskClaims;
+import net.william278.huskclaims.claim.Claim;
+import net.william278.huskclaims.claim.ClaimWorld;
+import net.william278.huskclaims.claim.Region;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -114,18 +118,31 @@ public class GPImporter extends Importer {
         }
         final int totalClaims = getTotalClaims();
         final int totalPages = (int) Math.ceil(totalClaims / (double) CLAIMS_PER_PAGE);
-        final List<CompletableFuture<List<Claim>>> claimPages = IntStream.rangeClosed(1, totalPages)
+        final List<CompletableFuture<List<GPClaim>>> claimPages = IntStream.rangeClosed(1, totalPages)
                 .mapToObj(this::getClaimPage)
                 .toList();
         CompletableFuture.allOf(claimPages.toArray(CompletableFuture[]::new)).join();
-        final List<Claim> claims = new ArrayList<>();
+        final List<GPClaim> claims = new ArrayList<>();
         claimPages.stream()
                 .map(CompletableFuture::join)
                 .forEach(claims::addAll);
 
+        final List<GPClaim> claimToSave = new ArrayList<>();
+
         users.forEach(u -> {
-            int totalArea = claims.stream()
+            final UUID uuid = UUID.fromString(u.name);
+            final OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
+            if (!offlinePlayer.hasPlayedBefore()) {
+//                plugin.getLogger().warning("Unable to import claim data for user " + u.name + " as they have never played on this server");
+                return;
+            }
+
+            System.out.println("Importing claims for " + offlinePlayer.getName());
+
+            final String name = offlinePlayer.getName();
+            final int totalArea = claims.stream()
                     .filter(c -> c.owner.equals(u.name))
+                    .peek(claimToSave::add)
                     .mapToInt(c -> {
                         String[] lesserCorner = c.lesserCorner.split(";");
                         String[] greaterCorner = c.greaterCorner.split(";");
@@ -139,6 +156,19 @@ public class GPImporter extends Importer {
                     })
                     .sum();
             u.accruedBlocks -= totalArea;
+            u.name = name == null ? u.name : name;
+            plugin.getDatabase().createOrUpdateUser(u.uuid, u.name, u.accruedBlocks, u.lastLogin);
+        });
+
+        claimToSave.forEach(c -> {
+            final String world = c.lesserCorner.split(";")[0];
+            Optional<ClaimWorld> optionalClaimWorld = Optional.ofNullable(plugin.getClaimWorlds().getOrDefault(world, null));
+            if (optionalClaimWorld.isEmpty()) {
+                plugin.getLogger().warning("Unable to import claim data for claim " + c.lesserCorner + " as the world " + world + " does not exist");
+                return;
+            }
+            final ClaimWorld claimWorld = optionalClaimWorld.get();
+            claimWorld.getClaims().add(c);
         });
 
         return claims.size();
@@ -170,16 +200,16 @@ public class GPImporter extends Importer {
         return 0;
     }
 
-    private CompletableFuture<List<Claim>> getClaimPage(int page) {
+    private CompletableFuture<List<GPClaim>> getClaimPage(int page) {
         return CompletableFuture.supplyAsync(() -> {
             try (Connection connection = dataSource.getConnection();
                  PreparedStatement statement = connection.prepareStatement("SELECT * FROM griefprevention_claimdata LIMIT ?, ?")) {
                 statement.setInt(1, (page - 1) * CLAIMS_PER_PAGE);
                 statement.setInt(2, CLAIMS_PER_PAGE);
                 ResultSet resultSet = statement.executeQuery();
-                List<Claim> claims = new ArrayList<>();
+                List<GPClaim> claims = new ArrayList<>();
                 while (resultSet.next()) {
-                    claims.add(new Claim(
+                    claims.add(new GPClaim(
                             resultSet.getString("owner"),
                             resultSet.getString("lessercorner"),
                             resultSet.getString("greatercorner"),
@@ -210,7 +240,7 @@ public class GPImporter extends Importer {
                 while (resultSet.next()) {
                     users.add(new User(
                             resultSet.getString("name"),
-                            resultSet.getString("lastlogin"),
+                            resultSet.getDate("lastlogin"),
                             resultSet.getInt("accruedblocks") + resultSet.getInt("bonusblocks")
                     ));
                 }
@@ -222,16 +252,33 @@ public class GPImporter extends Importer {
         }, pool);
     }
 
-    private record Claim(String owner, String lesserCorner, String greaterCorner, String builders, String containers,
-                         String accessors, String managers, boolean inheritNothing, int parentId) {
+    private record GPClaim(String owner, String lesserCorner, String greaterCorner, String builders, String containers,
+                           String accessors, String managers, boolean inheritNothing, int parentId) {
+
+
+        private Claim toClaim() {
+            String[] lesserCorner = this.lesserCorner.split(";");
+            String[] greaterCorner = this.greaterCorner.split(";");
+            final Region region = Region.from(Region.Point.at(Integer.parseInt(lesserCorner[1]), Integer.parseInt(lesserCorner[3])),
+                    Region.Point.at(Integer.parseInt(greaterCorner[1]), Integer.parseInt(greaterCorner[3])));
+
+        }
 
     }
 
     @Getter
     @AllArgsConstructor
     private static final class User {
-        private final String name;
-        private final String lastLogin;
+        private UUID uuid;
+        private String name;
+        private final Date lastLogin;
         private int accruedBlocks;
+
+        public User(String name, Date lastLogin, int accruedBlocks) {
+            this.name = name;
+            this.lastLogin = lastLogin;
+            this.accruedBlocks = accruedBlocks;
+            this.uuid = UUID.fromString(name);
+        }
     }
 }

@@ -38,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
+import java.sql.Date;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -337,6 +338,27 @@ public class MySqlDatabase extends Database {
             }
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to update Saved User data in table", e);
+        }
+    }
+
+    @Override
+    public void createOrUpdateUser(@NotNull UUID uuid, @NotNull String name, long totalBlocks, @NotNull Date lastLogin) {
+        try (Connection connection = getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(format("""
+                    INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`)
+                    VALUES (?, ?, ?, ?)
+                    ON DUPLICATE KEY UPDATE `username` = ?, `last_login` = ?, `claim_blocks` = ?"""))) {
+                statement.setString(1, uuid.toString());
+                statement.setString(2, name);
+                statement.setDate(3, lastLogin);
+                statement.setLong(4, totalBlocks);
+                statement.setString(5, name);
+                statement.setDate(6, lastLogin);
+                statement.setLong(7, totalBlocks);
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to create or update user in table", e);
         }
     }
 

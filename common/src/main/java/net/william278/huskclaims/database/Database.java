@@ -39,6 +39,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -216,6 +217,14 @@ public abstract class Database {
      * @since 1.0
      */
     public abstract void updateUser(@NotNull SavedUser user);
+
+    /**
+     * Save or update user from uuid
+     *
+     * @param uuid The UUID of the user
+     * @since 1.0
+     */
+    public abstract void createOrUpdateUser(@NotNull UUID uuid, @NotNull String name, long totalBlocks, Date lastLogin);
 
     /**
      * Get a list of a user's {@link UserGroup user groups}.
