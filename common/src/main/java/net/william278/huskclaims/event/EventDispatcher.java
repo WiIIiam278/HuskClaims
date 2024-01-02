@@ -58,17 +58,6 @@ public interface EventDispatcher extends EventProvider {
     }
 
     /**
-     * Fire an event synchronously
-     *
-     * @param event The event to fire
-     * @param <T>   The type of event to fire
-     * @since 1.0
-     */
-    default <T extends Event> void fireEvent(@NotNull T event) {
-        fireEvent(event, null);
-    }
-
-    /**
      * Fire an event on this thread, and return whether the event was canceled
      *
      * @param event The event to fire

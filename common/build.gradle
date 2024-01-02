@@ -9,7 +9,7 @@ dependencies {
     api 'de.themoep:minedown-adventure:1.7.2-SNAPSHOT'
     api 'net.william278:PagineDown:1.1'
     api 'net.william278:DesertWell:2.0.4'
-    api 'net.william278.cloplib:cloplib-common:1.0-82653b2'
+    api 'net.william278.cloplib:cloplib-common:1.0-bb5f26c'
     api 'com.google.code.gson:gson:2.10.1'
     api 'com.fatboyindustrial.gson-javatime-serialisers:gson-javatime-serialisers:1.1.2'
     api 'com.github.Exlll.ConfigLib:configlib-yaml:v4.3.0'
