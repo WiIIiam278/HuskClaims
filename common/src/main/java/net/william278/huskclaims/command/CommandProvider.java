@@ -64,6 +64,7 @@ public interface CommandProvider {
         commands.add(new HuskClaimsCommand(getPlugin()));
         commands.add(new TrustListCommand(getPlugin()));
         commands.add(new UnTrustCommand(getPlugin()));
+        commands.add(new TransferClaimCommand(getPlugin()));
         commands.add(new UserGroupsCommand(getPlugin()));
         commands.add(new UnClaimCommand(getPlugin()));
         commands.add(new UnClaimAllCommand(getPlugin()));

@@ -165,6 +165,17 @@ public class Claim implements Highlightable {
     }
 
     /**
+     * Set the owner of the claim
+     *
+     * @param uuid the UUID of the new owner
+     * @since 1.0
+     */
+    public void setOwner(@NotNull UUID uuid) {
+        this.owner = uuid;
+        getChildren().forEach(child -> child.setOwner(uuid));
+    }
+
+    /**
      * Get the map of {@link TrustTag}s to {@link TrustLevel}s in this claim
      *
      * @param plugin the plugin instance

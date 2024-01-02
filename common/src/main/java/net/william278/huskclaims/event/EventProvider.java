@@ -82,4 +82,8 @@ public interface EventProvider {
     UnTrustEvent getUnTrustEvent(@NotNull OnlineUser user, @NotNull TrustLevel level, @NotNull Trustable untrusted,
                                  @NotNull Claim claim, @NotNull ClaimWorld claimWorld);
 
+    @NotNull
+    TransferClaimEvent getTransferClaimEvent(@NotNull OnlineUser user, @NotNull Claim claim,
+                                             @NotNull ClaimWorld claimWorld, @NotNull User newOwner);
+
 }

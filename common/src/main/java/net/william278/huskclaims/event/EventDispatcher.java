@@ -145,6 +145,11 @@ public interface EventDispatcher extends EventProvider {
         fireEvent(getUnTrustEvent(user, level, untrusted, claim, claimWorld), callback);
     }
 
+    default void fireTransferClaimEvent(@NotNull OnlineUser user, @NotNull Claim claim, @NotNull ClaimWorld claimWorld,
+                                        @NotNull User newOwner, @NotNull Consumer<TransferClaimEvent> callback) {
+        fireEvent(getTransferClaimEvent(user, claim, claimWorld, newOwner), callback);
+    }
+
     @NotNull
     HuskClaims getPlugin();
 

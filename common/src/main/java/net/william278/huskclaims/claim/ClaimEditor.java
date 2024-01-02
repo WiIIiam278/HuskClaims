@@ -29,6 +29,7 @@ import net.william278.huskclaims.trust.TrustLevel;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.Preferences;
 import net.william278.huskclaims.user.User;
+import net.william278.huskclaims.user.UserManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -220,6 +221,24 @@ public interface ClaimEditor {
                     .flatMap(alias -> getPlugin().getLocales().getLocale("claim_created_trust_prompt",
                             alias, level.getDisplayName(), level.getColor(), level.getDescription()
                     ))).ifPresent(user::sendMessage);
+        });
+    }
+
+    default void userTransferClaim(@NotNull OnlineUser user, @NotNull Claim claim,
+                                   @NotNull ClaimWorld claimWorld, @NotNull User newOwner) {
+        if (user.equals(newOwner)) {
+            getPlugin().getLocales().getLocale("error_transfer_to_self")
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+
+        // Transfer claim
+        getPlugin().fireTransferClaimEvent(user, claim, claimWorld, newOwner, (event) -> {
+            claimWorld.cacheUser(newOwner);
+            claim.setOwner(newOwner.getUuid());
+            getPlugin().getLocales().getLocale("claim_transferred", newOwner.getName())
+                    .ifPresent(user::sendMessage);
+            getPlugin().getDatabase().updateClaimWorld(claimWorld);
         });
     }
 

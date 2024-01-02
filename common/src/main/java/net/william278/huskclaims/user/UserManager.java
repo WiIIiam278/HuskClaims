@@ -153,7 +153,7 @@ public interface UserManager {
         PURCHASE,
         CLAIM_RESIZED,
         CLAIM_CREATED,
-        CLAIM_DELETED
+        CLAIM_TRANSFER_AWAY, CLAIM_DELETED
     }
 
 }

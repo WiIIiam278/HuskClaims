@@ -124,4 +124,11 @@ public interface BukkitEventDispatcher extends EventDispatcher {
         return new BukkitUnTrustEvent(user, claim, claimWorld, level, unTrusted, getPlugin());
     }
 
+    @Override
+    @NotNull
+    default TransferClaimEvent getTransferClaimEvent(@NotNull OnlineUser user, @NotNull Claim claim,
+                                                     @NotNull ClaimWorld claimWorld, @NotNull User newOwner) {
+        return new BukkitTransferClaimEvent(user, claim, claimWorld, newOwner, getPlugin());
+    }
+
 }
