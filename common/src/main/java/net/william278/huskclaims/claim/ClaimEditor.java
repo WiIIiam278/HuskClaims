@@ -225,8 +225,8 @@ public interface ClaimEditor {
 
     default void userTransferClaim(@NotNull OnlineUser user, @NotNull Claim claim,
                                    @NotNull ClaimWorld claimWorld, @NotNull User newOwner) {
-        if (user.equals(newOwner)) {
-            getPlugin().getLocales().getLocale("error_transfer_to_self")
+        if (claim.getOwner().isPresent() && claim.getOwner().get().equals(newOwner.getUuid())) {
+            getPlugin().getLocales().getLocale("error_transfer_same_owner", newOwner.getName())
                     .ifPresent(user::sendMessage);
             return;
         }
@@ -542,10 +542,10 @@ public interface ClaimEditor {
 
         @Override
         @NotNull
-        public Map<Region.Point, HighlightType> getHighlightPoints(@NotNull ClaimWorld world, boolean showOverlap) {
+        public Map<Region.Point, Type> getHighlightPoints(@NotNull ClaimWorld world, boolean showOverlap) {
             return isResizeSelection() && claimBeingResized != null
                     ? claimBeingResized.getHighlightPoints(world, showOverlap)
-                    : Map.of(Region.Point.wrap(selectedPosition), HighlightType.SELECTION);
+                    : Map.of(Region.Point.wrap(selectedPosition), Type.SELECTION);
         }
     }
 

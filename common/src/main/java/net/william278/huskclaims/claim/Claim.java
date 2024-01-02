@@ -508,7 +508,7 @@ public class Claim implements Highlightable {
 
     @Override
     @NotNull
-    public Map<Region.Point, HighlightType> getHighlightPoints(@NotNull ClaimWorld world, boolean showOverlap) {
+    public Map<Region.Point, Type> getHighlightPoints(@NotNull ClaimWorld world, boolean showOverlap) {
         final Optional<Claim> parent = getParent(world);
         return region.getHighlightPoints(
                 showOverlap,

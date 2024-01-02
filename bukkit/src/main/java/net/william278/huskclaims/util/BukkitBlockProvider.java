@@ -48,11 +48,11 @@ public interface BukkitBlockProvider extends BlockProvider {
 
     @NotNull
     @Override
-    default Map<BlockHighlighter.HighlightBlock, Highlightable.HighlightType> getSurfaceBlocksAt(
-            @NotNull Map<? extends BlockPosition, Highlightable.HighlightType> positions,
+    default Map<BlockHighlighter.HighlightBlock, Highlightable.Type> getSurfaceBlocksAt(
+            @NotNull Map<? extends BlockPosition, Highlightable.Type> positions,
             @NotNull World surfaceWorld, @NotNull Position viewerPosition
     ) {
-        final Map<BlockHighlighter.HighlightBlock, Highlightable.HighlightType> blocks = Maps.newHashMap();
+        final Map<BlockHighlighter.HighlightBlock, Highlightable.Type> blocks = Maps.newHashMap();
         final Location viewerLocation = Adapter.adapt(viewerPosition);
         positions.forEach((position, highlightType) -> {
             final Location location = Adapter.adapt(Position.at(position, viewerPosition.getY(), surfaceWorld));

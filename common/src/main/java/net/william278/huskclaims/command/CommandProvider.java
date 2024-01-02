@@ -26,6 +26,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -43,6 +44,20 @@ public interface CommandProvider {
      */
     @NotNull
     List<Command> getCommands();
+
+    /**
+     * Get a command by its class
+     *
+     * @param commandClass the class of the command to get
+     * @param <T>          the type of command
+     * @return the command, or null if not found
+     */
+    default <T extends Command> Optional<T> getCommand(Class<T> commandClass) {
+        return getCommands().stream()
+                .filter(commandClass::isInstance)
+                .map(commandClass::cast)
+                .findFirst();
+    }
 
     /**
      * Register a batch of command with the platform implementation

@@ -30,6 +30,7 @@ import lombok.NoArgsConstructor;
 import net.william278.cloplib.operation.Operation;
 import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.command.IgnoreClaimsCommand;
 import net.william278.huskclaims.position.BlockPosition;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.user.OnlineUser;
@@ -162,7 +163,7 @@ public class ClaimWorld {
 
     private boolean isOperationAllowedInClaim(@NotNull Operation operation, @NotNull Claim claim,
                                               @NotNull HuskClaims plugin) {
-        if (isIgnoring(operation, plugin) || claim.isOperationAllowed(operation, this, plugin)) {
+        if (isOperationIgnored(operation, plugin) || claim.isOperationAllowed(operation, this, plugin)) {
             return true;
         }
         // Send user error message if verbose
@@ -188,9 +189,24 @@ public class ClaimWorld {
         return false;
     }
 
-    private boolean isIgnoring(@NotNull Operation operation, @NotNull HuskClaims plugin) {
-        return operation.getUser().flatMap(u -> plugin.getUserPreferences(u.getUuid()))
-                .map(Preferences::isIgnoringClaims).orElse(false);
+    // Checks if the outcome of an operation is being ignored by its involved user
+    private boolean isOperationIgnored(@NotNull Operation operation, @NotNull HuskClaims plugin) {
+        return operation.getUser().map(user -> isIgnoringClaims((OnlineUser) user, plugin)).orElse(false);
+    }
+
+    // Checks if a user is ignoring claims, ensuring they also have permission to ignore claims
+    private boolean isIgnoringClaims(@NotNull OnlineUser u, @NotNull HuskClaims plugin) {
+        boolean toggled = plugin.getUserPreferences(u.getUuid()).map(Preferences::isIgnoringClaims).orElse(false);
+        boolean permSet = plugin.getCommand(IgnoreClaimsCommand.class).map(c -> c.hasPermission(u)).orElse(false);
+        if (toggled && !permSet) {
+            plugin.runAsync(() -> {
+                plugin.editUserPreferences(u, (preferences) -> preferences.setIgnoringClaims(false));
+                plugin.getLocales().getLocale("respecting_claims")
+                        .ifPresent(u::sendMessage);
+            });
+            return false;
+        }
+        return toggled;
     }
 
     public int getClaimCount() {

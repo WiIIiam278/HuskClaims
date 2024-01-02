@@ -63,8 +63,8 @@ public interface BlockProvider {
      * @since 1.0
      */
     @NotNull
-    Map<BlockHighlighter.HighlightBlock, Highlightable.HighlightType> getSurfaceBlocksAt(
-            @NotNull Map<? extends BlockPosition, Highlightable.HighlightType> positions,
+    Map<BlockHighlighter.HighlightBlock, Highlightable.Type> getSurfaceBlocksAt(
+            @NotNull Map<? extends BlockPosition, Highlightable.Type> positions,
             @NotNull World world, @NotNull Position viewerPosition
     );
 

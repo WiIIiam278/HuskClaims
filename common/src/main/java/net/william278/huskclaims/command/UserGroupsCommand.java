@@ -137,10 +137,9 @@ public class UserGroupsCommand extends OnlineUserCommand implements TabCompletab
                         return;
                     }
                     plugin.createUserGroup(executor, name, Lists.newArrayList(names));
-                    plugin.getLocales().getLocale("group_created", name,
-                            users.stream().collect(
-                                    Collectors.joining(plugin.getLocales().getListJoiner())
-                            )).ifPresent(executor::sendMessage);
+                    plugin.getLocales().getRawLocale("group_created", name,
+                                    users.stream().collect(Collectors.joining(plugin.getLocales().getListJoiner())))
+                            .ifPresent(l -> executor.sendMessage(plugin.getLocales().format(l)));
                 }
         );
     }

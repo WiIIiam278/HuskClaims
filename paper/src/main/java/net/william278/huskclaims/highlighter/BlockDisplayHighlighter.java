@@ -51,7 +51,7 @@ public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighli
 
     @NotNull
     @Override
-    public DisplayHighlightBlock getHighlightBLock(@NotNull Position position, @NotNull Highlightable.HighlightType type,
+    public DisplayHighlightBlock getHighlightBlock(@NotNull Position position, @NotNull Highlightable.Type type,
                                                    @NotNull HuskClaims plugin) {
         return new DisplayHighlightBlock(position, type, plugin);
     }
@@ -86,7 +86,7 @@ public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighli
 
         private final BlockDisplay display;
 
-        private DisplayHighlightBlock(@NotNull Position position, @NotNull Highlightable.HighlightType type,
+        private DisplayHighlightBlock(@NotNull Position position, @NotNull Highlightable.Type type,
                                       @NotNull HuskClaims plugin) {
             super(position, plugin.getSettings().getHighlighter().getBlock(type, plugin));
             this.display = createEntity(plugin, type);
@@ -94,7 +94,7 @@ public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighli
 
         @SuppressWarnings("UnstableApiUsage")
         @NotNull
-        private BlockDisplay createEntity(@NotNull HuskClaims plugin, @NotNull Highlightable.HighlightType type) {
+        private BlockDisplay createEntity(@NotNull HuskClaims plugin, @NotNull Highlightable.Type type) {
             final Location location = BukkitHuskClaims.Adapter.adapt(position);
             if (!location.isWorldLoaded() || !location.getChunk().isLoaded()) {
                 throw new IllegalStateException("World/chunk is not loaded");

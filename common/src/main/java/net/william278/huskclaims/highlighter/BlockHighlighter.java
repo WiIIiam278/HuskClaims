@@ -60,9 +60,9 @@ public abstract class BlockHighlighter<B extends BlockHighlighter.HighlightBlock
             final ClaimWorld claimWorld = optionalClaimWorld.get();
             final List<B> highlightBlocks = Lists.newArrayList();
             final Position position = user.getPosition();
-            final Map<HighlightBlock, Highlightable.HighlightType> totalBlocks = Maps.newHashMap();
+            final Map<HighlightBlock, Highlightable.Type> totalBlocks = Maps.newHashMap();
             for (Highlightable highlight : toHighlight) {
-                final Map<BlockHighlighter.HighlightBlock, Highlightable.HighlightType> blocks = plugin
+                final Map<BlockHighlighter.HighlightBlock, Highlightable.Type> blocks = plugin
                         .getSurfaceBlocksAt(highlight.getHighlightPoints(claimWorld, showOverlap), world, position);
                 totalBlocks.putAll(blocks);
             }
@@ -76,7 +76,7 @@ public abstract class BlockHighlighter<B extends BlockHighlighter.HighlightBlock
 
             this.stopHighlighting(user);
             totalBlocks.forEach((b, t) -> {
-                B block = getHighlightBLock(b.getPosition(), t, plugin);
+                B block = getHighlightBlock(b.getPosition(), t, plugin);
                 replacedBlocks.put(user.getUuid(), block);
                 highlightBlocks.add(block);
             });
@@ -86,7 +86,7 @@ public abstract class BlockHighlighter<B extends BlockHighlighter.HighlightBlock
     }
 
     @NotNull
-    public abstract B getHighlightBLock(@NotNull Position position, @NotNull Highlightable.HighlightType type,
+    public abstract B getHighlightBlock(@NotNull Position position, @NotNull Highlightable.Type type,
                                         @NotNull HuskClaims plugin);
 
     public abstract void showBlocks(@NotNull OnlineUser user, @NotNull Collection<B> blocks);

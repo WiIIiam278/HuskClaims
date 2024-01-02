@@ -319,20 +319,20 @@ public final class Settings {
         private boolean glowEffect = true;
 
         @Comment("The blocks to use when highlighting claims")
-        private Map<Highlightable.HighlightType, String> blockTypes = new TreeMap<>(Map.of(
-                Highlightable.HighlightType.EDGE, "minecraft:gold_block",
-                Highlightable.HighlightType.CORNER, "minecraft:glowstone",
-                Highlightable.HighlightType.ADMIN_CORNER, "minecraft:glowstone",
-                Highlightable.HighlightType.ADMIN_EDGE, "minecraft:pumpkin",
-                Highlightable.HighlightType.CHILD_CORNER, "minecraft:iron_block",
-                Highlightable.HighlightType.CHILD_EDGE, "minecraft:white_wool",
-                Highlightable.HighlightType.OVERLAP_CORNER, "minecraft:red_nether_bricks",
-                Highlightable.HighlightType.OVERLAP_EDGE, "minecraft:netherrack",
-                Highlightable.HighlightType.SELECTION, "minecraft:diamond_block"
+        private Map<Highlightable.Type, String> blockTypes = new TreeMap<>(Map.of(
+                Highlightable.Type.EDGE, "minecraft:gold_block",
+                Highlightable.Type.CORNER, "minecraft:glowstone",
+                Highlightable.Type.ADMIN_CORNER, "minecraft:glowstone",
+                Highlightable.Type.ADMIN_EDGE, "minecraft:pumpkin",
+                Highlightable.Type.CHILD_CORNER, "minecraft:iron_block",
+                Highlightable.Type.CHILD_EDGE, "minecraft:white_wool",
+                Highlightable.Type.OVERLAP_CORNER, "minecraft:red_nether_bricks",
+                Highlightable.Type.OVERLAP_EDGE, "minecraft:netherrack",
+                Highlightable.Type.SELECTION, "minecraft:diamond_block"
         ));
 
         @NotNull
-        public BlockProvider.MaterialBlock getBlock(@NotNull Highlightable.HighlightType type,
+        public BlockProvider.MaterialBlock getBlock(@NotNull Highlightable.Type type,
                                                     @NotNull HuskClaims plugin) {
             return Optional.ofNullable(blockTypes.get(type))
                     .map(plugin::getBlockFor)
@@ -340,20 +340,20 @@ public final class Settings {
         }
 
         @Comment("The color of the glow effect used for blocks when highlighting claims")
-        private Map<Highlightable.HighlightType, GlowColor> glowColors = new TreeMap<>(Map.of(
-                Highlightable.HighlightType.EDGE, GlowColor.YELLOW,
-                Highlightable.HighlightType.CORNER, GlowColor.YELLOW,
-                Highlightable.HighlightType.ADMIN_CORNER, GlowColor.ORANGE,
-                Highlightable.HighlightType.ADMIN_EDGE, GlowColor.ORANGE,
-                Highlightable.HighlightType.CHILD_CORNER, GlowColor.SILVER,
-                Highlightable.HighlightType.CHILD_EDGE, GlowColor.SILVER,
-                Highlightable.HighlightType.OVERLAP_CORNER, GlowColor.RED,
-                Highlightable.HighlightType.OVERLAP_EDGE, GlowColor.RED,
-                Highlightable.HighlightType.SELECTION, GlowColor.AQUA
+        private Map<Highlightable.Type, GlowColor> glowColors = new TreeMap<>(Map.of(
+                Highlightable.Type.EDGE, GlowColor.YELLOW,
+                Highlightable.Type.CORNER, GlowColor.YELLOW,
+                Highlightable.Type.ADMIN_CORNER, GlowColor.ORANGE,
+                Highlightable.Type.ADMIN_EDGE, GlowColor.ORANGE,
+                Highlightable.Type.CHILD_CORNER, GlowColor.SILVER,
+                Highlightable.Type.CHILD_EDGE, GlowColor.SILVER,
+                Highlightable.Type.OVERLAP_CORNER, GlowColor.RED,
+                Highlightable.Type.OVERLAP_EDGE, GlowColor.RED,
+                Highlightable.Type.SELECTION, GlowColor.AQUA
         ));
 
         @NotNull
-        public Settings.HighlighterSettings.GlowColor getGlowColor(@NotNull Highlightable.HighlightType type) {
+        public Settings.HighlighterSettings.GlowColor getGlowColor(@NotNull Highlightable.Type type) {
             return Optional.ofNullable(glowColors.get(type)).orElse(GlowColor.WHITE);
         }
 

@@ -37,7 +37,7 @@ public class BlockUpdateHighlighter extends BlockHighlighter<BlockUpdateHighligh
 
     @Override
     @NotNull
-    public UpdateHighlightBlock getHighlightBLock(@NotNull Position position, @NotNull Highlightable.HighlightType type,
+    public UpdateHighlightBlock getHighlightBlock(@NotNull Position position, @NotNull Highlightable.Type type,
                                                   @NotNull HuskClaims plugin) {
         return new UpdateHighlightBlock(position, type, plugin);
     }
@@ -58,7 +58,7 @@ public class BlockUpdateHighlighter extends BlockHighlighter<BlockUpdateHighligh
 
     public static class UpdateHighlightBlock extends HighlightBlock {
 
-        private UpdateHighlightBlock(@NotNull Position position, @NotNull Highlightable.HighlightType block,
+        private UpdateHighlightBlock(@NotNull Position position, @NotNull Highlightable.Type block,
                                      @NotNull HuskClaims plugin) {
             super(position, plugin.getSettings().getHighlighter().getBlock(block, plugin));
         }

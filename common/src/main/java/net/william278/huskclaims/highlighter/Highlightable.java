@@ -39,9 +39,9 @@ public interface Highlightable {
      * @since 1.0
      */
     @NotNull
-    Map<Region.Point, HighlightType> getHighlightPoints(@NotNull ClaimWorld world, boolean showOverlap);
+    Map<Region.Point, Type> getHighlightPoints(@NotNull ClaimWorld world, boolean showOverlap);
 
-    enum HighlightType {
+    enum Type {
         CORNER,
         EDGE,
         CHILD_CORNER,
@@ -53,7 +53,7 @@ public interface Highlightable {
         SELECTION;
 
         @NotNull
-        public static HighlightType getClaimType(boolean overlap, boolean child, boolean admin, boolean corner) {
+        public static Highlightable.Type getClaimType(boolean overlap, boolean child, boolean admin, boolean corner) {
             if (overlap) {
                 return corner ? OVERLAP_CORNER : OVERLAP_EDGE;
             }

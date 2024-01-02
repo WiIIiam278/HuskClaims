@@ -33,7 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Map;
 
-import static net.william278.huskclaims.highlighter.Highlightable.HighlightType.getClaimType;
+import static net.william278.huskclaims.highlighter.Highlightable.Type.getClaimType;
 
 /**
  * A rectangular region defined by two {@link Point} points
@@ -245,22 +245,22 @@ public class Region {
     }
 
     @NotNull
-    public Map<Point, Highlightable.HighlightType> getHighlightPoints(boolean overlap, boolean isChild, boolean isAdmin) {
-        final Map<Point, Highlightable.HighlightType> positions = Maps.newHashMap();
+    public Map<Point, Highlightable.Type> getHighlightPoints(boolean overlap, boolean isChild, boolean isAdmin) {
+        final Map<Point, Highlightable.Type> positions = Maps.newHashMap();
 
         // X boundaries
-        final Highlightable.HighlightType edge = getClaimType(overlap, isChild, isAdmin, false);
+        final Highlightable.Type edge = getClaimType(overlap, isChild, isAdmin, false);
         addEdgePoints(positions, edge);
 
         // Add corners
-        final Highlightable.HighlightType corner = getClaimType(overlap, isChild, isAdmin, true);
+        final Highlightable.Type corner = getClaimType(overlap, isChild, isAdmin, true);
         getCorners().forEach((c) -> positions.put(c, corner));
 
         return positions;
     }
 
-    private void addEdgePoints(@NotNull Map<Point, Highlightable.HighlightType> positions,
-                               @NotNull Highlightable.HighlightType type) {
+    private void addEdgePoints(@NotNull Map<Point, Highlightable.Type> positions,
+                               @NotNull Highlightable.Type type) {
         // X boundaries
         for (int x = nearCorner.getBlockX() + STEP; x < farCorner.getBlockX(); x += STEP) {
             positions.put(Point.at(x, nearCorner.getBlockZ()), type);
