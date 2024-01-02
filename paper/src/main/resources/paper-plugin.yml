@@ -12,3 +12,7 @@ dependencies:
       load: BEFORE
       required: false
       join-classpath: true
+    HuskHomes:
+      load: BEFORE
+      required: false
+      join-classpath: true

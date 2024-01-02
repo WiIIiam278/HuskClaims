@@ -408,6 +408,21 @@ public final class Settings {
             private String trustTagPrefix = "role/";
         }
 
+        private HuskHomesHookSettings huskHomes = new HuskHomesHookSettings();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class HuskHomesHookSettings {
+            @Comment("Whether to hook into HuskHomes for claim teleportation and home restriction")
+            private boolean enabled = true;
+
+            @Comment("Whether to restrict setting a home in claims to a trust level")
+            private boolean restrictSetHome = true;
+
+            @Comment("The trust level required to set a home in a claim (the ID of a level in 'trust_levels.yml')")
+            private String setHomeTrustLevel = "access";
+        }
 
     }
 }

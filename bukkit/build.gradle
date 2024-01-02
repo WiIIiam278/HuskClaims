@@ -12,6 +12,8 @@ dependencies {
     compileOnly 'net.william278:DesertWell:2.0.4'
     compileOnly 'org.projectlombok:lombok:1.18.30'
 
+    compileOnly 'net.william278:huskhomes:4.5.5'
+
     annotationProcessor 'org.projectlombok:lombok:1.18.30'
 }
 

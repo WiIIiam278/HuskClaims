@@ -23,6 +23,8 @@ import com.google.common.collect.Lists;
 import lombok.Getter;
 import lombok.Setter;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.position.Position;
+import net.william278.huskclaims.position.World;
 import net.william278.huskclaims.user.CommandUser;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.SavedUser;
@@ -109,6 +111,20 @@ public abstract class Node implements Executable {
         return args.length > 0 && parseStringArg(args, args.length - 1)
                 .map(arg -> arg.toLowerCase(Locale.ENGLISH).equals("confirm"))
                 .orElse(false);
+    }
+
+    protected Optional<Position> parsePositionArgs(@NotNull String[] args, int index) {
+        final Optional<Integer> x = parseIntArg(args, index);
+        final Optional<Integer> y = parseIntArg(args, index + 1);
+        final Optional<Integer> z = parseIntArg(args, index + 2);
+        final Optional<String> world = parseStringArg(args, index + 3);
+        if (x.isPresent() && y.isPresent() && z.isPresent() && world.isPresent()) {
+            return Optional.of(Position.at(
+                    x.get(), y.get(), z.get(),
+                    World.of(world.get(), UUID.randomUUID(), "normal")
+            ));
+        }
+        return Optional.empty();
     }
 
     protected Optional<Integer> parseIntArg(@NotNull String[] args, int index) {

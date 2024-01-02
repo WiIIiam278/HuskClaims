@@ -24,6 +24,7 @@ import lombok.Getter;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.ServerWorldClaim;
 import net.william278.huskclaims.config.Locales;
+import net.william278.huskclaims.hook.HuskHomesHook;
 import net.william278.huskclaims.user.CommandUser;
 import net.william278.huskclaims.user.User;
 import net.william278.paginedown.PaginatedList;
@@ -50,19 +51,26 @@ public abstract class ClaimsListCommand extends Command implements GlobalClaimsP
                         "claim_list_item",
                         locales.getRawLocale(
                                 switch (claim.serverWorld().world().getEnvironment().toLowerCase(Locale.ENGLISH)) {
-                                    case "nether" -> "claim_list_dimension_nether";
-                                    case "the_end" -> "claim_list_dimension_end";
-                                    default -> "claim_list_dimension_overworld";
+                                    case "nether" -> "claim_list_position_nether";
+                                    case "the_end" -> "claim_list_position_end";
+                                    default -> "claim_list_position_overworld";
                                 },
                                 crossServer ? claim.serverWorld().toString() : claim.serverWorld().world().getName(),
+                                Integer.toString(claim.claim().getRegion().getNearCorner().getBlockX()),
+                                Integer.toString(claim.claim().getRegion().getNearCorner().getBlockZ()),
                                 locales.getRawLocale(
                                         "claim_list_%sworld_tooltip".formatted(!crossServer ? "" : "server_")
-                                ).orElse("")
-                        ).orElse(""),
-                        locales.getRawLocale(
-                                "claim_list_coordinates",
-                                Integer.toString(claim.claim().getRegion().getNearCorner().getBlockX()),
-                                Integer.toString(claim.claim().getRegion().getNearCorner().getBlockZ())
+                                ).orElse(""),
+                                plugin.getHook(HuskHomesHook.class).map(hook -> String.format(
+                                        "%s run_command=/huskclaims teleport %s %s %s %s %s",
+                                        getPlugin().getLocales().getRawLocale("claim_list_teleport_tooltip")
+                                                .orElse(""),
+                                        claim.serverWorld().server(),
+                                        claim.claim().getRegion().getCenter().getBlockX(),
+                                        96,
+                                        claim.claim().getRegion().getCenter().getBlockZ(),
+                                        claim.serverWorld().world().getName()
+                                )).orElse("")
                         ).orElse(""),
                         locales.getRawLocale(
                                 "claim_list_blocks",

@@ -50,6 +50,7 @@ tasks {
         minecraftVersion('1.20.4')
         downloadPlugins {
             url("https://download.luckperms.net/1526/bukkit/loader/LuckPerms-Bukkit-5.4.113.jar")
+            modrinth("huskhomes", "4.5.5")
         }
     }
 }

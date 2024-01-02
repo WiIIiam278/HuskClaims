@@ -12,3 +12,4 @@ libraries:
   - 'org.xerial:sqlite-jdbc:${sqlite_driver_version}'
 softdepend:
   - 'LuckPerms'
+  - 'HuskHomes'

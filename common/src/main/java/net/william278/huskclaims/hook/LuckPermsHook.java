@@ -52,6 +52,7 @@ public class LuckPermsHook extends Hook {
 
         // Load LuckPerms group tags
         if (plugin.getSettings().getTrustTags().isEnabled()) {
+            plugin.log(Level.INFO, "Registering LuckPerms group trust tags...");
             loadGroupTags();
         }
     }

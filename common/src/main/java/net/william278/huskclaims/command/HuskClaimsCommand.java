@@ -28,16 +28,16 @@ import net.william278.desertwell.about.AboutMenu;
 import net.william278.desertwell.util.UpdateChecker;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.config.Locales;
+import net.william278.huskclaims.hook.HuskHomesHook;
+import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.user.CommandUser;
+import net.william278.huskclaims.user.OnlineUser;
 import net.william278.paginedown.PaginatedList;
 import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.logging.Level;
 
@@ -47,6 +47,7 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
     private static final Map<String, Boolean> SUB_COMMANDS = Map.of(
             "about", false,
             "help", false,
+            "teleport", true,
             "status", true,
             "reload", true,
             "update", true
@@ -87,6 +88,21 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
         switch (subCommand) {
             case "about" -> executor.sendMessage(aboutMenu.toComponent());
             case "help" -> executor.sendMessage(getCommandList(executor, parseIntArg(args, 1).orElse(1)));
+            case "teleport" -> {
+                final Optional<Position> position = parsePositionArgs(args, 1)
+                        .or(() -> parsePositionArgs(args, 2));
+                final String server = parseStringArg(args, 1).orElse(plugin.getServerName());
+                if (position.isEmpty() || !(executor instanceof OnlineUser online)) {
+                    plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                            .ifPresent(executor::sendMessage);
+                    return;
+                }
+                plugin.getHook(HuskHomesHook.class).ifPresentOrElse(
+                        hook -> hook.teleport(online, position.get(), server),
+                        () -> plugin.getLocales().getLocale("error_huskhomes_not_found")
+                                .ifPresent(executor::sendMessage)
+                );
+            }
             case "status" -> {
                 getPlugin().getLocales().getLocale("system_status_header").ifPresent(executor::sendMessage);
                 executor.sendMessage(Component.join(
@@ -172,6 +188,10 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
         REGISTERED_TRUST_TAGS(plugin -> Component.join(
                 JoinConfiguration.commas(true),
                 plugin.getTrustTags().stream().map(tag -> Component.text(tag.getName())).toList()
+        )),
+        LOADED_HOOKS(plugin -> Component.join(
+                JoinConfiguration.commas(true),
+                plugin.getHooks().stream().map(hook -> Component.text(hook.getName())).toList()
         ));
 
         private final Function<HuskClaims, Component> supplier;

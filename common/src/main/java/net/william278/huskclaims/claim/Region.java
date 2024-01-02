@@ -119,6 +119,20 @@ public class Region {
     }
 
     /**
+     * Get the center of this region
+     *
+     * @return The center of this region
+     * @since 1.0
+     */
+    @NotNull
+    public Point getCenter() {
+        return Point.at(
+                (nearCorner.getBlockX() + farCorner.getBlockX()) / 2,
+                (nearCorner.getBlockZ() + farCorner.getBlockZ()) / 2
+        );
+    }
+
+    /**
      * Get the surface area of this region
      *
      * @return The surface area of this region

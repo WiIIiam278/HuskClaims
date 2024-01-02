@@ -124,13 +124,13 @@ public class UserGroupsCommand extends OnlineUserCommand implements TabCompletab
                 executor, name, users,
                 (group, user) -> {
                     if (group.includes(user)) {
-                        plugin.getLocales().getLocale("error_already_group_member", user.getName())
-                                .ifPresent(executor::sendMessage);
+                        plugin.getLocales().getLocale("error_already_group_member",
+                                user.getName(), group.name()).ifPresent(executor::sendMessage);
                         return;
                     }
                     group.members().add(user);
-                    plugin.getLocales().getLocale("group_added_player", user.getName(), group.name())
-                            .ifPresent(executor::sendMessage);
+                    plugin.getLocales().getLocale("group_added_player",
+                            user.getName(), group.name()).ifPresent(executor::sendMessage);
                 }, () -> {
                     final List<User> names = resolveUsers(executor, users);
                     if (names.isEmpty()) {

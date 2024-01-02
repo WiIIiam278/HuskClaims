@@ -150,6 +150,18 @@ public interface ConfigProvider {
     }
 
     /**
+     * Get the trust level with the lowest weight
+     *
+     * @return the lowest trust level
+     * @since 1.0
+     */
+    @NotNull
+    default TrustLevel getLowestTrustLevel() {
+        return getTrustLevels().stream().min(TrustLevel::compareTo)
+                .orElseThrow(() -> new IllegalStateException("No trust levels found"));
+    }
+
+    /**
      * Get the lowest trust level that grants build trust
      *
      * @return the lowest trust level that grants build trust

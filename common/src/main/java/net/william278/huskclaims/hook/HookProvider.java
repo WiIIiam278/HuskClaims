@@ -19,26 +19,33 @@
 
 package net.william278.huskclaims.hook;
 
-import lombok.AllArgsConstructor;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.config.Settings;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 public interface HookProvider {
 
     @NotNull
     Set<Hook> getHooks();
 
+    default <H extends Hook> Optional<H> getHook(@NotNull Class<H> hookClass) {
+        return getHooks().stream()
+                .filter(hook -> hookClass.isAssignableFrom(hook.getClass()))
+                .map(hookClass::cast)
+                .findFirst();
+    }
+
     void setHooks(@NotNull Set<Hook> hooks);
 
     default void loadHooks() {
-        setHooks(HookBootstrap.getAvailable(getPlugin()));
+        setHooks(Sets.newHashSet(getAvailableHooks()));
         getHooks().removeIf(hook -> {
             try {
                 hook.load();
@@ -61,29 +68,22 @@ public interface HookProvider {
         });
     }
 
+    @NotNull
+    default List<Hook> getAvailableHooks() {
+        final List<Hook> hooks = Lists.newArrayList();
+        final Settings.HookSettings settings = getPlugin().getSettings().getHooks();
+
+        // Add common hooks
+        if (isDependencyAvailable("LuckPerms") && settings.getLuckPerms().isEnabled()) {
+            hooks.add(new LuckPermsHook(getPlugin()));
+        }
+
+        return hooks;
+    }
+
     boolean isDependencyAvailable(@NotNull String name);
 
     @NotNull
     HuskClaims getPlugin();
-
-    @AllArgsConstructor
-    enum HookBootstrap {
-        LUCKPERMS("LuckPerms", (settings -> settings.getLuckPerms().isEnabled()), LuckPermsHook::new);
-
-        private final String dependency;
-        private final Function<Settings.HookSettings, Boolean> shouldEnable;
-        private final Function<HuskClaims, Hook> supplier;
-
-        @NotNull
-        private static Set<Hook> getAvailable(@NotNull HuskClaims plugin) {
-            return Arrays.stream(values())
-                    .filter(hook -> plugin.isDependencyAvailable(hook.dependency))
-                    .filter(hook -> hook.shouldEnable.apply(plugin.getSettings().getHooks()))
-                    .map(hook -> hook.supplier.apply(plugin))
-                    .peek(hook -> plugin.log(Level.INFO, "Loaded " + hook.getName() + " hook"))
-                    .collect(Collectors.toSet());
-        }
-
-    }
 
 }
