@@ -56,8 +56,8 @@ public abstract class ClaimsListCommand extends Command implements GlobalClaimsP
                                     default -> "claim_list_position_overworld";
                                 },
                                 crossServer ? claim.serverWorld().toString() : claim.serverWorld().world().getName(),
-                                Integer.toString(claim.claim().getRegion().getNearCorner().getBlockX()),
-                                Integer.toString(claim.claim().getRegion().getNearCorner().getBlockZ()),
+                                Integer.toString(claim.claim().getRegion().getCenter().getBlockX()),
+                                Integer.toString(claim.claim().getRegion().getCenter().getBlockZ()),
                                 locales.getRawLocale(
                                         "claim_list_%sworld_tooltip".formatted(!crossServer ? "" : "server_")
                                 ).orElse(""),
