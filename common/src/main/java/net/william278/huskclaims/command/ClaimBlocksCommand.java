@@ -32,7 +32,7 @@ import java.util.*;
 public class ClaimBlocksCommand extends Command implements UserListTabCompletable {
 
     protected ClaimBlocksCommand(@NotNull HuskClaims plugin) {
-        super(List.of("claimblocks"), "[user] [<set|add|remove> <amount>]", plugin);
+        super(List.of("claimblocks", "adjustclaimblocks"), "[user] [<set|add|remove> <amount>]", plugin);
         addAdditionalPermissions(Map.of(
                 "other", true,
                 "edit", true
@@ -51,7 +51,8 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
         }
 
         final User user = optionalUser.get();
-        if (!hasPermission(executor, "other") && (executor instanceof OnlineUser other && !other.equals(user))) {
+        if (!option.hasPermission(executor, this) || (!hasPermission(executor, "other")
+                && (executor instanceof OnlineUser other && !other.equals(user)))) {
             plugin.getLocales().getLocale("error_no_permission")
                     .ifPresent(executor::sendMessage);
             return;
@@ -70,19 +71,15 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
         }
     }
 
-    private void changeClaimBlocks(@NotNull CommandUser executor, @NotNull User user, int changeBy, boolean set) {
-        if (!hasPermission(executor, "edit")) {
-            plugin.getLocales().getLocale("error_no_permission")
-                    .ifPresent(executor::sendMessage);
-            return;
-        }
 
-        plugin.editClaimBlocks(user, UserManager.ClaimBlockSource.ADMIN_ADJUSTMENT, (blocks) -> {
-            long newBlocks = Math.max(0, set ? changeBy : blocks + changeBy);
-            plugin.getLocales().getLocale("claim_blocks_updated", user.getName(),
-                    Long.toString(newBlocks)).ifPresent(executor::sendMessage);
-            return newBlocks;
-        });
+    private void changeClaimBlocks(@NotNull CommandUser executor, @NotNull User user, int changeBy, boolean set) {
+        plugin.editClaimBlocks(
+                user,
+                UserManager.ClaimBlockSource.ADMIN_ADJUSTMENT,
+                (blocks) -> Math.max(0, set ? changeBy : blocks + changeBy),
+                (newBalance) -> plugin.getLocales().getLocale("claim_blocks_updated", user.getName(),
+                        Long.toString(newBalance)).ifPresent(executor::sendMessage)
+        );
     }
 
     private Optional<ClaimBlockOption> parseClaimBlockOption(@NotNull String[] args) {

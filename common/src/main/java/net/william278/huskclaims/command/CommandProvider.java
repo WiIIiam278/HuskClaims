@@ -74,6 +74,11 @@ public interface CommandProvider {
         commands.add(new RestrictClaimCommand(getPlugin()));
         commands.add(new IgnoreClaimsCommand(getPlugin()));
 
+        // Register claim block purchasing
+        if (getPlugin().getSettings().getHooks().getEconomy().isEnabled()) {
+            commands.add(new BuyClaimBlocksCommand(getPlugin()));
+        }
+
         // Register claim commands
         getPlugin().getSettings().getClaims().getEnabledClaimingModes().stream()
                 .filter(mode -> !mode.getCommandAliases().isEmpty())

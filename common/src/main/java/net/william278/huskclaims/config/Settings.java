@@ -424,5 +424,18 @@ public final class Settings {
             private String setHomeTrustLevel = "access";
         }
 
+        private EconomyHookSettings economy = new EconomyHookSettings();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class EconomyHookSettings {
+            @Comment("Whether to hook into an economy plugin to allow buying claim blocks")
+            private boolean enabled = true;
+
+            @Comment("The cost of buying 1 claim block")
+            private double costPerBlock = 1.0;
+        }
+
     }
 }

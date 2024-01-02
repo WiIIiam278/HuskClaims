@@ -24,6 +24,7 @@ import net.william278.huskclaims.network.Message;
 import net.william278.huskclaims.network.Payload;
 import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
@@ -89,9 +90,9 @@ public interface UserManager {
     default void editUserPreferences(@NotNull User user, @NotNull Consumer<Preferences> consumer) {
         editUser(user.getUuid(), savedUser -> consumer.accept(savedUser.getPreferences()));
     }
-
     default void editClaimBlocks(@NotNull User user, @NotNull ClaimBlockSource source,
-                                 @NotNull Function<Long, Long> consumer) {
+                                 @NotNull Function<Long, Long> consumer, @Nullable Consumer<Long> callback) {
+
         final long originalBlocks = getClaimBlocks(user);
         final long newBlocks = consumer.apply(originalBlocks);
         if (newBlocks < 0) {
@@ -103,8 +104,16 @@ public interface UserManager {
                 (event) -> editUser(user.getUuid(), (savedUser) -> {
                     savedUser.getPreferences().getAuditLog().log(source, newBlocks);
                     savedUser.setClaimBlocks(newBlocks);
+                    if (callback != null) {
+                        callback.accept(newBlocks);
+                    }
                 })
         );
+    }
+
+    default void editClaimBlocks(@NotNull User user, @NotNull ClaimBlockSource source,
+                                 @NotNull Function<Long, Long> consumer) {
+        editClaimBlocks(user, source, consumer, null);
     }
 
     @Blocking
@@ -141,6 +150,7 @@ public interface UserManager {
     enum ClaimBlockSource {
         ADMIN_ADJUSTMENT,
         HOURLY_BLOCKS,
+        PURCHASE,
         CLAIM_RESIZED,
         CLAIM_CREATED,
         CLAIM_DELETED
