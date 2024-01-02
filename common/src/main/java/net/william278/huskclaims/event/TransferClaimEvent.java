@@ -22,17 +22,13 @@ package net.william278.huskclaims.event;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.UUID;
+import java.util.Optional;
 
 public interface TransferClaimEvent extends OnlineUserEvent, ClaimEvent, CancellableEvent {
 
     @NotNull
-    default UUID getCurrentOwner() {
-        return getClaim().getOwner().orElseThrow(() -> new IllegalStateException("Original claim has no owner"));
-    }
-
-    default boolean isAdminClaim() {
-        return false;
+    default Optional<User> getCurrentOwner() {
+        return getClaim().getOwner().flatMap(u -> getClaimWorld().getUser(u));
     }
 
     @NotNull

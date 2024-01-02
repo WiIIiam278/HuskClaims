@@ -235,9 +235,9 @@ public interface ClaimEditor {
         // Transfer claim
         getPlugin().fireTransferClaimEvent(user, claim, claimWorld, newOwner, (event) -> {
             claimWorld.cacheUser(newOwner);
+            getPlugin().getLocales().getLocale("claim_transferred", claim.getOwnerName(claimWorld, getPlugin()),
+                    newOwner.getName()).ifPresent(user::sendMessage);
             claim.setOwner(newOwner.getUuid());
-            getPlugin().getLocales().getLocale("claim_transferred", user.getName(), newOwner.getName())
-                    .ifPresent(user::sendMessage);
             getPlugin().getDatabase().updateClaimWorld(claimWorld);
         });
     }

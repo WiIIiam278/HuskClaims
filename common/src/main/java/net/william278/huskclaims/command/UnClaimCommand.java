@@ -54,8 +54,7 @@ public class UnClaimCommand extends InClaimCommand {
 
         // Check if the user can delete the claim
         if ((claim.getOwner().isEmpty() && !ClaimingMode.ADMIN_CLAIMS.canUse(executor))
-                || (claim.getOwner().map(owner -> !owner.equals(executor.getUuid())).orElse(true)
-                && !hasPermission(executor, "other"))) {
+                || (claim.getOwner().get().equals(executor.getUuid()) && !hasPermission(executor, "other"))) {
             plugin.getLocales().getLocale("no_deletion_permission")
                     .ifPresent(executor::sendMessage);
             return;

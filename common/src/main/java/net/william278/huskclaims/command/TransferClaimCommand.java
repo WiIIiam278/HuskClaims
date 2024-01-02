@@ -22,6 +22,7 @@ package net.william278.huskclaims.command;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ClaimWorld;
+import net.william278.huskclaims.claim.ClaimingMode;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.SavedUser;
 import org.jetbrains.annotations.NotNull;
@@ -58,14 +59,9 @@ public class TransferClaimCommand extends InClaimCommand implements UserListTabC
 
     private void transferClaim(@NotNull OnlineUser executor, @NotNull String targetUser,
                                @NotNull ClaimWorld world, @NotNull Claim claim) {
-        // Ensure we're not dealing with an admin claim and that the user has permission to transfer
-        if (claim.isAdminClaim(world)) {
-            plugin.getLocales().getLocale("error_admin_claim_transfer")
-                    .ifPresent(executor::sendMessage);
-            return;
-        }
-        if (!claim.getOwner().map(o -> o.equals(executor.getUuid())).orElse(false)
-                && !hasPermission(executor, "other")) {
+        // Ensure the user has permission to transfer the claim
+        if ((claim.getOwner().isEmpty() && !ClaimingMode.ADMIN_CLAIMS.canUse(executor))
+                || (claim.getOwner().get().equals(executor.getUuid()) && !hasPermission(executor, "other"))) {
             plugin.getLocales().getLocale("no_transfer_permission")
                     .ifPresent(executor::sendMessage);
             return;
