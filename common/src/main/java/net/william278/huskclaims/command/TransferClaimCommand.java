@@ -29,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Optional;
 
-public class TransferClaimCommand extends InClaimCommand {
+public class TransferClaimCommand extends InClaimCommand implements UserListTabCompletable {
 
     protected TransferClaimCommand(@NotNull HuskClaims plugin) {
         super(List.of("transferclaim"), "<username>", null, plugin);
