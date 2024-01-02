@@ -173,7 +173,8 @@ public final class Settings {
                 OperationType.PLAYER_DAMAGE_MONSTER,
                 OperationType.EXPLOSION_DAMAGE_ENTITY,
                 OperationType.PLAYER_DAMAGE_PLAYER,
-                OperationType.MONSTER_SPAWN
+                OperationType.MONSTER_SPAWN,
+                OperationType.PASSIVE_MOB_SPAWN
         );
 
         @Comment("Default flags for admin claims")
@@ -181,7 +182,8 @@ public final class Settings {
                 OperationType.PLAYER_DAMAGE_MONSTER,
                 OperationType.EXPLOSION_DAMAGE_ENTITY,
                 OperationType.PLAYER_DAMAGE_PLAYER,
-                OperationType.MONSTER_SPAWN
+                OperationType.MONSTER_SPAWN,
+                OperationType.PASSIVE_MOB_SPAWN
         );
 
         @Comment("List of enabled claim types. Must include at least the regular \"CLAIMS\" mode")
