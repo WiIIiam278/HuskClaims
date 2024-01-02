@@ -45,6 +45,19 @@ public class TransferClaimCommand extends InClaimCommand implements UserListTabC
             claim = parent.get();
         }
 
+        // Get the name
+        final Optional<String> username = parseStringArg(args, 0);
+        if (username.isEmpty()) {
+            plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        transferClaim(executor, username.get(), world, claim);
+    }
+
+    private void transferClaim(@NotNull OnlineUser executor, @NotNull String targetUser,
+                               @NotNull ClaimWorld world, @NotNull Claim claim) {
         // Ensure we're not dealing with an admin claim and that the user has permission to transfer
         if (claim.isAdminClaim(world)) {
             plugin.getLocales().getLocale("error_admin_claim_transfer")
@@ -59,9 +72,9 @@ public class TransferClaimCommand extends InClaimCommand implements UserListTabC
         }
 
         // Get the name of the target user
-        final Optional<SavedUser> user = parseStringArg(args, 0).flatMap(u -> plugin.getDatabase().getUser(u));
+        final Optional<SavedUser> user = plugin.getDatabase().getUser(targetUser);
         if (user.isEmpty()) {
-            plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+            plugin.getLocales().getLocale("error_invalid_user", targetUser)
                     .ifPresent(executor::sendMessage);
             return;
         }
