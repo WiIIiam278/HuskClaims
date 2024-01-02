@@ -33,7 +33,7 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class User implements Trustable {
+public class User implements Trustable, Comparable<User> {
 
     @Expose
     @NotNull
@@ -61,4 +61,8 @@ public class User implements Trustable {
         return user.getUuid().equals(uuid);
     }
 
+    @Override
+    public int compareTo(@NotNull User o) {
+        return name.compareTo(o.getName());
+    }
 }
