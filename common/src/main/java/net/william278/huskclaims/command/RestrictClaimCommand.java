@@ -32,7 +32,11 @@ import java.util.Map;
 public class RestrictClaimCommand extends InClaimCommand implements ToggleTabCompletable {
 
     protected RestrictClaimCommand(@NotNull HuskClaims plugin) {
-        super(List.of("restrictclaim"), "[on|off]", null, plugin);
+        super(
+                List.of("restrictclaim", "restrictchildclaim", "restrictsubclaim"),
+                "[on|off]",
+                plugin
+        );
         addAdditionalPermissions(Map.of("other", true));
     }
 

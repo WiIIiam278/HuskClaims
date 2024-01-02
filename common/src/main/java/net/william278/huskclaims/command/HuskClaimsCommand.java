@@ -57,7 +57,11 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
     private final AboutMenu aboutMenu;
 
     protected HuskClaimsCommand(@NotNull HuskClaims plugin) {
-        super(List.of("huskclaims"), "[" + String.join("|", SUB_COMMANDS.keySet()) + "]", plugin);
+        super(
+                List.of("huskclaims"),
+                "[" + String.join("|", SUB_COMMANDS.keySet()) + "]",
+                plugin
+        );
         addAdditionalPermissions(SUB_COMMANDS);
 
         this.updateChecker = plugin.getUpdateChecker();

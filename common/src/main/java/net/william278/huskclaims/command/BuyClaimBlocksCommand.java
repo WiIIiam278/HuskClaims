@@ -31,7 +31,11 @@ import java.util.Optional;
 public class BuyClaimBlocksCommand extends OnlineUserCommand {
 
     public BuyClaimBlocksCommand(@NotNull HuskClaims plugin) {
-        super(List.of("buyclaimblocks"), "<amount>", plugin);
+        super(
+                List.of("buyclaimblocks"),
+                "<amount>",
+                plugin
+        );
     }
 
     @Override

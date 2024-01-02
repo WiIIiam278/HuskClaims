@@ -38,7 +38,6 @@ public class ExtendClaimCommand extends InClaimCommand {
         super(
                 List.of("extendclaim"),
                 "<blocks>",
-                null,
                 plugin
         );
     }

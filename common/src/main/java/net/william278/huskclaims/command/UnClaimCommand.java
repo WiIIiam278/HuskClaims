@@ -36,7 +36,6 @@ public class UnClaimCommand extends InClaimCommand {
         super(
                 List.of("unclaim", "abandonclaim"),
                 "[confirm]",
-                null,
                 plugin
         );
         addAdditionalPermissions(Map.of("other", true));

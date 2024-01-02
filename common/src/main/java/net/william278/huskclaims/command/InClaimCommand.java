@@ -49,6 +49,11 @@ public abstract class InClaimCommand extends OnlineUserCommand {
         addAdditionalPermissions(Map.of("other", true));
     }
 
+    protected InClaimCommand(@NotNull List<String> aliases, @NotNull String usage,
+                             @NotNull HuskClaims plugin) {
+        this(aliases, usage, null, plugin);
+    }
+
     @Override
     public void execute(@NotNull OnlineUser user, @NotNull String[] args) {
         final Optional<ClaimWorld> optionalWorld = plugin.getClaimWorld(user.getWorld());

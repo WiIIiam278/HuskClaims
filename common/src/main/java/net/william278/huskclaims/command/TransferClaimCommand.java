@@ -33,7 +33,11 @@ import java.util.Optional;
 public class TransferClaimCommand extends InClaimCommand implements UserListTabCompletable {
 
     protected TransferClaimCommand(@NotNull HuskClaims plugin) {
-        super(List.of("transferclaim"), "<username>", null, plugin);
+        super(
+                List.of("transferclaim"),
+                "<username>",
+                plugin
+        );
         setOperatorCommand(true);
     }
 

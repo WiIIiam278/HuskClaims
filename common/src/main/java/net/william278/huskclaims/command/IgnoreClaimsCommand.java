@@ -28,7 +28,11 @@ import java.util.List;
 public class IgnoreClaimsCommand extends OnlineUserCommand implements ToggleTabCompletable {
 
     public IgnoreClaimsCommand(@NotNull HuskClaims plugin) {
-        super(List.of("ignoreclaims"), "[on|off]", plugin);
+        super(
+                List.of("ignoreclaims"),
+                "[on|off]",
+                plugin
+        );
         setOperatorCommand(true);
     }
 

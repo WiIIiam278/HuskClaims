@@ -32,7 +32,11 @@ import java.util.*;
 public class ClaimBlocksCommand extends Command implements UserListTabCompletable {
 
     protected ClaimBlocksCommand(@NotNull HuskClaims plugin) {
-        super(List.of("claimblocks", "adjustclaimblocks"), "[user] [<set|add|remove> <amount>]", plugin);
+        super(
+                List.of("claimblocks", "adjustclaimblocks"),
+                "[user] [<set|add|remove> <amount>]",
+                plugin
+        );
         addAdditionalPermissions(Map.of(
                 "other", true,
                 "edit", true

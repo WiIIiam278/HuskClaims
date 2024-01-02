@@ -36,7 +36,11 @@ public class ClaimCommand extends OnlineUserCommand {
     private final ClaimingMode mode;
 
     protected ClaimCommand(@NotNull ClaimingMode mode, @NotNull HuskClaims plugin) {
-        super(mode.getCommandAliases(), "[radius]", plugin);
+        super(
+                mode.getCommandAliases(),
+                "[radius]",
+                plugin
+        );
         this.mode = mode;
         this.setOperatorCommand(mode.isAdminRequired());
     }

@@ -35,7 +35,11 @@ import java.util.Optional;
 public class UnClaimAllCommand extends OnlineUserCommand implements UserListTabCompletable, GlobalClaimsProvider {
 
     protected UnClaimAllCommand(@NotNull HuskClaims plugin) {
-        super(List.of("unclaimall", "abandonallclaims"), "[player] [confirm]", plugin);
+        super(
+                List.of("unclaimall", "abandonallclaims"),
+                "[player] [confirm]",
+                plugin
+        );
         addAdditionalPermissions(Map.of(
                 "other", true
         ));
