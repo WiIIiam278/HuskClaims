@@ -29,7 +29,6 @@ import net.william278.huskclaims.trust.TrustLevel;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.Preferences;
 import net.william278.huskclaims.user.User;
-import net.william278.huskclaims.user.UserManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -239,6 +238,7 @@ public interface ClaimEditor {
                     newOwner.getName()).ifPresent(user::sendMessage);
             claim.setOwner(newOwner.getUuid());
             getPlugin().getDatabase().updateClaimWorld(claimWorld);
+            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claim);
         });
     }
 
