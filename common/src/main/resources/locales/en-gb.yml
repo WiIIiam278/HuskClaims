@@ -33,7 +33,7 @@ locales:
   group_created: '[Created group %1% with members:](#00fb9a) [%2%](#00fb9a show_text=&#00fb9a&Click to view group run_command=/group %1%)'
   group_deleted: '[Successfully deleted your %1% group.](#00fb9a)\n[Members will lose access to any claims where this group has a set trust level.](gray)'
   world_not_claimable: '[Claiming is disabled in this world.](#ff7e5e)'
-  land_already_claimed: '[This land has already been claimed by %1%](#ff7e5e)'
+  land_already_claimed: '[This land has already been claimed by %1%.](#ff7e5e)'
   land_selection_overlaps: '[This land selection overlaps %1% existing claim(s).](#ff7e5e)'
   land_selection_overlaps_child: '[This land selection overlaps with %1% other child claim(s).](#ff7e5e)'
   land_already_child_claim: '[This area of the claim is already designated as a child claim.](#ff7e5e)'
