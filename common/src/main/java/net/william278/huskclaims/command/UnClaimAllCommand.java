@@ -105,8 +105,6 @@ public class UnClaimAllCommand extends OnlineUserCommand implements UserListTabC
     }
 
     private void userDeleteAllUserClaims(@NotNull OnlineUser executor, @NotNull User user, boolean confirm) {
-        // Validate the user has permission
-
         // Check the user has claims
         final List<ServerWorldClaim> claims = getUserClaims(user);
         if (claims.isEmpty()) {
@@ -131,6 +129,7 @@ public class UnClaimAllCommand extends OnlineUserCommand implements UserListTabC
             plugin.getLocales().getLocale("delete_all_claims", user.getName(), Integer.toString(claims.size()),
                     Long.toString(reclaimedBlocks)).ifPresent(executor::sendMessage);
             plugin.getHighlighter().stopHighlighting(executor);
+            plugin.invalidateClaimListCache(user.getUuid());
         });
     }
 

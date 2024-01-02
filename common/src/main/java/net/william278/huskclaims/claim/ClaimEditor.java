@@ -233,12 +233,17 @@ public interface ClaimEditor {
 
         // Transfer claim
         getPlugin().fireTransferClaimEvent(user, claim, claimWorld, newOwner, (event) -> {
+            // Cache user, send message, invalidate source user/admin claim list cache
             claimWorld.cacheUser(newOwner);
             getPlugin().getLocales().getLocale("claim_transferred", claim.getOwnerName(claimWorld, getPlugin()),
                     newOwner.getName()).ifPresent(user::sendMessage);
+            getPlugin().invalidateClaimListCache(claim.getOwner().orElse(null));
+
+            // Set the claim, highlight it, invalidate the new owner's claim list cache
             claim.setOwner(newOwner.getUuid());
             getPlugin().getDatabase().updateClaimWorld(claimWorld);
             getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claim);
+            getPlugin().invalidateClaimListCache(newOwner.getUuid());
         });
     }
 

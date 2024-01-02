@@ -221,6 +221,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
                 .payload(Payload.uuid(user.getUuid()))
                 .target(Message.TARGET_ALL, Message.TargetType.SERVER).build()
                 .send(broker, executor));
+        getPlugin().invalidateClaimListCache(user.getUuid());
     }
 
     /**
@@ -237,6 +238,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
                 .type(Message.MessageType.DELETE_ALL_CLAIMS)
                 .target(Message.TARGET_ALL, Message.TargetType.SERVER).build()
                 .send(broker, executor));
+        getPlugin().invalidateAdminClaimListCache();
     }
 
     /**
