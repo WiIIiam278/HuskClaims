@@ -26,11 +26,13 @@ import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.user.BukkitUser;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class BukkitListener extends BukkitOperationListener implements ClaimsListener, UserListener {
@@ -67,12 +69,24 @@ public class BukkitListener extends BukkitOperationListener implements ClaimsLis
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onPlayerSwitchHeldItem(@NotNull PlayerItemHeldEvent e) {
-        this.onUserChangeHeldItem(BukkitUser.adapt(e.getPlayer(), plugin));
+        final ItemStack mainHand = e.getPlayer().getInventory().getItem(e.getNewSlot());
+        final ItemStack offHand = e.getPlayer().getInventory().getItemInOffHand();
+        this.onUserSwitchHeldItem(
+                BukkitUser.adapt(e.getPlayer(), plugin),
+                (mainHand != null ? mainHand.getType() : Material.AIR).getKey().toString(),
+                offHand.getType().getKey().toString()
+        );
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    public void onPlayerSwapHands(@NotNull PlayerSwapHandItemsEvent e) {
-        this.onUserChangeHeldItem(BukkitUser.adapt(e.getPlayer(), plugin));
+    public void onUserSwapHands(@NotNull PlayerSwapHandItemsEvent e) {
+        final ItemStack mainHand = e.getMainHandItem();
+        final ItemStack offHand = e.getOffHandItem();
+        this.onUserSwitchHeldItem(
+                BukkitUser.adapt(e.getPlayer(), plugin),
+                (mainHand != null ? mainHand.getType() : Material.AIR).getKey().toString(),
+                (offHand != null ? offHand.getType() : Material.AIR).getKey().toString()
+        );
     }
 
     @Override

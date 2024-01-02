@@ -45,9 +45,10 @@ public interface UserListener {
         getPlugin().runAsync(() -> getPlugin().grantHourlyClaimBlocks(user));
     }
 
-    default void onUserChangeHeldItem(@NotNull OnlineUser user) {
+    default void onUserSwitchHeldItem(@NotNull OnlineUser user, @NotNull String mainHand, @NotNull String offHand) {
         final Settings.ClaimSettings claims = getPlugin().getSettings().getClaims();
-        if (user.isHolding(claims.getClaimTool()) || user.isHolding(claims.getInspectionTool())) {
+        if (mainHand.equals(claims.getClaimTool()) || mainHand.equals(claims.getInspectionTool())
+                || offHand.equals(claims.getClaimTool()) || offHand.equals(claims.getInspectionTool())) {
             return;
         }
 
