@@ -20,19 +20,10 @@
 package net.william278.huskclaims.event;
 
 import net.william278.huskclaims.claim.Claim;
-import net.william278.huskclaims.trust.TrustLevel;
-import net.william278.huskclaims.trust.Trustable;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
-public interface UnTrustEvent extends OnlineUserEvent, ClaimEvent, CancellableEvent {
-
-    @NotNull
-    Trustable getUnTrusted();
-
-    @NotNull
-    TrustLevel getFormerTrustLevel();
+public interface UnTrustEvent extends OnlineUserEvent, TrustableEvent, ClaimEvent, CancellableEvent {
 
     default Optional<Claim> getParentClaim() {
         return getClaim().getParent(getClaimWorld());
