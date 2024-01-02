@@ -114,7 +114,7 @@ public class UserGroupsCommand extends OnlineUserCommand implements TabCompletab
     }
 
     private void addGroupUsers(@NotNull OnlineUser executor, @NotNull String name, @NotNull List<String> users) {
-        if (!getPlugin().isValidGroupOrTagName(name)) {
+        if (!getPlugin().isValidGroupName(name)) {
             plugin.getLocales().getLocale("error_invalid_group_name", name)
                     .ifPresent(executor::sendMessage);
             return;

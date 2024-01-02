@@ -25,6 +25,7 @@ import net.william278.huskclaims.command.CommandProvider;
 import net.william278.huskclaims.config.ConfigProvider;
 import net.william278.huskclaims.database.DatabaseProvider;
 import net.william278.huskclaims.event.EventDispatcher;
+import net.william278.huskclaims.hook.HookProvider;
 import net.william278.huskclaims.listener.ListenerProvider;
 import net.william278.huskclaims.network.BrokerProvider;
 import net.william278.huskclaims.trust.GroupManager;
@@ -45,7 +46,7 @@ import java.util.logging.Level;
  */
 public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvider, GsonProvider, UserManager,
         ClaimManager, GroupManager, TrustTagManager, ListenerProvider, UserListProvider, CommandProvider,
-        BrokerProvider, TextValidator, AudiencesProvider, BlockProvider, MetaProvider, EventDispatcher {
+        BrokerProvider, TextValidator, AudiencesProvider, BlockProvider, MetaProvider, EventDispatcher, HookProvider {
 
     /**
      * Initialize all plugin systems
@@ -67,6 +68,7 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvi
             loadBroker();
             loadCommands();
             loadListeners();
+            loadHooks();
         } catch (Throwable e) {
             log(Level.SEVERE, "An error occurred whilst initializing HuskClaims", e);
             disablePlugin();
@@ -84,8 +86,9 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvi
     default void shutdown() {
         log(Level.INFO, String.format("Disabling down HuskClaims v%s...", getPluginVersion()));
         try {
-            closeDatabase();
+            unloadHooks();
             closeBroker();
+            closeDatabase();
         } catch (Throwable e) {
             log(Level.SEVERE, "An error occurred whilst disabling HuskClaims", e);
         }

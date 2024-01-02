@@ -133,7 +133,7 @@ public interface ClaimEditor {
                                  @NotNull Claim claim, @NotNull Region resized) {
         final List<Claim> overlapsWith = world.getParentClaimsWithin(resized, claim.getRegion());
         if (!overlapsWith.isEmpty()) {
-            getPlugin().getLocales().getLocale("land_selection_overlaps")
+            getPlugin().getLocales().getLocale("land_selection_overlaps", Integer.toString(overlapsWith.size()))
                     .ifPresent(user::sendMessage);
             getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), overlapsWith, true);
             return;
@@ -266,7 +266,7 @@ public interface ClaimEditor {
     private boolean doesClaimOverlap(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {
         final List<Claim> overlapsWith = world.getParentClaimsWithin(region);
         if (!overlapsWith.isEmpty()) {
-            getPlugin().getLocales().getLocale("land_selection_overlaps")
+            getPlugin().getLocales().getLocale("land_selection_overlaps", Integer.toString(overlapsWith.size()))
                     .ifPresent(user::sendMessage);
             getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), overlapsWith, true);
             return true;
@@ -363,8 +363,8 @@ public interface ClaimEditor {
 
         final List<Claim> overlapsWith = parent.getChildClaimsWithin(resized, child.getRegion());
         if (!overlapsWith.isEmpty()) {
-            getPlugin().getLocales().getLocale("land_selection_overlaps_child")
-                    .ifPresent(user::sendMessage);
+            getPlugin().getLocales().getLocale("land_selection_overlaps_child",
+                    Integer.toString(overlapsWith.size())).ifPresent(user::sendMessage);
             getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), overlapsWith, true);
             return;
         }
@@ -396,8 +396,8 @@ public interface ClaimEditor {
 
         final List<Claim> overlapsWith = parent.getChildClaimsWithin(region);
         if (!overlapsWith.isEmpty()) {
-            getPlugin().getLocales().getLocale("land_selection_overlaps_child")
-                    .ifPresent(user::sendMessage);
+            getPlugin().getLocales().getLocale("land_selection_overlaps_child",
+                    Integer.toString(overlapsWith.size())).ifPresent(user::sendMessage);
             getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), overlapsWith, true);
             return;
         }

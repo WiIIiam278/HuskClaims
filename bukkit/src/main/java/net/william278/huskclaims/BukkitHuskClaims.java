@@ -38,6 +38,7 @@ import net.william278.huskclaims.config.TrustLevels;
 import net.william278.huskclaims.database.Database;
 import net.william278.huskclaims.event.BukkitEventDispatcher;
 import net.william278.huskclaims.highlighter.Highlighter;
+import net.william278.huskclaims.hook.Hook;
 import net.william278.huskclaims.listener.BukkitListener;
 import net.william278.huskclaims.listener.ClaimsListener;
 import net.william278.huskclaims.network.Broker;
@@ -86,6 +87,9 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     private HashMap<String, ClaimWorld> claimWorlds = Maps.newHashMap();
     @Getter
     private List<Command> commands = Lists.newArrayList();
+    @Getter
+    @Setter
+    private Set<Hook> hooks = Sets.newHashSet();
     @Getter
     @Setter
     private Highlighter highlighter;
@@ -257,6 +261,11 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
                         "Invalid material: " + materialBlock.getMaterialKey()
                 ).createBlockData()
         ));
+    }
+
+    @Override
+    public boolean isDependencyAvailable(@NotNull String name) {
+        return getServer().getPluginManager().isPluginEnabled(name);
     }
 
     public static class Adapter {

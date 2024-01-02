@@ -22,6 +22,9 @@ dependencies {
     compileOnly 'org.jetbrains:annotations:24.1.0'
     compileOnly 'com.google.guava:guava:33.0.0-jre'
     compileOnly 'org.projectlombok:lombok:1.18.30'
+
+    compileOnly 'net.luckperms:api:5.4'
+
     compileOnly "org.xerial:sqlite-jdbc:$sqlite_driver_version"
     compileOnly "com.mysql:mysql-connector-j:$mysql_driver_version"
     compileOnly "org.mariadb.jdbc:mariadb-java-client:$mariadb_driver_version"

@@ -84,4 +84,9 @@ public class BukkitUser extends OnlineUser {
                 .findFirst();
     }
 
+    @Override
+    public boolean isSneaking() {
+        return bukkitPlayer.isSneaking();
+    }
+
 }

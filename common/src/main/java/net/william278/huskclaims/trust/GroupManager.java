@@ -95,7 +95,7 @@ public interface GroupManager {
      */
     @Blocking
     default void createUserGroup(@NotNull OnlineUser owner, @NotNull String name, @NotNull List<User> members) throws IllegalArgumentException {
-        if (!getPlugin().isValidGroupOrTagName(name) || getUserGroup(owner.getUuid(), name).isPresent()) {
+        if (!getPlugin().isValidGroupName(name) || getUserGroup(owner.getUuid(), name).isPresent()) {
             throw new IllegalArgumentException("Invalid or already taken group name");
         }
         final UserGroup group = new UserGroup(owner.getUuid(), name, members);

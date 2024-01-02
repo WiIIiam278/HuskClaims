@@ -25,6 +25,7 @@ import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.config.Settings;
 import net.william278.huskclaims.trust.TrustLevel;
+import net.william278.huskclaims.trust.TrustTag;
 import net.william278.huskclaims.trust.Trustable;
 import net.william278.huskclaims.trust.UserGroup;
 import net.william278.huskclaims.user.CommandUser;
@@ -99,6 +100,14 @@ public class UnTrustCommand extends InClaimCommand implements TabCompletable {
         return claim.getOwner().map(o -> new UserGroup(o, name, List.of()));
     }
 
+    @Override
+    protected Optional<TrustTag> resolveTag(@NotNull OnlineUser user, @NotNull String name, @NotNull Claim claim) {
+        if (!claim.getTrustedTags().containsKey(name)) {
+            return Optional.empty();
+        }
+        return Optional.of(TrustTag.getDeletedTag(name));
+    }
+
     @Nullable
     @Override
     public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
@@ -115,6 +124,9 @@ public class UnTrustCommand extends InClaimCommand implements TabCompletable {
                             .forEach(optionalName -> optionalName.ifPresent(names::add));
                     claim.getTrustedGroups().keySet().stream()
                             .map(group -> plugin.getSettings().getUserGroups().getGroupSpecifierPrefix() + group)
+                            .forEach(names::add);
+                    claim.getTrustedTags().keySet().stream()
+                            .map(tag -> plugin.getSettings().getTrustTags().getTagSpecifierPrefix() + tag)
                             .forEach(names::add);
                     return names;
                 }))

@@ -22,16 +22,39 @@ package net.william278.huskclaims.trust;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.user.CommandUser;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
 @AllArgsConstructor
 public abstract class TrustTag implements TrustableCollection {
 
+    /**
+     * The name of this tag
+     */
     protected String name;
 
+    /**
+     * The description of this tag
+     */
     protected String description;
+
+    /**
+     * The permission required to use this tag
+     */
+    @Nullable
+    protected String permissionToUse;
+
+    public TrustTag(@NotNull String name, @NotNull String description) {
+        this.name = name;
+        this.description = description;
+    }
+    @NotNull
+    public static DeletedTrustTag getDeletedTag(@NotNull String name) {
+        return new DeletedTrustTag(name);
+    }
 
     @NotNull
     @Override
@@ -45,5 +68,21 @@ public abstract class TrustTag implements TrustableCollection {
 
     @Override
     public abstract boolean includes(@NotNull User trustable);
+
+    public boolean canUse(@NotNull CommandUser user) {
+        return permissionToUse == null || user.hasPermission(permissionToUse);
+    }
+
+    public static class DeletedTrustTag extends TrustTag {
+
+        private DeletedTrustTag(@NotNull String name) {
+            super(name, "(deleted)");
+        }
+
+        @Override
+        public boolean includes(@NotNull User trustable) {
+            return false;
+        }
+    }
 
 }

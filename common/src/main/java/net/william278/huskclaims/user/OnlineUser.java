@@ -71,4 +71,6 @@ public abstract class OnlineUser extends User implements OperationUser, CommandU
 
     public abstract Optional<Long> getNumericalPermission(@NotNull String prefix);
 
+    public abstract boolean isSneaking();
+
 }

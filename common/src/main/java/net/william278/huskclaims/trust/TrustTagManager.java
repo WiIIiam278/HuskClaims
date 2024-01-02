@@ -49,11 +49,17 @@ public interface TrustTagManager {
         if (getTrustTag(trustTag.getName()).isPresent()) {
             throw new IllegalArgumentException("Trusted tag '" + trustTag.getName() + "' is already registered");
         }
-        if (!getPlugin().isValidGroupOrTagName(trustTag.getName())) {
+        if (!getPlugin().isValidTagName(trustTag.getName())) {
             throw new IllegalArgumentException("Trusted tag '" + trustTag.getName() + "' has an invalid name!");
         }
-        getPlugin().log(Level.INFO, "Registering trusted tag '" + trustTag.getName() + "'");
+        getPlugin().log(Level.INFO, "Registered trust tag '" + trustTag.getName() + "'");
         getTrustTags().add(trustTag);
+    }
+
+    default void unregisterTrustTag(@NotNull String tag) {
+        if (getTrustTags().removeIf(trustTag -> trustTag.getName().equals(tag))) {
+            getPlugin().log(Level.INFO, "Unregistered trust tag '" + tag + "'");
+        }
     }
 
     default Optional<TrustTag> getTrustTag(@NotNull String tag) {

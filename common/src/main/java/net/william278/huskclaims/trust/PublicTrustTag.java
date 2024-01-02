@@ -25,10 +25,13 @@ import org.jetbrains.annotations.NotNull;
 
 public final class PublicTrustTag extends TrustTag {
 
+    public static final String USE_PERMISSION = "huskclaims.trust.public";
+
     private PublicTrustTag(@NotNull HuskClaims plugin) {
         super(
-                plugin.getSettings().getTrustTags().getPublicAccessTag(),
-                plugin.getLocales().getRawLocale("public_tag_description").orElse("")
+                plugin.getSettings().getTrustTags().getPublicAccessName(),
+                plugin.getLocales().getRawLocale("public_tag_description").orElse(""),
+                plugin.getSettings().getTrustTags().isPublicAccessUsePermission() ? USE_PERMISSION : null
         );
     }
 

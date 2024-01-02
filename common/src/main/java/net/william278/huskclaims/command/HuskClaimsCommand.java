@@ -96,7 +96,9 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
             }
             case "reload" -> {
                 try {
+                    plugin.unloadHooks();
                     plugin.loadSettings();
+                    plugin.loadHooks();
                     plugin.getLocales().getLocale("reload_complete").ifPresent(executor::sendMessage);
                 } catch (Throwable e) {
                     executor.sendMessage(new MineDown(

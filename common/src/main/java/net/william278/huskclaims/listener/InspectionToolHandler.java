@@ -25,6 +25,8 @@ import net.william278.cloplib.operation.OperationUser;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ClaimWorld;
+import net.william278.huskclaims.claim.Region;
+import net.william278.huskclaims.config.Settings;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
@@ -51,15 +53,31 @@ public interface InspectionToolHandler {
         }
         final ClaimWorld claimWorld = optionalWorld.get();
 
-        // Check if there is a claim at the position
-        //todo - future: highlight ALL nearby claims if the user is sneaking.
-        final Optional<Claim> optionalClaim = claimWorld.getClaimAt(position);
-        if (optionalClaim.isEmpty()) {
-            getPlugin().getLocales().getLocale("land_not_claimed")
-                    .ifPresent(user::sendMessage);
-            return;
-        }
-        getPlugin().runAsync(() -> highlightClaim(user, optionalClaim.get(), claimWorld));
+        getPlugin().runAsync(() -> {
+            // Handle nearby claim inspecting
+            final Settings.ClaimSettings settings = getPlugin().getSettings().getClaims();
+            if (user.isSneaking() && settings.isAllowNearbyClaimInspection()) {
+                final int distance = settings.getInspectionDistance();
+
+                final List<Claim> claims = claimWorld.getParentClaimsWithin(Region.around(position, distance));
+                if (claims.isEmpty()) {
+                    getPlugin().getLocales().getLocale("no_nearby_claims", Integer.toString(distance))
+                            .ifPresent(user::sendMessage);
+                    return;
+                }
+                highlightClaims(user, claims, distance);
+                return;
+            }
+
+            // Handle single claim inspecting
+            final Optional<Claim> claim = claimWorld.getClaimAt(position);
+            if (claim.isEmpty()) {
+                getPlugin().getLocales().getLocale("land_not_claimed")
+                        .ifPresent(user::sendMessage);
+                return;
+            }
+            highlightClaim(user, claim.get(), claimWorld);
+        });
     }
 
     // Highlight the claim for the user and send a message
@@ -69,6 +87,13 @@ public interface InspectionToolHandler {
         getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claims);
         getPlugin().getLocales().getLocale("land_claimed_by", claim.getOwnerName(world, getPlugin()))
                 .ifPresent(user::sendMessage);
+    }
+
+    // Highlight multiple claims
+    private void highlightClaims(@NotNull OnlineUser user, @NotNull List<Claim> claims, int distance) {
+        getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claims);
+        getPlugin().getLocales().getLocale("nearby_claims", Integer.toString(claims.size()),
+                Integer.toString(distance)).ifPresent(user::sendMessage);
     }
 
     @NotNull

@@ -116,8 +116,8 @@ public abstract class InClaimCommand extends OnlineUserCommand {
 
         // Resolve tag
         final Settings.TrustTagSettings tags = plugin.getSettings().getTrustTags();
-        if (tags.isEnabled() && name.startsWith(plugin.getSettings().getTrustTags().getTagSpecifierPrefix())) {
-            return resolveTag(user, name.substring(plugin.getSettings().getTrustTags().getTagSpecifierPrefix().length()));
+        if (tags.isEnabled() && name.startsWith(tags.getTagSpecifierPrefix())) {
+            return resolveTag(user, name.substring(tags.getTagSpecifierPrefix().length()), claim);
         }
 
         // Resolve user
@@ -144,8 +144,16 @@ public abstract class InClaimCommand extends OnlineUserCommand {
                 });
     }
 
-    protected Optional<TrustTag> resolveTag(@NotNull OnlineUser user, @NotNull String name) {
+    protected Optional<TrustTag> resolveTag(@NotNull OnlineUser user, @NotNull String name, @NotNull Claim claim) {
         return plugin.getTrustTag(name)
+                .flatMap(tag -> {
+                    if (!tag.canUse(user)) {
+                        plugin.getLocales().getLocale("error_no_permission_tag", tag.getName())
+                                .ifPresent(user::sendMessage);
+                        return Optional.empty();
+                    }
+                    return Optional.of(tag);
+                })
                 .or(() -> {
                     plugin.getLocales().getLocale("error_invalid_tag", name)
                             .ifPresent(user::sendMessage);

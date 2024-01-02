@@ -219,6 +219,9 @@ public final class Settings {
         @Comment("Max range of inspector tools")
         private int inspectionDistance = 64;
 
+        @Comment("Whether to allow inspecting nearby claims by sneaking when using the inspection tool")
+        private boolean allowNearbyClaimInspection = true;
+
         @Comment("Whether to require confirmation when deleting claims that have children")
         private boolean confirmDeletingParentClaims = true;
 
@@ -293,7 +296,10 @@ public final class Settings {
         private String tagSpecifierPrefix = "#";
 
         @Comment("The name of the default public access tag (to let anyone access certain claim levels)")
-        private String publicAccessTag = "public";
+        private String publicAccessName = "public";
+
+        @Comment("Whether to require the \"huskclaims.trust.public\" permission to use the public access tag")
+        private boolean publicAccessUsePermission = true;
 
     }
 
@@ -376,5 +382,32 @@ public final class Settings {
                 this.rgb = rgb;
             }
         }
+    }
+
+    @Comment("Settings for hooks")
+    private HookSettings hooks = new HookSettings();
+
+    @Getter
+    @Configuration
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class HookSettings {
+
+        private LuckPermsHookSettings luckPerms = new LuckPermsHookSettings();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class LuckPermsHookSettings {
+            @Comment("Whether to hook into LuckPerms for permission group trust tags")
+            private boolean enabled = true;
+
+            @Comment("Require users to have the \"huskclaims.trust.luckperms\" permission to use LuckPerms trust tags")
+            private boolean trustTagUsePermission = true;
+
+            @Comment("The prefix to use when specifying a LuckPerms group trust tag (e.g. /trust #role/groupname)")
+            private String trustTagPrefix = "role/";
+        }
+
+
     }
 }

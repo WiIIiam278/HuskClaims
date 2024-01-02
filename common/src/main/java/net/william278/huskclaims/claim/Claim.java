@@ -451,10 +451,6 @@ public class Claim implements Highlightable {
         return getChildren().stream().filter(claim -> claim.getRegion().overlaps(region)).toList();
     }
 
-    public Optional<Claim> getChildClaimAt(@NotNull Region.Point point) {
-        return getChildren().stream().filter(claim -> claim.getRegion().contains(point)).findFirst();
-    }
-
     /**
      * Get the child claims a region overlaps with, except for certain claims
      *
