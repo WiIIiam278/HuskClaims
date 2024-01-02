@@ -46,8 +46,8 @@ public class ExtendClaimCommand extends InClaimCommand {
     @Override
     public void execute(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
                         @NotNull Claim claim, @NotNull String[] args) {
-        if ((claim.getOwner().isEmpty() && !ClaimingMode.ADMIN_CLAIMS.canUse(executor))
-                || (claim.getOwner().get().equals(executor.getUuid()) && !hasPermission(executor, "other"))) {
+        if ((claim.getOwner().isEmpty() && !ClaimingMode.ADMIN_CLAIMS.canUse(executor)) || (claim.getOwner().isPresent()
+                && claim.getOwner().get().equals(executor.getUuid()) && !hasPermission(executor, "other"))) {
             plugin.getLocales().getLocale("no_resizing_permission")
                     .ifPresent(executor::sendMessage);
             return;
