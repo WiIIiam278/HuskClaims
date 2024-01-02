@@ -150,6 +150,11 @@ public class Claim implements Highlightable {
     }
 
     @NotNull
+    public static Claim create(@NotNull UUID owner, @NotNull Region region, @NotNull HuskClaims plugin) {
+        return new Claim(owner, region, plugin);
+    }
+
+    @NotNull
     public static Claim createAdminClaim(@NotNull Region region, @NotNull HuskClaims plugin) {
         return new Claim(null, region, plugin);
     }

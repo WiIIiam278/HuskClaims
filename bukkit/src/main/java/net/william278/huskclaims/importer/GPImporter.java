@@ -128,6 +128,7 @@ public class GPImporter extends Importer {
                 .forEach(claims::addAll);
 
         final List<GPClaim> claimToSave = new ArrayList<>();
+        final List<User> correctUsers = new ArrayList<>();
 
         users.forEach(u -> {
             final UUID uuid = UUID.fromString(u.name);
@@ -136,6 +137,7 @@ public class GPImporter extends Importer {
 //                plugin.getLogger().warning("Unable to import claim data for user " + u.name + " as they have never played on this server");
                 return;
             }
+            correctUsers.add(u);
 
             System.out.println("Importing claims for " + offlinePlayer.getName());
 
@@ -160,7 +162,26 @@ public class GPImporter extends Importer {
             plugin.getDatabase().createOrUpdateUser(u.uuid, u.name, u.accruedBlocks, u.lastLogin);
         });
 
+        final Map<Claim, GPClaim> claimMap = new HashMap<>();
+
         claimToSave.forEach(c -> {
+            final Map<UUID, String> trusted = c.builders.stream()
+                    .map(u -> correctUsers.stream()
+                            .filter(user -> user.uuid.equals(u))
+                            .findFirst()
+                            .orElse(null))
+                    .filter(Objects::nonNull)
+                    .collect(HashMap::new, (m, v) -> m.put(v.uuid, v.name), HashMap::putAll);
+            final Claim claim = c.toClaim(trusted, plugin);
+            claimMap.put(claim, c);
+        });
+
+        final Map<Claim, GPClaim> childs = claimMap.entrySet().stream()
+                .filter(e -> e.getValue().parentId != -1)
+                .collect(HashMap::new, (m, v) -> m.put(v.getKey(), v.getValue()), HashMap::putAll);
+
+        final Set<ClaimWorld> claimWorlds = new HashSet<>();
+        claimMap.forEach((claim, c) -> {
             final String world = c.lesserCorner.split(";")[0];
             Optional<ClaimWorld> optionalClaimWorld = Optional.ofNullable(plugin.getClaimWorlds().getOrDefault(world, null));
             if (optionalClaimWorld.isEmpty()) {
@@ -168,8 +189,22 @@ public class GPImporter extends Importer {
                 return;
             }
             final ClaimWorld claimWorld = optionalClaimWorld.get();
-            claimWorld.getClaims().add(c);
+            claimWorlds.add(claimWorld);
+
+            if (c.parentId != -1) {
+                claimWorld.getClaims().add(claim);
+                return;
+            }
+
+            final List<Claim> childClaims = childs.entrySet().stream()
+                    .filter(e -> e.getValue().parentId == c.id)
+                    .map(Map.Entry::getKey)
+                    .toList();
+            claim.getChildren().addAll(childClaims);
+            claimWorld.getClaims().add(claim);
         });
+
+        claimWorlds.forEach(claimWorld -> plugin.getDatabase().updateClaimWorld(claimWorld));
 
         return claims.size();
     }
@@ -210,10 +245,13 @@ public class GPImporter extends Importer {
                 List<GPClaim> claims = new ArrayList<>();
                 while (resultSet.next()) {
                     claims.add(new GPClaim(
+                            resultSet.getInt("id"),
                             resultSet.getString("owner"),
                             resultSet.getString("lessercorner"),
                             resultSet.getString("greatercorner"),
-                            resultSet.getString("builders"),
+                            Arrays.stream(resultSet.getString("builders").split(";"))
+                                    .map(UUID::fromString)
+                                    .toList(),
                             resultSet.getString("containers"),
                             resultSet.getString("accessors"),
                             resultSet.getString("managers"),
@@ -252,16 +290,22 @@ public class GPImporter extends Importer {
         }, pool);
     }
 
-    private record GPClaim(String owner, String lesserCorner, String greaterCorner, String builders, String containers,
+    private record GPClaim(int id, String owner, String lesserCorner, String greaterCorner, List<UUID> builders, String containers,
                            String accessors, String managers, boolean inheritNothing, int parentId) {
 
 
-        private Claim toClaim() {
+        private Claim toClaim(@NotNull Map<UUID, String> trusted, @NotNull BukkitHuskClaims plugin
+                              ) {
             String[] lesserCorner = this.lesserCorner.split(";");
             String[] greaterCorner = this.greaterCorner.split(";");
             final Region region = Region.from(Region.Point.at(Integer.parseInt(lesserCorner[1]), Integer.parseInt(lesserCorner[3])),
                     Region.Point.at(Integer.parseInt(greaterCorner[1]), Integer.parseInt(greaterCorner[3])));
 
+            Claim claim =  Claim.create(UUID.fromString(owner), region, plugin);
+            claim.getTrustedUsers().putAll(trusted);
+            claim.setInheritParent(!inheritNothing);
+
+            return claim;
         }
 
     }
