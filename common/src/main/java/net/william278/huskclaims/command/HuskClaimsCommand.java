@@ -42,6 +42,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class HuskClaimsCommand extends Command implements TabCompletable {
 
@@ -94,7 +95,9 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
 
         switch (subCommand) {
             case "about" -> executor.sendMessage(aboutMenu.toComponent());
-            case "help" -> executor.sendMessage(getCommandList(executor, parseIntArg(args, 1).orElse(1)));
+            case "help" -> executor.sendMessage(
+                    getCommandList(executor).getNearestValidPage(parseIntArg(args, 1).orElse(1))
+            );
             case "teleport" -> handleTeleportCommand(executor, removeFirstArg(args));
             case "status" -> {
                 getPlugin().getLocales().getLocale("system_status_header").ifPresent(executor::sendMessage);
@@ -135,10 +138,14 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
     @Override
     public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
         return switch (args.length) {
-            case 0, 1 -> SUB_COMMANDS.keySet().stream().sorted().toList();
-            case 2 -> args[0].toLowerCase(Locale.ENGLISH).equals("import")
-                    ? plugin.getImporters().stream().map(Importer::getName).toList() : null;
-            default -> null;
+            case 0, 1 -> SUB_COMMANDS.keySet().stream().filter(n -> user.hasPermission(getPermission(n))).toList();
+            default -> switch (args[0].toLowerCase(Locale.ENGLISH)) {
+                case "import" -> args.length == 2
+                        ? plugin.getImporters().stream().map(Importer::getName).toList() : List.of("set", "start");
+                case "help" -> IntStream.rangeClosed(1, getCommandList(user).getTotalPages())
+                        .mapToObj(Integer::toString).toList();
+                default -> null;
+            };
         };
     }
 
@@ -178,24 +185,23 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
     }
 
     @NotNull
-    private MineDown getCommandList(@NotNull CommandUser executor, int page) {
+    private PaginatedList getCommandList(@NotNull CommandUser executor) {
         final Locales locales = plugin.getLocales();
         return PaginatedList.of(
-                        plugin.getCommands().stream()
-                                .filter(command -> command.hasPermission(executor))
-                                .map(command -> locales.getRawLocale("command_list_row",
-                                        Locales.escapeText(String.format("/%s", command.getName())),
-                                        Locales.escapeText(command.getUsage()),
-                                        Locales.escapeText(locales.truncateText(command.getDescription(), 40)),
-                                        Locales.escapeText(command.getDescription())
-                                ).orElse(command.getUsage()))
-                                .toList(),
-                        locales.getBaseList(COMMANDS_PER_HELP_PAGE)
-                                .setHeaderFormat(locales.getRawLocale("command_list_header").orElse(""))
-                                .setItemSeparator("\n").setCommand(String.format("/%s help", getName()))
-                                .build()
-                )
-                .getNearestValidPage(page);
+                plugin.getCommands().stream()
+                        .filter(command -> command.hasPermission(executor))
+                        .map(command -> locales.getRawLocale("command_list_row",
+                                Locales.escapeText(String.format("/%s", command.getName())),
+                                Locales.escapeText(command.getUsage()),
+                                Locales.escapeText(locales.truncateText(command.getDescription(), 40)),
+                                Locales.escapeText(command.getDescription())
+                        ).orElse(command.getUsage()))
+                        .toList(),
+                locales.getBaseList(COMMANDS_PER_HELP_PAGE)
+                        .setHeaderFormat(locales.getRawLocale("command_list_header").orElse(""))
+                        .setItemSeparator("\n").setCommand(String.format("/%s help", getName()))
+                        .build()
+        );
     }
 
     private enum StatusLine {
