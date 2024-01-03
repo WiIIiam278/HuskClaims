@@ -21,7 +21,6 @@ package net.william278.huskclaims.hook;
 
 import com.google.common.collect.Maps;
 import lombok.Getter;
-import lombok.Setter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.william278.huskclaims.HuskClaims;

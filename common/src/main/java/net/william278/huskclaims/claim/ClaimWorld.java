@@ -197,8 +197,7 @@ public class ClaimWorld {
     // Checks if a user is ignoring claims, ensuring they also have permission to ignore claims
     private boolean isIgnoringClaims(@NotNull OnlineUser u, @NotNull HuskClaims plugin) {
         boolean toggled = plugin.getUserPreferences(u.getUuid()).map(Preferences::isIgnoringClaims).orElse(false);
-        boolean permSet = plugin.getCommand(IgnoreClaimsCommand.class).map(c -> c.hasPermission(u)).orElse(false);
-        if (toggled && !permSet) {
+        if (toggled && !plugin.canUseCommand(IgnoreClaimsCommand.class, u)) {
             plugin.runAsync(() -> {
                 plugin.editUserPreferences(u, (preferences) -> preferences.setIgnoringClaims(false));
                 plugin.getLocales().getLocale("respecting_claims")

@@ -113,7 +113,7 @@ locales:
   claim_list_sort_option_label_children: 'children'
   claim_list_sort_ascending: '[▲](#00fb9a show_text=&#00fb9a&Sorting in ascending order run_command=/%1% %2% descending %3%)'
   claim_list_sort_descending: '[▼](#00fb9a show_text=&#00fb9a&Sorting in descending order run_command=/%1% %2% ascending %3%)'
-  claim_list_item: '%1%   %2%   %3%   %4%'
+  claim_list_item_separator: '   '
   claim_list_position_overworld: '[⭘ %1% (%2%, %3%)](#03cafc show_text=&7%4%\n&8⭘ Claim in the Overworld%5%)'
   claim_list_position_nether: '[🔥 %1% (%2%, %3%)](#ff304f show_text=&7%4%\n&8🔥 Claim in the Nether%5%)'
   claim_list_position_end: '[🗡 %1% (%2%, %3%)](#f3f59f show_text=&7%4%\n&8🗡 Claim in The End%5%)'

@@ -21,6 +21,7 @@ package net.william278.huskclaims.command;
 
 import com.google.common.collect.Lists;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.user.CommandUser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,11 +53,25 @@ public interface CommandProvider {
      * @param <T>          the type of command
      * @return the command, or null if not found
      */
-    default <T extends Command> Optional<T> getCommand(Class<T> commandClass) {
+    default <T extends Command> Optional<T> getCommand(@NotNull Class<T> commandClass) {
         return getCommands().stream()
                 .filter(commandClass::isInstance)
                 .map(commandClass::cast)
                 .findFirst();
+    }
+
+    /**
+     * Returns whether a user can use a command
+     *
+     * @param commandClass the class of the command to check
+     * @param user         the user to check
+     * @param nodes        the nodes to check
+     * @param <T>          the type of command
+     * @return whether the user can use the command
+     */
+    default <T extends Command> boolean canUseCommand(@NotNull Class<T> commandClass, @NotNull CommandUser user,
+                                                      @NotNull String... nodes) {
+        return getCommand(commandClass).map(command -> command.hasPermission(user, nodes)).orElse(false);
     }
 
     /**

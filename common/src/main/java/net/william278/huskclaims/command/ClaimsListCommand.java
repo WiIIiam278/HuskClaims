@@ -22,11 +22,15 @@ package net.william278.huskclaims.command;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ServerWorldClaim;
 import net.william278.huskclaims.config.Locales;
 import net.william278.huskclaims.hook.HuskHomesHook;
+import net.william278.huskclaims.position.ServerWorld;
 import net.william278.huskclaims.user.CommandUser;
+import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.User;
+import net.william278.paginedown.ListOptions;
 import net.william278.paginedown.PaginatedList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,6 +39,7 @@ import java.util.*;
 
 public abstract class ClaimsListCommand extends Command implements GlobalClaimsProvider {
     private static final int CLAIMS_PER_PAGE = 8;
+    private static final int TELEPORT_Y_LEVEL = 96;
 
     protected ClaimsListCommand(@NotNull List<String> aliases, @NotNull String usage, @NotNull HuskClaims plugin) {
         super(aliases, usage, plugin);
@@ -43,62 +48,102 @@ public abstract class ClaimsListCommand extends Command implements GlobalClaimsP
     protected void showClaimList(@NotNull CommandUser executor, @Nullable User user,
                                  final List<ServerWorldClaim> claims,
                                  int page, @NotNull SortOption sort, boolean ascend) {
-        final Locales locales = plugin.getLocales();
-        final boolean crossServer = plugin.getSettings().getCrossServer().isEnabled();
         claims.sort(ascend ? sort.getComparator() : sort.getComparator().reversed());
         executor.sendMessage(PaginatedList.of(
-                claims.stream().map(claim -> locales.getRawLocale(
-                        "claim_list_item",
-                        locales.getRawLocale(
-                                switch (claim.serverWorld().world().getEnvironment().toLowerCase(Locale.ENGLISH)) {
-                                    case "nether" -> "claim_list_position_nether";
-                                    case "the_end" -> "claim_list_position_end";
-                                    default -> "claim_list_position_overworld";
-                                },
-                                crossServer ? claim.serverWorld().toString() : claim.serverWorld().world().getName(),
-                                Integer.toString(claim.claim().getRegion().getCenter().getBlockX()),
-                                Integer.toString(claim.claim().getRegion().getCenter().getBlockZ()),
-                                locales.getRawLocale(
-                                        "claim_list_%sworld_tooltip".formatted(!crossServer ? "" : "server_")
-                                ).orElse(""),
-                                plugin.getHook(HuskHomesHook.class).map(hook -> String.format(
-                                        "%s run_command=/huskclaims teleport %s %s %s %s %s",
-                                        getPlugin().getLocales().getRawLocale("claim_list_teleport_tooltip")
-                                                .orElse(""),
-                                        claim.serverWorld().server(),
-                                        claim.claim().getRegion().getCenter().getBlockX(),
-                                        96,
-                                        claim.claim().getRegion().getCenter().getBlockZ(),
-                                        claim.serverWorld().world().getName()
-                                )).orElse("")
-                        ).orElse(""),
-                        locales.getRawLocale(
-                                "claim_list_blocks",
-                                Long.toString(claim.claim().getRegion().getSurfaceArea()),
-                                Integer.toString(claim.claim().getRegion().getLongestEdge()),
-                                Integer.toString(claim.claim().getRegion().getShortestEdge())
-                        ).orElse(""),
-                        locales.getRawLocale(
-                                "claim_list_children",
-                                Integer.toString(claim.claim().getChildren().size())
-                        ).orElse(""),
-                        locales.getRawLocale(
-                                "claim_list_trustees",
-                                Integer.toString(claim.claim().getTrustedUsers().size()
-                                        + claim.claim().getTrustedGroups().size())
-                        ).orElse("")
-                ).orElse("")).toList(),
-                locales.getBaseList(CLAIMS_PER_PAGE)
-                        .setHeaderFormat(getListTitle(locales, user, claims.size(), sort, ascend))
-                        .setItemSeparator("\n")
-                        .setCommand(String.format(
-                                "/%s%s %s %s",
-                                getName(),
-                                (user == null ? "" : " " + user.getName()),
-                                sort.getId(),
-                                (ascend ? "ascending" : "descending")
-                        )).build()
+                claims.stream().map(c -> getClaimListRow(c, executor)).toList(),
+                getListOptions(user, claims, sort, ascend)
         ).getNearestValidPage(page));
+    }
+
+    @NotNull
+    private String getClaimListRow(@NotNull ServerWorldClaim claim, @NotNull CommandUser user) {
+        return plugin.getLocales().getRawLocale("claim_list_item_separator")
+                .map(separator -> String.join(separator, List.of(
+                        getClaimPosition(claim.claim(), claim.serverWorld(), user),
+                        getClaimSize(claim.claim()),
+                        getClaimChildren(claim.claim()),
+                        getClaimMembers(claim.claim())
+                ))).orElse("");
+    }
+
+    @NotNull
+    private String getClaimPosition(@NotNull Claim claim, @NotNull ServerWorld serverWorld, @NotNull CommandUser user) {
+        final boolean crossServer = plugin.getSettings().getCrossServer().isEnabled();
+        return plugin.getLocales().getRawLocale(
+                switch (serverWorld.world().getEnvironment().toLowerCase(Locale.ENGLISH)) {
+                    case "nether" -> "claim_list_position_nether";
+                    case "the_end" -> "claim_list_position_end";
+                    default -> "claim_list_position_overworld";
+                },
+                crossServer ? serverWorld.toString() : serverWorld.world().getName(),
+                Integer.toString(claim.getRegion().getCenter().getBlockX()),
+                Integer.toString(claim.getRegion().getCenter().getBlockZ()),
+                plugin.getLocales().getRawLocale(
+                        "claim_list_%sworld_tooltip".formatted(!crossServer ? "" : "server_")
+                ).orElse(""),
+                user instanceof OnlineUser online ? getTeleportOption(claim, serverWorld, online) : ""
+        ).orElse("");
+    }
+
+    @NotNull
+    private String getTeleportOption(@NotNull Claim claim, @NotNull ServerWorld serverWorld, @NotNull OnlineUser user) {
+        final Optional<HuskHomesHook> homesHook = plugin.getHook(HuskHomesHook.class);
+        if (plugin.canUseCommand(HuskClaimsCommand.class, user, "teleport") || homesHook.isEmpty()) {
+            return "";
+        }
+
+        return plugin.getHook(HuskHomesHook.class).map(hook -> String.format(
+                "%s run_command=/huskclaims teleport %s %s %s %s %s",
+                getPlugin().getLocales().getRawLocale("claim_list_teleport_tooltip")
+                        .orElse(""),
+                serverWorld.server(),
+                claim.getRegion().getCenter().getBlockX(),
+                TELEPORT_Y_LEVEL,
+                claim.getRegion().getCenter().getBlockZ(),
+                serverWorld.world().getName()
+        )).orElse("");
+    }
+
+    @NotNull
+    private String getClaimSize(@NotNull Claim claim) {
+        return plugin.getLocales().getRawLocale(
+                "claim_list_blocks",
+                Long.toString(claim.getRegion().getSurfaceArea()),
+                Integer.toString(claim.getRegion().getLongestEdge()),
+                Integer.toString(claim.getRegion().getShortestEdge())
+        ).orElse("");
+    }
+
+    @NotNull
+    private String getClaimChildren(@NotNull Claim claim) {
+        return plugin.getLocales().getRawLocale(
+                "claim_list_children",
+                Integer.toString(claim.getChildren().size())
+        ).orElse("");
+    }
+
+    @NotNull
+    private String getClaimMembers(@NotNull Claim claim) {
+        return plugin.getLocales().getRawLocale(
+                "claim_list_trustees",
+                Integer.toString(claim.getTrustedUsers().size() + claim.getTrustedGroups().size())
+        ).orElse("");
+    }
+
+    @NotNull
+    private ListOptions getListOptions(@Nullable User user, @NotNull List<ServerWorldClaim> claims,
+                                       @NotNull SortOption sort, boolean ascend) {
+        return plugin.getLocales().getBaseList(CLAIMS_PER_PAGE)
+                .setHeaderFormat(getListTitle(plugin.getLocales(), user, claims.size(), sort, ascend))
+                .setItemSeparator("\n")
+                .setCommand(String.format(
+                        "/%s%s %s %s",
+                        getName(),
+                        (user == null ? "" : " " + user.getName()),
+                        sort.getId(),
+                        (ascend ? "ascending" : "descending")
+                ))
+                .build();
     }
 
     protected Optional<SortOption> parseSortArg(@NotNull String[] args, int index) {
