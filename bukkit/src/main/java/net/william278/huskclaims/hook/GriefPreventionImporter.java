@@ -50,9 +50,9 @@ import java.util.stream.IntStream;
 
 public class GriefPreventionImporter extends Importer {
 
+    // Parameters for the GP database
     private static final int USERS_PER_PAGE = 500;
     private static final int CLAIMS_PER_PAGE = 500;
-    private static final UUID PUBLIC = UUID.randomUUID();
 
     private HikariDataSource dataSource;
     private ExecutorService pool;
@@ -62,12 +62,15 @@ public class GriefPreventionImporter extends Importer {
         super(
                 "GriefPrevention",
                 List.of(ImportData.USERS, ImportData.CLAIMS),
+                plugin,
                 Map.of(
                         "uri", true,
                         "username", true,
                         "password", false
                 ),
-                plugin
+                Map.of(
+                        "password", ""
+                )
         );
     }
 
@@ -76,17 +79,20 @@ public class GriefPreventionImporter extends Importer {
         final String uri = configParameters.get("uri");
         final String username = configParameters.get("username");
         final String password = configParameters.get("password");
-        if (uri == null || username == null || password == null) {
+        if (uri == null || username == null) {
             throw new IllegalArgumentException("Missing required config parameters");
         }
 
+        // Setup GriefPrevention database connection
         final HikariConfig config = new HikariConfig();
         config.setJdbcUrl(uri);
         config.setUsername(username);
-        config.setPassword(password);
+        if (password != null) {
+            config.setPassword(password);
+        }
         config.setMaximumPoolSize(1);
         config.setConnectionTimeout(30000);
-        config.setPoolName(String.format("HuskClaims %s", getName()));
+        config.setPoolName(String.format("HuskClaims-%s-Importer", getName()));
         config.setReadOnly(true);
 
         this.dataSource = new HikariDataSource(config);
@@ -212,7 +218,7 @@ public class GriefPreventionImporter extends Importer {
                 .collect(HashMap::new, (m, v) -> m.put(v.getKey(), v.getValue()), HashMap::putAll);
 
         final Set<ClaimWorld> claimWorlds = new HashSet<>();
-        final AtomicInteger amount = new AtomicInteger(0);
+        final AtomicInteger amount = new AtomicInteger();
         claimMap.forEach((hcc, gpc) -> {
             final String world = gpc.lesserCorner.split(";")[0];
             final Optional<ClaimWorld> optionalWorld = plugin.getClaimWorld(world);
@@ -233,8 +239,7 @@ public class GriefPreventionImporter extends Importer {
 
             final List<Claim> childClaims = children.entrySet().stream()
                     .filter(e -> e.getValue().parentId == gpc.id)
-                    .map(Map.Entry::getKey)
-                    .toList();
+                    .map(Map.Entry::getKey).toList();
             hcc.getChildren().addAll(childClaims);
         });
 
@@ -251,7 +256,8 @@ public class GriefPreventionImporter extends Importer {
              PreparedStatement statement = connection.prepareStatement("""
                      SELECT COUNT(*)
                      FROM griefprevention_playerdata""")) {
-            ResultSet resultSet = statement.executeQuery();
+
+            final ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 return resultSet.getInt(1);
             }
@@ -266,7 +272,8 @@ public class GriefPreventionImporter extends Importer {
              PreparedStatement statement = connection.prepareStatement("""
                      SELECT COUNT(*)
                      FROM griefprevention_claimdata""")) {
-            ResultSet resultSet = statement.executeQuery();
+
+            final ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 return resultSet.getInt(1);
             }
@@ -277,7 +284,7 @@ public class GriefPreventionImporter extends Importer {
     }
 
     private CompletableFuture<List<GriefPreventionClaim>> getClaimPage(int page) {
-        System.out.println("Getting claim page " + page);
+        final List<GriefPreventionClaim> claims = Lists.newArrayList();
         return CompletableFuture.supplyAsync(() -> {
             try (Connection connection = dataSource.getConnection();
                  PreparedStatement statement = connection.prepareStatement("""
@@ -286,8 +293,8 @@ public class GriefPreventionImporter extends Importer {
                          LIMIT ?, ?;""")) {
                 statement.setInt(1, (page - 1) * CLAIMS_PER_PAGE);
                 statement.setInt(2, CLAIMS_PER_PAGE);
-                ResultSet resultSet = statement.executeQuery();
-                List<GriefPreventionClaim> claims = new ArrayList<>();
+
+                final ResultSet resultSet = statement.executeQuery();
                 while (resultSet.next()) {
                     claims.add(new GriefPreventionClaim(
                             resultSet.getInt("id"),
@@ -306,12 +313,11 @@ public class GriefPreventionImporter extends Importer {
             } catch (Throwable e) {
                 plugin.log(Level.WARNING, "Exception getting claim page #%s from GP database".formatted(page), e);
             }
-            return List.of();
+            return claims;
         }, pool);
     }
 
     private List<UUID> getUUIDs(String uuids) {
-        if (uuids.contains("public")) return List.of(PUBLIC);
         return Arrays.stream(uuids.split(";"))
                 .filter(s -> !s.isEmpty())
                 .map(UUID::fromString)
@@ -319,6 +325,7 @@ public class GriefPreventionImporter extends Importer {
     }
 
     private CompletableFuture<List<GriefPreventionUser>> getUserPage(int page) {
+        final List<GriefPreventionUser> users = Lists.newArrayList();
         return CompletableFuture.supplyAsync(() -> {
             try (Connection connection = dataSource.getConnection();
                  PreparedStatement statement = connection.prepareStatement("""
@@ -327,8 +334,8 @@ public class GriefPreventionImporter extends Importer {
                          LIMIT ?, ?;""")) {
                 statement.setInt(1, (page - 1) * USERS_PER_PAGE);
                 statement.setInt(2, USERS_PER_PAGE);
-                ResultSet resultSet = statement.executeQuery();
-                List<GriefPreventionUser> users = new ArrayList<>();
+
+                final ResultSet resultSet = statement.executeQuery();
                 while (resultSet.next()) {
                     users.add(new GriefPreventionUser(
                             resultSet.getString("name"),
@@ -336,11 +343,10 @@ public class GriefPreventionImporter extends Importer {
                             resultSet.getInt("claimblocks")
                     ));
                 }
-                return users;
             } catch (Throwable e) {
                 plugin.log(Level.WARNING, "Exception getting user page #%s from GP database".formatted(page), e);
             }
-            return List.of();
+            return users;
         }, pool);
     }
 

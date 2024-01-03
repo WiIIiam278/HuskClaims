@@ -37,12 +37,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public abstract class Importer extends Hook {
-
-    protected final HuskClaims plugin;
     protected Map<String, String> configParameters;
-
-    @Getter
-    private final String name;
     @Getter
     private final List<ImportData> supportedData;
     @Getter
@@ -50,15 +45,13 @@ public abstract class Importer extends Hook {
     @Getter
     private ImportState state;
 
-    protected Importer(@NotNull String name, @NotNull List<ImportData> supportedData,
-                       @NotNull Map<String, Boolean> requiredParameters, @NotNull HuskClaims plugin) {
+    protected Importer(@NotNull String name, @NotNull List<ImportData> supportedData, @NotNull HuskClaims plugin,
+                       @NotNull Map<String, Boolean> requiredParams, @NotNull Map<String, String> defaultParams) {
         super(name, plugin);
-        this.configParameters = Maps.newHashMap();
-        this.name = name;
-        this.supportedData = supportedData;
-        this.plugin = plugin;
-        this.requiredParameters = requiredParameters;
         this.state = ImportState.WAITING;
+        this.supportedData = supportedData;
+        this.requiredParameters = requiredParams;
+        this.configParameters = Maps.newHashMap(defaultParams);
     }
 
     @Override
