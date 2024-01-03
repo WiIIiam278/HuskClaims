@@ -113,7 +113,7 @@ public abstract class Importer extends Hook {
         for (ImportData data : supportedData) {
             try {
                 log(user, Level.INFO, "⌚ Importing " + data.getName() + "...");
-                final int entries = importData(data);
+                final int entries = importData(data, user);
                 log(user, Level.INFO, "✔ Imported " + data.getName() + " (" + entries + " entries)");
             } catch (Throwable e) {
                 log(user, Level.WARNING, String.format("❌ Failed to import %s: %s", data.getName(), e.getMessage()), e);
@@ -136,7 +136,7 @@ public abstract class Importer extends Hook {
 
     protected abstract void prepare();
 
-    protected abstract int importData(@NotNull ImportData importData) throws Throwable;
+    protected abstract int importData(@NotNull ImportData importData, @NotNull CommandUser executor);
 
     protected abstract void finish();
 

@@ -58,9 +58,9 @@ public class Claim implements Highlightable {
     /**
      * The claim region
      */
+    @Expose
     @Getter
     @Setter
-    @Expose
     private Region region;
 
     /**
@@ -97,8 +97,8 @@ public class Claim implements Highlightable {
     /**
      * List of child claims
      */
-    @Getter
     @Expose
+    @Getter
     private Set<Claim> children;
 
     /**
@@ -114,9 +114,9 @@ public class Claim implements Highlightable {
      * <p>
      * If set to false, this child claim will be restricted.
      */
+    @Expose
     @Getter
     @Setter
-    @Expose
     @SerializedName("inherit_parent")
     private boolean inheritParent;
 
@@ -272,14 +272,12 @@ public class Claim implements Highlightable {
      * Set the {@link TrustLevel} of the given {@link Trustable} in this claim
      *
      * @param trustable the trustable to set the trust level for
-     * @param world     the world the claim is in
      * @param level     the trust level to set
      * @since 1.0
      */
-    public void setTrustLevel(@NotNull Trustable trustable, @NotNull ClaimWorld world, @NotNull TrustLevel level) {
+    public void setTrustLevel(@NotNull Trustable trustable, @NotNull TrustLevel level) {
         if (trustable instanceof User user) {
             setUserTrustLevel(user.getUuid(), level);
-            world.cacheUser(user);
         } else if (trustable instanceof UserGroup group) {
             setGroupTrustLevel(group, level);
         } else if (trustable instanceof TrustTag tag) {

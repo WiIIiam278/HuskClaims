@@ -224,7 +224,8 @@ public abstract class Database {
      * @param uuid The UUID of the user
      * @since 1.0
      */
-    public abstract void createOrUpdateUser(@NotNull UUID uuid, @NotNull String name, long totalBlocks, @NotNull Timestamp lastLogin, @NotNull Preferences preferences);
+    public abstract void createOrUpdateUser(@NotNull UUID uuid, @NotNull String name, long totalBlocks,
+                                            @NotNull Timestamp lastLogin, @NotNull Preferences preferences);
 
     /**
      * Get a list of a user's {@link UserGroup user groups}.

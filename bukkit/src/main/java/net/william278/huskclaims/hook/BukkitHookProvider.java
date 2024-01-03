@@ -42,7 +42,7 @@ public interface BukkitHookProvider extends HookProvider {
         }
 
         // Add bukkit importers
-        hooks.add(new GriefPreventionImporter(getPlugin()));
+        hooks.add(new BukkitGriefPreventionImporter(getPlugin()));
 
         return hooks;
     }

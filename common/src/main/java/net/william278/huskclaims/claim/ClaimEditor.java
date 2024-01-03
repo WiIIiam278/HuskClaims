@@ -259,7 +259,7 @@ public interface ClaimEditor {
             final Claim claim = getPlugin().createAdminClaimAt(world, region);
 
             // Grant the claim creator the highest trust level
-            claim.setTrustLevel(user, world, getPlugin().getHighestTrustLevel());
+            claim.setTrustLevel(user, getPlugin().getHighestTrustLevel());
 
             // Highlight the claim
             getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claim);

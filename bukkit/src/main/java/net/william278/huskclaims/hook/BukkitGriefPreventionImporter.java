@@ -21,17 +21,20 @@ package net.william278.huskclaims.hook;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.claim.Region;
+import net.william278.huskclaims.trust.TrustLevel;
+import net.william278.huskclaims.trust.Trustable;
+import net.william278.huskclaims.user.CommandUser;
 import net.william278.huskclaims.user.Preferences;
-import org.bukkit.Bukkit;
+import net.william278.huskclaims.user.User;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,17 +51,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.stream.IntStream;
 
-public class GriefPreventionImporter extends Importer {
+public class BukkitGriefPreventionImporter extends Importer {
 
     // Parameters for the GP database
     private static final int USERS_PER_PAGE = 500;
     private static final int CLAIMS_PER_PAGE = 500;
+    private static final String GP_PUBLIC_STRING = "public";
 
     private HikariDataSource dataSource;
     private ExecutorService pool;
     private List<GriefPreventionUser> users;
 
-    public GriefPreventionImporter(@NotNull BukkitHuskClaims plugin) {
+    public BukkitGriefPreventionImporter(@NotNull BukkitHuskClaims plugin) {
         super(
                 "GriefPrevention",
                 List.of(ImportData.USERS, ImportData.CLAIMS),
@@ -110,28 +114,25 @@ public class GriefPreventionImporter extends Importer {
     }
 
     @Override
-    protected int importData(@NotNull ImportData importData) {
+    protected int importData(@NotNull ImportData importData, @NotNull CommandUser executor) {
         return switch (importData) {
-            case USERS -> importUsers();
-            case CLAIMS -> importClaims();
+            case USERS -> importUsers(executor);
+            case CLAIMS -> importClaims(executor);
         };
     }
 
-    private int importUsers() {
+    private int importUsers(@NotNull CommandUser executor) {
         final int totalUsers = getTotalUsers();
         final int totalPages = (int) Math.ceil(totalUsers / (double) USERS_PER_PAGE);
         final List<CompletableFuture<List<GriefPreventionUser>>> userPages = IntStream.rangeClosed(1, totalPages)
-                .mapToObj(this::getUserPage)
-                .toList();
+                .mapToObj(page -> getUserPage(executor, page)).toList();
         CompletableFuture.allOf(userPages.toArray(CompletableFuture[]::new)).join();
         users = Lists.newArrayList();
-        userPages.stream()
-                .map(CompletableFuture::join)
-                .forEach(users::addAll);
+        userPages.stream().map(CompletableFuture::join).forEach(users::addAll);
         return users.size();
     }
 
-    private int importClaims() {
+    private int importClaims(@NotNull CommandUser executor) {
         if (users == null) {
             throw new IllegalStateException("Users must be imported before claims");
         }
@@ -139,8 +140,7 @@ public class GriefPreventionImporter extends Importer {
         final int totalPages = (int) Math.ceil(totalClaims / (double) CLAIMS_PER_PAGE);
 
         final List<CompletableFuture<List<GriefPreventionClaim>>> claimPages = IntStream.rangeClosed(1, totalPages)
-                .mapToObj(this::getClaimPage)
-                .toList();
+                .mapToObj(page -> getClaimPage(executor, page)).toList();
         CompletableFuture.allOf(claimPages.toArray(CompletableFuture[]::new)).join();
         final List<GriefPreventionClaim> claims = claimPages.stream()
                 .map(CompletableFuture::join)
@@ -148,16 +148,14 @@ public class GriefPreventionImporter extends Importer {
                 .flatMap(Collection::stream)
                 .toList();
 
-        final List<GriefPreventionClaim> claimToSave = Lists.newArrayList();
+        log(executor, Level.INFO, "Fetching usernames & adjusting claim block balances for %s users."
+                .formatted(users.size()) + " This may take awhile...");
         final List<CompletableFuture<Void>> saveFutures = Lists.newArrayList();
+        final AtomicInteger amount = new AtomicInteger();
         users.forEach(user -> {
-            final UUID uuid = UUID.fromString(user.name);
-            final OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
-            final String name = offlinePlayer.hasPlayedBefore() ? offlinePlayer.getName() : user.name.substring(0, 8);
-            plugin.log(Level.INFO, String.format("Importing claims for %s (%s)", name, user.name));
+            // Update claim blocks
             final int totalArea = claims.stream()
                     .filter(c -> c.owner.equals(user.name))
-                    .peek(claimToSave::add)
                     .mapToInt(c -> {
                         String[] lesserCorner = c.lesserCorner.split(";");
                         String[] greaterCorner = c.greaterCorner.split(";");
@@ -170,56 +168,43 @@ public class GriefPreventionImporter extends Importer {
                         return x * z;
                     })
                     .sum();
-            user.claimBlocks -= totalArea;
-            user.name = name == null ? user.name : name;
+            user.claimBlocks = Math.max(0, user.claimBlocks - totalArea);
+
+            // Update username
+            final OfflinePlayer player = ((BukkitHuskClaims) plugin).getServer().getOfflinePlayer(user.uuid);
+            if (player.hasPlayedBefore()) {
+                user.name = player.getName();
+            }
+
             saveFutures.add(CompletableFuture.runAsync(
-                    () -> plugin.getDatabase().createOrUpdateUser(
-                            user.uuid, user.name, user.claimBlocks, user.getLastLogin(), Preferences.DEFAULTS
-                    ), pool
+                    () -> {
+                        plugin.getDatabase().createOrUpdateUser(
+                                user.uuid, user.name, user.claimBlocks, user.getLastLogin(), Preferences.DEFAULTS
+                        );
+                        plugin.invalidateClaimListCache(user.uuid);
+                        if (amount.incrementAndGet() % USERS_PER_PAGE == 0) {
+                            log(executor, Level.INFO, "Updated %s users...".formatted(amount.get()));
+                        }
+                    }, pool
             ));
-            plugin.invalidateClaimListCache(uuid);
         });
 
         // Wait for all users to be saved
         CompletableFuture.allOf(saveFutures.toArray(CompletableFuture[]::new)).join();
-
-        // Adding admin claims & child claims
-        final Map<Claim, GriefPreventionClaim> claimMap = Maps.newHashMap();
-        claims.stream().filter(c -> c.owner.isEmpty()).forEach(claimToSave::add);
-        claims.stream().filter(gpc -> !claimToSave.contains(gpc)).forEach(gpc -> plugin
-                .log(Level.WARNING, "Skipped claim %s (missing owner: %s)".formatted(gpc.lesserCorner, gpc.owner)));
         plugin.invalidateAdminClaimListCache();
 
-        claimToSave.forEach(gpc -> {
-            final Map<UUID, String> trusted = new HashMap<>();
-            gpc.builders.forEach(uuid -> trusted.put(uuid, "build"));
-            gpc.containers.forEach(uuid -> trusted.put(uuid, "container"));
-            gpc.accessors.forEach(uuid -> trusted.put(uuid, "access"));
-            gpc.managers.forEach(uuid -> trusted.put(uuid, "manage"));
+        // Adding admin claims & child claims
+        log(executor, Level.INFO, "Converting %s claims...".formatted(claims.size()));
+        final Map<Claim, GriefPreventionClaim> claimMap = Maps.newHashMap();
+        claims.forEach(gpc -> claimMap.put(gpc.toClaim(this), gpc));
 
-            final Claim claim = gpc.toClaim(trusted, plugin);
-//            if (publicTrust.get()) {
-//                final Optional<TrustTag> publicTag = plugin.getPublicTrustTag();
-//                if (publicTag.isEmpty()) {
-//                    plugin.log(Level.WARNING, "Skipped claim %s (missing public trust tag)".formatted(c.lesserCorner));
-//                    return;
-//                }
-//                final Optional<TrustLevel> publicTrustLevel = plugin.getTrustLevel("build");
-//                if (publicTrustLevel.isEmpty()) {
-//                    plugin.log(Level.WARNING, "Skipped claim at %s on missing world %s".formatted(gpc.lesserCorner, world));
-//                    return;
-//                }
-//                claim.setTagTrustLevel(publicTag.get(), publicTrustLevel.get());
-//            }
-            claimMap.put(claim, gpc);
-        });
-
+        // Convert child claims and save to claim worlds
+        log(executor, Level.INFO, "Saving %s claims...".formatted(claimMap.size()));
+        final Set<ClaimWorld> claimWorlds = Sets.newHashSet();
         final Map<Claim, GriefPreventionClaim> children = claimMap.entrySet().stream()
                 .filter(e -> e.getValue().parentId != -1)
                 .collect(HashMap::new, (m, v) -> m.put(v.getKey(), v.getValue()), HashMap::putAll);
-
-        final Set<ClaimWorld> claimWorlds = new HashSet<>();
-        final AtomicInteger amount = new AtomicInteger();
+        amount.set(0);
         claimMap.forEach((hcc, gpc) -> {
             final String world = gpc.lesserCorner.split(";")[0];
             final Optional<ClaimWorld> optionalWorld = plugin.getClaimWorld(world);
@@ -228,22 +213,29 @@ public class GriefPreventionImporter extends Importer {
                 return;
             }
 
+            // Mark the claim world as needing to be saved
             final ClaimWorld claimWorld = optionalWorld.get();
             claimWorlds.add(claimWorld);
-            amount.getAndIncrement();
+            hcc.getOwner().flatMap(owner -> users.stream().filter(gpu -> gpu.uuid.equals(owner)).findFirst())
+                    .ifPresent(user -> claimWorld.cacheUser(user.toUser()));
             claimWorld.getClaims().add(hcc);
 
-            // If the claim has a parent, adds it to the parent's children list
+            if (amount.incrementAndGet() % CLAIMS_PER_PAGE == 0) {
+                log(executor, Level.INFO, "Saved %s claims...".formatted(amount.get()));
+            }
             if (gpc.parentId != -1) {
                 return;
             }
 
+            // If the claim has a parent, add it to the parent's child claims list
             final List<Claim> childClaims = children.entrySet().stream()
                     .filter(e -> e.getValue().parentId == gpc.id)
                     .map(Map.Entry::getKey).toList();
             hcc.getChildren().addAll(childClaims);
         });
 
+        // Save claim worlds
+        log(executor, Level.INFO, "Saving %s claim worlds...".formatted(claimWorlds.size()));
         final List<CompletableFuture<Void>> claimWorldFutures = new ArrayList<>();
         claimWorlds.forEach(claimWorld -> claimWorldFutures.add(
                 CompletableFuture.runAsync(() -> plugin.getDatabase().updateClaimWorld(claimWorld), pool)
@@ -284,7 +276,7 @@ public class GriefPreventionImporter extends Importer {
         return 0;
     }
 
-    private CompletableFuture<List<GriefPreventionClaim>> getClaimPage(int page) {
+    private CompletableFuture<List<GriefPreventionClaim>> getClaimPage(@NotNull CommandUser user, int page) {
         final List<GriefPreventionClaim> claims = Lists.newArrayList();
         return CompletableFuture.supplyAsync(() -> {
             try (Connection connection = dataSource.getConnection();
@@ -302,14 +294,16 @@ public class GriefPreventionImporter extends Importer {
                             resultSet.getString("owner"),
                             resultSet.getString("lessercorner"),
                             resultSet.getString("greatercorner"),
-                            getUUIDs(resultSet.getString("builders")),
-                            getUUIDs(resultSet.getString("containers")),
-                            getUUIDs(resultSet.getString("accessors")),
-                            getUUIDs(resultSet.getString("managers")),
+                            parseTrusted(resultSet.getString("builders")),
+                            parseTrusted(resultSet.getString("containers")),
+                            parseTrusted(resultSet.getString("accessors")),
+                            parseTrusted(resultSet.getString("managers")),
                             resultSet.getBoolean("inheritnothing"),
                             resultSet.getInt("parentid")
                     ));
                 }
+                int imported = ((page * CLAIMS_PER_PAGE) - CLAIMS_PER_PAGE) + claims.size();
+                log(user, Level.INFO, "Fetched %s claims/subdivisions...".formatted(imported));
                 return claims;
             } catch (Throwable e) {
                 plugin.log(Level.WARNING, "Exception getting claim page #%s from GP database".formatted(page), e);
@@ -318,14 +312,39 @@ public class GriefPreventionImporter extends Importer {
         }, pool);
     }
 
-    private List<UUID> getUUIDs(String uuids) {
-        return Arrays.stream(uuids.split(";"))
+    @NotNull
+    private List<String> parseTrusted(@NotNull String names) {
+        return Arrays.stream(names.split(";"))
                 .filter(s -> !s.isEmpty())
-                .map(UUID::fromString)
                 .toList();
     }
 
-    private CompletableFuture<List<GriefPreventionUser>> getUserPage(int page) {
+    private void setTrust(@NotNull String id, @NotNull TrustLevel level, @NotNull Map<Trustable, TrustLevel> map) {
+        if (id.equals(GP_PUBLIC_STRING)) {
+            plugin.getPublicTrustTag().ifPresent(tag -> map.put(tag, level));
+            return;
+        }
+
+        try {
+            final UUID uuid = UUID.fromString(id);
+            users.stream().filter(gpu -> gpu.uuid.equals(uuid)).findFirst()
+                    .ifPresent(user -> map.put(user.toUser(), level));
+        } catch (IllegalArgumentException ignored) {
+            plugin.log(Level.WARNING, "Invalid UUID in GP database: " + id);
+        }
+    }
+
+    @NotNull
+    private Map<Trustable, TrustLevel> convertTrustees(@NotNull GriefPreventionClaim gpc, @NotNull HuskClaims plugin) {
+        final Map<Trustable, TrustLevel> trusted = Maps.newHashMap();
+        plugin.getTrustLevel("build").ifPresent(l -> gpc.builders().forEach(id -> setTrust(id, l, trusted)));
+        plugin.getTrustLevel("container").ifPresent(l -> gpc.containers().forEach(id -> setTrust(id, l, trusted)));
+        plugin.getTrustLevel("access").ifPresent(l -> gpc.accessors().forEach(id -> setTrust(id, l, trusted)));
+        plugin.getTrustLevel("manage").ifPresent(l -> gpc.managers().forEach(id -> setTrust(id, l, trusted)));
+        return trusted;
+    }
+
+    private CompletableFuture<List<GriefPreventionUser>> getUserPage(@NotNull CommandUser user, int page) {
         final List<GriefPreventionUser> users = Lists.newArrayList();
         return CompletableFuture.supplyAsync(() -> {
             try (Connection connection = dataSource.getConnection();
@@ -339,11 +358,13 @@ public class GriefPreventionImporter extends Importer {
                 final ResultSet resultSet = statement.executeQuery();
                 while (resultSet.next()) {
                     users.add(new GriefPreventionUser(
-                            resultSet.getString("name"),
+                            UUID.fromString(resultSet.getString("name")),
                             resultSet.getTimestamp("lastlogin"),
                             resultSet.getInt("claimblocks")
                     ));
                 }
+                int imported = ((page * USERS_PER_PAGE) - USERS_PER_PAGE) + users.size();
+                log(user, Level.INFO, "Imported %s users...".formatted(imported));
             } catch (Throwable e) {
                 plugin.log(Level.WARNING, "Exception getting user page #%s from GP database".formatted(page), e);
             }
@@ -351,28 +372,32 @@ public class GriefPreventionImporter extends Importer {
         }, pool);
     }
 
-    private record GriefPreventionClaim(int id, @NotNull String owner,
+    private record GriefPreventionClaim(int id,
+                                        @NotNull String owner,
                                         @NotNull String lesserCorner, @NotNull String greaterCorner,
-                                        @NotNull List<UUID> builders, @NotNull List<UUID> containers,
-                                        @NotNull List<UUID> accessors, @NotNull List<UUID> managers,
+                                        @NotNull List<String> builders, @NotNull List<String> containers,
+                                        @NotNull List<String> accessors, @NotNull List<String> managers,
                                         boolean inheritNothing, int parentId) {
 
         @NotNull
-        private Claim toClaim(@NotNull Map<UUID, String> trusted, @NotNull HuskClaims plugin) {
+        private Claim toClaim(@NotNull BukkitGriefPreventionImporter importer) {
             final String[] lesserCorner = this.lesserCorner.split(";");
             final String[] greaterCorner = this.greaterCorner.split(";");
-            final Region region = Region.from(Region.Point.at(Integer.parseInt(lesserCorner[1]), Integer.parseInt(lesserCorner[3])),
-                    Region.Point.at(Integer.parseInt(greaterCorner[1]), Integer.parseInt(greaterCorner[3])));
+            final Region region = Region.from(
+                    Region.Point.at(Integer.parseInt(lesserCorner[1]), Integer.parseInt(lesserCorner[3])),
+                    Region.Point.at(Integer.parseInt(greaterCorner[1]), Integer.parseInt(greaterCorner[3]))
+            );
+
+            // Determine claim members
             final UUID ownerUuid = !owner.isEmpty() ? UUID.fromString(owner) : null;
-            final Claim claim = Claim.create(ownerUuid, region, plugin);
-            claim.getTrustedUsers().putAll(trusted);
+            final Claim claim = Claim.create(ownerUuid, region, importer.getPlugin());
+            importer.convertTrustees(this, importer.getPlugin()).forEach(claim::setTrustLevel);
             claim.setInheritParent(!inheritNothing);
             return claim;
         }
 
     }
 
-    @Getter
     @AllArgsConstructor
     private static final class GriefPreventionUser {
         private final static Timestamp NEVER = new Timestamp(100);
@@ -381,16 +406,22 @@ public class GriefPreventionImporter extends Importer {
         private final Timestamp lastLogin;
         private int claimBlocks;
 
-        public GriefPreventionUser(@NotNull String name, @NotNull Timestamp lastLogin, int claimBlocks) {
-            this.name = name;
+        private GriefPreventionUser(@NotNull UUID uuid, @NotNull Timestamp lastLogin, int claimBlocks) {
+            this.uuid = uuid;
+            this.name = uuid.toString().substring(0, 8);
             this.lastLogin = lastLogin;
             this.claimBlocks = claimBlocks;
-            this.uuid = UUID.fromString(name);
         }
 
         @NotNull
-        public Timestamp getLastLogin() {
+        private Timestamp getLastLogin() {
             return lastLogin.before(NEVER) ? Timestamp.valueOf(LocalDateTime.now()) : lastLogin;
         }
+
+        @NotNull
+        private User toUser() {
+            return User.of(uuid, name);
+        }
+
     }
 }
