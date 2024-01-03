@@ -21,6 +21,7 @@ package net.william278.huskclaims.hook;
 
 import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.config.Settings;
+import net.william278.huskclaims.importer.GPImporter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -40,13 +41,17 @@ public interface BukkitHookProvider extends HookProvider {
         if (isDependencyAvailable("Vault") && settings.getEconomy().isEnabled()) {
             hooks.add(new BukkitVaultEconomyHook(getPlugin()));
         }
+        hooks.add(new GPImporter(getPlugin()));
 
         return hooks;
     }
 
     @Override
     default boolean isDependencyAvailable(@NotNull String name) {
-        return ((BukkitHuskClaims) getPlugin()).getServer().getPluginManager().isPluginEnabled(name);
+        return getPlugin().getServer().getPluginManager().isPluginEnabled(name);
     }
+
+    @NotNull
+    BukkitHuskClaims getPlugin();
 
 }
