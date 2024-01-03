@@ -143,9 +143,11 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
                 case "import" -> switch (args.length - 2) {
                     case 0 -> plugin.getImporters().stream().map(Importer::getName).toList();
                     case 1 -> List.of("start", "set");
-                    case 2 -> plugin.getImporters().stream().filter(i -> i.getName().equalsIgnoreCase(args[1]))
-                            .flatMap(i -> i.getRequiredParameters().keySet().stream().map("%s:"::formatted)).toList();
-                    default -> null;
+                    default -> plugin.getImporters().stream().filter(i -> i.getName().equalsIgnoreCase(args[1]))
+                            .flatMap(i -> i.getRequiredParameters().keySet().stream()
+                                    .filter(p -> parseKeyValues(args, 3).keySet().stream()
+                                            .noneMatch(p::equalsIgnoreCase))
+                                    .map("%s:"::formatted)).toList();
                 };
                 case "help" -> IntStream.rangeClosed(1, getCommandList(user).getTotalPages())
                         .mapToObj(Integer::toString).toList();
