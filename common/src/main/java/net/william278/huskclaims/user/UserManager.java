@@ -46,9 +46,9 @@ public interface UserManager {
 
     @Blocking
     default Optional<SavedUser> getSavedUser(@NotNull UUID uuid) {
-        return Optional.ofNullable(getUserCache().get(uuid)).or(
-                () -> getPlugin().getDatabase().getUser(uuid).map(data -> getUserCache().put(uuid, data))
-        );
+        return Optional.ofNullable(getUserCache().getOrDefault(
+                uuid, getPlugin().getDatabase().getUser(uuid).orElse(null)
+        ));
     }
 
     @Blocking
@@ -90,6 +90,7 @@ public interface UserManager {
     default void editUserPreferences(@NotNull User user, @NotNull Consumer<Preferences> consumer) {
         editUser(user.getUuid(), savedUser -> consumer.accept(savedUser.getPreferences()));
     }
+
     default void editClaimBlocks(@NotNull User user, @NotNull ClaimBlockSource source,
                                  @NotNull Function<Long, Long> consumer, @Nullable Consumer<Long> callback) {
 
