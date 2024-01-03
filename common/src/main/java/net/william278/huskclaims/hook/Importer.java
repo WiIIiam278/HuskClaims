@@ -66,6 +66,15 @@ public abstract class Importer extends Hook {
     public final void load() {
     }
 
+    @Override
+    public final void unload() {
+        if (state == ImportState.ACTIVE) {
+            getPlugin().log(Level.WARNING, "Importer %s was unloaded while active, cancelling import.".formatted(name));
+            state = ImportState.WAITING;
+            finish();
+        }
+    }
+
     public void setValue(@NotNull CommandUser user, @NotNull String param, @NotNull String value, boolean sensitive) {
         if (!requiredParameters.contains(param)) {
             log(user, Level.WARNING, "❌ Unknown parameter: %s".formatted(param));
@@ -78,7 +87,7 @@ public abstract class Importer extends Hook {
     public final void start(@NotNull CommandUser user) {
         // Ensure the importer is enabled
         if (state != ImportState.WAITING) {
-            log(user, Level.WARNING, "❌ Import is %s".formatted(state.name().toLowerCase(Locale.ENGLISH)));
+            log(user, Level.WARNING, "❌ Import is already %s.".formatted(state.name().toLowerCase(Locale.ENGLISH)));
             return;
         }
 
@@ -92,12 +101,10 @@ public abstract class Importer extends Hook {
         }
 
         // Start import
+        prepare();
         final LocalDateTime startTime = LocalDateTime.now();
         log(user, Level.INFO, "⌚ Starting " + name + " data import...");
         state = ImportState.ACTIVE;
-
-        // Prepare
-        prepareImport();
 
         // Import data
         for (ImportData data : supportedData) {
@@ -113,14 +120,17 @@ public abstract class Importer extends Hook {
         }
 
         // Finish import
+        finish();
         final long timeTaken = startTime.until(LocalDateTime.now(), ChronoUnit.SECONDS);
         log(user, Level.INFO, "✔ Completed import from " + name + " (took " + timeTaken + "s)");
         state = ImportState.DONE;
     }
 
-    protected abstract void prepareImport();
+    protected abstract void prepare();
 
     protected abstract int importData(@NotNull ImportData importData) throws Throwable;
+
+    protected abstract void finish();
 
     protected final void log(@NotNull CommandUser user, @NotNull Level level, @NotNull String message,
                              @NotNull Throwable... e) {

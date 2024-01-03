@@ -68,7 +68,7 @@ public class GriefPreventionImporter extends Importer {
     }
 
     @Override
-    public void prepareImport() throws IllegalArgumentException {
+    public void prepare() throws IllegalArgumentException {
         final String uri = configParameters.get("uri");
         final String username = configParameters.get("username");
         final String password = configParameters.get("password");
@@ -90,7 +90,7 @@ public class GriefPreventionImporter extends Importer {
     }
 
     @Override
-    public void unload() {
+    public void finish() {
         if (dataSource != null) {
             dataSource.close();
         }
