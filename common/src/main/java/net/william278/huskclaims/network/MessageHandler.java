@@ -20,7 +20,6 @@
 package net.william278.huskclaims.network;
 
 import net.william278.huskclaims.HuskClaims;
-import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
@@ -53,18 +52,13 @@ public interface MessageHandler {
         message.getPayload().getUuid().ifPresentOrElse(
                 // Delete all claims by a UUID-given user
                 (uuid) -> {
-                    getPlugin().getSavedUser(uuid).ifPresent(
-                            (saved) -> getPlugin().getClaimWorlds().entrySet().stream()
-                                    .filter((world) -> world.getValue().removeClaimsBy(saved.getUser()))
-                                    .forEach((world) -> getPlugin().getDatabase().updateClaimWorld(world.getValue()))
-                    );
+                    getPlugin().getSavedUser(uuid).ifPresent((saved) -> getPlugin().getClaimWorlds()
+                            .forEach((key, value) -> value.removeClaimsBy(saved.getUser())));
                     getPlugin().invalidateUserCache(uuid);
                 },
                 // Delete all admin claims
                 () -> {
-                    getPlugin().getClaimWorlds().values()
-                            .stream().filter(ClaimWorld::removeAdminClaims)
-                            .forEach((world) -> getPlugin().getDatabase().updateClaimWorld(world));
+                    getPlugin().getClaimWorlds().forEach((key, value) -> value.removeAdminClaims());
                     getPlugin().invalidateAdminClaimListCache();
                 });
     }

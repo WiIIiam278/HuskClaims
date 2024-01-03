@@ -213,9 +213,14 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
      * @since 1.0
      */
     default void deleteAllClaims(@NotNull OnlineUser executor, @NotNull User user) {
-        getClaimWorlds().entrySet().stream()
+        getPlugin().getDatabase().getAllClaimWorlds().entrySet().stream()
                 .filter((world) -> world.getValue().removeClaimsBy(user))
-                .forEach((world) -> getDatabase().updateClaimWorld(world.getValue()));
+                .forEach((world) -> {
+                    if (getPlugin().getClaimWorld(world.getKey().world()).isPresent()) {
+                        getPlugin().getClaimWorlds().put(world.getKey().world().getName(), world.getValue());
+                    }
+                    getDatabase().updateClaimWorld(world.getValue());
+                });
         getPlugin().getBroker().ifPresent(broker -> Message.builder()
                 .type(Message.MessageType.DELETE_ALL_CLAIMS)
                 .payload(Payload.uuid(user.getUuid()))
@@ -231,9 +236,14 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
      * @since 1.0
      */
     default void deleteAllAdminClaims(@NotNull OnlineUser executor) {
-        getClaimWorlds().entrySet().stream()
+        getPlugin().getDatabase().getAllClaimWorlds().entrySet().stream()
                 .filter((world) -> world.getValue().removeAdminClaims())
-                .forEach((world) -> getDatabase().updateClaimWorld(world.getValue()));
+                .forEach((world) -> {
+                    if (getPlugin().getClaimWorld(world.getKey().world()).isPresent()) {
+                        getPlugin().getClaimWorlds().put(world.getKey().world().getName(), world.getValue());
+                    }
+                    getDatabase().updateClaimWorld(world.getValue());
+                });
         getPlugin().getBroker().ifPresent(broker -> Message.builder()
                 .type(Message.MessageType.DELETE_ALL_CLAIMS)
                 .target(Message.TARGET_ALL, Message.TargetType.SERVER).build()
