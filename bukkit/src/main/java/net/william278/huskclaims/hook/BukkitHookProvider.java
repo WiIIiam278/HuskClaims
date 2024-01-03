@@ -41,12 +41,18 @@ public interface BukkitHookProvider extends HookProvider {
             hooks.add(new BukkitVaultEconomyHook(getPlugin()));
         }
 
+        // Add bukkit importers
+        hooks.add(new BukkitGriefPreventionImporter(getPlugin()));
+
         return hooks;
     }
 
     @Override
     default boolean isDependencyAvailable(@NotNull String name) {
-        return ((BukkitHuskClaims) getPlugin()).getServer().getPluginManager().isPluginEnabled(name);
+        return getPlugin().getServer().getPluginManager().isPluginEnabled(name);
     }
+
+    @NotNull
+    BukkitHuskClaims getPlugin();
 
 }

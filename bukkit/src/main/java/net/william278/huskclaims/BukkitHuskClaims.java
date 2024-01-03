@@ -264,6 +264,12 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
         ));
     }
 
+    @Override
+    @NotNull
+    public BukkitHuskClaims getPlugin() {
+        return this;
+    }
+
     public static class Adapter {
         @NotNull
         public static Position adapt(@NotNull Location location) {

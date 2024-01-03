@@ -29,6 +29,7 @@ import net.william278.desertwell.util.UpdateChecker;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.config.Locales;
 import net.william278.huskclaims.hook.HuskHomesHook;
+import net.william278.huskclaims.hook.Importer;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.user.CommandUser;
 import net.william278.huskclaims.user.OnlineUser;
@@ -40,6 +41,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.Function;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class HuskClaimsCommand extends Command implements TabCompletable {
 
@@ -49,6 +52,7 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
             "help", false,
             "teleport", true,
             "status", true,
+            "import", true,
             "reload", true,
             "update", true
     );
@@ -91,22 +95,10 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
 
         switch (subCommand) {
             case "about" -> executor.sendMessage(aboutMenu.toComponent());
-            case "help" -> executor.sendMessage(getCommandList(executor, parseIntArg(args, 1).orElse(1)));
-            case "teleport" -> {
-                final Optional<Position> position = parsePositionArgs(args, 1)
-                        .or(() -> parsePositionArgs(args, 2));
-                final String server = parseStringArg(args, 1).orElse(plugin.getServerName());
-                if (position.isEmpty() || !(executor instanceof OnlineUser online)) {
-                    plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                            .ifPresent(executor::sendMessage);
-                    return;
-                }
-                plugin.getHook(HuskHomesHook.class).ifPresentOrElse(
-                        hook -> hook.teleport(online, position.get(), server),
-                        () -> plugin.getLocales().getLocale("error_huskhomes_not_found")
-                                .ifPresent(executor::sendMessage)
-                );
-            }
+            case "help" -> executor.sendMessage(
+                    getCommandList(executor).getNearestValidPage(parseIntArg(args, 1).orElse(1))
+            );
+            case "teleport" -> handleTeleportCommand(executor, removeFirstArg(args));
             case "status" -> {
                 getPlugin().getLocales().getLocale("system_status_header").ifPresent(executor::sendMessage);
                 executor.sendMessage(Component.join(
@@ -114,6 +106,7 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
                         Arrays.stream(StatusLine.values()).map(s -> s.get(plugin)).toList()
                 ));
             }
+            case "import" -> handleImportCommand(executor, removeFirstArg(args));
             case "reload" -> {
                 try {
                     plugin.unloadHooks();
@@ -145,30 +138,78 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
     @Override
     public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
         return switch (args.length) {
-            case 0, 1 -> SUB_COMMANDS.keySet().stream().sorted().toList();
-            default -> null;
+            case 0, 1 -> SUB_COMMANDS.keySet().stream().filter(n -> user.hasPermission(getPermission(n))).toList();
+            default -> switch (args[0].toLowerCase(Locale.ENGLISH)) {
+                case "import" -> switch (args.length - 2) {
+                    case 0 -> plugin.getImporters().stream().map(Importer::getName).toList();
+                    case 1 -> List.of("start", "set", "reset");
+                    default -> plugin.getImporters().stream().filter(i -> i.getName().equalsIgnoreCase(args[1]))
+                            .flatMap(i -> i.getRequiredParameters().keySet().stream()
+                                    .filter(p -> parseKeyValues(args, 3).keySet().stream()
+                                            .noneMatch(p::equalsIgnoreCase))
+                                    .map("%s:"::formatted)).toList();
+                };
+                case "help" -> IntStream.rangeClosed(1, getCommandList(user).getTotalPages())
+                        .mapToObj(Integer::toString).toList();
+                default -> null;
+            };
         };
     }
 
+    private void handleImportCommand(@NotNull CommandUser executor, @NotNull String[] args) {
+        final Optional<Importer> optionalImporter = parseStringArg(args, 0).flatMap(plugin::getImporterByName);
+        if (optionalImporter.isEmpty()) {
+            plugin.getLocales().getLocale("available_importers", plugin.getImporters().stream()
+                            .map(Importer::getName).collect(Collectors.joining(", ")))
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        final Importer importer = optionalImporter.get();
+        switch (parseStringArg(args, 1).map(a -> a.toLowerCase(Locale.ENGLISH)).orElse("start")) {
+            case "start", "begin" -> importer.start(executor);
+            case "set", "config", "configure" -> parseKeyValues(args, 2)
+                    .forEach((k, v) -> importer.setValue(executor, k, v, k.equalsIgnoreCase("password")));
+            case "reset" -> importer.reset(executor);
+            default -> plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                    .ifPresent(executor::sendMessage);
+        }
+    }
+
+    private void handleTeleportCommand(@NotNull CommandUser executor, @NotNull String[] args) {
+        final Optional<Position> position = parsePositionArgs(args, 0)
+                .or(() -> parsePositionArgs(args, 1));
+        final String server = parseStringArg(args, 0).orElse(plugin.getServerName());
+        if (position.isEmpty() || !(executor instanceof OnlineUser online)) {
+            plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+        plugin.getHook(HuskHomesHook.class).ifPresentOrElse(
+                hook -> hook.teleport(online, position.get(), server),
+                () -> plugin.getLocales().getLocale("error_huskhomes_not_found")
+                        .ifPresent(executor::sendMessage)
+        );
+    }
+
     @NotNull
-    private MineDown getCommandList(@NotNull CommandUser executor, int page) {
+    private PaginatedList getCommandList(@NotNull CommandUser executor) {
         final Locales locales = plugin.getLocales();
         return PaginatedList.of(
-                        plugin.getCommands().stream()
-                                .filter(command -> command.hasPermission(executor))
-                                .map(command -> locales.getRawLocale("command_list_row",
-                                        Locales.escapeText(String.format("/%s", command.getName())),
-                                        Locales.escapeText(command.getUsage()),
-                                        Locales.escapeText(locales.truncateText(command.getDescription(), 40)),
-                                        Locales.escapeText(command.getDescription())
-                                ).orElse(command.getUsage()))
-                                .toList(),
-                        locales.getBaseList(COMMANDS_PER_HELP_PAGE)
-                                .setHeaderFormat(locales.getRawLocale("command_list_header").orElse(""))
-                                .setItemSeparator("\n").setCommand(String.format("/%s help", getName()))
-                                .build()
-                )
-                .getNearestValidPage(page);
+                plugin.getCommands().stream()
+                        .filter(command -> command.hasPermission(executor))
+                        .map(command -> locales.getRawLocale("command_list_row",
+                                Locales.escapeText(String.format("/%s", command.getName())),
+                                Locales.escapeText(command.getUsage()),
+                                Locales.escapeText(locales.truncateText(command.getDescription(), 40)),
+                                Locales.escapeText(command.getDescription())
+                        ).orElse(command.getUsage()))
+                        .toList(),
+                locales.getBaseList(COMMANDS_PER_HELP_PAGE)
+                        .setHeaderFormat(locales.getRawLocale("command_list_header").orElse(""))
+                        .setItemSeparator("\n").setCommand(String.format("/%s help", getName()))
+                        .build()
+        );
     }
 
     private enum StatusLine {
@@ -195,7 +236,12 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
         )),
         LOADED_HOOKS(plugin -> Component.join(
                 JoinConfiguration.commas(true),
-                plugin.getHooks().stream().map(hook -> Component.text(hook.getName())).toList()
+                plugin.getHooks().stream().filter(hook -> !(hook instanceof Importer))
+                        .map(hook -> Component.text(hook.getName())).toList()
+        )),
+        LOADED_IMPORTERS(plugin -> Component.join(
+                JoinConfiguration.commas(true),
+                plugin.getImporters().stream().map(hook -> Component.text(hook.getName())).toList()
         ));
 
         private final Function<HuskClaims, Component> supplier;

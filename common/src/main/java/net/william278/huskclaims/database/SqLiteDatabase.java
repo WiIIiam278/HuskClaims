@@ -322,6 +322,27 @@ public class SqLiteDatabase extends Database {
         }
     }
 
+    @Override
+    public void createOrUpdateUser(@NotNull UUID uuid, @NotNull String name, long totalBlocks, @NotNull Timestamp lastLogin, @NotNull Preferences preferences) {
+        try (PreparedStatement statement = getConnection().prepareStatement(format("""
+                INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`, `preferences`)
+                VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT(`uuid`) DO UPDATE SET `username` = ?, `last_login` = ?, `claim_blocks` = ?, `preferences` = ?;"""))) {
+            statement.setString(1, uuid.toString());
+            statement.setString(2, name);
+            statement.setTimestamp(3, lastLogin);
+            statement.setLong(4, totalBlocks);
+            statement.setBytes(5, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
+            statement.setString(6, name);
+            statement.setTimestamp(7, lastLogin);
+            statement.setLong(8, totalBlocks);
+            statement.setBytes(9, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            plugin.log(Level.SEVERE, "Failed to create or update user in table", e);
+        }
+    }
+
     @NotNull
     @Override
     public ConcurrentLinkedQueue<UserGroup> getUserGroups(@NotNull UUID uuid) {

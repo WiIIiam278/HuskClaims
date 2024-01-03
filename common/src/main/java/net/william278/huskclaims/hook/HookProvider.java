@@ -24,11 +24,14 @@ import com.google.common.collect.Sets;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.config.Settings;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public interface HookProvider {
 
@@ -39,6 +42,21 @@ public interface HookProvider {
         return getHooks().stream()
                 .filter(hook -> hookClass.isAssignableFrom(hook.getClass()))
                 .map(hookClass::cast)
+                .findFirst();
+    }
+
+    @NotNull
+    @Unmodifiable
+    default Set<Importer> getImporters() {
+        return getHooks().stream()
+                .filter(hook -> hook instanceof Importer)
+                .map(hook -> (Importer) hook)
+                .collect(Collectors.toSet());
+    }
+
+    default Optional<Importer> getImporterByName(@NotNull String name) {
+        return getImporters().stream()
+                .filter(i -> i.getName().toLowerCase(Locale.ENGLISH).equals(name.toLowerCase(Locale.ENGLISH)))
                 .findFirst();
     }
 

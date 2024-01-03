@@ -66,6 +66,17 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
     void setClaimWorlds(@NotNull HashMap<World, ClaimWorld> claimWorlds);
 
     /**
+     * Get a claim world by world name
+     *
+     * @param worldName The name of the world to get the claim world for
+     * @return the claim world, if found
+     * @since 1.0
+     */
+    default Optional<ClaimWorld> getClaimWorld(@NotNull String worldName) {
+        return Optional.ofNullable(getClaimWorlds().get(worldName));
+    }
+
+    /**
      * Get a claim world by world
      *
      * @param world The world to get the claim world for
@@ -73,7 +84,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
      * @since 1.0
      */
     default Optional<ClaimWorld> getClaimWorld(@NotNull World world) {
-        return Optional.ofNullable(getClaimWorlds().get(world.getName()));
+        return getClaimWorld(world.getName());
     }
 
     /**

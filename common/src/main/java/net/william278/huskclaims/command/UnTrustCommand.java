@@ -52,7 +52,7 @@ public class UnTrustCommand extends InClaimCommand implements TabCompletable {
     @Override
     public void execute(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
                         @NotNull Claim claim, @NotNull String[] args) {
-        final List<String> toUnTrust = parseDistinctNameList(args, 0);
+        final List<String> toUnTrust = parseStringList(args, 0);
         if (toUnTrust.isEmpty()) {
             plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                     .ifPresent(executor::sendMessage);

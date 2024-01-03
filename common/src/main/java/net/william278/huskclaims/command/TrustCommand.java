@@ -25,6 +25,7 @@ import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.trust.TrustLevel;
 import net.william278.huskclaims.trust.Trustable;
 import net.william278.huskclaims.user.OnlineUser;
+import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,7 +50,7 @@ public class TrustCommand extends InClaimCommand implements TrustableTabCompleta
     @Override
     public void execute(@NotNull OnlineUser executor, @NotNull ClaimWorld world, @NotNull Claim claim,
                         @NotNull String[] args) {
-        final List<String> toTrust = parseDistinctNameList(args, 0);
+        final List<String> toTrust = parseStringList(args, 0);
         if (toTrust.isEmpty()) {
             plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                     .ifPresent(executor::sendMessage);
@@ -72,7 +73,10 @@ public class TrustCommand extends InClaimCommand implements TrustableTabCompleta
     private void setTrust(@NotNull OnlineUser executor, @NotNull Trustable trustable,
                           @NotNull ClaimWorld world, @NotNull Claim claim) {
         plugin.fireTrustEvent(executor, level, trustable, claim, world, (event) -> {
-            claim.setTrustLevel(trustable, world, level);
+            claim.setTrustLevel(trustable, level);
+            if (trustable instanceof User user) {
+                world.cacheUser(user);
+            }
             plugin.getDatabase().updateClaimWorld(world);
             plugin.getLocales().getLocale("trust_level_set", trustable.getTrustIdentifier(plugin),
                             level.getDisplayName(), level.getColor(), level.getDescription())

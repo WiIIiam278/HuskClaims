@@ -57,8 +57,8 @@ public class UserGroupsCommand extends OnlineUserCommand implements TabCompletab
 
         final String operation = parseStringArg(args, 1).orElse("list");
         switch (operation.toLowerCase(Locale.ENGLISH)) {
-            case "add" -> addGroupUsers(executor, groupName.get(), parseDistinctNameList(args, 2));
-            case "remove" -> removeGroupUsers(executor, groupName.get(), parseDistinctNameList(args, 2));
+            case "add" -> addGroupUsers(executor, groupName.get(), parseStringList(args, 2));
+            case "remove" -> removeGroupUsers(executor, groupName.get(), parseStringList(args, 2));
             case "list" -> listGroupUsers(executor, groupName.get());
             case "delete" -> deleteGroup(executor, groupName.get());
         }

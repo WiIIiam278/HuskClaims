@@ -40,6 +40,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
@@ -216,6 +217,15 @@ public abstract class Database {
      * @since 1.0
      */
     public abstract void updateUser(@NotNull SavedUser user);
+
+    /**
+     * Save or update user from uuid
+     *
+     * @param uuid The UUID of the user
+     * @since 1.0
+     */
+    public abstract void createOrUpdateUser(@NotNull UUID uuid, @NotNull String name, long totalBlocks,
+                                            @NotNull Timestamp lastLogin, @NotNull Preferences preferences);
 
     /**
      * Get a list of a user's {@link UserGroup user groups}.
