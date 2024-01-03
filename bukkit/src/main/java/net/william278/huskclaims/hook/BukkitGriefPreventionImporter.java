@@ -222,10 +222,11 @@ public class BukkitGriefPreventionImporter extends Importer {
                 return;
             }
 
-            // If the claim has a parent, add it to the parent's child claims list
+            // If the claim has a parent, add it to the parent's child claims list and set the owner
             final List<Claim> childClaims = children.entrySet().stream()
-                    .filter(e -> e.getValue().parentId == gpc.id)
-                    .map(Map.Entry::getKey).toList();
+                    .filter(e -> e.getValue().parentId == gpc.id).map(Map.Entry::getKey)
+                    .peek(child -> hcc.getOwner().ifPresent(child::setOwner))
+                    .toList();
             hcc.getChildren().addAll(childClaims);
         });
 
