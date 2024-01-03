@@ -117,7 +117,6 @@ public class GriefPreventionImporter extends Importer {
         };
     }
 
-
     private int importUsers() {
         final int totalUsers = getTotalUsers();
         final int totalPages = (int) Math.ceil(totalUsers / (double) USERS_PER_PAGE);
@@ -125,7 +124,7 @@ public class GriefPreventionImporter extends Importer {
                 .mapToObj(this::getUserPage)
                 .toList();
         CompletableFuture.allOf(userPages.toArray(CompletableFuture[]::new)).join();
-        users = new ArrayList<>();
+        users = Lists.newArrayList();
         userPages.stream()
                 .map(CompletableFuture::join)
                 .forEach(users::addAll);
@@ -178,6 +177,7 @@ public class GriefPreventionImporter extends Importer {
                             user.uuid, user.name, user.claimBlocks, user.getLastLogin(), Preferences.DEFAULTS
                     ), pool
             ));
+            plugin.invalidateClaimListCache(uuid);
         });
 
         // Wait for all users to be saved
@@ -188,6 +188,7 @@ public class GriefPreventionImporter extends Importer {
         claims.stream().filter(c -> c.owner.isEmpty()).forEach(claimToSave::add);
         claims.stream().filter(gpc -> !claimToSave.contains(gpc)).forEach(gpc -> plugin
                 .log(Level.WARNING, "Skipped claim %s (missing owner: %s)".formatted(gpc.lesserCorner, gpc.owner)));
+        plugin.invalidateAdminClaimListCache();
 
         claimToSave.forEach(gpc -> {
             final Map<UUID, String> trusted = new HashMap<>();

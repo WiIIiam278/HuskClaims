@@ -21,6 +21,7 @@ package net.william278.huskclaims.hook;
 
 import com.google.common.collect.Maps;
 import lombok.Getter;
+import lombok.Setter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.william278.huskclaims.HuskClaims;
@@ -76,6 +77,11 @@ public abstract class Importer extends Hook {
         log(user, Level.INFO, "✔ Set %s → %s".formatted(param, !sensitive ? value : "*".repeat(value.length())));
     }
 
+    public void reset(@NotNull CommandUser user) {
+        this.state = ImportState.WAITING;
+        log(user, Level.INFO, "✔ Reset import state");
+    }
+
     public final void start(@NotNull CommandUser user) {
         // Ensure the importer is enabled
         if (state != ImportState.WAITING) {
@@ -93,7 +99,12 @@ public abstract class Importer extends Hook {
         }
 
         // Start import
-        prepare();
+        try {
+            prepare();
+        } catch (Throwable e) {
+            log(user, Level.WARNING, "❌ Failed to prepare import: %s".formatted(e.getMessage()), e);
+            return;
+        }
         final LocalDateTime startTime = LocalDateTime.now();
         log(user, Level.INFO, "⌚ Starting " + name + " data import...");
         state = ImportState.ACTIVE;
@@ -112,7 +123,12 @@ public abstract class Importer extends Hook {
         }
 
         // Finish import
-        finish();
+        try {
+            finish();
+        } catch (Throwable e) {
+            log(user, Level.WARNING, "❌ Failed to finish import: %s".formatted(e.getMessage()), e);
+            return;
+        }
         final long timeTaken = startTime.until(LocalDateTime.now(), ChronoUnit.SECONDS);
         log(user, Level.INFO, "✔ Completed import from " + name + " (took " + timeTaken + "s)");
         state = ImportState.DONE;

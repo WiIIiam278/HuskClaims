@@ -27,11 +27,14 @@ import net.william278.huskclaims.user.CommandUser;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.List;
 
 public class AdminClaimsListCommand extends ClaimsListCommand implements GlobalClaimsProvider {
-    private List<ServerWorldClaim> adminClaims = Lists.newArrayList();
+    @Nullable
+    @Unmodifiable
+    private List<ServerWorldClaim> adminClaims = null;
 
     protected AdminClaimsListCommand(@NotNull HuskClaims plugin) {
         super(

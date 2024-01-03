@@ -142,7 +142,7 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
             default -> switch (args[0].toLowerCase(Locale.ENGLISH)) {
                 case "import" -> switch (args.length - 2) {
                     case 0 -> plugin.getImporters().stream().map(Importer::getName).toList();
-                    case 1 -> List.of("start", "set");
+                    case 1 -> List.of("start", "set", "reset");
                     default -> plugin.getImporters().stream().filter(i -> i.getName().equalsIgnoreCase(args[1]))
                             .flatMap(i -> i.getRequiredParameters().keySet().stream()
                                     .filter(p -> parseKeyValues(args, 3).keySet().stream()
@@ -170,6 +170,7 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
             case "start", "begin" -> importer.start(executor);
             case "set", "config", "configure" -> parseKeyValues(args, 2)
                     .forEach((k, v) -> importer.setValue(executor, k, v, k.equalsIgnoreCase("password")));
+            case "reset" -> importer.reset(executor);
             default -> plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                     .ifPresent(executor::sendMessage);
         }
