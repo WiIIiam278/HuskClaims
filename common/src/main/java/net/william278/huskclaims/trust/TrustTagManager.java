@@ -66,6 +66,10 @@ public interface TrustTagManager {
         return getTrustTags().stream().filter(trustTag -> trustTag.getName().equalsIgnoreCase(tag)).findFirst();
     }
 
+    default Optional<TrustTag> getPublicTrustTag() {
+        return getTrustTags().stream().filter(trustTag -> trustTag instanceof PublicTrustTag).findFirst();
+    }
+
     @NotNull
     HuskClaims getPlugin();
 

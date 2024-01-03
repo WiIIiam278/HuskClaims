@@ -22,6 +22,7 @@ package net.william278.huskclaims.event;
 import net.william278.huskclaims.claim.ServerWorldClaim;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -29,6 +30,7 @@ import java.util.Optional;
 public interface DeleteAllClaimsEvent extends OnlineUserEvent, CancellableEvent {
 
     @NotNull
+    @Unmodifiable
     Collection<ServerWorldClaim> getClaims();
 
     Optional<User> getClaimOwner();
