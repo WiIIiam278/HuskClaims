@@ -35,6 +35,7 @@ import net.william278.huskclaims.user.Preferences;
 import net.william278.huskclaims.user.SavedUser;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
@@ -342,19 +343,21 @@ public class MySqlDatabase extends Database {
     }
 
     @Override
-    public void createOrUpdateUser(@NotNull UUID uuid, @NotNull String name, long totalBlocks, @NotNull Date lastLogin) {
+    public void createOrUpdateUser(@NotNull UUID uuid, @NotNull String name, long totalBlocks, @Nullable Timestamp lastLogin, @NotNull Preferences preferences) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
-                    INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`)
-                    VALUES (?, ?, ?, ?)
-                    ON DUPLICATE KEY UPDATE `username` = ?, `last_login` = ?, `claim_blocks` = ?"""))) {
+                    INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`, `preferences`)
+                    VALUES (?, ?, ?, ?, ?)
+                    ON DUPLICATE KEY UPDATE `username` = ?, `last_login` = ?, `claim_blocks` = ?, `preferences` = ?;"""))) {
                 statement.setString(1, uuid.toString());
                 statement.setString(2, name);
-                statement.setDate(3, lastLogin);
+                statement.setTimestamp(3, lastLogin);
                 statement.setLong(4, totalBlocks);
-                statement.setString(5, name);
-                statement.setDate(6, lastLogin);
-                statement.setLong(7, totalBlocks);
+                statement.setBytes(5, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
+                statement.setString(6, name);
+                statement.setTimestamp(7, lastLogin);
+                statement.setLong(8, totalBlocks);
+                statement.setBytes(9, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
                 statement.executeUpdate();
             }
         } catch (SQLException e) {

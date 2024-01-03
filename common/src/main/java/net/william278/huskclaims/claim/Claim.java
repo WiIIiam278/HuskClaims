@@ -150,7 +150,7 @@ public class Claim implements Highlightable {
     }
 
     @NotNull
-    public static Claim create(@NotNull UUID owner, @NotNull Region region, @NotNull HuskClaims plugin) {
+    public static Claim create(@Nullable UUID owner, @NotNull Region region, @NotNull HuskClaims plugin) {
         return new Claim(owner, region, plugin);
     }
 

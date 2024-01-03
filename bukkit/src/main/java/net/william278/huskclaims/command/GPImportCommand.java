@@ -55,7 +55,8 @@ public class GPImportCommand extends Command {
 
         final String code = args.length == 1 ? args[0] : "";
         final GPImporter importer = plugin.getHook(GPImporter.class).orElseThrow();
-        final String[] credentials = confirm.getOrDefault(code, "").split(" ");
+        String[] credentials = confirm.getOrDefault(code, "").split(" ");
+        credentials = credentials.length == 3 ? credentials : new String[]{"", "", ""};
         final String uri = args.length == 3 ? args[0] : credentials[0];
         final String username = args.length == 3 ? args[1] : credentials[1];
         final String password = args.length == 3 ? args[2] : credentials[2];
@@ -72,14 +73,18 @@ public class GPImportCommand extends Command {
             return;
         }
 
-        try {
-            importer.prepare(Map.of("uri", uri, "username", username, "password", password));
-        } catch (IllegalArgumentException e) {
-            plugin.getLogger().log(Level.SEVERE, "Failed to prepare GP importer", e);
-            return;
-        }
-
-        importer.start(executor);
         confirm.remove(code);
+
+
+        plugin.runAsync(() -> {
+            try {
+                importer.prepare(Map.of("uri", uri, "username", username, "password", password));
+            } catch (IllegalArgumentException e) {
+                plugin.getLogger().log(Level.SEVERE, "Failed to prepare GP importer", e);
+                return;
+            }
+
+            importer.start(executor);
+        });
     }
 }
