@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
 
 public abstract class Importer extends Hook {
     protected Map<String, String> configParameters;
+    protected Map<String, String> defaultParameters;
     @Getter
     private final List<ImportData> supportedData;
     @Getter
@@ -52,6 +53,7 @@ public abstract class Importer extends Hook {
         this.state = ImportState.WAITING;
         this.supportedData = supportedData;
         this.requiredParameters = requiredParams;
+        this.defaultParameters = defaultParams;
         this.configParameters = Maps.newHashMap(defaultParams);
     }
 

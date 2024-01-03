@@ -111,21 +111,23 @@ public class BukkitGriefPreventionImporter extends Importer {
         if (pool != null) {
             pool.shutdown();
         }
+        this.configParameters = Maps.newHashMap(defaultParameters);
+        this.users = Lists.newArrayList();
     }
 
     @Override
     protected int importData(@NotNull ImportData importData, @NotNull CommandUser executor) {
         return switch (importData) {
-            case USERS -> importUsers(executor);
+            case USERS -> importUsers();
             case CLAIMS -> importClaims(executor);
         };
     }
 
-    private int importUsers(@NotNull CommandUser executor) {
+    private int importUsers() {
         final int totalUsers = getTotalUsers();
         final int totalPages = (int) Math.ceil(totalUsers / (double) USERS_PER_PAGE);
         final List<CompletableFuture<List<GriefPreventionUser>>> userPages = IntStream.rangeClosed(1, totalPages)
-                .mapToObj(page -> getUserPage(executor, page)).toList();
+                .mapToObj(this::getUserPage).toList();
         CompletableFuture.allOf(userPages.toArray(CompletableFuture[]::new)).join();
         users = Lists.newArrayList();
         userPages.stream().map(CompletableFuture::join).forEach(users::addAll);
@@ -140,7 +142,7 @@ public class BukkitGriefPreventionImporter extends Importer {
         final int totalPages = (int) Math.ceil(totalClaims / (double) CLAIMS_PER_PAGE);
 
         final List<CompletableFuture<List<GriefPreventionClaim>>> claimPages = IntStream.rangeClosed(1, totalPages)
-                .mapToObj(page -> getClaimPage(executor, page)).toList();
+                .mapToObj(this::getClaimPage).toList();
         CompletableFuture.allOf(claimPages.toArray(CompletableFuture[]::new)).join();
         final List<GriefPreventionClaim> claims = claimPages.stream()
                 .map(CompletableFuture::join)
@@ -148,17 +150,16 @@ public class BukkitGriefPreventionImporter extends Importer {
                 .flatMap(Collection::stream)
                 .toList();
 
-        log(executor, Level.INFO, "Fetching usernames & adjusting claim block balances for %s users."
-                .formatted(users.size()) + " This may take awhile...");
+        log(executor, Level.INFO, "Adjusting claim block balances for %s users...".formatted(users.size()));
         final List<CompletableFuture<Void>> saveFutures = Lists.newArrayList();
         final AtomicInteger amount = new AtomicInteger();
         users.forEach(user -> {
             // Update claim blocks
             final int totalArea = claims.stream()
-                    .filter(c -> c.owner.equals(user.name))
+                    .filter(c -> c.owner.equals(user.uuid.toString()))
                     .mapToInt(c -> {
-                        String[] lesserCorner = c.lesserCorner.split(";");
-                        String[] greaterCorner = c.greaterCorner.split(";");
+                        final String[] lesserCorner = c.lesserCorner.split(";");
+                        final String[] greaterCorner = c.greaterCorner.split(";");
                         int x1 = Integer.parseInt(lesserCorner[1]);
                         int z1 = Integer.parseInt(lesserCorner[3]);
                         int x2 = Integer.parseInt(greaterCorner[1]);
@@ -170,12 +171,6 @@ public class BukkitGriefPreventionImporter extends Importer {
                     .sum();
             user.claimBlocks = Math.max(0, user.claimBlocks - totalArea);
 
-            // Update username
-            final OfflinePlayer player = ((BukkitHuskClaims) plugin).getServer().getOfflinePlayer(user.uuid);
-            if (player.hasPlayedBefore()) {
-                user.name = player.getName();
-            }
-
             saveFutures.add(CompletableFuture.runAsync(
                     () -> {
                         plugin.getDatabase().createOrUpdateUser(
@@ -183,7 +178,7 @@ public class BukkitGriefPreventionImporter extends Importer {
                         );
                         plugin.invalidateClaimListCache(user.uuid);
                         if (amount.incrementAndGet() % USERS_PER_PAGE == 0) {
-                            log(executor, Level.INFO, "Updated %s users...".formatted(amount.get()));
+                            log(executor, Level.INFO, "Adjusted %s users...".formatted(amount.get()));
                         }
                     }, pool
             ));
@@ -276,7 +271,7 @@ public class BukkitGriefPreventionImporter extends Importer {
         return 0;
     }
 
-    private CompletableFuture<List<GriefPreventionClaim>> getClaimPage(@NotNull CommandUser user, int page) {
+    private CompletableFuture<List<GriefPreventionClaim>> getClaimPage(int page) {
         final List<GriefPreventionClaim> claims = Lists.newArrayList();
         return CompletableFuture.supplyAsync(() -> {
             try (Connection connection = dataSource.getConnection();
@@ -302,8 +297,6 @@ public class BukkitGriefPreventionImporter extends Importer {
                             resultSet.getInt("parentid")
                     ));
                 }
-                int imported = ((page * CLAIMS_PER_PAGE) - CLAIMS_PER_PAGE) + claims.size();
-                log(user, Level.INFO, "Fetched %s claims/subdivisions...".formatted(imported));
                 return claims;
             } catch (Throwable e) {
                 plugin.log(Level.WARNING, "Exception getting claim page #%s from GP database".formatted(page), e);
@@ -344,7 +337,7 @@ public class BukkitGriefPreventionImporter extends Importer {
         return trusted;
     }
 
-    private CompletableFuture<List<GriefPreventionUser>> getUserPage(@NotNull CommandUser user, int page) {
+    private CompletableFuture<List<GriefPreventionUser>> getUserPage(int page) {
         final List<GriefPreventionUser> users = Lists.newArrayList();
         return CompletableFuture.supplyAsync(() -> {
             try (Connection connection = dataSource.getConnection();
@@ -360,11 +353,10 @@ public class BukkitGriefPreventionImporter extends Importer {
                     users.add(new GriefPreventionUser(
                             UUID.fromString(resultSet.getString("name")),
                             resultSet.getTimestamp("lastlogin"),
-                            resultSet.getInt("claimblocks")
+                            resultSet.getInt("claimblocks"),
+                            (BukkitHuskClaims) plugin
                     ));
                 }
-                int imported = ((page * USERS_PER_PAGE) - USERS_PER_PAGE) + users.size();
-                log(user, Level.INFO, "Imported %s users...".formatted(imported));
             } catch (Throwable e) {
                 plugin.log(Level.WARNING, "Exception getting user page #%s from GP database".formatted(page), e);
             }
@@ -406,11 +398,18 @@ public class BukkitGriefPreventionImporter extends Importer {
         private final Timestamp lastLogin;
         private int claimBlocks;
 
-        private GriefPreventionUser(@NotNull UUID uuid, @NotNull Timestamp lastLogin, int claimBlocks) {
+        private GriefPreventionUser(@NotNull UUID uuid, @NotNull Timestamp lastLogin, int claimBlocks,
+                                    @NotNull BukkitHuskClaims plugin) {
             this.uuid = uuid;
-            this.name = uuid.toString().substring(0, 8);
             this.lastLogin = lastLogin;
             this.claimBlocks = claimBlocks;
+
+            final OfflinePlayer player = plugin.getServer().getOfflinePlayer(uuid);
+            if (player.hasPlayedBefore()) {
+                this.name = player.getName();
+            } else {
+                this.name = uuid.toString().substring(0, 8);
+            }
         }
 
         @NotNull
