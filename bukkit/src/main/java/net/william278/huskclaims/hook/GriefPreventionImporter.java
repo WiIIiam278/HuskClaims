@@ -62,7 +62,11 @@ public class GriefPreventionImporter extends Importer {
         super(
                 "GriefPrevention",
                 List.of(ImportData.USERS, ImportData.CLAIMS),
-                Set.of("uri", "username", "password"),
+                Map.of(
+                        "uri", true,
+                        "username", true,
+                        "password", false
+                ),
                 plugin
         );
     }

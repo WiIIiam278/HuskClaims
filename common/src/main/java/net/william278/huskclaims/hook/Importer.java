@@ -33,7 +33,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -47,12 +46,12 @@ public abstract class Importer extends Hook {
     @Getter
     private final List<ImportData> supportedData;
     @Getter
-    private Set<String> requiredParameters;
+    private Map<String, Boolean> requiredParameters;
     @Getter
     private ImportState state;
 
     protected Importer(@NotNull String name, @NotNull List<ImportData> supportedData,
-                       @NotNull Set<String> requiredParameters, @NotNull HuskClaims plugin) {
+                       @NotNull Map<String, Boolean> requiredParameters, @NotNull HuskClaims plugin) {
         super(name, plugin);
         this.configParameters = Maps.newHashMap();
         this.name = name;
@@ -76,7 +75,7 @@ public abstract class Importer extends Hook {
     }
 
     public void setValue(@NotNull CommandUser user, @NotNull String param, @NotNull String value, boolean sensitive) {
-        if (!requiredParameters.contains(param)) {
+        if (!requiredParameters.containsKey(param)) {
             log(user, Level.WARNING, "❌ Unknown parameter: %s".formatted(param));
             return;
         }
@@ -92,9 +91,9 @@ public abstract class Importer extends Hook {
         }
 
         // Ensure parameters are set
-        final String missingParameters = requiredParameters.stream()
-                .filter(parameter -> !configParameters.containsKey(parameter))
-                .collect(Collectors.joining(", "));
+        final String missingParameters = requiredParameters.entrySet().stream()
+                .filter(parameter -> !configParameters.containsKey(parameter.getKey()) && parameter.getValue())
+                .map(Map.Entry::getKey).collect(Collectors.joining(", "));
         if (!missingParameters.isEmpty()) {
             log(user, Level.WARNING, "❌ Missing required parameters: %s".formatted(missingParameters));
             return;
