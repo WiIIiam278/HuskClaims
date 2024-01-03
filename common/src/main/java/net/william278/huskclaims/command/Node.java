@@ -20,6 +20,7 @@
 package net.william278.huskclaims.command;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import lombok.Getter;
 import lombok.Setter;
 import net.william278.huskclaims.HuskClaims;
@@ -89,7 +90,7 @@ public abstract class Node implements Executable {
     }
 
     @NotNull
-    protected List<String> parseDistinctNameList(@NotNull String[] args, int index) {
+    protected List<String> parseStringList(@NotNull String[] args, int index) {
         final List<String> names = Lists.newArrayList();
         if (args.length <= index) {
             return names;
@@ -98,6 +99,19 @@ public abstract class Node implements Executable {
                 .filter(n -> names.stream().noneMatch(n::equalsIgnoreCase))
                 .forEach(names::add);
         return names;
+    }
+
+    @NotNull
+    protected Map<String, String> parseKeyValues(@NotNull String[] args, int index) {
+        final List<String> list = parseStringList(args, index);
+        final Map<String, String> map = Maps.newHashMap();
+        for (String s : list) {
+            final String[] split = s.split(":");
+            if (split.length == 2) {
+                map.put(split[0], split[1]);
+            }
+        }
+        return map;
     }
 
     protected Optional<String> parseStringArg(@NotNull String[] args, int index) {

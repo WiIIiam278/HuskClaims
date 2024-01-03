@@ -31,7 +31,6 @@ import net.william278.desertwell.util.Version;
 import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.command.BukkitCommand;
 import net.william278.huskclaims.command.Command;
-import net.william278.huskclaims.command.GPImportCommand;
 import net.william278.huskclaims.config.Locales;
 import net.william278.huskclaims.config.Server;
 import net.william278.huskclaims.config.Settings;
@@ -207,8 +206,6 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
 
     @Override
     public void registerCommands(@NotNull List<Command> commands) {
-        commands.add(new GPImportCommand(this));
-
         commands.forEach(command -> {
             new BukkitCommand(command, this).register();
             this.commands.add(command);

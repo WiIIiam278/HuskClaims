@@ -17,15 +17,13 @@
  *  limitations under the License.
  */
 
-package net.william278.huskclaims.importer;
+package net.william278.huskclaims.hook;
 
-import lombok.AccessLevel;
+import com.google.common.collect.Maps;
 import lombok.Getter;
-import lombok.Setter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.william278.huskclaims.HuskClaims;
-import net.william278.huskclaims.hook.Hook;
 import net.william278.huskclaims.user.CommandUser;
 import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
@@ -33,55 +31,94 @@ import org.jetbrains.annotations.NotNull;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
-@Getter
 public abstract class Importer extends Hook {
 
     protected final HuskClaims plugin;
-    private final String name;
-    private final List<ImportData> supportedImportData;
-    private boolean active;
+    protected Map<String, String> configParameters;
 
-    protected Importer(@NotNull String name, @NotNull List<ImportData> supportedData, @NotNull HuskClaims plugin) {
-        super(name + " Importer", plugin);
+    @Getter
+    private final String name;
+    @Getter
+    private final List<ImportData> supportedData;
+    @Getter
+    private Set<String> requiredParameters;
+    @Getter
+    private ImportState state;
+
+    protected Importer(@NotNull String name, @NotNull List<ImportData> supportedData,
+                       @NotNull Set<String> requiredParameters, @NotNull HuskClaims plugin) {
+        super(name, plugin);
+        this.configParameters = Maps.newHashMap();
         this.name = name;
-        this.supportedImportData = supportedData;
+        this.supportedData = supportedData;
         this.plugin = plugin;
-        this.active = false;
+        this.requiredParameters = requiredParameters;
+        this.state = ImportState.WAITING;
     }
 
     @Override
     public final void load() {
     }
 
-    public abstract void prepare(@NotNull Map<String, String> args);
-
-    public final void start(@NotNull CommandUser user) {
-        if (active) {
-            log(user, Level.WARNING, "❌ Import already in progress");
+    public void setValue(@NotNull CommandUser user, @NotNull String param, @NotNull String value, boolean sensitive) {
+        if (!requiredParameters.contains(param)) {
+            log(user, Level.WARNING, "❌ Unknown parameter: %s".formatted(param));
             return;
         }
-        active = true;
+        configParameters.put(param, value);
+        log(user, Level.INFO, "✔ Set %s → %s".formatted(param, !sensitive ? value : "*".repeat(value.length())));
+    }
+
+    public final void start(@NotNull CommandUser user) {
+        // Ensure the importer is enabled
+        if (state != ImportState.WAITING) {
+            log(user, Level.WARNING, "❌ Import is %s".formatted(state.name().toLowerCase(Locale.ENGLISH)));
+            return;
+        }
+
+        // Ensure parameters are set
+        final String missingParameters = requiredParameters.stream()
+                .filter(parameter -> !configParameters.containsKey(parameter))
+                .collect(Collectors.joining(", "));
+        if (!missingParameters.isEmpty()) {
+            log(user, Level.WARNING, "❌ Missing required parameters: %s".formatted(missingParameters));
+            return;
+        }
+
+        // Start import
         final LocalDateTime startTime = LocalDateTime.now();
         log(user, Level.INFO, "⌚ Starting " + name + " data import...");
+        state = ImportState.ACTIVE;
 
-        for (ImportData data : supportedImportData) {
+        // Prepare
+        prepareImport();
+
+        // Import data
+        for (ImportData data : supportedData) {
             try {
                 log(user, Level.INFO, "⌚ Importing " + data.getName() + "...");
                 final int entries = importData(data);
                 log(user, Level.INFO, "✔ Imported " + data.getName() + " (" + entries + " entries)");
             } catch (Throwable e) {
-                log(user, Level.WARNING, "❌ Failed to import " + data.getName() + ": " + e.getMessage(), e);
+                log(user, Level.WARNING, String.format("❌ Failed to import %s: %s", data.getName(), e.getMessage()), e);
+                state = ImportState.WAITING;
                 return;
             }
         }
 
+        // Finish import
         final long timeTaken = startTime.until(LocalDateTime.now(), ChronoUnit.SECONDS);
         log(user, Level.INFO, "✔ Completed import from " + name + " (took " + timeTaken + "s)");
-        active = false;
+        state = ImportState.DONE;
     }
+
+    protected abstract void prepareImport();
 
     protected abstract int importData(@NotNull ImportData importData) throws Throwable;
 
@@ -90,8 +127,7 @@ public abstract class Importer extends Hook {
         message = "[Importer] " + message;
         if (user instanceof OnlineUser online) {
             final TextColor color = level == Level.SEVERE || level == Level.WARNING
-                    ? TextColor.color(0xff3300)
-                    : TextColor.color(0xC3C3C3);
+                    ? TextColor.color(0xff3300) : TextColor.color(0xC3C3C3);
             online.sendMessage(Component.text(message, color));
         }
         plugin.log(level, message, e);
@@ -114,6 +150,15 @@ public abstract class Importer extends Hook {
         public String getName() {
             return name;
         }
+    }
+
+    /**
+     * Represents the state of an import.
+     */
+    public enum ImportState {
+        WAITING,
+        ACTIVE,
+        DONE
     }
 
 }
