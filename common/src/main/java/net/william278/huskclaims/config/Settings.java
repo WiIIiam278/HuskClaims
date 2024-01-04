@@ -95,7 +95,7 @@ public final class Settings {
             String database = "huskclaims";
             String username = "root";
             String password = "pa55w0rd";
-            String parameters = "?autoReconnect=true&useSSL=false&useUnicode=true&characterEncoding=UTF-8";
+            String parameters = "?autoReconnect=true&useSSL=false&useUnicode=true&characterEncoding=UTF-8&allowPublicKeyRetrieval=true";
         }
 
         @Getter

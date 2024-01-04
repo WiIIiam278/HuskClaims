@@ -102,10 +102,10 @@ public interface HookProvider extends MapHookProvider {
                 hooks.add(new DynmapHook(getPlugin()));
             }
             if (isDependencyAvailable("BlueMap")) {
-//                hooks.add(new DynmapHook(getPlugin()));
+                hooks.add(new BlueMapHook(getPlugin()));
             }
             if (isDependencyAvailable("Pl3xMap")) {
-//                hooks.add(new DynmapHook(getPlugin()));
+                hooks.add(new Pl3xMapHook(getPlugin()));
             }
         }
 

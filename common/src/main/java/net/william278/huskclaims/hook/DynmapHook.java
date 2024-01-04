@@ -156,17 +156,6 @@ public class DynmapHook extends MapHook {
         marker.setLabel(label);
     }
 
-    @NotNull
-    private String getClaimMarkerKey(@NotNull Claim claim, @NotNull ClaimWorld world) {
-        return plugin.getKey(
-                Integer.toString(claim.getRegion().getNearCorner().getBlockX()),
-                Integer.toString(claim.getRegion().getNearCorner().getBlockZ()),
-                Integer.toString(claim.getRegion().getFarCorner().getBlockX()),
-                Integer.toString(claim.getRegion().getFarCorner().getBlockZ()),
-                Integer.toString(world.getId())
-        ).toString();
-    }
-
     private Optional<DynmapCommonAPI> getDynmap() {
         return Optional.ofNullable(dynmapApi);
     }
