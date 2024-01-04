@@ -66,6 +66,7 @@ import space.arim.morepaperlib.MorePaperLib;
 
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 
@@ -76,14 +77,14 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
 
     private MorePaperLib morePaperLib;
     private AudienceProvider audiences;
-    private final Set<TrustTag> trustTags = Sets.newConcurrentHashSet();
+    private final Set<TrustTag> trustTags = ConcurrentHashMap.newKeySet();
     private final ConcurrentMap<String, List<User>> globalUserList = Maps.newConcurrentMap();
     private final ConcurrentMap<UUID, ClaimSelection> claimSelections = Maps.newConcurrentMap();
     private final ConcurrentMap<UUID, SavedUser> userCache = Maps.newConcurrentMap();
     private final List<Command> commands = Lists.newArrayList();
     private final HashMap<String, ClaimWorld> claimWorlds = Maps.newHashMap();
     @Setter
-    private Set<UserGroup> userGroups = Sets.newConcurrentHashSet();
+    private Set<UserGroup> userGroups = ConcurrentHashMap.newKeySet();
     @Setter
     private Set<Hook> hooks = Sets.newHashSet();
     @Setter

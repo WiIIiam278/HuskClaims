@@ -197,7 +197,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
 
         // Adjust the owner's claim block count
         claim.getOwner().flatMap(world::getUser).ifPresent(user -> getPlugin().editClaimBlocks(
-                user, UserManager.ClaimBlockSource.HOURLY_BLOCKS, (blocks -> blocks - neededBlocks))
+                user, UserManager.ClaimBlockSource.CLAIM_RESIZED, (blocks -> blocks - neededBlocks))
         );
     }
 

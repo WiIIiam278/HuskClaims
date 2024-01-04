@@ -544,9 +544,10 @@ public interface ClaimEditor {
 
         @Override
         @NotNull
-        public Map<Region.Point, Type> getHighlightPoints(@NotNull ClaimWorld world, boolean showOverlap) {
+        public Map<Region.Point, Type> getHighlightPoints(@NotNull ClaimWorld world, boolean showOverlap,
+                                                          @NotNull BlockPosition viewer, long range) {
             return isResizeSelection() && claimBeingResized != null
-                    ? claimBeingResized.getHighlightPoints(world, showOverlap)
+                    ? claimBeingResized.getHighlightPoints(world, showOverlap, viewer, range)
                     : Map.of(Region.Point.wrap(selectedPosition), Type.SELECTION);
         }
     }

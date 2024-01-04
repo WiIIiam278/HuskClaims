@@ -49,9 +49,23 @@ public interface BlockPosition {
      *
      * @param other The other block position
      * @return the square surface area between two block positions
+     * @since 1.0
      */
     default int getSurfaceArea(@NotNull BlockPosition other) {
         return Math.abs(getBlockX() - other.getBlockX()) * Math.abs(getBlockZ() - other.getBlockZ());
+    }
+
+    /**
+     * Get the distance between two block positions
+     *
+     * @param other The other block position
+     * @return the distance between two block positions
+     * @since 1.0
+     */
+    default long distanceFrom(@NotNull BlockPosition other) {
+        return Math.round(Math.sqrt(
+                Math.pow(getBlockX() - other.getBlockX(), 2) + Math.pow(getBlockZ() - other.getBlockZ(), 2)
+        ));
     }
 
 }

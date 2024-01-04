@@ -39,11 +39,12 @@ import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -51,17 +52,17 @@ public class ClaimWorld {
 
     private transient int id;
     @Expose
-    private Set<Claim> claims;
+    private CopyOnWriteArraySet<Claim> claims;
     @Expose
     @SerializedName("user_cache")
     private ConcurrentMap<UUID, String> userCache;
     @Expose
     @SerializedName("wilderness_flags")
-    private List<OperationType> wildernessFlags;
+    private ArrayList<OperationType> wildernessFlags;
 
     private ClaimWorld(@NotNull HuskClaims plugin) {
         this.id = 0;
-        this.claims = Sets.newConcurrentHashSet();
+        this.claims = Sets.newCopyOnWriteArraySet();
         this.userCache = Maps.newConcurrentMap();
         this.wildernessFlags = Lists.newArrayList(plugin.getSettings().getClaims().getWildernessRules());
     }

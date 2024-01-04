@@ -19,14 +19,15 @@
 
 package net.william278.huskclaims.highlighter;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+import com.google.common.collect.Sets;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.ClaimWorld;
+import net.william278.huskclaims.claim.Region;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.position.World;
 import net.william278.huskclaims.user.OnlineUser;
@@ -37,6 +38,8 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public abstract class BlockHighlighter<B extends BlockHighlighter.HighlightBlock> implements Highlighter {
+
+    public static final int VIEWING_RANGE = 78;
 
     protected final HuskClaims plugin;
     protected final Multimap<UUID, HighlightBlock> replacedBlocks;
@@ -51,31 +54,30 @@ public abstract class BlockHighlighter<B extends BlockHighlighter.HighlightBlock
     @Override
     public void startHighlighting(@NotNull OnlineUser user, @NotNull World world,
                                   @NotNull Collection<? extends Highlightable> toHighlight, boolean showOverlap) {
+        final Optional<ClaimWorld> optionalClaimWorld = plugin.getClaimWorld(world);
+        if (optionalClaimWorld.isEmpty()) {
+            return;
+        }
+        final ClaimWorld claimWorld = optionalClaimWorld.get();
+
+        // Get the point map to be highlighted
+        final Set<B> highlightBlocks = Sets.newHashSet();
+        final Position position = user.getPosition();
+        final Map<Region.Point, Highlightable.Type> points = Maps.newHashMap();
+        toHighlight.forEach(h -> points.putAll(h.getHighlightPoints(claimWorld, showOverlap, position, VIEWING_RANGE)));
+
+        // Synchronously highlight
         plugin.runSync(() -> {
-            final Optional<ClaimWorld> optionalClaimWorld = plugin.getClaimWorld(world);
-            if (optionalClaimWorld.isEmpty()) {
-                return;
-            }
-
-            final ClaimWorld claimWorld = optionalClaimWorld.get();
-            final List<B> highlightBlocks = Lists.newArrayList();
-            final Position position = user.getPosition();
-            final Map<HighlightBlock, Highlightable.Type> totalBlocks = Maps.newHashMap();
-            for (Highlightable highlight : toHighlight) {
-                final Map<BlockHighlighter.HighlightBlock, Highlightable.Type> blocks = plugin
-                        .getSurfaceBlocksAt(highlight.getHighlightPoints(claimWorld, showOverlap), world, position);
-                totalBlocks.putAll(blocks);
-            }
-
+            final Map<HighlightBlock, Highlightable.Type> blocks = plugin.getSurfaceBlocksAt(points, world, position);
             final Collection<HighlightBlock> userBlocks = replacedBlocks.get(user.getUuid());
-            if (!userBlocks.isEmpty() && userBlocks.size() == totalBlocks.size()
-                    && totalBlocks.entrySet().stream().allMatch(b -> userBlocks.stream()
+            if (!userBlocks.isEmpty() && userBlocks.size() == blocks.size()
+                    && blocks.entrySet().stream().allMatch(b -> userBlocks.stream()
                     .anyMatch(b2 -> b2.getPosition().equals(b.getKey().position)))) {
                 return;
             }
 
             this.stopHighlighting(user);
-            totalBlocks.forEach((b, t) -> {
+            blocks.forEach((b, t) -> {
                 B block = getHighlightBlock(b.getPosition(), t, plugin);
                 replacedBlocks.put(user.getUuid(), block);
                 highlightBlocks.add(block);

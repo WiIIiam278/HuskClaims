@@ -19,23 +19,32 @@
 
 package net.william278.huskclaims.user;
 
+import com.google.common.collect.Maps;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import lombok.*;
 import net.william278.huskclaims.claim.ClaimingMode;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.TreeMap;
+
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
-public class Preferences {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class Preferences implements AuditLogger {
 
     /**
-     * Default preferences
+     * Default preferences for new users
      */
     @NotNull
-    public static Preferences DEFAULTS = new Preferences();
+    public static Preferences DEFAULTS = new Preferences(Action.REGISTERED);
+
+    /**
+     * Preferences for users who have imported their data from another plugin
+     */
+    @NotNull
+    public static Preferences IMPORTED = new Preferences(Action.USER_IMPORTED);
 
     @Setter
     @Expose
@@ -44,11 +53,15 @@ public class Preferences {
 
     @Expose
     @SerializedName("audit_log")
-    private AuditLog auditLog = new AuditLog();
+    private TreeMap<String, Entry> logEntries = Maps.newTreeMap();
 
     @Setter
     @Expose
     @SerializedName("claiming_mode")
     private ClaimingMode claimingMode = ClaimingMode.CLAIMS;
+
+    private Preferences(@NotNull Action openAction) {
+        log(openAction);
+    }
 
 }

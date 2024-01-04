@@ -174,7 +174,7 @@ public class BukkitGriefPreventionImporter extends Importer {
             saveFutures.add(CompletableFuture.runAsync(
                     () -> {
                         plugin.getDatabase().createOrUpdateUser(
-                                user.uuid, user.name, user.claimBlocks, user.getLastLogin(), Preferences.DEFAULTS
+                                user.uuid, user.name, user.claimBlocks, user.getLastLogin(), Preferences.IMPORTED
                         );
                         plugin.invalidateClaimListCache(user.uuid);
                         if (amount.incrementAndGet() % USERS_PER_PAGE == 0) {

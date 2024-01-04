@@ -26,7 +26,6 @@ import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.user.BukkitUser;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.util.BlockDataBlock;
-import net.william278.huskclaims.util.BlockProvider;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.entity.BlockDisplay;
@@ -105,7 +104,7 @@ public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighli
                     location, EntityType.BLOCK_DISPLAY
             );
             display.setBlock(((BlockDataBlock) this.block).getData());
-            display.setViewRange(BlockProvider.BLOCK_VIEW_DISTANCE);
+            display.setViewRange(BlockHighlighter.VIEWING_RANGE);
             display.setGravity(false);
             display.setPersistent(false);
             display.setBrightness(FULL_BRIGHT);

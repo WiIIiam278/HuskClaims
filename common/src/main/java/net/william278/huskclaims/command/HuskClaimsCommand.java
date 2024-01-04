@@ -31,13 +31,16 @@ import net.william278.huskclaims.config.Locales;
 import net.william278.huskclaims.hook.HuskHomesHook;
 import net.william278.huskclaims.hook.Importer;
 import net.william278.huskclaims.position.Position;
+import net.william278.huskclaims.user.AuditLogger;
 import net.william278.huskclaims.user.CommandUser;
 import net.william278.huskclaims.user.OnlineUser;
+import net.william278.huskclaims.user.SavedUser;
 import net.william278.paginedown.PaginatedList;
 import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
 import java.util.logging.Level;
@@ -46,11 +49,12 @@ import java.util.stream.IntStream;
 
 public class HuskClaimsCommand extends Command implements TabCompletable {
 
-    private static final int COMMANDS_PER_HELP_PAGE = 8;
+    private static final int ITEMS_PER_LIST_PAGE = 8;
     private static final Map<String, Boolean> SUB_COMMANDS = Map.of(
             "about", false,
             "help", false,
             "teleport", true,
+            "logs", true,
             "status", true,
             "import", true,
             "reload", true,
@@ -99,6 +103,7 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
                     getCommandList(executor).getNearestValidPage(parseIntArg(args, 1).orElse(1))
             );
             case "teleport" -> handleTeleportCommand(executor, removeFirstArg(args));
+            case "logs" -> handleLogsCommand(executor, removeFirstArg(args));
             case "status" -> {
                 getPlugin().getLocales().getLocale("system_status_header").ifPresent(executor::sendMessage);
                 executor.sendMessage(Component.join(
@@ -176,6 +181,41 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
         }
     }
 
+    private void handleLogsCommand(@NotNull CommandUser executor, @NotNull String[] args) {
+        final Optional<SavedUser> optionalUser = parseStringArg(args, 0).flatMap(plugin.getDatabase()::getUser);
+        if (optionalUser.isEmpty()) {
+            plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        final SavedUser user = optionalUser.get();
+        final List<AuditLogger.TimestampedEntry> auditLog = user.getPreferences().getTimestampedLogEntries();
+        if (auditLog.isEmpty()) {
+            plugin.getLocales().getLocale("error_invalid_user", user.getUser().getName())
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        final Locales locales = plugin.getLocales();
+        final PaginatedList list = PaginatedList.of(auditLog
+                .stream().map(
+                        entry -> locales.getRawLocale("audit_log_row",
+                                DateTimeFormatter.ofPattern("dd MMM, yyyy HH:mm").format(entry.timestamp()),
+                                Locales.escapeText(entry.entry().getAction().getFormattedName()),
+                                entry.entry().getUser() != null ? Locales.escapeText(entry.entry().getUser().getName()) : "",
+                                entry.entry().getMessage() != null ? Locales.escapeText(entry.entry().getMessage()) : ""
+                        ).orElse("")
+                ).toList(),
+                locales.getBaseList(ITEMS_PER_LIST_PAGE)
+                        .setItemSeparator("\n").setCommand("/%s log".formatted(getName()))
+                        .setHeaderFormat(locales.getRawLocale("audit_log_header",
+                                Locales.escapeText(user.getUser().getName())).orElse(""))
+                        .build()
+        );
+        executor.sendMessage(list.getNearestValidPage(parseIntArg(args, 1).orElse(1)));
+    }
+
     private void handleTeleportCommand(@NotNull CommandUser executor, @NotNull String[] args) {
         final Optional<Position> position = parsePositionArgs(args, 0)
                 .or(() -> parsePositionArgs(args, 1));
@@ -205,9 +245,9 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
                                 Locales.escapeText(command.getDescription())
                         ).orElse(command.getUsage()))
                         .toList(),
-                locales.getBaseList(COMMANDS_PER_HELP_PAGE)
+                locales.getBaseList(ITEMS_PER_LIST_PAGE)
                         .setHeaderFormat(locales.getRawLocale("command_list_header").orElse(""))
-                        .setItemSeparator("\n").setCommand(String.format("/%s help", getName()))
+                        .setItemSeparator("\n").setCommand("/%s help".formatted(getName()))
                         .build()
         );
     }

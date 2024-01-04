@@ -22,7 +22,6 @@ package net.william278.huskclaims.database;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
-import com.google.common.collect.Sets;
 import com.google.gson.JsonSyntaxException;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.ClaimWorld;
@@ -42,6 +41,7 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 
@@ -376,7 +376,7 @@ public class SqLiteDatabase extends Database {
                 SELECT `uuid`, `name`, `members`
                 FROM `%user_group_data%`"""))) {
             final ResultSet resultSet = statement.executeQuery();
-            final Set<UserGroup> userGroups = Sets.newConcurrentHashSet();
+            final Set<UserGroup> userGroups = ConcurrentHashMap.newKeySet();
             while (resultSet.next()) {
                 userGroups.add(new UserGroup(
                         UUID.fromString(resultSet.getString("uuid")),
@@ -390,7 +390,7 @@ public class SqLiteDatabase extends Database {
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to fetch user groups from table", e);
         }
-        return Sets.newConcurrentHashSet();
+        return ConcurrentHashMap.newKeySet();
     }
 
     @Override

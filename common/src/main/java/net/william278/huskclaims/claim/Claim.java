@@ -32,6 +32,7 @@ import net.william278.cloplib.operation.Operation;
 import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.highlighter.Highlightable;
+import net.william278.huskclaims.position.BlockPosition;
 import net.william278.huskclaims.trust.TrustLevel;
 import net.william278.huskclaims.trust.TrustTag;
 import net.william278.huskclaims.trust.Trustable;
@@ -511,13 +512,15 @@ public class Claim implements Highlightable {
 
     @Override
     @NotNull
-    public Map<Region.Point, Type> getHighlightPoints(@NotNull ClaimWorld world, boolean showOverlap) {
+    public Map<Region.Point, Type> getHighlightPoints(@NotNull ClaimWorld world, boolean showOverlap,
+                                                      @NotNull BlockPosition viewer, long range) {
         final Optional<Claim> parent = getParent(world);
         return region.getHighlightPoints(
                 showOverlap,
                 parent.isPresent(),
                 parent.map(claim -> claim.getOwner().isEmpty())
-                        .orElse(getOwner().isEmpty())
+                        .orElse(getOwner().isEmpty()),
+                viewer, range
         );
     }
 

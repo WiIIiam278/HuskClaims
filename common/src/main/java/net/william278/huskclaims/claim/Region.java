@@ -19,6 +19,7 @@
 
 package net.william278.huskclaims.claim;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -245,46 +246,57 @@ public class Region {
     }
 
     @NotNull
-    public Map<Point, Highlightable.Type> getHighlightPoints(boolean overlap, boolean isChild, boolean isAdmin) {
+    public Map<Point, Highlightable.Type> getHighlightPoints(boolean overlap, boolean isChild, boolean isAdmin,
+                                                             @NotNull BlockPosition viewer, long range) {
         final Map<Point, Highlightable.Type> positions = Maps.newHashMap();
 
-        // X boundaries
-        final Highlightable.Type edge = getClaimType(overlap, isChild, isAdmin, false);
-        addEdgePoints(positions, edge);
+        // Add border points
+        final Highlightable.Type border = getClaimType(overlap, isChild, isAdmin, false);
+        addEdgePoints(positions, border, viewer, range);
+        addLShapedCorners(positions, border, viewer, range);
 
-        // Add corners
+        // Add corner points
         final Highlightable.Type corner = getClaimType(overlap, isChild, isAdmin, true);
-        getCorners().forEach((c) -> positions.put(c, corner));
+        getCorners().stream().filter(c -> c.distanceFrom(viewer) < range).forEach((c) -> positions.put(c, corner));
 
         return positions;
     }
 
-    private void addEdgePoints(@NotNull Map<Point, Highlightable.Type> positions,
-                               @NotNull Highlightable.Type type) {
-        // X boundaries
-        for (int x = nearCorner.getBlockX() + STEP; x < farCorner.getBlockX(); x += STEP) {
+    // X and Z edges
+    private void addEdgePoints(@NotNull Map<Point, Highlightable.Type> positions, @NotNull Highlightable.Type type,
+                               @NotNull BlockPosition viewer, long range) {
+        // X edges
+        for (int x = nearCorner.getBlockX() + STEP; x < farCorner.getBlockX()
+                && Math.abs(x - viewer.getBlockX()) < range; x += STEP) {
             positions.put(Point.at(x, nearCorner.getBlockZ()), type);
             positions.put(Point.at(x, farCorner.getBlockZ()), type);
         }
-        // Z boundaries
-        for (int z = nearCorner.getBlockZ() + STEP; z < farCorner.getBlockZ(); z += STEP) {
+
+        // Z edges
+        for (int z = nearCorner.getBlockZ() + STEP; z < farCorner.getBlockZ()
+                && Math.abs(z - viewer.getBlockZ()) < range; z += STEP) {
             positions.put(Point.at(nearCorner.getBlockX(), z), type);
             positions.put(Point.at(farCorner.getBlockX(), z), type);
         }
+    }
 
-        // L-shaped corners (Z/X axis)
+    // L-shaped corners
+    private void addLShapedCorners(@NotNull Map<Point, Highlightable.Type> positions, @NotNull Highlightable.Type type,
+                                   @NotNull BlockPosition viewer, long range) {
+        final List<Point> cornerPoints = Lists.newArrayList();
         if (Math.abs(farCorner.getBlockZ() - nearCorner.getBlockZ()) > 2) {
-            positions.put(Point.at(nearCorner.getBlockX(), nearCorner.getBlockZ() + 1), type);
-            positions.put(Point.at(farCorner.getBlockX(), nearCorner.getBlockZ() + 1), type);
-            positions.put(Point.at(nearCorner.getBlockX(), farCorner.getBlockZ() - 1), type);
-            positions.put(Point.at(farCorner.getBlockX(), farCorner.getBlockZ() - 1), type);
+            cornerPoints.add(Point.at(nearCorner.getBlockX(), nearCorner.getBlockZ() + 1));
+            cornerPoints.add(Point.at(farCorner.getBlockX(), nearCorner.getBlockZ() + 1));
+            cornerPoints.add(Point.at(nearCorner.getBlockX(), farCorner.getBlockZ() - 1));
+            cornerPoints.add(Point.at(farCorner.getBlockX(), farCorner.getBlockZ() - 1));
         }
         if (Math.abs(farCorner.getBlockX() - nearCorner.getBlockX()) > 2) {
-            positions.put(Point.at(nearCorner.getBlockX() + 1, nearCorner.getBlockZ()), type);
-            positions.put(Point.at(farCorner.getBlockX() - 1, nearCorner.getBlockZ()), type);
-            positions.put(Point.at(nearCorner.getBlockX() + 1, farCorner.getBlockZ()), type);
-            positions.put(Point.at(farCorner.getBlockX() - 1, farCorner.getBlockZ()), type);
+            cornerPoints.add(Point.at(nearCorner.getBlockX() + 1, nearCorner.getBlockZ()));
+            cornerPoints.add(Point.at(farCorner.getBlockX() - 1, nearCorner.getBlockZ()));
+            cornerPoints.add(Point.at(nearCorner.getBlockX() + 1, farCorner.getBlockZ()));
+            cornerPoints.add(Point.at(farCorner.getBlockX() - 1, farCorner.getBlockZ()));
         }
+        cornerPoints.stream().filter(c -> c.distanceFrom(viewer) < range).forEach((c) -> positions.put(c, type));
     }
 
     /**

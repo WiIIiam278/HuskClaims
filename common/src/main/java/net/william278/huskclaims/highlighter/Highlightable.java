@@ -35,11 +35,16 @@ public interface Highlightable {
     /**
      * Get the positions to be highlighted
      *
+     * @param world       the {@link ClaimWorld} to get the positions for
+     * @param showOverlap whether to show overlap
+     * @param viewer      the {@link BlockPosition} of the viewer
+     * @param range       the range to get the positions for
      * @return a {@link List} of {@link BlockPosition}s
      * @since 1.0
      */
     @NotNull
-    Map<Region.Point, Type> getHighlightPoints(@NotNull ClaimWorld world, boolean showOverlap);
+    Map<Region.Point, Type> getHighlightPoints(@NotNull ClaimWorld world, boolean showOverlap,
+                                               @NotNull BlockPosition viewer, long range);
 
     enum Type {
         CORNER,

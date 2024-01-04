@@ -22,6 +22,7 @@ package net.william278.huskclaims.user;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.network.Message;
 import net.william278.huskclaims.network.Payload;
+import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -103,7 +104,7 @@ public interface UserManager {
         getPlugin().fireClaimBlocksChangeEvent(
                 user, originalBlocks, newBlocks, source,
                 (event) -> editUser(user.getUuid(), (savedUser) -> {
-                    savedUser.getPreferences().getAuditLog().log(source, newBlocks);
+                    savedUser.getPreferences().log(source, newBlocks);
                     savedUser.setClaimBlocks(newBlocks);
                     if (callback != null) {
                         callback.accept(newBlocks);
@@ -154,7 +155,13 @@ public interface UserManager {
         PURCHASE,
         CLAIM_RESIZED,
         CLAIM_CREATED,
-        CLAIM_TRANSFER_AWAY, CLAIM_DELETED
+        CLAIM_TRANSFER_AWAY,
+        CLAIM_DELETED;
+
+        @NotNull
+        public String getFormattedName() {
+            return WordUtils.capitalizeFully(name().replace("_", " "));
+        }
     }
 
 }

@@ -32,8 +32,6 @@ import java.util.Map;
 
 public interface BlockProvider {
 
-    int BLOCK_VIEW_DISTANCE = 78;
-
     /**
      * Get the server worlds
      *
