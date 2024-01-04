@@ -70,51 +70,38 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 
 @NoArgsConstructor
-public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTask.Supplier,
-        BukkitBlockProvider, BukkitEventDispatcher, BukkitHookProvider, PluginMessageListener {
+@Getter
+public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTask.Supplier, BukkitBlockProvider,
+        BukkitEventDispatcher, BukkitHookProvider, PluginMessageListener {
 
-    @Getter
+    private MorePaperLib morePaperLib;
+    private AudienceProvider audiences;
+    private final Set<TrustTag> trustTags = Sets.newConcurrentHashSet();
+    private final ConcurrentMap<String, List<User>> globalUserList = Maps.newConcurrentMap();
+    private final ConcurrentMap<UUID, ClaimSelection> claimSelections = Maps.newConcurrentMap();
+    private final ConcurrentMap<UUID, SavedUser> userCache = Maps.newConcurrentMap();
+    private final List<Command> commands = Lists.newArrayList();
+    private final HashMap<String, ClaimWorld> claimWorlds = Maps.newHashMap();
     @Setter
     private Set<UserGroup> userGroups = Sets.newConcurrentHashSet();
-    @Getter
-    private Set<TrustTag> trustTags = Sets.newConcurrentHashSet();
-    @Getter
-    private ConcurrentMap<String, List<User>> globalUserList = Maps.newConcurrentMap();
-    @Getter
-    private ConcurrentMap<UUID, ClaimSelection> claimSelections = Maps.newConcurrentMap();
-    @Getter
-    private ConcurrentMap<UUID, SavedUser> userCache = Maps.newConcurrentMap();
-    @Getter
-    private HashMap<String, ClaimWorld> claimWorlds = Maps.newHashMap();
-    @Getter
-    private List<Command> commands = Lists.newArrayList();
-    @Getter
     @Setter
     private Set<Hook> hooks = Sets.newHashSet();
-    @Getter
     @Setter
     private Highlighter highlighter;
-    @Getter
     @Setter
     private Database database;
-    @Nullable
-    @Setter
-    private Broker broker;
-    @Getter
     @Setter
     private Settings settings;
     @Setter
     private TrustLevels trustLevels;
-    @Getter
     @Setter
     private Locales locales;
-    @Nullable
     @Setter
-    private Server server;
-    @Getter
-    private MorePaperLib morePaperLib;
-    @Getter
-    private AudienceProvider audiences;
+    @Nullable
+    private Broker broker;
+    @Setter
+    @Nullable
+    private Server serverName;
 
     @Override
     public void onEnable() {
@@ -177,7 +164,7 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     @NotNull
     @Override
     public String getServerName() {
-        return server != null ? server.getName() : "server";
+        return serverName != null ? serverName.getName() : "server";
     }
 
     @NotNull
@@ -236,7 +223,6 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
 
     @Override
     public void setClaimWorlds(@NotNull HashMap<World, ClaimWorld> claimWorlds) {
-        this.claimWorlds = Maps.newHashMap();
         claimWorlds.forEach((world, claimWorld) -> this.claimWorlds.put(world.getName(), claimWorld));
     }
 

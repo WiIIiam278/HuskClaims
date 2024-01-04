@@ -116,11 +116,11 @@ public interface ConfigProvider {
     @NotNull
     String getServerName();
 
-    void setServer(@NotNull Server server);
+    void setServerName(@NotNull Server server);
 
     default void loadServer() {
         if (getSettings().getCrossServer().isEnabled()) {
-            setServer(YamlConfigurations.update(
+            setServerName(YamlConfigurations.update(
                     getConfigDirectory().resolve("server.yml"),
                     Server.class,
                     YAML_CONFIGURATION_PROPERTIES.header(Server.CONFIG_HEADER).build()
