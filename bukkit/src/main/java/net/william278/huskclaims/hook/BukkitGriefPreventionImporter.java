@@ -190,49 +190,49 @@ public class BukkitGriefPreventionImporter extends Importer {
 
         // Adding admin claims & child claims
         log(executor, Level.INFO, "Converting %s claims...".formatted(claims.size()));
-        final Map<Claim, GriefPreventionClaim> claimMap = Maps.newHashMap();
-        claims.forEach(gpc -> claimMap.put(gpc.toClaim(this), gpc));
+        final Map<Claim, GriefPreventionClaim> allClaims = Maps.newHashMap();
+        claims.forEach(gpc -> allClaims.put(gpc.toClaim(this), gpc));
 
         // Convert child claims and save to claim worlds
-        log(executor, Level.INFO, "Saving %s claims...".formatted(claimMap.size()));
+        log(executor, Level.INFO, "Saving %s claims...".formatted(amount.getAndSet(0)));
         final Set<ClaimWorld> claimWorlds = Sets.newHashSet();
-        final Map<Claim, GriefPreventionClaim> children = claimMap.entrySet().stream()
-                .filter(e -> e.getValue().parentId != -1)
-                .collect(HashMap::new, (m, v) -> m.put(v.getKey(), v.getValue()), HashMap::putAll);
-        amount.set(0);
-        claimMap.forEach((hcc, gpc) -> {
+        allClaims.forEach((hcc, gpc) -> {
             final String world = gpc.lesserCorner.split(";")[0];
+
+            // Get the claim world
             final Optional<ClaimWorld> optionalWorld = plugin.getClaimWorld(world);
             if (optionalWorld.isEmpty()) {
                 plugin.log(Level.WARNING, "Skipped claim at %s on missing world %s".formatted(gpc.lesserCorner, world));
                 return;
             }
-
-            // Mark the claim world as needing to be saved
             final ClaimWorld claimWorld = optionalWorld.get();
+
+            // Add the claim world to the list of worlds, then cache the claim owner/trustees
             claimWorlds.add(claimWorld);
             hcc.getOwner().flatMap(owner -> users.stream().filter(gpu -> gpu.uuid.equals(owner)).findFirst())
                     .ifPresent(user -> claimWorld.cacheUser(user.toUser()));
-            claimWorld.getClaims().add(hcc);
+            hcc.getTrustedUsers().keySet().forEach(u -> users.stream().filter(gpu -> gpu.uuid.equals(u))
+                    .findFirst().ifPresent(user -> claimWorld.cacheUser(user.toUser())));
+
+            // Add the claim to either its parent or the claim world
+            if (gpc.isChildClaim()) {
+                allClaims.entrySet().stream()
+                        .filter(e -> e.getValue().parentId == gpc.id).map(Map.Entry::getKey)
+                        .peek(child -> hcc.getOwner().ifPresent(child::setOwner))
+                        .forEach(child -> hcc.getChildren().add(child));
+            } else {
+                claimWorld.getClaims().add(hcc);
+                plugin.addMappedClaim(hcc, claimWorld);
+            }
 
             if (amount.incrementAndGet() % CLAIMS_PER_PAGE == 0) {
                 log(executor, Level.INFO, "Saved %s claims...".formatted(amount.get()));
             }
-            if (gpc.parentId != -1) {
-                return;
-            }
-
-            // If the claim has a parent, add it to the parent's child claims list and set the owner
-            final List<Claim> childClaims = children.entrySet().stream()
-                    .filter(e -> e.getValue().parentId == gpc.id).map(Map.Entry::getKey)
-                    .peek(child -> hcc.getOwner().ifPresent(child::setOwner))
-                    .toList();
-            hcc.getChildren().addAll(childClaims);
         });
 
         // Save claim worlds
         log(executor, Level.INFO, "Saving %s claim worlds...".formatted(claimWorlds.size()));
-        final List<CompletableFuture<Void>> claimWorldFutures = new ArrayList<>();
+        final List<CompletableFuture<Void>> claimWorldFutures = Lists.newArrayList();
         claimWorlds.forEach(claimWorld -> claimWorldFutures.add(
                 CompletableFuture.runAsync(() -> plugin.getDatabase().updateClaimWorld(claimWorld), pool)
         ));
@@ -255,6 +255,7 @@ public class BukkitGriefPreventionImporter extends Importer {
         }
         return 0;
     }
+
 
     private int getTotalClaims() {
         try (Connection connection = dataSource.getConnection();
@@ -387,6 +388,10 @@ public class BukkitGriefPreventionImporter extends Importer {
             importer.convertTrustees(this, importer.getPlugin()).forEach(claim::setTrustLevel);
             claim.setInheritParent(!inheritNothing);
             return claim;
+        }
+
+        private boolean isChildClaim() {
+            return parentId != -1;
         }
 
     }
