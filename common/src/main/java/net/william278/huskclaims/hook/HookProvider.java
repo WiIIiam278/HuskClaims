@@ -33,7 +33,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public interface HookProvider {
+public interface HookProvider extends MapHookProvider {
 
     @NotNull
     Set<Hook> getHooks();
@@ -94,6 +94,19 @@ public interface HookProvider {
         // Add common hooks
         if (isDependencyAvailable("LuckPerms") && settings.getLuckPerms().isEnabled()) {
             hooks.add(new LuckPermsHook(getPlugin()));
+        }
+
+        // Add map hooks
+        if (settings.getMap().isEnabled()) {
+            if (isDependencyAvailable("dynmap")) {
+                hooks.add(new DynmapHook(getPlugin()));
+            }
+            if (isDependencyAvailable("BlueMap")) {
+//                hooks.add(new DynmapHook(getPlugin()));
+            }
+            if (isDependencyAvailable("Pl3xMap")) {
+//                hooks.add(new DynmapHook(getPlugin()));
+            }
         }
 
         return hooks;

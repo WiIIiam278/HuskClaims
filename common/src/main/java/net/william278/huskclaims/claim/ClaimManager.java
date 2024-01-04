@@ -128,6 +128,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
                 : Claim.createAdminClaim(region, getPlugin());
         world.getClaims().add(claim);
         getDatabase().updateClaimWorld(world);
+        getPlugin().addMappedClaim(claim, world);
 
         // Adjust the owner's claim block count
         if (owner != null) {
@@ -188,8 +189,10 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
         }
 
         // Update the claim
+        getPlugin().removeMappedClaim(claim, world);
         claim.setRegion(newRegion);
         getDatabase().updateClaimWorld(world);
+        getPlugin().addMappedClaim(claim, world);
         getPlugin().invalidateClaimListCache(claim.getOwner().orElse(null));
 
         // Adjust the owner's claim block count
@@ -213,6 +216,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
         claim.getOwner().flatMap(claimWorld::getUser).ifPresent(user -> getPlugin().editClaimBlocks(
                 user, UserManager.ClaimBlockSource.CLAIM_DELETED, (blocks -> blocks + surfaceArea))
         );
+        getPlugin().removeMappedClaim(claim, claimWorld);
         getPlugin().invalidateClaimListCache(claim.getOwner().orElse(null));
     }
 
@@ -237,6 +241,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
                 .payload(Payload.uuid(user.getUuid()))
                 .target(Message.TARGET_ALL, Message.TargetType.SERVER).build()
                 .send(broker, executor));
+        getPlugin().removeAllMappedClaims(user.getUuid());
         getPlugin().invalidateClaimListCache(user.getUuid());
     }
 
@@ -259,6 +264,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
                 .type(Message.MessageType.DELETE_ALL_CLAIMS)
                 .target(Message.TARGET_ALL, Message.TargetType.SERVER).build()
                 .send(broker, executor));
+        getPlugin().removeAllMappedAdminClaims();
         getPlugin().invalidateAdminClaimListCache();
     }
 
@@ -283,6 +289,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
         // Create and add child claim
         final Claim child = parent.createAndAddChild(region, world, getPlugin());
         getDatabase().updateClaimWorld(world);
+        getPlugin().addMappedClaim(child, world);
         getPlugin().invalidateClaimListCache(parent.getOwner().orElse(null));
         return child;
     }
@@ -292,6 +299,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
         if (!parent.getChildren().remove(child)) {
             throw new IllegalArgumentException("Parent does not contain child");
         }
+        getPlugin().removeMappedClaim(child, world);
         getDatabase().updateClaimWorld(world);
         getPlugin().invalidateClaimListCache(parent.getOwner().orElse(null));
     }
@@ -319,8 +327,10 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
         }
 
         // Update the claim
+        getPlugin().removeMappedClaim(claim, world);
         claim.setRegion(newRegion);
         getDatabase().updateClaimWorld(world);
+        getPlugin().addMappedClaim(claim, world);
     }
 
 

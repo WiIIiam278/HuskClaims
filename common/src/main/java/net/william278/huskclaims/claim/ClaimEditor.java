@@ -240,8 +240,10 @@ public interface ClaimEditor {
             getPlugin().invalidateClaimListCache(claim.getOwner().orElse(null));
 
             // Set the claim, highlight it, invalidate the new owner's claim list cache
+            getPlugin().removeMappedClaim(claim, claimWorld);
             claim.setOwner(newOwner.getUuid());
             getPlugin().getDatabase().updateClaimWorld(claimWorld);
+            getPlugin().addMappedClaim(claim, claimWorld);
             getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claim);
             getPlugin().invalidateClaimListCache(newOwner.getUuid());
         });

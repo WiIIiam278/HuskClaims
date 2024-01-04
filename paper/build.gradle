@@ -51,6 +51,7 @@ tasks {
         downloadPlugins {
             url("https://download.luckperms.net/1526/bukkit/loader/LuckPerms-Bukkit-5.4.113.jar")
             modrinth("huskhomes", "4.5.5")
+            modrinth("dynmap", "5F9fwzR1")
         }
     }
 }

@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import de.exlll.configlib.Comment;
 import de.exlll.configlib.Configuration;
 import lombok.*;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.ClaimingMode;
@@ -386,7 +387,7 @@ public final class Settings {
         }
     }
 
-    @Comment("Settings for hooks")
+    @Comment("Settings for integration hooks with other plugins")
     private HookSettings hooks = new HookSettings();
 
     @Getter
@@ -437,6 +438,29 @@ public final class Settings {
 
             @Comment("The cost of buying 1 claim block")
             private double costPerBlock = 1.0;
+        }
+
+        private MapHookSettings map = new MapHookSettings();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class MapHookSettings {
+            @Comment("Whether to hook into Dynmap, BlueMap, or Pl3xMap to show claims on the map")
+            private boolean enabled = true;
+
+            @Comment("What colors to use for types of claims on the map. Remove a pairing to hide claims of that type.")
+            private Map<ClaimingMode, String> colors = new TreeMap<>(Map.of(
+                    ClaimingMode.CLAIMS, NamedTextColor.YELLOW.asHexString(),
+                    ClaimingMode.ADMIN_CLAIMS, NamedTextColor.DARK_RED.asHexString(),
+                    ClaimingMode.CHILD_CLAIMS, NamedTextColor.WHITE.asHexString()
+            ));
+
+            @Comment("The name of the marker set key")
+            private String markerSetName = "Claims";
+
+            @Comment("The label format for markers. '%s' will be replaced with the claim owner's name")
+            private String labelFormat = "Claim by %s";
         }
 
     }
