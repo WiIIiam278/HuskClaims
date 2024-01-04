@@ -39,10 +39,7 @@ import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -70,6 +67,21 @@ public class ClaimWorld {
     @NotNull
     public static ClaimWorld create(@NotNull HuskClaims plugin) {
         return new ClaimWorld(plugin);
+    }
+
+    /**
+     * Returns the name of the ClaimWorld associated with this instance.
+     *
+     * @param plugin the HuskClaims plugin instance
+     * @return the name of the ClaimWorld
+     * @throws IllegalStateException if the ClaimWorld is not registered
+     */
+    @NotNull
+    public String getName(@NotNull HuskClaims plugin) {
+        return plugin.getClaimWorlds().entrySet().stream()
+                .filter(entry -> entry.getValue().equals(this))
+                .map(Map.Entry::getKey)
+                .findFirst().orElseThrow(() -> new IllegalStateException("ClaimWorld not registered"));
     }
 
     public boolean removeClaimsBy(@NotNull User owner) {
