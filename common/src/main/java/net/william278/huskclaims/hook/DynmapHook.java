@@ -60,13 +60,8 @@ public class DynmapHook extends MapHook {
         getDynmap().ifPresent(api -> {
             unMarkAllClaims();
             getMarkerSet();
-
             plugin.log(Level.INFO, "Enabled Dynmap markers hook. Populating web map with claims...");
-            plugin.getClaimWorlds().forEach((name, claimWorld) -> {
-                final Collection<Claim> claims = claimWorld.getClaims();
-                markClaims(claims, claimWorld);
-                plugin.log(Level.INFO, "Populated web map with %s claims in %s".formatted(claims.size(), name));
-            });
+            markAllClaims();
         });
     }
 
@@ -112,6 +107,15 @@ public class DynmapHook extends MapHook {
     public void unMarkAllClaims() {
         plugin.runSync(() -> getMarkerSet().ifPresent(markerSet -> markerSet.getAreaMarkers()
                 .forEach(AreaMarker::deleteMarker)));
+    }
+
+    @Override
+    public void markAllClaims() {
+        plugin.getClaimWorlds().forEach((name, claimWorld) -> {
+            final Collection<Claim> claims = claimWorld.getClaims();
+            markClaims(claims, claimWorld);
+            plugin.log(Level.INFO, "Populated web map with %s claims in %s".formatted(claims.size(), name));
+        });
     }
 
     private void addMarker(@NotNull Claim claim, @NotNull ClaimWorld claimWorld, @NotNull MarkerSet markerSet) {

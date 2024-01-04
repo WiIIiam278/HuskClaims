@@ -60,6 +60,10 @@ public interface MapHookProvider {
         getMapHooks().forEach(MapHook::unMarkAllClaims);
     }
 
+    default void markAllClaims() {
+        getMapHooks().forEach(MapHook::markAllClaims);
+    }
+
     @NotNull
     Set<Hook> getHooks();
 

@@ -19,6 +19,7 @@
 
 package net.william278.huskclaims.config;
 
+import com.google.common.collect.Maps;
 import de.exlll.configlib.Configuration;
 import de.themoep.minedown.adventure.MineDown;
 import lombok.AccessLevel;
@@ -30,7 +31,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
-import java.util.TreeMap;
 
 /**
  * Plugin locale configuration
@@ -54,7 +54,7 @@ public class Locales implements PaginatedListProvider {
     protected static final String DEFAULT_LOCALE = "en-gb";
 
     // The raw set of locales loaded from yaml
-    private Map<String, String> locales = new TreeMap<>();
+    private Map<String, String> locales = Maps.newTreeMap();
 
     /**
      * Returns a raw, unformatted locale loaded from the locales file
@@ -152,7 +152,7 @@ public class Locales implements PaginatedListProvider {
 
             value.append(c);
         }
-        return value.toString();
+        return value.toString().replace("__", "_\\_");
     }
 
     @NotNull

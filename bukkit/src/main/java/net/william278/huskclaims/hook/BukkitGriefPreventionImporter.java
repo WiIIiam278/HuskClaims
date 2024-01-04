@@ -217,12 +217,14 @@ public class BukkitGriefPreventionImporter extends Importer {
             // Add the claim to either its parent or the claim world
             if (gpc.isChildClaim()) {
                 allClaims.entrySet().stream()
-                        .filter(e -> e.getValue().parentId == gpc.id).map(Map.Entry::getKey)
-                        .peek(child -> hcc.getOwner().ifPresent(child::setOwner))
-                        .forEach(child -> hcc.getChildren().add(child));
+                        .filter(entry -> entry.getValue().id == gpc.parentId)
+                        .map(Map.Entry::getKey).findFirst()
+                        .ifPresent(parent -> {
+                            parent.getOwner().ifPresent(hcc::setOwner);
+                            parent.getChildren().add(hcc);
+                        });
             } else {
                 claimWorld.getClaims().add(hcc);
-                plugin.addMappedClaim(hcc, claimWorld);
             }
 
             if (amount.incrementAndGet() % CLAIMS_PER_PAGE == 0) {
@@ -231,12 +233,14 @@ public class BukkitGriefPreventionImporter extends Importer {
         });
 
         // Save claim worlds
+        plugin.clearAllMapMarkers();
         log(executor, Level.INFO, "Saving %s claim worlds...".formatted(claimWorlds.size()));
         final List<CompletableFuture<Void>> claimWorldFutures = Lists.newArrayList();
         claimWorlds.forEach(claimWorld -> claimWorldFutures.add(
                 CompletableFuture.runAsync(() -> plugin.getDatabase().updateClaimWorld(claimWorld), pool)
         ));
         CompletableFuture.allOf(claimWorldFutures.toArray(CompletableFuture[]::new)).join();
+        plugin.markAllClaims();
         return amount.get();
     }
 

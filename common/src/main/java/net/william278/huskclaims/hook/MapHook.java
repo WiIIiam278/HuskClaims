@@ -52,6 +52,8 @@ public abstract class MapHook extends Hook {
 
     public abstract void unMarkAllClaims();
 
+    public abstract void markAllClaims();
+
     @NotNull
     protected final String getMarkerSetKey() {
         return plugin.getKey(getName().toLowerCase(Locale.ENGLISH), "markers").toString();

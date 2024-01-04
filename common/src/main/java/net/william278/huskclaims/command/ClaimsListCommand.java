@@ -88,7 +88,7 @@ public abstract class ClaimsListCommand extends Command implements GlobalClaimsP
     @NotNull
     private String getTeleportOption(@NotNull Claim claim, @NotNull ServerWorld serverWorld, @NotNull OnlineUser user) {
         final Optional<HuskHomesHook> homesHook = plugin.getHook(HuskHomesHook.class);
-        if (plugin.canUseCommand(HuskClaimsCommand.class, user, "teleport") || homesHook.isEmpty()) {
+        if (homesHook.isEmpty() || !plugin.canUseCommand(HuskClaimsCommand.class, user, "teleport")) {
             return "";
         }
 
