@@ -46,6 +46,11 @@ public interface Highlightable {
     Map<Region.Point, Type> getHighlightPoints(@NotNull ClaimWorld world, boolean showOverlap,
                                                @NotNull BlockPosition viewer, long range);
 
+    /**
+     * Represents different types of highlight node blocks
+     *
+     * @since 1.0
+     */
     enum Type {
         CORNER,
         EDGE,
@@ -53,9 +58,9 @@ public interface Highlightable {
         CHILD_EDGE,
         ADMIN_CORNER,
         ADMIN_EDGE,
-        OVERLAP_CORNER,
+        OVERLAP_CORNER, // Used when highlighting overlapping claims
         OVERLAP_EDGE,
-        SELECTION;
+        SELECTION; // Used when selecting the first corner of a claim region
 
         @NotNull
         public static Highlightable.Type getClaimType(boolean overlap, boolean child, boolean admin, boolean corner) {

@@ -18,10 +18,7 @@ import net.william278.huskclaims.trust.TrustLevel;
 import net.william278.huskclaims.trust.TrustTag;
 import net.william278.huskclaims.trust.Trustable;
 import net.william278.huskclaims.trust.UserGroup;
-import net.william278.huskclaims.user.OnlineUser;
-import net.william278.huskclaims.user.SavedUser;
-import net.william278.huskclaims.user.User;
-import net.william278.huskclaims.user.UserManager;
+import net.william278.huskclaims.user.*;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
@@ -33,6 +30,13 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * The <a href="https://william278.net/docs/huskclaims/api">HuskClaims API</a>.
+ * <p>
+ * Get the singleton instance with {@link #getInstance()}.
+ *
+ * @since 1.0
+ */
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @SuppressWarnings("unused")
 public class HuskClaimsAPI {
@@ -186,6 +190,24 @@ public class HuskClaimsAPI {
      */
     public void giveClaimBlocks(@NotNull OnlineUser user, @Range(from = 0, to = Long.MAX_VALUE) long amount) {
         editClaimBlocks(user, (blocks) -> blocks + amount);
+    }
+
+    /**
+     * Edit a {@link SavedUser}''s data.
+     *
+     * @param userUuid the UUID of the user
+     * @param editor   the editor
+     * @since 1.0
+     */
+    public void editSavedUser(@NotNull UUID userUuid, @NotNull Consumer<SavedUser> editor) {
+        if (plugin.getSavedUser(userUuid).isEmpty()) {
+            getUser(userUuid).thenAccept(optional -> optional.ifPresent((saved) -> {
+                editor.accept(saved);
+                plugin.getDatabase().updateUser(saved);
+            }));
+            return;
+        }
+        plugin.runAsync(() -> plugin.editUser(userUuid, editor));
     }
 
     /**
@@ -711,6 +733,53 @@ public class HuskClaimsAPI {
     }
 
     /**
+     * Returns whether a {@link User} can exercise a {@link TrustLevel.Privilege} in a {@link Claim}.
+     *
+     * @param privilege the privilege
+     * @param user      the user
+     * @param claim     the claim
+     * @param world     the claim world that the claim is in
+     * @return {@code true} if the user can exercise the privilege in the claim, else {@code false}
+     * @since 1.0
+     */
+    public boolean isPrivilegeAllowed(@NotNull TrustLevel.Privilege privilege, @NotNull User user,
+                                      @NotNull Claim claim, @NotNull ClaimWorld world) {
+        return claim.isPrivilegeAllowed(privilege, user, world, plugin);
+    }
+
+    /**
+     * Returns whether a {@link User} can exercise a {@link TrustLevel.Privilege} in a {@link Claim} at a
+     * {@link Position}.
+     *
+     * @param privilege the privilege
+     * @param user      the user
+     * @param position  the position
+     * @return {@code true} if the user can exercise the privilege in the claim (if one exists), else {@code false}
+     * @since 1.0
+     */
+    public boolean isPrivilegeAllowed(@NotNull TrustLevel.Privilege privilege, @NotNull User user,
+                                      @NotNull Position position) {
+        return getClaimWorldAt(position).flatMap(claimWorld -> claimWorld.getClaimAt(position)
+                        .map(claim -> isPrivilegeAllowed(privilege, user, claim, claimWorld)))
+                .orElse(false);
+    }
+
+    /**
+     * Returns whether an {@link OnlineUser} can exercise a {@link TrustLevel.Privilege} in a {@link Claim} at where
+     * they are standing.
+     *
+     * @param privilege  the privilege
+     * @param onlineUser the user
+     * @return {@code true} if the user can exercise the privilege in the claim (if one exists), else {@code false}
+     * @since 1.0
+     */
+    public boolean isPrivilegeAllowed(@NotNull TrustLevel.Privilege privilege, @NotNull OnlineUser onlineUser) {
+        return getClaimWorldAt(onlineUser).flatMap(claimWorld -> claimWorld.getClaimAt(onlineUser.getPosition())
+                        .map(claim -> isPrivilegeAllowed(privilege, onlineUser, claim, claimWorld)))
+                .orElse(false);
+    }
+
+    /**
      * Set the trust level of a {@link Trustable} in a {@link Claim} at a {@link Position}. If the claim at the position
      * is a child claim, they will be trusted in that and not the parent claim.
      *
@@ -787,12 +856,26 @@ public class HuskClaimsAPI {
                 .flatMap(claim -> getTrustLevel(claim, claimWorld, user)));
     }
 
+    /**
+     * Get a list of a {@link User}'s created {@link UserGroup}s.
+     *
+     * @param user the user
+     * @return a list of the user's created {@link UserGroup}s
+     * @since 1.0
+     */
     @Unmodifiable
     @NotNull
     public List<UserGroup> getUserGroups(@NotNull User user) {
         return getUserGroups(user.getUuid());
     }
 
+    /**
+     * Get a list of a {@link User}'s created {@link UserGroup}s.
+     *
+     * @param userUuid the user's UUID
+     * @return a list of the user's created {@link UserGroup}s
+     * @since 1.0
+     */
     @Unmodifiable
     @NotNull
     public List<UserGroup> getUserGroups(@NotNull UUID userUuid) {
@@ -812,6 +895,20 @@ public class HuskClaimsAPI {
     }
 
     /**
+     * Register a {@link TrustTag} to the plugin.
+     * <p>
+     * Trust tags are not persistent and must be registered every time the plugin is loaded. Unregistered trust tags
+     * will be greyed out in trust lists and will not grant associated users any privileges
+     *
+     * @param trustTag the trust tag
+     * @throws IllegalArgumentException if a trust tag with the same name has already been registered
+     * @since 1.0
+     */
+    public void registerTrustTag(@NotNull TrustTag trustTag) {
+        plugin.registerTrustTag(trustTag);
+    }
+
+    /**
      * Get the {@link Highlighter}, used for highlighting claims to users.
      *
      * @return the highlighter
@@ -823,7 +920,8 @@ public class HuskClaimsAPI {
     }
 
     /**
-     * Set the highlighter, used for highlighting claims to users.
+     * Set the highlighter, used for highlighting claims to users. This method can be used to customize what a user
+     * sees when they inspect or create claim(s).
      *
      * @param highlighter the highlighter
      * @since 1.0
