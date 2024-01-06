@@ -102,9 +102,7 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvi
      *
      * @since 1.0
      */
-    default void loadAPI() {
-        HuskClaimsAPI.register(this);
-    }
+    void loadAPI();
 
     /**
      * Unregister the API instance

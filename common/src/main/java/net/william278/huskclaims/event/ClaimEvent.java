@@ -28,7 +28,7 @@ public interface ClaimEvent extends ClaimWorldEvent {
     Claim getClaim();
 
     default boolean isAdminClaim() {
-        return getClaim().isAdminClaim(getClaimWorld());
+        return getClaim().isAdminClaim();
     }
 
 }

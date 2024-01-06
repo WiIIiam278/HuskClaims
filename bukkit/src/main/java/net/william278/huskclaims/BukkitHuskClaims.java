@@ -28,6 +28,7 @@ import lombok.Setter;
 import net.kyori.adventure.platform.AudienceProvider;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.william278.desertwell.util.Version;
+import net.william278.huskclaims.api.BukkitHuskClaimsAPI;
 import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.command.BukkitCommand;
 import net.william278.huskclaims.command.Command;
@@ -114,6 +115,11 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     @Override
     public void onDisable() {
         this.shutdown();
+    }
+
+    @Override
+    public void loadAPI() {
+        BukkitHuskClaimsAPI.register(this);
     }
 
     @Override

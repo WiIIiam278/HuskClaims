@@ -156,7 +156,8 @@ public interface UserManager {
         CLAIM_RESIZED,
         CLAIM_CREATED,
         CLAIM_TRANSFER_AWAY,
-        CLAIM_DELETED;
+        CLAIM_DELETED,
+        API;
 
         @NotNull
         public String getFormattedName() {

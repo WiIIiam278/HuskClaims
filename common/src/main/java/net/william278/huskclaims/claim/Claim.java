@@ -274,12 +274,16 @@ public class Claim implements Highlightable {
      *
      * @param trustable the trustable to set the trust level for
      * @param level     the trust level to set
+     * @throws IllegalArgumentException if the trustable is invalid for this claim
      * @since 1.0
      */
     public void setTrustLevel(@NotNull Trustable trustable, @NotNull TrustLevel level) {
         if (trustable instanceof User user) {
             setUserTrustLevel(user.getUuid(), level);
         } else if (trustable instanceof UserGroup group) {
+            if (isAdminClaim()) {
+                throw new IllegalArgumentException("Cannot set group trust level in admin claim");
+            }
             setGroupTrustLevel(group, level);
         } else if (trustable instanceof TrustTag tag) {
             setTagTrustLevel(tag, level);
@@ -453,12 +457,13 @@ public class Claim implements Highlightable {
         return getParent(world).isPresent();
     }
 
-    public boolean isAdminClaim(@NotNull ClaimWorld world) {
-        if (isChildClaim(world)) {
-            return getParent(world).map(parent -> parent.isAdminClaim(world)).orElse(false);
-        } else {
-            return getOwner().isEmpty();
-        }
+    public boolean isAdminClaim() {
+        return owner == null;
+    }
+
+    @NotNull
+    public Optional<Claim> getChildClaimAt(@NotNull BlockPosition position) {
+        return getChildren().stream().filter(claim -> claim.getRegion().contains(position)).findFirst();
     }
 
     @NotNull
