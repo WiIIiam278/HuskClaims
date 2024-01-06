@@ -20,6 +20,7 @@
 package net.william278.huskclaims;
 
 import net.kyori.adventure.key.Key;
+import net.william278.huskclaims.api.HuskClaimsAPI;
 import net.william278.huskclaims.claim.ClaimManager;
 import net.william278.huskclaims.command.CommandProvider;
 import net.william278.huskclaims.config.ConfigProvider;
@@ -69,6 +70,7 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvi
             loadCommands();
             loadListeners();
             loadHooks();
+            loadAPI();
         } catch (Throwable e) {
             log(Level.SEVERE, "An error occurred whilst initializing HuskClaims", e);
             disablePlugin();
@@ -93,6 +95,24 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvi
             log(Level.SEVERE, "An error occurred whilst disabling HuskClaims", e);
         }
         log(Level.INFO, String.format("Successfully disabled HuskClaims v%s", getPluginVersion()));
+    }
+
+    /**
+     * Register the API instance
+     *
+     * @since 1.0
+     */
+    default void loadAPI() {
+        HuskClaimsAPI.register(this);
+    }
+
+    /**
+     * Unregister the API instance
+     *
+     * @since 1.0
+     */
+    default void unloadAPI() {
+        HuskClaimsAPI.unregister();
     }
 
     /**
