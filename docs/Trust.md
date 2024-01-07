@@ -133,7 +133,7 @@ Trust Levels are defined in the `trust_levels.yml` config file and the default s
 
 The owner of a claim, or other users who are trusted at a level with the `MANAGE_TRUSTEES` privilege can manage the trust of users with a lower trust levels than them through these command. To trust a user, stand in the claim and use the relevant trust command followed by the `user`/`@group`/`#tag`; to revoke trust, do the same but with `/untrust`. You can trust/untrust multiple parties at once by simply adding more `users`/`@groups`/`#tags` to the end of the command. Finally, to view a list of trusted users, use `/trustlist`.
 
-[Trusting Users](https://raw.githubusercontent.com/WiIIiam278/HuskClaims/master/media/trusting_users.mov)
+https://raw.githubusercontent.com/WiIIiam278/HuskClaims/master/media/trusting_users.mov
 
 ### Configuring Trust Levels
 > **Warning:** Removing or changing the IDs of existing trust levels in your config file is a destructive action! Players will lose their trust levels and will need to be re-trusted by claim owners.
