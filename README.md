@@ -1,6 +1,6 @@
 <!--suppress ALL -->
 <p align="center">
-    <img src="images/banner.png" alt="HuskClaims" />
+    <img src="media/banner.png" alt="HuskClaims" />
     <a href="https://github.com/WiIIiam278/HuskClaims/actions/workflows/ci.yml">
         <img src="https://img.shields.io/github/actions/workflow/status/WiIIiam278/HuskClaims/ci.yml?branch=master&logo=github"/>
     </a> 

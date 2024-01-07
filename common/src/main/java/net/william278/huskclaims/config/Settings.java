@@ -51,7 +51,7 @@ public final class Settings {
             ┃    Developed by William278   ┃
             ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
             ┣╸ Information: https://william278.net/project/huskclaims/
-            ┣╸ Config Help: https://william278.net/docs/huskclaims/config-files/
+            ┣╸ Config Help: https://william278.net/docs/huskclaims/config/
             ┗╸ Documentation: https://william278.net/docs/huskclaims/""";
 
     @Comment("Locale of the default language file to use. Docs: https://william278.net/docs/huskclaims/translations")
@@ -302,7 +302,7 @@ public final class Settings {
         private String publicAccessName = "public";
 
         @Comment("Whether to require the \"huskclaims.trust.public\" permission to use the public access tag")
-        private boolean publicAccessUsePermission = true;
+        private boolean publicAccessUsePermission = false;
 
     }
 
