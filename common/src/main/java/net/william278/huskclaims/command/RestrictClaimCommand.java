@@ -37,7 +37,6 @@ public class RestrictClaimCommand extends InClaimCommand implements ToggleTabCom
                 "[on|off]",
                 plugin
         );
-        addAdditionalPermissions(Map.of("other", true));
     }
 
     @Override

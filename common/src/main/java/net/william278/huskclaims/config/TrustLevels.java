@@ -54,7 +54,7 @@ public class TrustLevels {
                     .color("#fc4e03")
                     .displayName("Manage")
                     .description("Allows users to manage trustees & make child claims")
-                    .commandAliases(List.of("managetrust", "permissiontrust"))
+                    .commandAliases(List.of("permissiontrust", "managetrust"))
                     .flags(List.of(
                             OperationType.BLOCK_BREAK,
                             OperationType.BLOCK_PLACE,
