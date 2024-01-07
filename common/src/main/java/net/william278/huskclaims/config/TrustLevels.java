@@ -42,7 +42,7 @@ public class TrustLevels {
             ┃    Developed by William278   ┃
             ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
             ┣╸ List of trust levels users & groups can be assigned to in claims
-            ┣╸ Config Help: https://william278.net/docs/huskclaims/trust-levels/
+            ┣╸ Config Help: https://william278.net/docs/huskclaims/trust/
             ┗╸ Documentation: https://william278.net/docs/huskclaims/
             """;
 

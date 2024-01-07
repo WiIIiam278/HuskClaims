@@ -61,6 +61,8 @@ public class UserGroupsCommand extends OnlineUserCommand implements TabCompletab
             case "remove" -> removeGroupUsers(executor, groupName.get(), parseStringList(args, 2));
             case "list" -> listGroupUsers(executor, groupName.get());
             case "delete" -> deleteGroup(executor, groupName.get());
+            default -> plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                    .ifPresent(executor::sendMessage);
         }
     }
 
