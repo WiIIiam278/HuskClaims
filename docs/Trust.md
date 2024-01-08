@@ -1,4 +1,4 @@
-HuskClaims lets you give users, groups of users, and tags a "Trust Level" on claims. Trust Levels grant users access to Operation Type flags and Privileges, which grant users respective claim access rights and management privileges. Trust levels are fully configurable and can be customized or changed entirely by editing the `trust_levels.yml` config file.
+HuskClaims lets you give users, groups of users, and tags a "Trust Level" in [[Claims]]. Trust Levels grant users access to Operation Type flags and Privileges, which grant users respective claim access rights and management privileges. Trust levels are fully configurable and can be customized or changed entirely by editing the `trust_levels.yml` config file.
 
 ## Trust Levels
 Trust Levels are defined in the `trust_levels.yml` config file and the default set of trust levels, based on the classic GriefPrevention plugin setup, are detailed below. Each trust level has an associated command (build trust, for instance). Users, groups, or tags can only be in one trust level at a time and trust levels are explicitly defined; they do not inherit granted operation types or privileges from lower levels.
@@ -17,7 +17,7 @@ Trust Levels are defined in the `trust_levels.yml` config file and the default s
         <tr>
             <td>Manage</td>
             <td><code>/permissiontrust</code></td>
-            <td>Grants full claim management access, letting players trust/untrust other users, toggle operation groups, and create child claims (and all the below).</td>
+            <td>Grants full claim management access, letting players trust/untrust other users, toggle [[operation groups]], and create child claims (and all the below).</td>
             <td>
                 <details>
                 <summary>View list</summary>
@@ -133,7 +133,7 @@ Trust Levels are defined in the `trust_levels.yml` config file and the default s
 
 The owner of a claim, or other users who are trusted at a level with the `MANAGE_TRUSTEES` privilege can manage the trust of users with a lower trust levels than them through these command. To trust a user, stand in the claim and use the relevant trust command followed by the `user`/`@group`/`#tag`; to revoke trust, do the same but with `/untrust`. You can trust/untrust multiple parties at once by simply adding more `users`/`@groups`/`#tags` to the end of the command. Finally, to view a list of trusted users, use `/trustlist`.
 
-![Trusting users, groups and tags in a claim](https://raw.githubusercontent.com/WiIIiam278/HuskClaims/master/media/trusting_users.gif)
+![Trusting users, groups and tags in a claim](https://raw.githubusercontent.com/WiIIiam278/HuskClaims/master/images/trusting.gif)
 
 ### Configuring Trust Levels
 > **Warning:** Removing or changing the IDs of existing trust levels in your config file is a destructive action! Players will lose their trust levels and will need to be re-trusted by claim owners.
