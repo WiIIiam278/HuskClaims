@@ -78,6 +78,7 @@ public class TrustCommand extends InClaimCommand implements TrustableTabCompleta
                 world.cacheUser(user);
             }
             plugin.getDatabase().updateClaimWorld(world);
+            plugin.invalidateClaimListCache(claim.getOwner().orElse(null));
             plugin.getLocales().getLocale("trust_level_set", trustable.getTrustIdentifier(plugin),
                             level.getDisplayName(), level.getColor(), level.getDescription())
                     .ifPresent(executor::sendMessage);
