@@ -31,6 +31,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * The Bukkit implementation of the HuskClaims API. Get the instance with {@link #getInstance()}.
  */
+@SuppressWarnings("unused")
 public class BukkitHuskClaimsAPI extends HuskClaimsAPI {
 
     /**

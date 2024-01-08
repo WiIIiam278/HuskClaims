@@ -60,7 +60,6 @@ public class TrustCommand extends InClaimCommand implements TrustableTabCompleta
         toTrust.forEach(name -> setTrust(executor, name, world, claim));
     }
 
-
     // Resolve the trustable and check the executor has access
     private void setTrust(@NotNull OnlineUser executor, @NotNull String name,
                           @NotNull ClaimWorld world, @NotNull Claim claim) {

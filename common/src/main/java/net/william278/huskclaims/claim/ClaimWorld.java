@@ -179,6 +179,7 @@ public class ClaimWorld {
         if (isOperationIgnored(operation, plugin) || claim.isOperationAllowed(operation, this, plugin)) {
             return true;
         }
+
         // Send user error message if verbose
         if (operation.isVerbose()) {
             operation.getUser().ifPresent(user -> plugin.getLocales()
