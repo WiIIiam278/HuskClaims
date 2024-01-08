@@ -17,7 +17,7 @@ Trust Levels are defined in the `trust_levels.yml` config file and the default s
         <tr>
             <td>Manage</td>
             <td><code>/permissiontrust</code></td>
-            <td>Grants full claim management access, letting players trust/untrust other users, toggle [[operation groups]], and create child claims (and all the below).</td>
+            <td>Grants full claim management access, letting players trust/untrust other users, toggle operation groups, and create child claims (and all the below).</td>
             <td>
                 <details>
                 <summary>View list</summary>
