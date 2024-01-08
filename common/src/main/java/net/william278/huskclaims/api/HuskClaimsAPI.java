@@ -212,6 +212,18 @@ public class HuskClaimsAPI {
     }
 
     /**
+     * Set a user's claim blocks. This will occur asynchronously and the outcome may be affected by the
+     * cancellable {@link net.william278.huskclaims.event.ClaimBlocksChangeEvent} event.
+     *
+     * @param user   the user
+     * @param amount the amount of claim blocks to set (positive integer)
+     * @since 1.0
+     */
+    public void setClaimBlocks(@NotNull OnlineUser user, @Range(from = 0, to = Long.MAX_VALUE) long amount) {
+        editClaimBlocks(user, (blocks) -> amount);
+    }
+
+    /**
      * Edit a {@link SavedUser}''s data.
      *
      * @param userUuid the UUID of the user
@@ -473,15 +485,43 @@ public class HuskClaimsAPI {
     }
 
     /**
-     * Get a list of parent claims within a {@link Region}.
+     * Get a list of parent claims overlapping a {@link Region} in a {@link ClaimWorld}.
      *
      * @param claimWorld the claim world
      * @param region     the region
+     * @return a list of overlapping {@link Claim}s
+     * @since 1.0
+     */
+    @NotNull
+    @Unmodifiable
+    public List<Claim> getClaimsOverlapping(@NotNull ClaimWorld claimWorld, @NotNull Region region) {
+        return claimWorld.getParentClaimsOverlapping(region);
+    }
+
+    /**
+     * Get a list of parent claims overlapping a {@link Region} in a {@link World}.
+     *
+     * @param world  the world
+     * @param region the region
+     * @return a list of overlapping {@link Claim}s
+     * @since 1.0
+     */
+    @NotNull
+    @Unmodifiable
+    public List<Claim> getClaimsOverlapping(@NotNull World world, @NotNull Region region) {
+        return getClaimWorld(world).map(claimWorld -> getClaimsOverlapping(claimWorld, region)).orElse(List.of());
+    }
+
+    /**
+     * Get if a {@link Region} is claimed in a {@link World}.
+     *
+     * @param world  the world
+     * @param region the region
      * @return the {@link Claim} instance
      * @since 1.0
      */
-    public List<Claim> getClaimsWithin(@NotNull ClaimWorld claimWorld, @NotNull Region region) {
-        return claimWorld.getParentClaimsWithin(region);
+    public boolean isRegionClaimed(@NotNull World world, @NotNull Region region) {
+        return getClaimWorld(world).map(claimWorld -> isRegionClaimed(claimWorld, region)).orElse(false);
     }
 
     /**
@@ -692,10 +732,73 @@ public class HuskClaimsAPI {
      * @param region the region
      * @return a completable future containing the created claim. This future can complete exceptionally if the claim
      * would overlap existing claims.
+     * @since 1.0
      */
     @NotNull
     public CompletableFuture<Claim> createAdminClaim(@NotNull ClaimWorld world, @NotNull Region region) {
         return plugin.supplyAsync(() -> plugin.createAdminClaimAt(world, region));
+    }
+
+    /**
+     * Resize a {@link Claim} to a {@link Region}.
+     *
+     * @param world     the claim world
+     * @param claim     the claim
+     * @param newRegion the new region
+     * @return a completable future containing the resized claim. This future can complete exceptionally if the claim
+     * could not be resized: if the user does not have enough claim blocks; if the region is too small as per the
+     * plugin settings; if the claim is a parent and would not fully enclose its children;
+     * or if the new region would overlap existing claims.
+     * @since 1.0
+     */
+    public CompletableFuture<Claim> resizeClaim(@NotNull ClaimWorld world, @NotNull Claim claim,
+                                                @NotNull Region newRegion) {
+        return plugin.supplyAsync(() -> {
+            plugin.resizeClaim(world, claim, newRegion);
+            return claim;
+        });
+    }
+
+    /**
+     * Resize a child {@link Claim} to a {@link Region}.
+     *
+     * @param world     the claim world
+     * @param claim     the parent claim
+     * @param newRegion the new region
+     * @return a completable future containing the resized claim. This future can complete exceptionally if the claim
+     * could not be resized: if the child would not be fully enclosed by the parent
+     * @since 1.0
+     */
+    public CompletableFuture<Claim> resizeChildClaim(@NotNull ClaimWorld world, @NotNull Claim claim, @NotNull Region newRegion) {
+        return plugin.supplyAsync(() -> {
+            plugin.resizeChildClaim(world, claim, newRegion);
+            return claim;
+        });
+    }
+
+    /**
+     * Delete a {@link Claim}.
+     *
+     * @param world the claim world
+     * @param claim the claim
+     * @since 1.0
+     */
+    public void deleteClaim(@NotNull ClaimWorld world, @NotNull Claim claim) {
+        plugin.runAsync(() -> plugin.deleteClaim(world, claim));
+    }
+
+    /**
+     * Delete a child {@link Claim}.
+     *
+     * @param world the claim world
+     * @param claim the child claim
+     * @throws IllegalArgumentException if the claim is not a child claim
+     */
+    public void deleteChildClaim(@NotNull ClaimWorld world, @NotNull Claim claim) {
+        final Claim parent = claim.getParent(world).orElseThrow(
+                () -> new IllegalArgumentException("Claim is not a child claim or parent could not be found")
+        );
+        plugin.runAsync(() -> plugin.deleteChildClaim(world, parent, claim));
     }
 
     /**

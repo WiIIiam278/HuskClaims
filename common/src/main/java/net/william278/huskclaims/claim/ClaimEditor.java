@@ -131,7 +131,7 @@ public interface ClaimEditor {
 
     default void userResizeClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world,
                                  @NotNull Claim claim, @NotNull Region resized) {
-        final List<Claim> overlapsWith = world.getParentClaimsWithin(resized, claim.getRegion());
+        final List<Claim> overlapsWith = world.getParentClaimsOverlapping(resized, claim.getRegion());
         if (!overlapsWith.isEmpty()) {
             getPlugin().getLocales().getLocale("land_selection_overlaps", Integer.toString(overlapsWith.size()))
                     .ifPresent(user::sendMessage);
@@ -290,7 +290,7 @@ public interface ClaimEditor {
     }
 
     private boolean doesClaimOverlap(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {
-        final List<Claim> overlapsWith = world.getParentClaimsWithin(region);
+        final List<Claim> overlapsWith = world.getParentClaimsOverlapping(region);
         if (!overlapsWith.isEmpty()) {
             getPlugin().getLocales().getLocale("land_selection_overlaps", Integer.toString(overlapsWith.size()))
                     .ifPresent(user::sendMessage);

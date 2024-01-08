@@ -17,7 +17,7 @@ hourly_claim_blocks: 100
 ```
 </details>
 
-This value can additionally be overridden by granting the `huskclaims.hourly_blocks.(amount)` permission node to a user/group, where `(amount)` is the number of claim blocks to grant that user hourly. Note this permission node does not stack; the value of the highest effective permission will be taken.
+This value can additionally be overridden by granting the `huskclaims.hourly_blocks.(amount)` permission node to a user/group, where `(amount)` is the number of claim blocks to grant that user hourly. Note this permission node does not stack; the value of the highest effective permission will be taken. On servers running HuskClaims using cross-server mode, claim blocks will be globally synchronised.
 
 ## Buying Claim Blocks
 If the Vault ("economy") hook is enabled, and you have an economy plugin installed, players can buy claim blocks with the `/buyclaimblocks (amount)` command. The cost of buying claim blocks can be configured in the config file, and is `1.0` unit of currency by default:

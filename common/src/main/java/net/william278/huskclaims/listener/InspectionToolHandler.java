@@ -59,7 +59,7 @@ public interface InspectionToolHandler {
             if (user.isSneaking() && settings.isAllowNearbyClaimInspection()) {
                 final int distance = settings.getInspectionDistance();
 
-                final List<Claim> claims = claimWorld.getParentClaimsWithin(Region.around(position, distance));
+                final List<Claim> claims = claimWorld.getParentClaimsOverlapping(Region.around(position, distance));
                 if (claims.isEmpty()) {
                     getPlugin().getLocales().getLocale("no_nearby_claims", Integer.toString(distance))
                             .ifPresent(user::sendMessage);

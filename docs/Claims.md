@@ -14,6 +14,18 @@ Inspecting claims is done with the inspection tool, which is a Stick by default.
 
 Holding the Sneak key while right-clicking will inspect all nearby claims, highlighting all claims within a configurable radius of the block you right-clicked.
 
+## Listing Claims
+You can view a list of your claims using the `/claimslist` command, which is navigable through the interactive clickable chat buttons. The claim list is global across servers running HuskClaims in cross-server mode.
+
+![Viewing a list of your claims](https://raw.githubusercontent.com/WiIIiam278/HuskClaims/master/images/claims_list.png)
+
+Admins can view a list of [admin claims](#admin-claims) using the `/adminclaimslist` command, and view a specific user's claims through `/claimslist (username)`. Additionally, if the HuskHomes hook is enabled, admins with access to `/huskclaims teleport` can click on the coordinates displayed in the claim list to quickly teleport to that claim.
+
+## Resizing & Deleting Claims
+To resize a claim, hold the claim tool and right-click the corner of the claim you wish to resize. Then, right-click the new corner point to resize the claim.
+
+Claim owners may delete their claims by using the `/unclaim` command. This will refund the player the claim blocks that were used to create the claim. If you are standing in a parent claim which has children, those will also be deleted; you will be prompted to confirm if this is the case. The `/unclaimall` command may also be used to perform a bulk-delete action, removing all claims owned by the player.
+
 ## Operations in Claims
 Operations in claims are restricted to those with [[Trust]] in a claim (except admin claims&mdash;[see below](#admin-claims)), with different Trust levels allowing users to perform different operations.
 

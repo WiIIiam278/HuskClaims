@@ -112,7 +112,7 @@ Trust Levels are defined in the `trust_levels.yml` config file and the default s
         <tr>
             <td>Access</td>
             <td><code>/accesstrust</code></td>
-            <td>Grants access to let users press buttons, levers, and pressure plates; and open doors, trapdoors, and fence gates. Also lets users set home (if using the HuskHomes hook to restrict setting home in claims)</td>
+            <td>Grants access to let users press buttons, levers, and pressure plates; and open doors, trapdoors, and fence gates.</td>
             <td>
                 <details>
                 <summary>View list</summary>
@@ -255,7 +255,7 @@ To trust a user in a claim, stand in the claim and type the trust level command 
 ### User Groups
 User groups are a way of managing the trust of multiple groups of users at once, handy for large projects. User groups belong to the claim owner; note you cannot trust groups in admin claims for this reason. Below is an example of a claim owner managing a user group on their claim:
 
-| Description                                | Command Reference                                                                                        |
+| Command                                    | Result                                                                                                   |
 |--------------------------------------------|----------------------------------------------------------------------------------------------------------|
 | `/usergroup awesome_people add Steve Alex` | Creates a user group named `awesome_people` and adds the players `Steve` and `Alex`.                     |
 | `/trust @awesome_people`                   | Trusts the group `awesome_people` in the claim you are in (effectively giving `Steve` and `Alex` access) |

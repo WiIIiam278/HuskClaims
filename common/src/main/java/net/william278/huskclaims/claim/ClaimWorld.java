@@ -119,7 +119,7 @@ public class ClaimWorld {
     }
 
     @NotNull
-    public List<Claim> getParentClaimsWithin(@NotNull Region region) {
+    public List<Claim> getParentClaimsOverlapping(@NotNull Region region) {
         return getClaims().stream().filter(claim -> claim.getRegion().overlaps(region)).toList();
     }
 
@@ -137,8 +137,8 @@ public class ClaimWorld {
      * @since 1.0
      */
     @NotNull
-    public List<Claim> getParentClaimsWithin(@NotNull Region region, @NotNull Region... exceptFor) {
-        final List<Claim> claims = Lists.newArrayList(getParentClaimsWithin(region));
+    public List<Claim> getParentClaimsOverlapping(@NotNull Region region, @NotNull Region... exceptFor) {
+        final List<Claim> claims = Lists.newArrayList(getParentClaimsOverlapping(region));
         for (Region except : exceptFor) {
             claims.removeIf(claim -> claim.getRegion().equals(except));
         }
@@ -153,7 +153,7 @@ public class ClaimWorld {
      * @since 1.0
      */
     public boolean isRegionClaimed(@NotNull Region region) {
-        return !getParentClaimsWithin(region).isEmpty();
+        return !getParentClaimsOverlapping(region).isEmpty();
     }
 
     /**
@@ -165,7 +165,7 @@ public class ClaimWorld {
      * @since 1.0
      */
     public boolean isRegionClaimed(@NotNull Region region, @NotNull Region... exceptFor) {
-        return !getParentClaimsWithin(region, exceptFor).isEmpty();
+        return !getParentClaimsOverlapping(region, exceptFor).isEmpty();
     }
 
     public boolean isOperationAllowed(@NotNull Operation operation, @NotNull HuskClaims plugin) {
