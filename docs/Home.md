@@ -17,7 +17,9 @@ Welcome to the plugin documentation for HuskClaims v1.x+, the clean, cross-serve
 
 ## Developers
 * 📦 [[API]]
-* 💡 [[API Examples]]
+* ⚙️ [[Claims API]]
+* 🧡 [[Trust API]]
+* 💡 [[Highlighter API]]
 * ❗ [[API Events]]
 
 ## Links
