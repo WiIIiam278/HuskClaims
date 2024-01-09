@@ -62,15 +62,19 @@ public class BukkitPlaceholderAPIHook extends Hook {
         }
     }
 
-    @Getter
     @AllArgsConstructor
     public static class HuskClaimsExpansion extends PlaceholderExpansion {
 
         private final HuskClaims plugin;
+        @Getter
         private final String version;
+        @Getter
         private final String author = "William278";
+        @Getter
         private final String name = "HuskClaims";
+        @Getter
         private final String identifier = Placeholder.IDENTIFIER;
+        @Getter
         private final List<String> placeholders = Placeholder.getFormattedList();
 
         @Override
@@ -84,10 +88,6 @@ public class BukkitPlaceholderAPIHook extends Hook {
 
         @AllArgsConstructor
         private enum Placeholder {
-
-            CLAIMS((plugin, user) -> Integer.toString(plugin.getClaimWorlds().values().stream()
-                    .mapToInt(world -> world.getClaimsByUser(user.getUuid()).size())
-                    .sum())),
             CLAIM_BLOCKS((plugin, user) -> Long.toString(plugin.getClaimBlocks(user))),
             CURRENT_IS_CLAIMED((plugin, user) -> formatBoolean(plugin.getClaimAt(user.getPosition()).isPresent())),
             CURRENT_CLAIM_OWNER((plugin, user) -> plugin.getClaimWorld(user.getPosition().getWorld())
