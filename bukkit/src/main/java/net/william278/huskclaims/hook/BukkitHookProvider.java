@@ -40,6 +40,9 @@ public interface BukkitHookProvider extends HookProvider {
         if (isDependencyAvailable("Vault") && settings.getEconomy().isEnabled()) {
             hooks.add(new BukkitVaultEconomyHook(getPlugin()));
         }
+        if (isDependencyAvailable("PlaceholderAPI") && settings.getPlaceholders().isEnabled()) {
+            hooks.add(new BukkitPlaceholderAPIHook(getPlugin()));
+        }
 
         // Add bukkit importers
         hooks.add(new BukkitGriefPreventionImporter(getPlugin()));

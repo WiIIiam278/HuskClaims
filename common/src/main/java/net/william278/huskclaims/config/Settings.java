@@ -450,6 +450,16 @@ public final class Settings {
             private double costPerBlock = 1.0;
         }
 
+        private PlaceholderSettings placeholders = new PlaceholderSettings();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class PlaceholderSettings {
+            @Comment("Whether to hook into PlaceholderAPI to provide a HuskClaims placeholder expansion")
+            private boolean enabled = true;
+        }
+
         private MapHookSettings map = new MapHookSettings();
 
         @Getter
