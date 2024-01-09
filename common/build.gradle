@@ -27,7 +27,7 @@ dependencies {
     compileOnly 'net.luckperms:api:5.4'
     compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:2.6.2'
     compileOnly 'us.dynmap:DynmapCoreAPI:3.6'
-    compileOnly 'maven.modrinth:pl3xmap:1.20.4-478'
+    compileOnly 'maven.modrinth:pl3xmap:1.20.4-479'
     compileOnly 'com.github.plan-player-analytics:Plan:5.5.2391'
 
     testImplementation 'com.github.plan-player-analytics:Plan:5.5.2391'
