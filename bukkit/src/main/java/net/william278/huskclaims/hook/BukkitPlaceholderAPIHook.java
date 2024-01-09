@@ -19,8 +19,7 @@
 
 package net.william278.huskclaims.hook;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.*;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.william278.cloplib.operation.Operation;
@@ -62,19 +61,16 @@ public class BukkitPlaceholderAPIHook extends Hook {
         }
     }
 
-    @AllArgsConstructor
+    @RequiredArgsConstructor
+    @Getter
     public static class HuskClaimsExpansion extends PlaceholderExpansion {
 
+        @Getter(AccessLevel.NONE)
         private final HuskClaims plugin;
-        @Getter
         private final String version;
-        @Getter
         private final String author = "William278";
-        @Getter
         private final String name = "HuskClaims";
-        @Getter
         private final String identifier = Placeholder.IDENTIFIER;
-        @Getter
         private final List<String> placeholders = Placeholder.getFormattedList();
 
         @Override
