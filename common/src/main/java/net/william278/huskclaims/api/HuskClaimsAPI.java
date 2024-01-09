@@ -979,6 +979,29 @@ public class HuskClaimsAPI {
     }
 
     /**
+     * Get the list of {@link TrustLevel}s registered to the plugin.
+     *
+     * @return the list of {@link TrustLevel}s
+     * @since 1.0
+     */
+    @NotNull
+    @Unmodifiable
+    public List<TrustLevel> getTrustLevels() {
+        return plugin.getTrustLevels();
+    }
+
+    /**
+     * Get a {@link TrustLevel} by name.
+     *
+     * @param name the name of the level
+     * @return the trust level
+     * @since 1.0
+     */
+    public Optional<TrustLevel> getTrustLevelByName(@NotNull String name) {
+        return plugin.getTrustLevel(name);
+    }
+
+    /**
      * Get a list of a {@link User}'s created {@link UserGroup}s.
      *
      * @param user the user
@@ -1005,6 +1028,17 @@ public class HuskClaimsAPI {
     }
 
     /**
+     * Get a {@link UserGroup} by name.
+     * @param user the user who owns the group
+     * @param name the name of the group
+     * @return the user group
+     * @since 1.0
+     */
+    public Optional<UserGroup> getUserGroupByName(@NotNull User user, @NotNull String name) {
+        return getUserGroups(user).stream().filter(group -> group.name().equalsIgnoreCase(name)).findFirst();
+    }
+
+    /**
      * Get the set of {@link TrustTag} registered to the plugin
      *
      * @return the {@link Set} of {@link TrustTag}s
@@ -1014,6 +1048,17 @@ public class HuskClaimsAPI {
     @NotNull
     public Set<TrustTag> getTrustTags() {
         return plugin.getTrustTags();
+    }
+
+    /**
+     * Get a {@link TrustTag} by name.
+     *
+     * @param name the name of the tag
+     * @return the trust tag
+     * @since 1.0
+     */
+    public Optional<TrustTag> getTrustTagByName(@NotNull String name) {
+        return plugin.getTrustTag(name);
     }
 
     /**
