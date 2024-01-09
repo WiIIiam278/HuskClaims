@@ -1,8 +1,8 @@
 This will walk you through installing HuskClaims on either your Spigot server, or proxied network of Spigot servers.
 
 ## Requirements
-* A Spigot-based Minecraft server (1.16.5 or higher, Java 16+)
-* (For proxy network support) A proxy server (Velocity, BungeeCord) and MySQL (v8.0+) database
+* A Spigot-based Minecraft server (1.17.1 or higher, Java 17+)
+* (For proxy network support) A proxy server (Velocity, BungeeCord) and MySQL (v8.0+)/MariaDB database
 * (For optional redis support) A Redis database (v5.0+)
 
 ## Single-server Setup Instructions

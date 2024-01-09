@@ -4,7 +4,7 @@ author: 'William278'
 website: 'https://william278.net/project/huskclaims'
 main: 'net.william278.huskclaims.BukkitHuskClaims'
 version: '${version}'
-api-version: 1.16
+api-version: 1.17
 libraries:
   - 'redis.clients:jedis:${jedis_version}'
   - 'com.mysql:mysql-connector-j:${mysql_driver_version}'

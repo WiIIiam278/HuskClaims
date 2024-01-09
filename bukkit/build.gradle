@@ -11,7 +11,7 @@ dependencies {
     implementation 'net.william278.cloplib:cloplib-bukkit:1.0'
     implementation 'org.bstats:bstats-bukkit:3.0.2'
 
-    compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
+    compileOnly 'org.spigotmc:spigot-api:1.17.1-R0.1-SNAPSHOT'
     compileOnly 'org.jetbrains:annotations:24.1.0'
     compileOnly 'net.william278:DesertWell:2.0.4'
     compileOnly 'org.projectlombok:lombok:1.18.30'
