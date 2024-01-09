@@ -28,6 +28,9 @@ dependencies {
     compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:2.6.2'
     compileOnly 'us.dynmap:DynmapCoreAPI:3.6'
     compileOnly 'maven.modrinth:pl3xmap:1.20.4-478'
+    compileOnly 'com.github.plan-player-analytics:Plan:5.5.2391'
+
+    testImplementation 'com.github.plan-player-analytics:Plan:5.5.2391'
 
     compileOnly "org.xerial:sqlite-jdbc:$sqlite_driver_version"
     compileOnly "com.mysql:mysql-connector-j:$mysql_driver_version"

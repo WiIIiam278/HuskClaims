@@ -95,6 +95,9 @@ public interface HookProvider extends MapHookProvider {
         if (isDependencyAvailable("LuckPerms") && settings.getLuckPerms().isEnabled()) {
             hooks.add(new LuckPermsHook(getPlugin()));
         }
+        if (isDependencyAvailable("Plan") && settings.getPlan().isEnabled()) {
+            hooks.add(new PlanHook(getPlugin()));
+        }
 
         // Add map hooks
         if (settings.getMap().isEnabled()) {

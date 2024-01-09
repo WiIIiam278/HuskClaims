@@ -411,6 +411,16 @@ public final class Settings {
             private String trustTagPrefix = "role/";
         }
 
+        private PlanHookSettings plan = new PlanHookSettings();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class PlanHookSettings {
+            @Comment("Whether to hook into Plan to display claim analytics")
+            private boolean enabled = true;
+        }
+
         private HuskHomesHookSettings huskHomes = new HuskHomesHookSettings();
 
         @Getter
