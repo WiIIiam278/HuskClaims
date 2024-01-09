@@ -21,8 +21,8 @@ package net.william278.huskclaims.command;
 
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.hook.EconomyHook;
+import net.william278.huskclaims.user.ClaimBlocksManager;
 import net.william278.huskclaims.user.OnlineUser;
-import net.william278.huskclaims.user.UserManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -65,7 +65,7 @@ public class BuyClaimBlocksCommand extends OnlineUserCommand {
         }
         plugin.editClaimBlocks(
                 executor,
-                UserManager.ClaimBlockSource.PURCHASE,
+                ClaimBlocksManager.ClaimBlockSource.PURCHASE,
                 (blocks) -> blocks + amount,
                 (newBalance) -> plugin.getLocales().getLocale("claim_blocks_purchased",
                                 Integer.toString(amount), hook.format(cost), Long.toString(newBalance))

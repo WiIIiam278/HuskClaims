@@ -52,9 +52,9 @@ tasks {
             url("https://download.luckperms.net/1526/bukkit/loader/LuckPerms-Bukkit-5.4.113.jar")
             url("https://ci.lucko.me/job/spark/399/artifact/spark-bukkit/build/libs/spark-1.10.58-bukkit.jar")
             modrinth("huskhomes", "4.5.5")
-            modrinth("dynmap", "5F9fwzR1")
-            modrinth("pl3xmap", "1.20.4-478")
-            modrinth("bluemap", "3.20-paper")
+//            modrinth("dynmap", "5F9fwzR1")
+//            modrinth("pl3xmap", "1.20.4-478")
+//            modrinth("bluemap", "3.20-paper")
         }
     }
 }

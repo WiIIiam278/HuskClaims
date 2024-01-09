@@ -22,21 +22,16 @@ package net.william278.huskclaims.user;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.network.Message;
 import net.william278.huskclaims.network.Payload;
-import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
-public interface UserManager {
-
-    String HOURLY_BLOCKS_PERMISSION = "huskclaims.hourly_blocks.";
+public interface UserManager extends ClaimBlocksManager {
 
     @NotNull
     ConcurrentMap<UUID, SavedUser> getUserCache();
@@ -58,17 +53,7 @@ public interface UserManager {
     }
 
     @Blocking
-    default long getClaimBlocks(@NotNull UUID uuid) {
-        return getSavedUser(uuid).map(SavedUser::getClaimBlocks)
-                .orElseThrow(() -> new IllegalArgumentException("Could not find claim blocks for UUID: " + uuid));
-    }
-
-    default long getClaimBlocks(@NotNull User user) {
-        return getClaimBlocks(user.getUuid());
-    }
-
-    @Blocking
-    default void editUser(@NotNull UUID uuid, @NotNull Consumer<SavedUser> consumer) {
+    default void editSavedUser(@NotNull UUID uuid, @NotNull Consumer<SavedUser> consumer) {
         final Optional<SavedUser> optionalUser = getSavedUser(uuid);
         if (optionalUser.isEmpty()) {
             throw new IllegalArgumentException("Could not find user with UUID: " + uuid);
@@ -89,43 +74,7 @@ public interface UserManager {
 
     @Blocking
     default void editUserPreferences(@NotNull User user, @NotNull Consumer<Preferences> consumer) {
-        editUser(user.getUuid(), savedUser -> consumer.accept(savedUser.getPreferences()));
-    }
-
-    default void editClaimBlocks(@NotNull User user, @NotNull ClaimBlockSource source,
-                                 @NotNull Function<Long, Long> consumer, @Nullable Consumer<Long> callback) {
-
-        final long originalBlocks = getClaimBlocks(user);
-        final long newBlocks = consumer.apply(originalBlocks);
-        if (newBlocks < 0) {
-            throw new IllegalArgumentException("Claim blocks cannot be negative (" + newBlocks + ")");
-        }
-
-        getPlugin().fireClaimBlocksChangeEvent(
-                user, originalBlocks, newBlocks, source,
-                (event) -> editUser(user.getUuid(), (savedUser) -> {
-                    savedUser.getPreferences().log(source, newBlocks);
-                    savedUser.setClaimBlocks(newBlocks);
-                    if (callback != null) {
-                        callback.accept(newBlocks);
-                    }
-                })
-        );
-    }
-
-    default void editClaimBlocks(@NotNull User user, @NotNull ClaimBlockSource source,
-                                 @NotNull Function<Long, Long> consumer) {
-        editClaimBlocks(user, source, consumer, null);
-    }
-
-    @Blocking
-    default void grantHourlyClaimBlocks(@NotNull OnlineUser user) {
-        final long hourlyBlocks = user.getNumericalPermission(HOURLY_BLOCKS_PERMISSION)
-                .orElse(getPlugin().getSettings().getClaims().getHourlyClaimBlocks());
-        if (hourlyBlocks <= 0) {
-            return;
-        }
-        editClaimBlocks(user, UserManager.ClaimBlockSource.HOURLY_BLOCKS, (blocks -> blocks + hourlyBlocks));
+        editSavedUser(user.getUuid(), savedUser -> consumer.accept(savedUser.getPreferences()));
     }
 
     @Blocking
@@ -148,21 +97,5 @@ public interface UserManager {
 
     @NotNull
     HuskClaims getPlugin();
-
-    enum ClaimBlockSource {
-        ADMIN_ADJUSTMENT,
-        HOURLY_BLOCKS,
-        PURCHASE,
-        CLAIM_RESIZED,
-        CLAIM_CREATED,
-        CLAIM_TRANSFER_AWAY,
-        CLAIM_DELETED,
-        API;
-
-        @NotNull
-        public String getFormattedName() {
-            return WordUtils.capitalizeFully(name().replace("_", " "));
-        }
-    }
 
 }

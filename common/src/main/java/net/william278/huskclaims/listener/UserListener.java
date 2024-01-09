@@ -38,7 +38,7 @@ public interface UserListener {
     }
 
     default void onUserQuit(@NotNull OnlineUser user) {
-
+        getPlugin().invalidateUserCache(user.getUuid());
     }
 
     default void onUserPlayOneHour(@NotNull OnlineUser user) {

@@ -22,10 +22,7 @@ package net.william278.huskclaims.command;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.ClaimingMode;
 import net.william278.huskclaims.claim.ServerWorldClaim;
-import net.william278.huskclaims.user.OnlineUser;
-import net.william278.huskclaims.user.Preferences;
-import net.william278.huskclaims.user.User;
-import net.william278.huskclaims.user.UserManager;
+import net.william278.huskclaims.user.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -129,7 +126,7 @@ public class UnClaimAllCommand extends OnlineUserCommand implements UserListTabC
         getPlugin().fireDeleteAllClaimsEvent(executor, user, claims, (event) -> {
             long reclaimedBlocks = claims.stream().mapToLong(ServerWorldClaim::getSurfaceArea).sum();
             plugin.deleteAllClaims(executor, user);
-            plugin.editClaimBlocks(user, UserManager.ClaimBlockSource.CLAIM_DELETED, (blocks) -> blocks + reclaimedBlocks);
+            plugin.editClaimBlocks(user, ClaimBlocksManager.ClaimBlockSource.CLAIM_DELETED, (blocks) -> blocks + reclaimedBlocks);
             plugin.getLocales().getLocale("delete_all_claims", user.getName(), Integer.toString(claims.size()),
                     Long.toString(reclaimedBlocks)).ifPresent(executor::sendMessage);
             plugin.getHighlighter().stopHighlighting(executor);

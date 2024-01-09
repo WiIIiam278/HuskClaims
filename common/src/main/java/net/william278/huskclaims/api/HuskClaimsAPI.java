@@ -165,7 +165,7 @@ public class HuskClaimsAPI {
      * @since 1.0
      */
     public void editClaimBlocks(@NotNull User user, @NotNull Function<Long, Long> editor) {
-        plugin.runAsync(() -> plugin.editClaimBlocks(user, UserManager.ClaimBlockSource.API, editor));
+        plugin.runAsync(() -> plugin.editClaimBlocks(user, ClaimBlocksManager.ClaimBlockSource.API, editor));
     }
 
     /**
@@ -180,7 +180,7 @@ public class HuskClaimsAPI {
      */
     public void editClaimBlocks(@NotNull User user, @NotNull Function<Long, Long> editor,
                                 @NotNull Consumer<Long> callback) {
-        plugin.runAsync(() -> plugin.editClaimBlocks(user, UserManager.ClaimBlockSource.API, editor, callback));
+        plugin.runAsync(() -> plugin.editClaimBlocks(user, ClaimBlocksManager.ClaimBlockSource.API, editor, callback));
     }
 
     /**
@@ -238,7 +238,7 @@ public class HuskClaimsAPI {
             }));
             return;
         }
-        plugin.runAsync(() -> plugin.editUser(userUuid, editor));
+        plugin.runAsync(() -> plugin.editSavedUser(userUuid, editor));
     }
 
     /**

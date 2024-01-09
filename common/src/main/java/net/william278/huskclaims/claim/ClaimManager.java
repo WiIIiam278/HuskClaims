@@ -27,9 +27,9 @@ import net.william278.huskclaims.network.Message;
 import net.william278.huskclaims.network.Payload;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.position.World;
+import net.william278.huskclaims.user.ClaimBlocksManager;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.User;
-import net.william278.huskclaims.user.UserManager;
 import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -133,7 +133,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
         // Adjust the owner's claim block count
         if (owner != null) {
             getPlugin().editClaimBlocks(
-                    owner, UserManager.ClaimBlockSource.CLAIM_CREATED,
+                    owner, ClaimBlocksManager.ClaimBlockSource.CLAIM_CREATED,
                     (blocks -> blocks - region.getSurfaceArea())
             );
         }
@@ -197,7 +197,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
 
         // Adjust the owner's claim block count
         claim.getOwner().flatMap(world::getUser).ifPresent(user -> getPlugin().editClaimBlocks(
-                user, UserManager.ClaimBlockSource.CLAIM_RESIZED, (blocks -> blocks - neededBlocks))
+                user, ClaimBlocksManager.ClaimBlockSource.CLAIM_RESIZED, (blocks -> blocks - neededBlocks))
         );
     }
 
@@ -214,7 +214,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
 
         // Adjust the owner's claim block count
         claim.getOwner().flatMap(claimWorld::getUser).ifPresent(user -> getPlugin().editClaimBlocks(
-                user, UserManager.ClaimBlockSource.CLAIM_DELETED, (blocks -> blocks + surfaceArea))
+                user, ClaimBlocksManager.ClaimBlockSource.CLAIM_DELETED, (blocks -> blocks + surfaceArea))
         );
         getPlugin().removeMappedClaim(claim, claimWorld);
         getPlugin().invalidateClaimListCache(claim.getOwner().orElse(null));

@@ -22,6 +22,7 @@ package net.william278.huskclaims.util;
 import net.william278.huskclaims.HuskClaims;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -64,22 +65,25 @@ public interface Task extends Runnable {
 
     abstract class Sync extends Base {
 
-        protected long delayTicks;
+        protected Duration initialDelay;
 
-        protected Sync(@NotNull HuskClaims plugin, @NotNull Runnable runnable, long delayTicks) {
+        protected Sync(@NotNull HuskClaims plugin, @NotNull Runnable runnable, @NotNull Duration initialDelay) {
             super(plugin, runnable);
-            this.delayTicks = delayTicks;
+            this.initialDelay = initialDelay;
         }
 
     }
 
     abstract class Repeating extends Base {
 
-        protected final long repeatingTicks;
+        protected final Duration repeatPeriod;
+        protected final Duration initialDelay;
 
-        protected Repeating(@NotNull HuskClaims plugin, @NotNull Runnable runnable, long repeatingTicks) {
+        protected Repeating(@NotNull HuskClaims plugin, @NotNull Runnable runnable,
+                            @NotNull Duration repeatPeriod, @NotNull Duration initialDelay) {
             super(plugin, runnable);
-            this.repeatingTicks = repeatingTicks;
+            this.repeatPeriod = repeatPeriod;
+            this.initialDelay = initialDelay;
         }
 
     }
@@ -88,24 +92,25 @@ public interface Task extends Runnable {
     interface Supplier {
 
         @NotNull
-        Task.Sync getSyncTask(@NotNull Runnable runnable, long delayTicks);
+        Task.Sync getSyncTask(@NotNull Runnable runnable, @NotNull Duration initialDelay);
 
         @NotNull
         Task.Async getAsyncTask(@NotNull Runnable runnable);
 
         @NotNull
-        Task.Repeating getRepeatingTask(@NotNull Runnable runnable, long repeatingTicks);
+        Task.Repeating getRepeatingTask(@NotNull Runnable runnable, @NotNull Duration repeatPeriod,
+                                        @NotNull Duration initialDelay);
 
         @NotNull
-        default Task.Sync runSyncDelayed(@NotNull Runnable runnable, long delayTicks) {
-            final Task.Sync task = getSyncTask(runnable, delayTicks);
+        default Task.Sync runSyncDelayed(@NotNull Runnable runnable, Duration initialDelay) {
+            final Task.Sync task = getSyncTask(runnable, initialDelay);
             task.run();
             return task;
         }
 
         @NotNull
         default Task.Sync runSync(@NotNull Runnable runnable) {
-            return runSyncDelayed(runnable, 0);
+            return runSyncDelayed(runnable, Duration.ZERO);
         }
 
         @NotNull

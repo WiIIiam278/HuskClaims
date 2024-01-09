@@ -198,6 +198,7 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
         }
 
         final Locales locales = plugin.getLocales();
+        final String userName = user.getUser().getName();
         final PaginatedList list = PaginatedList.of(auditLog
                 .stream().map(
                         entry -> locales.getRawLocale("audit_log_row",
@@ -208,9 +209,9 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
                         ).orElse("")
                 ).toList(),
                 locales.getBaseList(ITEMS_PER_LIST_PAGE)
-                        .setItemSeparator("\n").setCommand("/%s log".formatted(getName()))
+                        .setItemSeparator("\n").setCommand("/%s logs %s".formatted(getName(), userName))
                         .setHeaderFormat(locales.getRawLocale("audit_log_header",
-                                Locales.escapeText(user.getUser().getName())).orElse(""))
+                                Locales.escapeText(userName)).orElse(""))
                         .build()
         );
         executor.sendMessage(list.getNearestValidPage(parseIntArg(args, 1).orElse(1)));

@@ -27,11 +27,13 @@ import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.user.BukkitUser;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Statistic;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -58,13 +60,6 @@ public class BukkitListener extends BukkitOperationListener implements ClaimsLis
     @EventHandler
     public void onPlayerQuit(@NotNull PlayerQuitEvent e) {
         this.onUserQuit(BukkitUser.adapt(e.getPlayer(), plugin));
-    }
-
-    @EventHandler
-    public void onPlayerTimePlayed(@NotNull PlayerStatisticIncrementEvent e) {
-        if (e.getStatistic() == Statistic.PLAY_ONE_MINUTE && (e.getNewValue() % 60 == 0)) {
-            this.onUserPlayOneHour(BukkitUser.adapt(e.getPlayer(), plugin));
-        }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)

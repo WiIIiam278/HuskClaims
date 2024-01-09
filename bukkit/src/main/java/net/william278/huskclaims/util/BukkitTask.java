@@ -26,7 +26,6 @@ import space.arim.morepaperlib.scheduling.GracefulScheduling;
 import space.arim.morepaperlib.scheduling.ScheduledTask;
 
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 
 public interface BukkitTask extends Task {
 
@@ -34,8 +33,8 @@ public interface BukkitTask extends Task {
 
         private ScheduledTask task;
 
-        protected Sync(@NotNull HuskClaims plugin, @NotNull Runnable runnable, long delayTicks) {
-            super(plugin, runnable, delayTicks);
+        protected Sync(@NotNull HuskClaims plugin, @NotNull Runnable runnable, @NotNull Duration initialDelay) {
+            super(plugin, runnable, initialDelay);
         }
 
         @Override
@@ -53,8 +52,10 @@ public interface BukkitTask extends Task {
                 return;
             }
 
-            if (delayTicks > 0) {
-                this.task = getScheduler().globalRegionalScheduler().runDelayed(runnable, delayTicks);
+            if (initialDelay.compareTo(Duration.ZERO) > 0) {
+                this.task = getScheduler().globalRegionalScheduler().runDelayed(
+                        runnable, initialDelay.toMillis() / 50
+                );
             } else {
                 if (getScheduler().isOnGlobalRegionThread()) {
                     runnable.run();
@@ -98,8 +99,9 @@ public interface BukkitTask extends Task {
 
         private ScheduledTask task;
 
-        protected Repeating(@NotNull HuskClaims plugin, @NotNull Runnable runnable, long repeatingTicks) {
-            super(plugin, runnable, repeatingTicks);
+        protected Repeating(@NotNull HuskClaims plugin, @NotNull Runnable runnable,
+                            Duration repeatingTicks, Duration delayTicks) {
+            super(plugin, runnable, repeatingTicks, delayTicks);
         }
 
         @Override
@@ -112,17 +114,10 @@ public interface BukkitTask extends Task {
 
         @Override
         public void run() {
-            if (isPluginDisabled()) {
+            if (isPluginDisabled() || cancelled) {
                 return;
             }
-
-            if (!cancelled) {
-                this.task = getScheduler().asyncScheduler().runAtFixedRate(
-                        runnable,
-                        Duration.ZERO,
-                        Duration.of(repeatingTicks * 50L, ChronoUnit.MILLIS)
-                );
-            }
+            this.task = getScheduler().asyncScheduler().runAtFixedRate(runnable, initialDelay, repeatPeriod);
         }
     }
 
@@ -135,8 +130,8 @@ public interface BukkitTask extends Task {
 
         @NotNull
         @Override
-        default Task.Sync getSyncTask(@NotNull Runnable runnable, long delayTicks) {
-            return new Sync(getPlugin(), runnable, delayTicks);
+        default Task.Sync getSyncTask(@NotNull Runnable runnable, @NotNull Duration initialDelay) {
+            return new Sync(getPlugin(), runnable, initialDelay);
         }
 
         @NotNull
@@ -147,8 +142,8 @@ public interface BukkitTask extends Task {
 
         @NotNull
         @Override
-        default Task.Repeating getRepeatingTask(@NotNull Runnable runnable, long repeatingTicks) {
-            return new Repeating(getPlugin(), runnable, repeatingTicks);
+        default Task.Repeating getRepeatingTask(@NotNull Runnable runnable, @NotNull Duration repeatingTicks, @NotNull Duration delayTicks) {
+            return new Repeating(getPlugin(), runnable, repeatingTicks, delayTicks);
         }
 
         @Override

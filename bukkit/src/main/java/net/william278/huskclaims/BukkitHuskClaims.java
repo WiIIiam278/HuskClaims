@@ -115,6 +115,9 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     @Override
     public void onDisable() {
         this.shutdown();
+        if (this.audiences != null) {
+            this.audiences.close();
+        }
     }
 
     @Override

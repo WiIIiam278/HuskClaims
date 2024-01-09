@@ -69,6 +69,7 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvi
             loadBroker();
             loadCommands();
             loadListeners();
+            loadClaimBlockScheduler();
             loadHooks();
             loadAPI();
         } catch (Throwable e) {
@@ -86,11 +87,13 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvi
      * @since 1.0
      */
     default void shutdown() {
-        log(Level.INFO, String.format("Disabling down HuskClaims v%s...", getPluginVersion()));
+        log(Level.INFO, String.format("Disabling HuskClaims v%s...", getPluginVersion()));
         try {
             unloadHooks();
             closeBroker();
             closeDatabase();
+            cancelTasks();
+            unloadAPI();
         } catch (Throwable e) {
             log(Level.SEVERE, "An error occurred whilst disabling HuskClaims", e);
         }
