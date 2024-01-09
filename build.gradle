@@ -70,7 +70,6 @@ allprojects {
         maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
         maven { url 'https://repo.papermc.io/repository/maven-public/' }
         maven { url 'https://repo.william278.net/releases/' }
-        maven { url 'https://repo.william278.net/snapshots/' }
         maven { url 'https://mvn-repo.arim.space/lesser-gpl3/' }
         maven { url 'https://repo.mikeprimm.com/' }
         maven { url 'https://repo.minebench.de/' }
