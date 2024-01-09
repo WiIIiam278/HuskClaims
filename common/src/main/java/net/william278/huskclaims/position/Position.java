@@ -20,10 +20,7 @@
 package net.william278.huskclaims.position;
 
 import com.google.gson.annotations.Expose;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import net.william278.cloplib.operation.OperationChunk;
 import net.william278.cloplib.operation.OperationPosition;
 import org.jetbrains.annotations.NotNull;
@@ -31,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@ToString
 public class Position implements BlockPosition, OperationPosition {
 
     @Expose

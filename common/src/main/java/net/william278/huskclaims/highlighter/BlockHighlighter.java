@@ -79,7 +79,7 @@ public abstract class BlockHighlighter<B extends BlockHighlighter.HighlightBlock
             this.stopHighlighting(user);
             blocks.forEach((b, t) -> {
                 B block = getHighlightBlock(b.getPosition(), t, plugin);
-                replacedBlocks.put(user.getUuid(), block);
+                replacedBlocks.put(user.getUuid(), b);
                 highlightBlocks.add(block);
             });
 

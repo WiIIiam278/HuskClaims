@@ -87,7 +87,23 @@ public interface BukkitBlockProvider extends BlockProvider {
     // Returns if a block occludes vision/light
     private boolean isOccluding(@NotNull Block block) {
         return (block.isLiquid() && block.getType() == Material.LAVA)
-                || block.getType().isSolid() && block.getType().isOccluding();
+                || block.getType().isSolid() && (block.getType().isOccluding() || isApproved(block.getType()));
+    }
+
+    private boolean isApproved(@NotNull Material material) {
+        return switch (material) {
+            case GLASS, GLASS_PANE, BLACK_STAINED_GLASS, BLUE_STAINED_GLASS, BROWN_STAINED_GLASS, CYAN_STAINED_GLASS,
+                    GRAY_STAINED_GLASS, GREEN_STAINED_GLASS, LIGHT_BLUE_STAINED_GLASS, LIGHT_GRAY_STAINED_GLASS,
+                    LIME_STAINED_GLASS, MAGENTA_STAINED_GLASS, ORANGE_STAINED_GLASS, PINK_STAINED_GLASS,
+                    PURPLE_STAINED_GLASS, RED_STAINED_GLASS, WHITE_STAINED_GLASS, YELLOW_STAINED_GLASS,
+                    BLACK_STAINED_GLASS_PANE, BLUE_STAINED_GLASS_PANE, BROWN_STAINED_GLASS_PANE,
+                    CYAN_STAINED_GLASS_PANE, GRAY_STAINED_GLASS_PANE, GREEN_STAINED_GLASS_PANE,
+                    LIGHT_BLUE_STAINED_GLASS_PANE, LIGHT_GRAY_STAINED_GLASS_PANE, LIME_STAINED_GLASS_PANE,
+                    MAGENTA_STAINED_GLASS_PANE, ORANGE_STAINED_GLASS_PANE, PINK_STAINED_GLASS_PANE,
+                    PURPLE_STAINED_GLASS_PANE, RED_STAINED_GLASS_PANE, WHITE_STAINED_GLASS_PANE,
+                    YELLOW_STAINED_GLASS_PANE, ICE, PACKED_ICE, BLUE_ICE -> true;
+            default -> false;
+        };
     }
 
 }
