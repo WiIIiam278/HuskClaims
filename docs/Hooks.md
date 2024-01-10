@@ -28,16 +28,16 @@ If Plan is installed, HuskClaims will display HuskClaims analytics (such as Clai
 ## PlaceholderAPI
 If PlaceholderAPI is installed, HuskClaims will register a PlaceholderAPI expansion allowing you to use HuskClaims placeholders in other plugins that support PlaceholderAPI. The following placeholders are available:
 
-| Placeholder                              | Description                                                                | Example                       |
-|------------------------------------------|----------------------------------------------------------------------------|-------------------------------|
-| `%huskclaims_claim_blocks%`              | The number of [[claim blocks]] the player has                              | `100`                         |
-| `%huskclaims_current_is_claimed%`        | Whether the player is currently standing in a claim                        | `true` or `false`             |
-| `%huskclaims_current_claim_owner%`       | The owner of the claim the player is standing in                           | `Steve` or `an administrator` |
-| `%huskclaims_current_claim_is_trusted%`  | Whether the player has a [[trust level]] in the claim they are standing in | `true` or `false`             |
-| `%huskclaims_current_claim_trust_level%` | The trust level of the player in the claim they are standing in            | `Access` or `Container`       |
-| `%huskclaims_can_build%`                 | Whether the player can build in the claim they are standing in             | `true` or `false`             |
-| `%huskclaims_can_open_containers%`       | Whether the player can open containers in the claim they are standing in   | `true` or `false`             |
-| `%huskclaims_can_interact%`              | Whether the player can interact in the claim they are standing in          | `true` or `false`             |
+| Placeholder                              | Description                                                                | Example                           |
+|------------------------------------------|----------------------------------------------------------------------------|-----------------------------------|
+| `%huskclaims_claim_blocks%`              | The number of [[claim blocks]] the player has                              | `100`, `1234`, etc.               |
+| `%huskclaims_current_is_claimed%`        | Whether the player is currently standing in a claim                        | `true` or `false`                 |
+| `%huskclaims_current_claim_owner%`       | The owner of the claim the player is standing in                           | `Steve`, `an administrator`, etc. |
+| `%huskclaims_current_claim_is_trusted%`  | Whether the player has a [[trust level]] in the claim they are standing in | `true` or `false`                 |
+| `%huskclaims_current_claim_trust_level%` | The trust level of the player in the claim they are standing in            | `Access`, `Container`, etc.       |
+| `%huskclaims_can_build%`                 | Whether the player can build in the claim they are standing in             | `true` or `false`                 |
+| `%huskclaims_can_open_containers%`       | Whether the player can open containers in the claim they are standing in   | `true` or `false`                 |
+| `%huskclaims_can_interact%`              | Whether the player can interact in the claim they are standing in          | `true` or `false`                 |
 
 ## Dynmap, Pl3xMap, BlueMap
 If one of the supported mapping plugins is installed, HuskClaims will add region markers for claims on your server map:
