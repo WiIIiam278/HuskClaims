@@ -79,13 +79,15 @@ public abstract class BlockHighlighter<B extends BlockHighlighter.HighlightBlock
             this.stopHighlighting(user);
             blocks.forEach((b, t) -> {
                 B block = getHighlightBlock(b.getPosition(), t, plugin);
-                replacedBlocks.put(user.getUuid(), b);
+                cacheBlock(user, b, block);
                 highlightBlocks.add(block);
             });
 
             this.showBlocks(user, highlightBlocks);
         });
     }
+
+    public abstract void cacheBlock(@NotNull OnlineUser user, @NotNull HighlightBlock origin, @NotNull B block);
 
     @NotNull
     public abstract B getHighlightBlock(@NotNull Position position, @NotNull Highlightable.Type type,

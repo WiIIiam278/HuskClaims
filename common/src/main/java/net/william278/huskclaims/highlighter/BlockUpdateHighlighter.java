@@ -36,6 +36,11 @@ public class BlockUpdateHighlighter extends BlockHighlighter<BlockUpdateHighligh
     }
 
     @Override
+    public void cacheBlock(@NotNull OnlineUser user, @NotNull HighlightBlock origin, @NotNull UpdateHighlightBlock block) {
+        replacedBlocks.put(user.getUuid(), origin);
+    }
+
+    @Override
     @NotNull
     public UpdateHighlightBlock getHighlightBlock(@NotNull Position position, @NotNull Highlightable.Type type,
                                                   @NotNull HuskClaims plugin) {
