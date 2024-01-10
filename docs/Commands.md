@@ -367,4 +367,4 @@ The following commands have aliases that can also be used for convenience:
 | `/claimblocks`     | `/adjustclaimblocks`                       |
 | `/permissiontrust` | `/managetrust` &dagger;                    |
 
-&dagger; You can customize or change the [[Trust Levels]] entirely if you wish, including command aliases.
+&dagger; You can customize or change the [Trust Levels](trust#trust-levels) entirely if you wish, including command aliases.
