@@ -48,6 +48,11 @@ public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighli
         super(plugin);
     }
 
+    @Override
+    public void cacheBlock(@NotNull OnlineUser user, @NotNull HighlightBlock origin, @NotNull DisplayHighlightBlock block) {
+        replacedBlocks.put(user.getUuid(), block);
+    }
+
     @NotNull
     @Override
     public DisplayHighlightBlock getHighlightBlock(@NotNull Position position, @NotNull Highlightable.Type type,
