@@ -62,7 +62,7 @@ public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighli
 
     @Override
     public void stopHighlighting(@NotNull OnlineUser user) {
-        if(!replacedBlocks.containsKey(user.getUuid())) {
+        if (!replacedBlocks.containsKey(user.getUuid())) {
             return;
         }
         plugin.runSync(() -> replacedBlocks.removeAll(user.getUuid()).forEach(block -> {

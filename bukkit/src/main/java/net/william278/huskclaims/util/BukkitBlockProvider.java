@@ -87,7 +87,8 @@ public interface BukkitBlockProvider extends BlockProvider {
     // Returns if a block occludes vision/light
     private boolean isOccluding(@NotNull Block block) {
         return (block.isLiquid() && block.getType() == Material.LAVA)
-                || block.getType().isSolid() && (block.getType().isOccluding() || isApproved(block.getType()));
+                || block.getType().isSolid() && (block.getType().isOccluding()
+                || isApproved(block.getType()));
     }
 
     private boolean isApproved(@NotNull Material material) {
