@@ -29,6 +29,7 @@ import net.william278.huskclaims.claim.Region;
 import net.william278.huskclaims.config.Settings;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.user.OnlineUser;
+import net.william278.huskclaims.user.SavedUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -39,10 +40,20 @@ import java.util.Optional;
  */
 public interface InspectionToolHandler {
 
+    String INSPECT_PERMISSION = "huskclaims.inspect";
+    String INSPECT_NEARBY_PERMISSION = "huskclaims.inspect.nearby";
+    String VIEW_LAST_SEEN_PERMISSION = "huskclaims.inspect.view_last_seen";
+
+
     // When the inspection tool (default: stick) is used
     default void onInspectionToolUse(@NotNull OperationUser opUser, @NotNull OperationPosition opPosition) {
         final OnlineUser user = (OnlineUser) opUser;
         final Position position = (Position) opPosition;
+        if (!user.hasPermission(INSPECT_PERMISSION, true)) {
+            getPlugin().getLocales().getLocale("no_inspecting_permission")
+                    .ifPresent(user::sendMessage);
+            return;
+        }
 
         // Check that the world is claimable
         final Optional<ClaimWorld> optionalWorld = getPlugin().getClaimWorld(position.getWorld());
@@ -56,7 +67,8 @@ public interface InspectionToolHandler {
         getPlugin().runAsync(() -> {
             // Handle nearby claim inspecting
             final Settings.ClaimSettings settings = getPlugin().getSettings().getClaims();
-            if (user.isSneaking() && settings.isAllowNearbyClaimInspection()) {
+            if (user.isSneaking() && settings.isAllowNearbyClaimInspection()
+                    && user.hasPermission(INSPECT_NEARBY_PERMISSION, true)) {
                 final int distance = settings.getInspectionDistance();
 
                 final List<Claim> claims = claimWorld.getParentClaimsOverlapping(Region.around(position, distance));
@@ -87,6 +99,13 @@ public interface InspectionToolHandler {
         getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claims);
         getPlugin().getLocales().getLocale("land_claimed_by", claim.getOwnerName(world, getPlugin()))
                 .ifPresent(user::sendMessage);
+
+        // Send last seen message if the user has permission
+        if (user.hasPermission(VIEW_LAST_SEEN_PERMISSION)) {
+            claim.getOwner().flatMap(owner -> getPlugin().getSavedUser(owner)).map(SavedUser::getDaysSinceLastLogin)
+                    .flatMap(days -> getPlugin().getLocales().getLocale("days_since_last_login",
+                            Long.toString(days))).ifPresent(user::sendMessage);
+        }
     }
 
     // Highlight multiple claims

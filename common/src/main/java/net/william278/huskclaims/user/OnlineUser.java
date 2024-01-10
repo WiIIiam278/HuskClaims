@@ -37,6 +37,7 @@ import java.util.UUID;
 public abstract class OnlineUser extends User implements OperationUser, CommandUser {
 
     protected final HuskClaims plugin;
+
     protected OnlineUser(@NotNull String username, @NotNull UUID uuid, @NotNull HuskClaims plugin) {
         super(username, uuid);
         this.plugin = plugin;
@@ -64,6 +65,8 @@ public abstract class OnlineUser extends User implements OperationUser, CommandU
     }
 
     public abstract void sendPluginMessage(@NotNull String channel, byte[] message);
+
+    public abstract boolean hasPermission(@NotNull String permission, boolean isDefault);
 
     public abstract boolean hasPermission(@NotNull String permission);
 

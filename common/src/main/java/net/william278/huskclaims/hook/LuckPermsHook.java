@@ -38,6 +38,7 @@ import java.util.Set;
 import java.util.logging.Level;
 
 public class LuckPermsHook extends Hook {
+
     private LuckPerms luckPerms;
     private final Set<String> groupTags;
 
@@ -91,7 +92,8 @@ public class LuckPermsHook extends Hook {
                     plugin.getLocales().getRawLocale("group_tag_description", Locales.
                             escapeText(group.getDisplayName() == null ? group.getName() : group.getDisplayName())
                     ).orElse(plugin.getLocales().getNotApplicable()),
-                    plugin.getSettings().getHooks().getLuckPerms().isTrustTagUsePermission() ? USE_PERMISSION : null
+                    plugin.getSettings().getHooks().getLuckPerms().isTrustTagUsePermission() ? USE_PERMISSION : null,
+                    false
             );
             this.group = group;
             this.users = users;

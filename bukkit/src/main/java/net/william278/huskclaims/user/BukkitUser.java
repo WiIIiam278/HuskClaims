@@ -25,6 +25,8 @@ import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.position.Position;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionDefault;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -59,6 +61,13 @@ public class BukkitUser extends OnlineUser {
     @Override
     public boolean hasPermission(@NotNull String permission) {
         return bukkitPlayer.hasPermission(permission);
+    }
+
+    @Override
+    public boolean hasPermission(@NotNull String permission, boolean isDefault) {
+        return bukkitPlayer.hasPermission(new Permission(
+                permission, isDefault ? PermissionDefault.TRUE : PermissionDefault.OP
+        ));
     }
 
     @Override

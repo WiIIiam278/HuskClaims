@@ -88,10 +88,10 @@ public interface BukkitBlockProvider extends BlockProvider {
     private boolean isOccluding(@NotNull Block block) {
         return (block.isLiquid() && block.getType() == Material.LAVA)
                 || block.getType().isSolid() && (block.getType().isOccluding()
-                || isApproved(block.getType()));
+                || isAllowedMaterial(block.getType()));
     }
 
-    private boolean isApproved(@NotNull Material material) {
+    private boolean isAllowedMaterial(@NotNull Material material) {
         return switch (material) {
             case GLASS, GLASS_PANE, BLACK_STAINED_GLASS, BLUE_STAINED_GLASS, BROWN_STAINED_GLASS, CYAN_STAINED_GLASS,
                     GRAY_STAINED_GLASS, GREEN_STAINED_GLASS, LIGHT_BLUE_STAINED_GLASS, LIGHT_GRAY_STAINED_GLASS,

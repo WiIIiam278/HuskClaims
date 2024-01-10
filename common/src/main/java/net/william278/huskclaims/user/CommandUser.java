@@ -29,6 +29,8 @@ public interface CommandUser {
     @NotNull
     Audience getAudience();
 
+    boolean hasPermission(@NotNull String permission, boolean isDefault);
+
     boolean hasPermission(@NotNull String permission);
 
     default void sendMessage(@NotNull Component component) {

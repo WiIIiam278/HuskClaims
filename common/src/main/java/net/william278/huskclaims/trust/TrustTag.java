@@ -47,6 +47,11 @@ public abstract class TrustTag implements TrustableCollection {
     @Nullable
     protected String permissionToUse;
 
+    /**
+     * Whether the permission is a default permission
+     */
+    protected boolean permissionDefault;
+
     public TrustTag(@NotNull String name, @NotNull String description) {
         this.name = name;
         this.description = description;
@@ -70,7 +75,7 @@ public abstract class TrustTag implements TrustableCollection {
     public abstract boolean includes(@NotNull User trustable);
 
     public boolean canUse(@NotNull CommandUser user) {
-        return permissionToUse == null || user.hasPermission(permissionToUse);
+        return permissionToUse == null || user.hasPermission(permissionToUse, permissionDefault);
     }
 
     public static class DeletedTrustTag extends TrustTag {

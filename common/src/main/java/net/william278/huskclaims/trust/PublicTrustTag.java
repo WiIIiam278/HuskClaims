@@ -31,7 +31,7 @@ public final class PublicTrustTag extends TrustTag {
         super(
                 plugin.getSettings().getTrustTags().getPublicAccessName(),
                 plugin.getLocales().getRawLocale("public_tag_description").orElse(""),
-                plugin.getSettings().getTrustTags().isPublicAccessUsePermission() ? USE_PERMISSION : null
+                USE_PERMISSION, true
         );
     }
 

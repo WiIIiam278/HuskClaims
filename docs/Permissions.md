@@ -13,6 +13,15 @@ HuskClaims provides permissions for restricting access to commands and features.
 ## Commands
 Please see the [[Commands]] page reference for a full list of commands and their permissions.
 
+## Inspection
+These permissions restrict the ability to inspect claims.
+
+| Permission                          | Description                                                                                   | Default |
+|-------------------------------------|-----------------------------------------------------------------------------------------------|---------|
+| `huskclaims.inspect`                | Inspect claims with the inspection tool.                                                      | ✅       |
+| `huskclaims.inspect.nearby`         | Inspect all nearby claims by holding SNEAK and using the inspection tool.                     | ✅       |
+| `huskclaims.inspect.view_last_seen` | When inspecting, whether the user can see how many days since the claim owner last logged on. | ❌       |
+
 ## Claims
 These permissions restrict the ability to create certain types of claims. See [[Claims]] for more details on claiming land. It is also possible to disable creating admin/child claims in the plugin config.
 
@@ -25,9 +34,9 @@ These permissions restrict the ability to create certain types of claims. See [[
 ## Trust Tags
 These permissions restrict being able to use certain trust tags when granting trust to other players. See [[Trust]] for more details on trust tags.
 
-| Permission                   | Description                                                                                                     |   Default   |
-|------------------------------|-----------------------------------------------------------------------------------------------------------------|:-----------:|
-| `huskclaims.trust.public`    | Use the `#public` trust tag in claims to grant public access. This permission check is disabled by default.     | (disabled)  |
-| `huskclaims.trust.luckperms` | Use the `#role/(name)` trust tags in claims to grant LuckPerms role-based access.\nRequires the LuckPerms hook. |      ❌      |
+| Permission                   | Description                                                                                                     | Default |
+|------------------------------|-----------------------------------------------------------------------------------------------------------------|:-------:|
+| `huskclaims.trust.public`    | Use the `#public` trust tag in claims to grant public access.                                                   |    ✅    |
+| `huskclaims.trust.luckperms` | Use the `#role/(name)` trust tags in claims to grant LuckPerms role-based access.\nRequires the LuckPerms hook. |    ❌    |
 
-Note you can turn on/off restricting these trust tags behind permissions.
+You can turn off the permission requirement for using LuckPerms groups in claims in the [[config]] hook settings. 
