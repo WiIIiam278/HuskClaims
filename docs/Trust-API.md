@@ -1,5 +1,14 @@
 HuskClaims provides API for trusting users in claims and registering trust tags.
 
+## Table of Contents
+* [1. Getting the list of trust levels](#1-getting-the-list-of-trust-levels)
+* [2. Getting UserGroups](#2-getting-usergroups)
+* [3. Trusting Trustables in a claim](#3-trusting-trustables-in-a-claim)
+* [4. TrustTags](#4-trusttags)
+  * [4.1 Getting TrustTags](#41-getting-trusttags)
+  * [4.2 Extending the TrustTag class](#42-extending-the-trusttag-class)
+  * [4.3 Registering your TrustTag](#43-registering-your-trusttag)
+
 ## 1. Getting the list of trust levels
 * You can get a list of registered trust levels using `HuskClaimsAPI#getTrustLevels()`.
 * Within the `TrustLevel` object, you can get the various privileges and their associated `TrustLevel.Privilege`s using `#getPrivileges()`, and allowed `OperationType`s using `#getFlags()`.
@@ -57,6 +66,7 @@ void trustUserInClaim(Claim claim, ClaimWorld claimWorld, User user) {
 ## 4.1 Getting TrustTags
 * You can get a list of registered trust tags using `HuskClaimsAPI#getTrustTags()`.
 * You can get a `TrustTag` by name using `HuskClaimsAPI#getTrustTagByName(String name)`.
+  * For example, use `#getTrustTagByName("public")` to get the built-in `PublicTrustTag` which you can use to grant public trust on a `Claim`.
 
 <details>
 <summary>Example &mdash; Getting the list of registered TrustTags</summary>
