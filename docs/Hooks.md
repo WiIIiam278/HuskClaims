@@ -1,15 +1,15 @@
 HuskClaims offers several built-in hooks providing support for other plugins. These hooks can be enabled or disabled in the `hooks` section of the plugin [[config]].
 
-| Name                               | Description                       | Link                                              |
-|------------------------------------|-----------------------------------|---------------------------------------------------|
-| [Vault](#vault)                    | Economy support for claim blocks  | https://www.spigotmc.org/resources/vault.34315/   |
-| [LuckPerms](#luckperms)            | Trust tags for LuckPerms groups   | https://luckperms.net/                            |
-| [HuskHomes](#huskhomes)            | Restricting homes to claims       | https://william278.net/project/huskhomes/         |
-| [Plan](#plan)                      | Display claim analytics in Plan   | https://www.playeranalytics.net/                  |
-| [PlaceholderAPI](#placeholderapi)  | Provides HuskClaims placeholders  | https://placeholderapi.com/                       |
-| [Dynmap](#dynmap-pl3xmap-bluemap)  | Add claim markers to your Dynmap  | https://www.spigotmc.org/resources/dynmap.274/    |
-| [Pl3xMap](#dynmap-pl3xmap-bluemap) | Add claim markers to your Pl3xMap | https://modrinth.com/plugin/pl3xmap/              |
-| [BlueMap](#dynmap-pl3xmap-bluemap) | Add claim markers to your BlueMap | https://www.spigotmc.org/resources/bluemap.83557/ |
+| Name                               | Description                         | Link                                              |
+|------------------------------------|-------------------------------------|---------------------------------------------------|
+| [Vault](#vault)                    | Economy support for claim blocks    | https://www.spigotmc.org/resources/vault.34315/   |
+| [LuckPerms](#luckperms)            | Trust tags for LuckPerms groups     | https://luckperms.net/                            |
+| [HuskHomes](#huskhomes)            | Restricting home creation in claims | https://william278.net/project/huskhomes/         |
+| [Plan](#plan)                      | Display claim analytics in Plan     | https://www.playeranalytics.net/                  |
+| [PlaceholderAPI](#placeholderapi)  | Provides HuskClaims placeholders    | https://placeholderapi.com/                       |
+| [Dynmap](#dynmap-pl3xmap-bluemap)  | Add claim markers to your Dynmap    | https://www.spigotmc.org/resources/dynmap.274/    |
+| [Pl3xMap](#dynmap-pl3xmap-bluemap) | Add claim markers to your Pl3xMap   | https://modrinth.com/plugin/pl3xmap/              |
+| [BlueMap](#dynmap-pl3xmap-bluemap) | Add claim markers to your BlueMap   | https://www.spigotmc.org/resources/bluemap.83557/ |
 
 ## Vault
 If Vault (and a compatible economy plugin) is installed, the `/buyclaimblocks` command will be enabled allowing users to [purchase claim blocks for money](claim-blocks#buying-claim-blocks).
@@ -20,7 +20,7 @@ If LuckPerms is installed, HuskClaims will register [Trust Tags](trust#trust-tag
 ## HuskHomes
 If HuskHomes is installed, the `/huskclaims teleport` command will be enabled allowing admins to quickly teleport to claims from the [claim list](claims#listing-claims).
 
-Additionally, HuskClaims will restrict creating or relocating homes to be within claims unless the user has a minimum [[trust]] level in the claim (default is Access Trust+).
+Additionally, HuskClaims will prevent creating or relocating homes within claims unless the user has a minimum [[trust]] level in the claim (default is Access Trust+).
 
 ## Plan
 If Plan is installed, HuskClaims will display HuskClaims analytics (such as Claim Blocks and Claims created) in the Plan web interface on user and server pages.
