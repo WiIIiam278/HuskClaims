@@ -1,5 +1,3 @@
-HuskClaims provides permissions for restricting access to commands and features. The permissions are listed below.
-
 <table align="right">
     <thead>
         <tr><th colspan="2">Key</th></tr>
@@ -9,6 +7,8 @@ HuskClaims provides permissions for restricting access to commands and features.
         <tr><td>❌</td><td>Accessible only by server operators by default</td></tr>
     </tbody>
 </table>
+
+HuskClaims provides permissions for restricting access to commands and features. The permissions are listed below.
 
 ## Commands
 Please see the [[Commands]] page reference for a full list of commands and their permissions.
