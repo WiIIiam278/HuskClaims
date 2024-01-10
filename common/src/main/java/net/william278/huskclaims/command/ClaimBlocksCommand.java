@@ -20,7 +20,10 @@
 package net.william278.huskclaims.command;
 
 import net.william278.huskclaims.HuskClaims;
-import net.william278.huskclaims.user.*;
+import net.william278.huskclaims.user.ClaimBlocksManager;
+import net.william278.huskclaims.user.CommandUser;
+import net.william278.huskclaims.user.OnlineUser;
+import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
