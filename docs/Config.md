@@ -174,8 +174,6 @@ trust_tags:
   tag_specifier_prefix: '#'
   # The name of the default public access tag (to let anyone access certain claim levels)
   public_access_name: public
-  # Whether to require the "huskclaims.trust.public" permission to use the public access tag
-  public_access_use_permission: true
 # Settings for the claim inspection/creation highlighter
 highlighter:
   # Whether to use block display entities for glowing (requires Paper 1.19.4+)
