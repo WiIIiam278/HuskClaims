@@ -8,7 +8,9 @@
     </tbody>
 </table>
 
-HuskClaims provides permissions for restricting access to commands and features. The permissions are listed below.
+HuskClaims provides permissions for restricting access to commands and features. 
+
+These permissions are detailed below.
 
 ## Commands
 Please see the [[Commands]] page reference for a full list of commands and their permissions.
@@ -34,9 +36,9 @@ These permissions restrict the ability to create certain types of claims. See [[
 ## Trust Tags
 These permissions restrict being able to use certain trust tags when granting trust to other players. See [[Trust]] for more details on trust tags.
 
-| Permission                   | Description                                                                                                     | Default |
-|------------------------------|-----------------------------------------------------------------------------------------------------------------|:-------:|
-| `huskclaims.trust.public`    | Use the `#public` trust tag in claims to grant public access.                                                   |    ✅    |
-| `huskclaims.trust.luckperms` | Use the `#role/(name)` trust tags in claims to grant LuckPerms role-based access.\nRequires the LuckPerms hook. |    ❌    |
+| Permission                   | Description                                                                                                    | Default |
+|------------------------------|----------------------------------------------------------------------------------------------------------------|:-------:|
+| `huskclaims.trust.public`    | Use the `#public` trust tag in claims to grant public access.                                                  |    ✅    |
+| `huskclaims.trust.luckperms` | Use the `#role/(name)` trust tags in claims to grant LuckPerms role-based access. Requires the LuckPerms hook. |    ❌    |
 
 You can turn off the permission requirement for using LuckPerms groups in claims in the [[config]] hook settings. 
