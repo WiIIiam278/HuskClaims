@@ -14,10 +14,16 @@ Inspecting claims is done with the inspection tool, which is a Stick by default.
 
 Holding the Sneak key while right-clicking will inspect all nearby claims, highlighting all claims within a configurable radius of the block you right-clicked.
 
+![Viewing nearby claims](https://raw.githubusercontent.com/WiIIiam278/HuskClaims/master/images/inspecting_nearby_claims.gif)
+
+On Minecraft 1.19.4+ Paper servers with the `block_displays` setting enabled, claim inspection will use block display entities to highlight claims offering glowing blocks for more visibility. On older servers, or with the `block_displays` setting disabled (if you prefer!), "ghost blocks" will be used instead.
+
+![Comparison of different claim highlighters](https://raw.githubusercontent.com/WiIIiam278/HuskClaims/master/images/highlighter_types.png)
+
 ## Listing Claims
 You can view a list of your claims using the `/claimslist` command, which is navigable through the interactive clickable chat buttons. The claim list is global across servers running HuskClaims in cross-server mode.
 
-![Viewing a list of your claims](https://raw.githubusercontent.com/WiIIiam278/HuskClaims/master/images/claims_list.png)
+![Viewing a list of your claims](https://raw.githubusercontent.com/WiIIiam278/HuskClaims/master/images/listing_claims.gif)
 
 Admins can view a list of [admin claims](#admin-claims) using the `/adminclaimslist` command, and view a specific user's claims through `/claimslist (username)`. Additionally, if the HuskHomes hook is enabled, admins with access to `/huskclaims teleport` can click on the coordinates displayed in the claim list to quickly teleport to that claim.
 
