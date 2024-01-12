@@ -64,6 +64,9 @@ HuskClaims is licensed under the Apache 2.0 license.
 Contributions to the project are welcome&mdash;feel free to open a pull request with new features, improvements and/or fixes!
 
 ### Support
+Due to its complexity, official binaries and customer support for HuskClaims is provided through a paid model. This means that support is only available to users who have purchased a license to the plugin from Spigot, Polymart, Craftaro, or BuiltByBit and have provided proof of purchase. Please join our Discord server if you have done so and need help!
+
+### Support
 _Coming soon!_
 
 ## Translations
