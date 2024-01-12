@@ -86,7 +86,7 @@ locales:
   trust_list_deleted_group: '[%1%](gray strikethrough show_text=&7The claim owner has deleted this group.\n&8Click to remove from the claim suggest_command=/untrust %1%)'
   trust_list_tag: '[%1%](white show_text=&7%2%)'
   trust_list_unregistered_tag: '[%1%](gray italic show_text=&7The tag has not been registered on the server\n&8Click to remove from the claim suggest_command=/untrust %1%)'
-  days_since_last_login: '[Last seen %1% days ago.](#ff7e5e)'
+  days_since_last_login: '[Last seen %1% days ago.](gray)'
   claim_blocks_updated: '[Set %1%''s claim block balance to %2%](#00fb9a)'
   claim_blocks_purchased: '[Successfully purchased ■ %1% claim blocks for %2%. (New balance: ■ %3%)](#00fb9a)'
   claim_block_balance: '[%1%''s claim block balance:](#00fb9a) [■ %2%](#00fb9a show_text=&#00fb9a&Click to view a list of claims run_command=/claimslist %1%)'
