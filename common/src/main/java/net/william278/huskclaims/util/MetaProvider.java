@@ -34,7 +34,8 @@ import java.util.logging.Level;
  */
 public interface MetaProvider {
 
-    int SPIGOT_RESOURCE_ID = 100000; //todo set this
+    int SPIGOT_RESOURCE_ID = 114467;
+    int BSTATS_PLUGIN_ID = 20728;
 
     /**
      * Get a list of all {@link ClaimWorld}s

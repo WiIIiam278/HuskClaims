@@ -72,6 +72,7 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvi
             loadClaimBlockScheduler();
             loadHooks();
             loadAPI();
+            loadMetrics();
         } catch (Throwable e) {
             log(Level.SEVERE, "An error occurred whilst initializing HuskClaims", e);
             disablePlugin();
@@ -115,6 +116,13 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvi
     default void unloadAPI() {
         HuskClaimsAPI.unregister();
     }
+
+    /**
+     * Load plugin metrics
+     *
+     * @since 1.0
+     */
+    void loadMetrics();
 
     /**
      * Disable the plugin

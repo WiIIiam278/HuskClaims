@@ -38,6 +38,7 @@ import net.william278.huskclaims.config.Settings;
 import net.william278.huskclaims.config.TrustLevels;
 import net.william278.huskclaims.database.Database;
 import net.william278.huskclaims.event.BukkitEventDispatcher;
+import net.william278.huskclaims.highlighter.BlockUpdateHighlighter;
 import net.william278.huskclaims.highlighter.Highlighter;
 import net.william278.huskclaims.hook.BukkitHookProvider;
 import net.william278.huskclaims.hook.Hook;
@@ -54,6 +55,8 @@ import net.william278.huskclaims.user.*;
 import net.william278.huskclaims.util.BlockProvider;
 import net.william278.huskclaims.util.BukkitBlockProvider;
 import net.william278.huskclaims.util.BukkitTask;
+import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -123,6 +126,30 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     @Override
     public void loadAPI() {
         BukkitHuskClaimsAPI.register(this);
+    }
+
+    @Override
+    public void loadMetrics() {
+        try {
+            final Metrics metrics = new Metrics(this, BSTATS_PLUGIN_ID);
+            metrics.addCustomChart(new SimplePie("is_cross_server",
+                    () -> settings.getCrossServer().isEnabled() ? "true" : "false")
+            );
+            metrics.addCustomChart(new SimplePie("language",
+                    () -> settings.getLanguage().toLowerCase())
+            );
+            metrics.addCustomChart(new SimplePie("database_type",
+                    () -> settings.getDatabase().getType().getDisplayName())
+            );
+            metrics.addCustomChart(new SimplePie("highlighter_type",
+                    () -> getHighlighter() instanceof BlockUpdateHighlighter ? "Block Updates" : "Display Entities")
+            );
+            getBroker().ifPresent(broker -> metrics.addCustomChart(new SimplePie("broker_type",
+                    () -> settings.getCrossServer().getBrokerType().getDisplayName()
+            )));
+        } catch (Exception e) {
+            log(Level.WARNING, "Failed to initialize plugin metrics", e);
+        }
     }
 
     @Override
