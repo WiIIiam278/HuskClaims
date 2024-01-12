@@ -59,7 +59,7 @@ public class RedisBroker extends PluginMessageBroker {
                     settings.getPort(),
                     0,
                     settings.getPassword().isEmpty() ? null : settings.getPassword(),
-                    settings.isUseSSL()
+                    settings.isUseSsl()
             );
             plugin.log(Level.INFO, "Using Redis pool");
         } else {

@@ -143,7 +143,7 @@ public final class Settings {
             private int port = 6379;
             @Comment("Password for your Redis server. Leave blank if you're not using a password.")
             private String password = "";
-            private boolean useSSL = false;
+            private boolean useSsl = false;
 
             @Comment({"Settings for if you're using Redis Sentinels.",
                     "If you're not sure what this is, please ignore this section."})

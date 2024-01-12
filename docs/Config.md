@@ -65,7 +65,7 @@ cross_server:
     port: 6379
     # Password for your Redis server. Leave blank if you're not using a password.
     password: ''
-    use_s_s_l: false
+    use_ssl: false
     # Settings for if you're using Redis Sentinels.
     # If you're not sure what this is, please ignore this section.
     sentinel:
