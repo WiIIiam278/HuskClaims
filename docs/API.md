@@ -38,7 +38,7 @@ Add the repository to your `pom.xml` as per below. You can alternatively specify
 Add the dependency to your `pom.xml` as per below. Replace `PLATFORM` with your target platform (see above) and `VERSION` with the latest version of HuskClaims (without the v): ![Latest version](https://img.shields.io/github/v/tag/WiIIiam278/HuskClaims?color=%23282828&label=%20&style=flat-square)
 ```xml
 <dependency>
-    <groupId>net.william278</groupId>
+    <groupId>net.william278.huskclaims</groupId>
     <artifactId>huskclaims-PLATFORM</artifactId>
     <version>VERSION</version>
     <scope>provided</scope>
@@ -62,7 +62,7 @@ Add the dependency as per below. Replace `PLATFORM` with your target platform (s
 
 ```groovy
 dependencies {
-    compileOnly 'net.william278:huskclaims-PLATFORM:VERSION'
+    compileOnly 'net.william278.huskclaims:huskclaims-PLATFORM:VERSION'
 }
 ```
 </details>
@@ -98,12 +98,12 @@ public class HuskClaimsAPIHook {
 ```java
 public class MyPlugin extends JavaPlugin {
 
-    public HuskClaimsAPIHook huskSyncAPIHook;
+    public HuskClaimsAPIHook huskClaimsAPIHook;
 
     @Override
     public void onEnable() {
         if (Bukkit.getPluginManager().getPlugin("HuskClaims") != null) {
-            this.huskSyncAPIHook = new HuskClaimsAPIHook();
+            this.huskClaimsAPIHook = new HuskClaimsAPIHook();
         }
     }
 }
@@ -117,10 +117,10 @@ import net.william278.huskclaims.api.BukkitHuskClaimsAPI;
 
 public class HuskClaimsAPIHook {
 
-    private final BukkitHuskClaimsAPI huskSyncAPI;
+    private final BukkitHuskClaimsAPI huskClaimsAPI;
 
     public HuskClaimsAPIHook() {
-        this.huskSyncAPI = BukkitHuskClaimsAPI.getInstance(); // Or, HuskClaimsAPI.getInstance() for the common API
+        this.huskClaimsAPI = BukkitHuskClaimsAPI.getInstance(); // Or, HuskClaimsAPI.getInstance() for the common API
     }
 
 }
