@@ -29,6 +29,7 @@ import net.william278.huskclaims.trust.TrustLevel;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -101,12 +102,17 @@ public interface ConfigProvider {
         final YamlConfigurationStore<Locales> store = new YamlConfigurationStore<>(
                 Locales.class, YAML_CONFIGURATION_PROPERTIES.header(Locales.CONFIG_HEADER).build()
         );
+        // Read existing locales if present
+        final Path path = getConfigDirectory().resolve(String.format("messages-%s.yml", getSettings().getLanguage()));
+        if (!Files.exists(path)) {
+            setLocales(store.load(path));
+            return;
+        }
+
+        // Otherwise, save and read the default locales
         try (InputStream input = getResource(String.format("locales/%s.yml", getSettings().getLanguage()))) {
             final Locales locales = store.read(input);
-            store.save(
-                    locales,
-                    getConfigDirectory().resolve(String.format("messages-%s.yml", getSettings().getLanguage()))
-            );
+            store.save(locales, path);
             setLocales(locales);
         } catch (Throwable e) {
             getPlugin().log(Level.SEVERE, "An error occurred loading the locales (invalid lang code?)", e);
