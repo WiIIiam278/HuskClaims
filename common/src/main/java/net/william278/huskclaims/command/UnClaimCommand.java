@@ -27,7 +27,6 @@ import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public class UnClaimCommand extends InClaimCommand {
@@ -38,7 +37,6 @@ public class UnClaimCommand extends InClaimCommand {
                 "[confirm]",
                 plugin
         );
-        addAdditionalPermissions(Map.of("other", true));
     }
 
     @Override
@@ -53,7 +51,7 @@ public class UnClaimCommand extends InClaimCommand {
 
         // Check if the user can delete the claim
         if ((claim.getOwner().isEmpty() && !ClaimingMode.ADMIN_CLAIMS.canUse(executor)) || (claim.getOwner().isPresent()
-                && claim.getOwner().get().equals(executor.getUuid()) && !hasPermission(executor, "other"))) {
+                && (!claim.getOwner().get().equals(executor.getUuid()) || !hasPermission(executor, "other")))) {
             plugin.getLocales().getLocale("no_deletion_permission")
                     .ifPresent(executor::sendMessage);
             return;
