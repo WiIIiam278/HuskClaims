@@ -115,7 +115,7 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
                 ));
             }
             case "import" -> handleImportCommand(executor, removeFirstArg(args));
-            case "reload" -> {
+            case "reload" -> plugin.runSync(() -> {
                 try {
                     plugin.unloadHooks();
                     plugin.loadSettings();
@@ -127,7 +127,7 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
                     ));
                     plugin.log(Level.SEVERE, "Failed to reload the plugin", e);
                 }
-            }
+            });
             case "update" -> updateChecker.check().thenAccept(checked -> {
                 if (checked.isUpToDate()) {
                     plugin.getLocales().getLocale("up_to_date", plugin.getPluginVersion().toString())
