@@ -23,6 +23,7 @@ import com.google.common.collect.Maps;
 import de.exlll.configlib.Configuration;
 import de.themoep.minedown.adventure.MineDown;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.william278.huskclaims.util.PaginatedListProvider;
 import org.apache.commons.text.StringEscapeUtils;
@@ -54,7 +55,7 @@ public class Locales implements PaginatedListProvider {
     protected static final String DEFAULT_LOCALE = "en-gb";
 
     // The raw set of locales loaded from yaml
-    private Map<String, String> locales = Maps.newTreeMap();
+    Map<String, String> locales = Maps.newTreeMap();
 
     /**
      * Returns a raw, unformatted locale loaded from the locales file
