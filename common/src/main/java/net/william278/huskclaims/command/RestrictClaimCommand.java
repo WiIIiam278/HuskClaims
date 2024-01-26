@@ -22,13 +22,12 @@ package net.william278.huskclaims.command;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ClaimWorld;
-import net.william278.huskclaims.claim.ClaimingMode;
 import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class RestrictClaimCommand extends InClaimCommand implements ToggleTabCompletable {
+public class RestrictClaimCommand extends InClaimOwnerCommand implements ToggleTabCompletable {
 
     protected RestrictClaimCommand(@NotNull HuskClaims plugin) {
         super(
@@ -39,26 +38,20 @@ public class RestrictClaimCommand extends InClaimCommand implements ToggleTabCom
     }
 
     @Override
-    public void execute(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
-                        @NotNull Claim claim, @NotNull String[] args) {
-        // Only the owner can restrict claims as they bypass trust list requirements
-        if ((claim.getOwner().isEmpty() && !ClaimingMode.ADMIN_CLAIMS.canUse(executor))
-                || (claim.getOwner().map(owner -> !owner.equals(executor.getUuid())).orElse(true)
-                || hasPermission(executor, "other"))) {
-            plugin.getLocales().getLocale("no_resizing_permission")
-                    .ifPresent(executor::sendMessage);
-            return;
-        }
-        restrictChildClaim(claim, world, executor, args);
+    public void executeChild(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
+                             @NotNull Claim child, @NotNull Claim parent, @NotNull String[] args) {
+        restrictChildClaim(child, world, executor, args);
+    }
+
+    @Override
+    public void executeParent(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
+                              @NotNull Claim claim, @NotNull String[] args) {
+        plugin.getLocales().getLocale("error_restrict_not_child")
+                .ifPresent(executor::sendMessage);
     }
 
     private void restrictChildClaim(@NotNull Claim claim, @NotNull ClaimWorld world,
                                     @NotNull OnlineUser user, @NotNull String[] args) {
-        if (!claim.isChildClaim(world)) {
-            plugin.getLocales().getLocale("error_restrict_not_child")
-                    .ifPresent(user::sendMessage);
-            return;
-        }
         boolean shouldInheritParent = parseBooleanArg(args, 0).orElse(!claim.isInheritParent());
         claim.setInheritParent(shouldInheritParent);
         plugin.getDatabase().updateClaimWorld(world);

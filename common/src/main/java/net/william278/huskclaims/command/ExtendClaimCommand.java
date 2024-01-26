@@ -23,16 +23,16 @@ import lombok.AllArgsConstructor;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ClaimWorld;
-import net.william278.huskclaims.claim.ClaimingMode;
 import net.william278.huskclaims.claim.Region;
 import net.william278.huskclaims.config.Settings;
 import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
 
-public class ExtendClaimCommand extends InClaimCommand {
+public class ExtendClaimCommand extends InClaimOwnerCommand {
 
     protected ExtendClaimCommand(@NotNull HuskClaims plugin) {
         super(
@@ -40,14 +40,26 @@ public class ExtendClaimCommand extends InClaimCommand {
                 "<blocks>",
                 plugin
         );
+        setNoPrivilegeMessage("no_resizing_permission");
     }
 
     @Override
-    public void execute(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
-                        @NotNull Claim claim, @NotNull String[] args) {
-        if ((claim.getOwner().isEmpty() && !ClaimingMode.ADMIN_CLAIMS.canUse(executor)) || (claim.getOwner().isPresent()
-                && claim.getOwner().get().equals(executor.getUuid()) && !hasPermission(executor, "other"))) {
-            plugin.getLocales().getLocale("no_resizing_permission")
+    public void executeChild(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
+                             @NotNull Claim child, @NotNull Claim parent, @NotNull String[] args) {
+        extendClaim(executor, world, child, parent, args);
+    }
+
+    @Override
+    public void executeParent(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
+                              @NotNull Claim claim, @NotNull String[] args) {
+        extendClaim(executor, world, claim, null, args);
+    }
+
+    private void extendClaim(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
+                             @NotNull Claim claim, @Nullable Claim parent, @NotNull String[] args) {
+        final Settings.ClaimSettings claims = plugin.getSettings().getClaims();
+        if (claims.isRequireToolForCommands() && !executor.isHolding(claims.getClaimTool())) {
+            plugin.getLocales().getLocale("claim_tool_required")
                     .ifPresent(executor::sendMessage);
             return;
         }
@@ -58,19 +70,21 @@ public class ExtendClaimCommand extends InClaimCommand {
                     .ifPresent(executor::sendMessage);
             return;
         }
-        extendClaim(executor, world, claim, ExtendDirection.getFrom(executor.getPosition().getYaw()), distance.get());
-    }
 
-    private void extendClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Claim claim,
-                             @NotNull ExtendDirection facing, int amount) {
-        final Settings.ClaimSettings claims = plugin.getSettings().getClaims();
-        if (claims.isRequireToolForCommands() && !user.isHolding(claims.getClaimTool())) {
-            plugin.getLocales().getLocale("claim_tool_required")
-                    .ifPresent(user::sendMessage);
+        final Region extendedRegion = getExtendedRegion(
+                claim.getRegion(),
+                ExtendDirection.getFrom(executor.getPosition().getYaw()), distance.get()
+        );
+        if (parent != null) {
+            plugin.userResizeChildClaim(executor, world, claim, extendedRegion);
             return;
         }
+        plugin.userResizeClaim(executor, world, claim, extendedRegion);
+    }
 
-        // Calculate the number of blocks to extend in each direction
+    // Calculates the number of blocks to extend in each direction and returns a resized region
+    @NotNull
+    private Region getExtendedRegion(@NotNull Region region, @NotNull ExtendDirection facing, int amount) {
         int north = 0, south = 0, east = 0, west = 0;
         switch (facing) {
             case NORTH -> north = amount;
@@ -78,10 +92,7 @@ public class ExtendClaimCommand extends InClaimCommand {
             case EAST -> east = amount;
             case WEST -> west = amount;
         }
-
-        // Resize the claim
-        final Region resized = claim.getRegion().getResized(north, south, east, west);
-        plugin.userResizeClaim(user, world, claim, resized);
+        return region.getResized(north, south, east, west);
     }
 
     @AllArgsConstructor
