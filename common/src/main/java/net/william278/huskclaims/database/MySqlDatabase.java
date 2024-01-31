@@ -30,11 +30,9 @@ import net.william278.huskclaims.config.Settings;
 import net.william278.huskclaims.position.ServerWorld;
 import net.william278.huskclaims.position.World;
 import net.william278.huskclaims.trust.UserGroup;
-import net.william278.huskclaims.user.Preferences;
 import net.william278.huskclaims.user.SavedUser;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
@@ -305,16 +303,18 @@ public class MySqlDatabase extends Database {
     }
 
     @Override
-    public void createUser(@NotNull User user, long claimBlocks, @NotNull Preferences preferences) {
+    public void createUser(@NotNull SavedUser saved) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
-                    INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`, `preferences`)
-                    VALUES (?, ?, ?, ?, ?)"""))) {
-                statement.setString(1, user.getUuid().toString());
-                statement.setString(2, user.getName());
-                statement.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
-                statement.setLong(4, claimBlocks);
-                statement.setBytes(5, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
+                    INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`, `hours_played`, `preferences`)
+                    VALUES (?, ?, ?, ?, ?, ?)"""))) {
+                statement.setString(1, saved.getUser().getUuid().toString());
+                statement.setString(2, saved.getUser().getName());
+                statement.setTimestamp(3, Timestamp.valueOf(saved.getLastLogin().toLocalDateTime()));
+                statement.setLong(4, saved.getClaimBlocks());
+                statement.setInt(5, saved.getHoursPlayed());
+                statement.setBytes(5, plugin.getGson().toJson(saved.getPreferences())
+                        .getBytes(StandardCharsets.UTF_8));
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
@@ -342,21 +342,22 @@ public class MySqlDatabase extends Database {
     }
 
     @Override
-    public void createOrUpdateUser(@NotNull UUID uuid, @NotNull String name, long totalBlocks, @Nullable Timestamp lastLogin, @NotNull Preferences preferences) {
+    public void createOrUpdateUser(@NotNull SavedUser data) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
                     INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`, `preferences`)
                     VALUES (?, ?, ?, ?, ?)
                     ON DUPLICATE KEY UPDATE `username` = ?, `last_login` = ?, `claim_blocks` = ?, `preferences` = ?;"""))) {
-                statement.setString(1, uuid.toString());
-                statement.setString(2, name);
-                statement.setTimestamp(3, lastLogin);
-                statement.setLong(4, totalBlocks);
-                statement.setBytes(5, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
-                statement.setString(6, name);
-                statement.setTimestamp(7, lastLogin);
-                statement.setLong(8, totalBlocks);
-                statement.setBytes(9, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
+                final byte[] prefs = plugin.getGson().toJson(data.getPreferences()).getBytes(StandardCharsets.UTF_8);
+                statement.setString(1, data.getUser().getUuid().toString());
+                statement.setString(2, data.getUser().getName());
+                statement.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
+                statement.setLong(4, data.getClaimBlocks());
+                statement.setBytes(5, prefs);
+                statement.setString(6, data.getUser().getName());
+                statement.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
+                statement.setLong(8, data.getClaimBlocks());
+                statement.setBytes(9, prefs);
                 statement.executeUpdate();
             }
         } catch (SQLException e) {

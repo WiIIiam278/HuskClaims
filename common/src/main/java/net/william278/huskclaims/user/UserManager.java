@@ -53,13 +53,22 @@ public interface UserManager extends ClaimBlocksManager {
     }
 
     @Blocking
-    default void editSavedUser(@NotNull UUID uuid, @NotNull Consumer<SavedUser> consumer) {
-        final Optional<SavedUser> optionalUser = getSavedUser(uuid);
-        if (optionalUser.isEmpty()) {
-            throw new IllegalArgumentException("Could not find user with UUID: " + uuid);
-        }
+    default void editSavedUser(@NotNull UUID uuid, @NotNull Consumer<SavedUser> consumer, @NotNull Runnable ifEmpty) {
+        getSavedUser(uuid).ifPresentOrElse(user -> editSavedUser(user, consumer), ifEmpty);
+    }
 
-        final SavedUser user = optionalUser.get();
+    @Blocking
+    default void editSavedUser(@NotNull UUID uuid, @NotNull Consumer<SavedUser> consumer) {
+        final Optional<SavedUser> saved = getSavedUser(uuid);
+        if (saved.isEmpty()) {
+            throw new IllegalArgumentException("Failed to find user by UUID %s in cache or database!".formatted(uuid));
+        }
+        editSavedUser(saved.get(), consumer);
+    }
+
+    @Blocking
+    private void editSavedUser(@NotNull SavedUser user, @NotNull Consumer<SavedUser> consumer) {
+        final UUID uuid = user.getUser().getUuid();
         consumer.accept(user);
         getUserCache().put(uuid, user);
         getPlugin().getDatabase().updateUser(user);
@@ -74,25 +83,23 @@ public interface UserManager extends ClaimBlocksManager {
 
     @Blocking
     default void editUserPreferences(@NotNull User user, @NotNull Consumer<Preferences> consumer) {
-        editSavedUser(user.getUuid(), savedUser -> consumer.accept(savedUser.getPreferences()));
+        this.editSavedUser(user.getUuid(), savedUser -> consumer.accept(savedUser.getPreferences()));
     }
 
     @Blocking
     default void loadUserData(@NotNull User user) {
-        getPlugin().getDatabase().getUser(user.getUuid()).ifPresentOrElse(
-                data -> getUserCache().put(user.getUuid(), data),
+        this.editSavedUser(
+                user.getUuid(), (saved) -> {
+                    saved.setLastLogin(OffsetDateTime.now());
+                    getUserCache().put(user.getUuid(), saved);
+                    getPlugin().invalidateUserCache(user.getUuid());
+                },
                 () -> {
-                    final Preferences defaults = Preferences.DEFAULTS;
-                    final long defaultClaimBlocks = getPlugin().getSettings().getClaims().getStartingClaimBlocks();
-                    getPlugin().getDatabase().createUser(user, defaultClaimBlocks, defaults);
-                    getUserCache().put(user.getUuid(), new SavedUser(
-                            user,
-                            defaults,
-                            OffsetDateTime.now(),
-                            defaultClaimBlocks,
-                            0
-                    ));
-                });
+                    final SavedUser newUser = SavedUser.createNew(user, getPlugin());
+                    getPlugin().getDatabase().createUser(newUser);
+                    getUserCache().put(user.getUuid(), newUser);
+                }
+        );
     }
 
     @NotNull

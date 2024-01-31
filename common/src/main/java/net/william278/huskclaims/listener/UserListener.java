@@ -41,10 +41,6 @@ public interface UserListener {
         getPlugin().invalidateUserCache(user.getUuid());
     }
 
-    default void onUserPlayOneHour(@NotNull OnlineUser user) {
-        getPlugin().runAsync(() -> getPlugin().grantHourlyClaimBlocks(user));
-    }
-
     default void onUserSwitchHeldItem(@NotNull OnlineUser user, @NotNull String mainHand, @NotNull String offHand) {
         final Settings.ClaimSettings claims = getPlugin().getSettings().getClaims();
         if (mainHand.equals(claims.getClaimTool()) || mainHand.equals(claims.getInspectionTool())
