@@ -26,9 +26,7 @@ import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.position.ServerWorld;
 import net.william278.huskclaims.position.World;
 import net.william278.huskclaims.trust.UserGroup;
-import net.william278.huskclaims.user.Preferences;
 import net.william278.huskclaims.user.SavedUser;
-import net.william278.huskclaims.user.User;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,7 +38,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
@@ -205,10 +202,10 @@ public abstract class Database {
     /**
      * Add a user to the database
      *
-     * @param user        The user to add
-     * @param preferences The user's preferences
+     * @param user The saved user to add
+     * @since 1.0.3
      */
-    public abstract void createUser(@NotNull User user, long claimBlocks, @NotNull Preferences preferences);
+    public abstract void createUser(@NotNull SavedUser user);
 
     /**
      * Update a user in the database
@@ -219,13 +216,12 @@ public abstract class Database {
     public abstract void updateUser(@NotNull SavedUser user);
 
     /**
-     * Save or update user from uuid
+     * Create a user, or if they exist, update them in the database
      *
-     * @param uuid The UUID of the user
+     * @param user The user to create or update
      * @since 1.0
      */
-    public abstract void createOrUpdateUser(@NotNull UUID uuid, @NotNull String name, long totalBlocks,
-                                            @NotNull Timestamp lastLogin, @NotNull Preferences preferences);
+    public abstract void createOrUpdateUser(@NotNull SavedUser user);
 
     /**
      * Get a list of a user's {@link UserGroup user groups}.

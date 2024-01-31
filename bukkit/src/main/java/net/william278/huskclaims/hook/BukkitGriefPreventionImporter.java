@@ -33,7 +33,7 @@ import net.william278.huskclaims.claim.Region;
 import net.william278.huskclaims.trust.TrustLevel;
 import net.william278.huskclaims.trust.Trustable;
 import net.william278.huskclaims.user.CommandUser;
-import net.william278.huskclaims.user.Preferences;
+import net.william278.huskclaims.user.SavedUser;
 import net.william278.huskclaims.user.User;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
@@ -42,7 +42,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -173,9 +173,7 @@ public class BukkitGriefPreventionImporter extends Importer {
 
             saveFutures.add(CompletableFuture.runAsync(
                     () -> {
-                        plugin.getDatabase().createOrUpdateUser(
-                                user.uuid, user.name, user.claimBlocks, user.getLastLogin(), Preferences.IMPORTED
-                        );
+                        plugin.getDatabase().createOrUpdateUser(user.toSavedUser());
                         plugin.invalidateClaimListCache(user.uuid);
                         if (amount.incrementAndGet() % USERS_PER_PAGE == 0) {
                             log(executor, Level.INFO, "Adjusted %s users...".formatted(amount.get()));
@@ -423,13 +421,20 @@ public class BukkitGriefPreventionImporter extends Importer {
         }
 
         @NotNull
-        private Timestamp getLastLogin() {
-            return lastLogin.before(NEVER) ? Timestamp.valueOf(LocalDateTime.now()) : lastLogin;
+        private OffsetDateTime getLastLogin() {
+            return lastLogin.before(NEVER)
+                    ? OffsetDateTime.now()
+                    : lastLogin.toLocalDateTime().atOffset(OffsetDateTime.now().getOffset());
         }
 
         @NotNull
         private User toUser() {
             return User.of(uuid, name);
+        }
+
+        @NotNull
+        private SavedUser toSavedUser() {
+            return SavedUser.createImported(toUser(), getLastLogin(), claimBlocks);
         }
 
     }

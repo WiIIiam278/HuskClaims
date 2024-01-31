@@ -22,11 +22,13 @@ package net.william278.huskclaims.user;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import net.william278.huskclaims.HuskClaims;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.OffsetDateTime;
 
 /**
- * Record of a user's data
+ * Represents a user with save data
  *
  * @since 1.0
  **/
@@ -45,6 +47,45 @@ public class SavedUser {
 
     public long getDaysSinceLastLogin() {
         return lastLogin.until(OffsetDateTime.now(), java.time.temporal.ChronoUnit.DAYS);
+    }
+
+    /**
+     * Create a new {@link SavedUser}
+     *
+     * @param user   The user to create the record for
+     * @param plugin The plugin instance
+     * @return The new {@link SavedUser}
+     * @since 1.0.3
+     */
+    @NotNull
+    public static SavedUser createNew(@NotNull User user, @NotNull HuskClaims plugin) {
+        return new SavedUser(
+                user,
+                Preferences.DEFAULTS,
+                OffsetDateTime.now(),
+                plugin.getSettings().getClaims().getStartingClaimBlocks(),
+                0
+        );
+    }
+
+    /**
+     * Create a new {@link SavedUser} with imported data
+     *
+     * @param user        The user to create the record for
+     * @param lastLogin   The last login time of the user
+     * @param claimBlocks The number of claim blocks to set
+     * @return The {@link SavedUser} from the imported data
+     * @since 1.0.3
+     */
+    @NotNull
+    public static SavedUser createImported(@NotNull User user, @NotNull OffsetDateTime lastLogin, int claimBlocks) {
+        return new SavedUser(
+                user,
+                Preferences.IMPORTED,
+                OffsetDateTime.now(),
+                claimBlocks,
+                0
+        );
     }
 
 }

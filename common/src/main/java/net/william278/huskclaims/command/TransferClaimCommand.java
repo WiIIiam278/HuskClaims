@@ -30,7 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Optional;
 
-public class TransferClaimCommand extends InClaimCommand implements UserListTabCompletable {
+public class TransferClaimCommand extends InClaimOwnerCommand implements UserListTabCompletable {
 
     protected TransferClaimCommand(@NotNull HuskClaims plugin) {
         super(
@@ -42,14 +42,14 @@ public class TransferClaimCommand extends InClaimCommand implements UserListTabC
     }
 
     @Override
-    public void execute(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
-                        @NotNull Claim claim, @NotNull String[] args) {
-        // Ensure we're dealing with the parent claim
-        final Optional<Claim> parent = claim.getParent(world);
-        if (parent.isPresent()) {
-            claim = parent.get();
-        }
+    public void executeChild(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
+                             @NotNull Claim child, @NotNull Claim parent, @NotNull String[] args) {
+        super.execute(executor, world, parent, args);
+    }
 
+    @Override
+    public void executeParent(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
+                              @NotNull Claim claim, @NotNull String[] args) {
         // Get the name
         final Optional<String> username = parseStringArg(args, 0);
         if (username.isEmpty()) {

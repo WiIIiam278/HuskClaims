@@ -22,14 +22,12 @@ package net.william278.huskclaims.command;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ClaimWorld;
-import net.william278.huskclaims.claim.ClaimingMode;
 import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Optional;
 
-public class UnClaimCommand extends InClaimCommand {
+public class UnClaimCommand extends InClaimOwnerCommand {
 
     protected UnClaimCommand(@NotNull HuskClaims plugin) {
         super(
@@ -40,24 +38,17 @@ public class UnClaimCommand extends InClaimCommand {
     }
 
     @Override
-    public void execute(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
-                        @NotNull Claim claim, @NotNull String[] args) {
+    public void executeChild(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
+                             @NotNull Claim child, @NotNull Claim parent, @NotNull String[] args) {
+        plugin.userDeleteChildClaim(executor, world, child, parent);
+    }
+
+    @Override
+    public void executeParent(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
+                              @NotNull Claim claim, @NotNull String[] args) {
         final boolean confirmed = parseConfirmArg(args);
-        final Optional<Claim> optionalParent = claim.getParent(world);
-        if (optionalParent.isPresent()) {
-            plugin.userDeleteChildClaim(executor, world, claim, optionalParent.get());
-            return;
-        }
 
-        // Check if the user can delete the claim
-        if ((claim.getOwner().isEmpty() && !ClaimingMode.ADMIN_CLAIMS.canUse(executor)) || (claim.getOwner().isPresent()
-                && (!claim.getOwner().get().equals(executor.getUuid()) || !hasPermission(executor, "other")))) {
-            plugin.getLocales().getLocale("no_deletion_permission")
-                    .ifPresent(executor::sendMessage);
-            return;
-        }
-
-        // Require confirmation for deleting a parent claim
+        // Require confirmation for deleting a claim which has children
         if (plugin.getSettings().getClaims().isConfirmDeletingParentClaims() &&
                 !claim.getChildren().isEmpty() && !confirmed) {
             plugin.getLocales().getLocale("confirm_deletion_parent_claim",

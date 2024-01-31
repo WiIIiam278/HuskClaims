@@ -28,7 +28,6 @@ import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.position.ServerWorld;
 import net.william278.huskclaims.position.World;
 import net.william278.huskclaims.trust.UserGroup;
-import net.william278.huskclaims.user.Preferences;
 import net.william278.huskclaims.user.SavedUser;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
@@ -38,7 +37,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -290,15 +288,17 @@ public class SqLiteDatabase extends Database {
     }
 
     @Override
-    public void createUser(@NotNull User user, long claimBlocks, @NotNull Preferences preferences) {
+    public void createUser(@NotNull SavedUser saved) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`, `preferences`)
-                VALUES (?, ?, ?, ?, ?)"""))) {
-            statement.setString(1, user.getUuid().toString());
-            statement.setString(2, user.getName());
-            statement.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
-            statement.setLong(4, claimBlocks);
-            statement.setBytes(5, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
+                    INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`, `hours_played`, `preferences`)
+                    VALUES (?, ?, ?, ?, ?, ?)"""))) {
+            statement.setString(1, saved.getUser().getUuid().toString());
+            statement.setString(2, saved.getUser().getName());
+            statement.setTimestamp(3, Timestamp.valueOf(saved.getLastLogin().toLocalDateTime()));
+            statement.setLong(4, saved.getClaimBlocks());
+            statement.setInt(5, saved.getHoursPlayed());
+            statement.setBytes(5, plugin.getGson().toJson(saved.getPreferences())
+                    .getBytes(StandardCharsets.UTF_8));
             statement.executeUpdate();
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to create user in table", e);
@@ -323,20 +323,21 @@ public class SqLiteDatabase extends Database {
     }
 
     @Override
-    public void createOrUpdateUser(@NotNull UUID uuid, @NotNull String name, long totalBlocks, @NotNull Timestamp lastLogin, @NotNull Preferences preferences) {
+    public void createOrUpdateUser(@NotNull SavedUser saved) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`, `preferences`)
                 VALUES (?, ?, ?, ?, ?)
                 ON CONFLICT(`uuid`) DO UPDATE SET `username` = ?, `last_login` = ?, `claim_blocks` = ?, `preferences` = ?;"""))) {
-            statement.setString(1, uuid.toString());
-            statement.setString(2, name);
-            statement.setTimestamp(3, lastLogin);
-            statement.setLong(4, totalBlocks);
-            statement.setBytes(5, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
-            statement.setString(6, name);
-            statement.setTimestamp(7, lastLogin);
-            statement.setLong(8, totalBlocks);
-            statement.setBytes(9, plugin.getGson().toJson(preferences).getBytes(StandardCharsets.UTF_8));
+            final byte[] prefs = plugin.getGson().toJson(saved.getPreferences()).getBytes(StandardCharsets.UTF_8);
+            statement.setString(1, saved.getUser().getUuid().toString());
+            statement.setString(2, saved.getUser().getName());
+            statement.setTimestamp(3, Timestamp.valueOf(saved.getLastLogin().toLocalDateTime()));
+            statement.setLong(4, saved.getClaimBlocks());
+            statement.setBytes(5, prefs);
+            statement.setString(6, saved.getUser().getName());
+            statement.setTimestamp(7, Timestamp.valueOf(saved.getLastLogin().toLocalDateTime()));
+            statement.setLong(8, saved.getClaimBlocks());
+            statement.setBytes(9, prefs);
             statement.executeUpdate();
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to create or update user in table", e);
