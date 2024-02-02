@@ -98,7 +98,7 @@ locales:
   list_separator: '[, ](gray)'
   not_applicable: 'N/A'
   none: '[(无)](gray italic)'
-  land_not_claimed: '[此领地尚未被领地声明](#ff7e5e)'
+  land_not_claimed: '[此领地尚未被声明](#ff7e5e)'
   land_claimed_by: '[此领地已被 %1% 声明](#00fb9a)'
   nearby_claims: '[在 %2% 方块内显示 %1% 个领地](#00fb9a)'
   no_nearby_claims: '[在 %1% 方块内没有领地](#ff7e5e)'
