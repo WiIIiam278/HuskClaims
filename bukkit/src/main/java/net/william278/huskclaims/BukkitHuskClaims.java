@@ -46,6 +46,7 @@ import net.william278.huskclaims.listener.BukkitListener;
 import net.william278.huskclaims.listener.ClaimsListener;
 import net.william278.huskclaims.network.Broker;
 import net.william278.huskclaims.network.PluginMessageBroker;
+import net.william278.huskclaims.pet.BukkitPetHandler;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.position.World;
 import net.william278.huskclaims.trust.TrustLevel;
@@ -77,7 +78,7 @@ import java.util.logging.Level;
 @NoArgsConstructor
 @Getter
 public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTask.Supplier, BukkitBlockProvider,
-        BukkitEventDispatcher, BukkitHookProvider, PluginMessageListener {
+        BukkitPetHandler, BukkitEventDispatcher, BukkitHookProvider, PluginMessageListener {
 
     private MorePaperLib morePaperLib;
     private AudienceProvider audiences;

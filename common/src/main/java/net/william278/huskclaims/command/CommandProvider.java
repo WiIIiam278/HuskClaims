@@ -105,6 +105,11 @@ public interface CommandProvider {
         commands.add(new RestrictClaimCommand(getPlugin()));
         commands.add(new IgnoreClaimsCommand(getPlugin()));
 
+        // Register pet transfer command
+        if (getPlugin().getSettings().getPets().isEnabled()) {
+            commands.add(new TransferPetCommand(getPlugin()));
+        }
+
         // Register claim block purchasing
         if (getPlugin().getSettings().getHooks().getEconomy().isEnabled()) {
             commands.add(new BuyClaimBlocksCommand(getPlugin()));
