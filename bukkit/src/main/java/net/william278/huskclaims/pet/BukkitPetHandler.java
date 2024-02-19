@@ -62,7 +62,7 @@ public interface BukkitPetHandler extends PetHandler {
     private void transferPet(@NotNull Tameable tamed, @NotNull OnlineUser owner, @NotNull User newOwner) {
         final OfflinePlayer offline = ((BukkitHuskClaims) getPlugin()).getServer().getOfflinePlayer(newOwner.getUuid());
         tamed.setOwner(offline);
-        getPlugin().getLocales().getLocale("pet_transfer_success", tamed.getName(), newOwner.getName())
+        getPlugin().getLocales().getLocale("pet_transferred", tamed.getName(), newOwner.getName())
                 .ifPresent(owner::sendMessage);
     }
 
