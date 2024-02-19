@@ -41,20 +41,22 @@ public interface BukkitPetHandler extends PetHandler {
 
     @Override
     default void userTransferPet(@NotNull OnlineUser user, @NotNull User newOwner, boolean mustBeOwner) {
-        // Get the entity the player is looking at to transfer
-        final Player player = ((BukkitUser) user).getBukkitPlayer();
-        final Optional<Tameable> lookingAt = getLookingAtTamed(player);
-        final Optional<User> owner = lookingAt.flatMap(this::getPetOwner);
-        if (lookingAt.isEmpty() || owner.isEmpty()) {
-            getPlugin().getLocales().getLocale("error_look_at_pet_transfer")
-                    .ifPresent(user::sendMessage);
-            return;
-        }
+        getPlugin().runSync(() -> {
+            // Get the entity the player is looking at to transfer
+            final Player player = ((BukkitUser) user).getBukkitPlayer();
+            final Optional<Tameable> lookingAt = getLookingAtTamed(player);
+            final Optional<User> owner = lookingAt.flatMap(this::getPetOwner);
+            if (lookingAt.isEmpty() || owner.isEmpty()) {
+                getPlugin().getLocales().getLocale("error_look_at_pet_transfer")
+                        .ifPresent(user::sendMessage);
+                return;
+            }
 
-        // Transfer the pet if the user is allowed to
-        if (!mustBeOwner || !cancelPetOperation(user, owner.get())) {
-            this.transferPet(lookingAt.get(), user, newOwner);
-        }
+            // Transfer the pet if the user is allowed to
+            if (!mustBeOwner || !cancelPetOperation(user, owner.get())) {
+                this.transferPet(lookingAt.get(), user, newOwner);
+            }
+        });
     }
 
     private void transferPet(@NotNull Tameable tamed, @NotNull OnlineUser owner, @NotNull User newOwner) {
