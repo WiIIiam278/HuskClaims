@@ -297,7 +297,7 @@ public class SqLiteDatabase extends Database {
             statement.setTimestamp(3, Timestamp.valueOf(saved.getLastLogin().toLocalDateTime()));
             statement.setLong(4, saved.getClaimBlocks());
             statement.setInt(5, saved.getHoursPlayed());
-            statement.setBytes(5, plugin.getGson().toJson(saved.getPreferences())
+            statement.setBytes(6, plugin.getGson().toJson(saved.getPreferences())
                     .getBytes(StandardCharsets.UTF_8));
             statement.executeUpdate();
         } catch (SQLException e) {
