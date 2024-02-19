@@ -37,7 +37,7 @@ public interface BukkitPetHandler extends PetHandler {
     // Distance to search for entities
     int TRANSFER_RANGE = 6;
     // Dot product to check if the player is looking at the entity
-    float TRANSFER_ENTITY_DOT = 0.99f;
+    float TRANSFER_ENTITY_DOT = 0.975f;
 
     @Override
     default void userTransferPet(@NotNull OnlineUser user, @NotNull User newOwner, boolean mustBeOwner) {

@@ -142,7 +142,7 @@ locales:
   ignoring_claims_reminder: '[您当前正在忽略玩家领地](#00fb9a)\n[使用](#00fb9a) [/ignoreclaims](#00fb9a italic show_text=&7点击建议 run_command=/ignoreclaims) [来停止忽略它们](#00fb9a)'
   respecting_claims: '[现在尊重玩家领地](#00fb9a)'
   pet_owned_by: '[This pet belongs to %1%!](#ff7e5e)'
-  pet_transferred: '[Successfully transferred ownership %1% to %2%.](#00fb9a)'
+  pet_transferred: '[Successfully transferred ownership of %1% to %2%.](#00fb9a)'
   administrator_username: '管理员'
   up_to_date: '[HuskClaims](#00fb9a bold) [| 您正在使用 HuskClaims 的最新版本 (v%1%)](#00fb9a)'
   update_available: '[HuskClaims](#ff7e5e bold) [| HuskClaims 有新版本可用: v%1% (当前版本: v%2%)](#ff7e5e)'
