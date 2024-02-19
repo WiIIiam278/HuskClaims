@@ -384,7 +384,7 @@ public final class Settings {
         }
     }
 
-    @Comment("Settings for protecting tamed animals (pets)")
+    @Comment("Settings for protecting tamed animals (pets). Docs: https://william278.net/docs/huskclaims/pets")
     private PetSettings pets = new PetSettings();
 
     @Getter

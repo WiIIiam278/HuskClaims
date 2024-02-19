@@ -202,6 +202,10 @@ highlighter:
     OVERLAP_CORNER: RED
     OVERLAP_EDGE: RED
     SELECTION: AQUA
+# Settings for protecting tamed animals (pets). Docs: https://william278.net/docs/huskclaims/pets
+pets:
+  # Whether to enable protecting tamed animals to only be harmed/used by their owner
+  enabled: true
 # Settings for integration hooks with other plugins
 hooks:
   luck_perms:

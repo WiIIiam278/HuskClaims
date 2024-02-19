@@ -4,7 +4,9 @@ HuskClaims offers a simple tamed animal ("pet") protection and transfer system. 
 <summary>Pets &mdash; config.yml</summary>
 
 ```yaml
+# Settings for protecting tamed animals (pets). Docs: https://william278.net/docs/huskclaims/pets
 pets:
+  # Whether to enable protecting tamed animals to only be harmed/used by their owner
   enabled: true
 ```
 </details>
