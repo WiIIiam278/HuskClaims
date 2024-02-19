@@ -25,9 +25,13 @@ import net.william278.cloplib.operation.OperationUser;
 import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.user.BukkitUser;
+import net.william278.huskclaims.user.User;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Tameable;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerItemHeldEvent;
@@ -36,8 +40,11 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class BukkitListener extends BukkitOperationListener implements ClaimsListener, UserListener {
+import java.util.Optional;
+
+public class BukkitListener extends BukkitOperationListener implements BukkitPetListener, ClaimsListener, UserListener {
 
     private final BukkitHuskClaims plugin;
 
@@ -82,6 +89,26 @@ public class BukkitListener extends BukkitOperationListener implements ClaimsLis
                 (mainHand != null ? mainHand.getType() : Material.AIR).getKey().toString(),
                 (offHand != null ? offHand.getType() : Material.AIR).getKey().toString()
         );
+    }
+
+    @Override
+    public void onUserTamedEntityAction(@NotNull Cancellable event, @Nullable Entity player, @NotNull Entity entity) {
+        // If pets are enabled, check if the entity is tamed
+        if (player == null || !getPlugin().getSettings().getPets().isEnabled() || !(entity instanceof Tameable tamed)) {
+            return;
+        }
+
+        // Check it was damaged by a player
+        final Optional<Player> source = getPlayerSource(player);
+        final Optional<User> owner = ((BukkitHuskClaims) getPlugin()).getPetOwner(tamed);
+        if (source.isEmpty() || owner.isEmpty()) {
+            return;
+        }
+
+        // Don't cancel the event if there's no mismatch
+        if (getPlugin().cancelPetOperation(BukkitUser.adapt(source.get(), getPlugin()), owner.get())) {
+            event.setCancelled(true);
+        }
     }
 
     @Override

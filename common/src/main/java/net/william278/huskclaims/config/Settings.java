@@ -384,6 +384,19 @@ public final class Settings {
         }
     }
 
+    @Comment("Settings for protecting tamed animals (pets). Docs: https://william278.net/docs/huskclaims/pets")
+    private PetSettings pets = new PetSettings();
+
+    @Getter
+    @Configuration
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class PetSettings {
+
+        @Comment("Whether to enable protecting tamed animals to only be harmed/used by their owner")
+        private boolean enabled = true;
+
+    }
+
     @Comment("Settings for integration hooks with other plugins")
     private HookSettings hooks = new HookSettings();
 

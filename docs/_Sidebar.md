@@ -11,6 +11,7 @@
 * 🥄 [[Claims]]
 * ❤️ [[Trust]]
 * 🎛️ [[Operation Groups]]
+* 🐕 [[Pets]]
 
 ## Developers
 * 📦 [[API]]

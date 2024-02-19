@@ -35,6 +35,8 @@ Claim owners may delete their claims by using the `/unclaim` command. This will 
 ## Operations in Claims
 Operations in claims are restricted to those with [[Trust]] in a claim (except admin claims&mdash;[see below](#admin-claims)), with different Trust levels allowing users to perform different operations.
 
+Separate from the claims/operations system, tamed animals may be protected from harm through the [[Pets]] system.
+
 ### Natural Operations
 Within claims, natural events&mdash;such as crop growth and mob spawning&mdash;may occur, depending on the default flags set by the server administrator (see the `default_flags`, `admin_flags`, and `wilderness_flags` sections in `config.yml`). However, you may use [[Operation Groups]] to toggle certain behaviours; by default, the `/claimexplosions (on|off)` command allows claim managers and owners to toggle whether explosion damage should be allowed in a claim. 
 
