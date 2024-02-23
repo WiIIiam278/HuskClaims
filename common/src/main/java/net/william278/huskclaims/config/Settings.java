@@ -447,6 +447,17 @@ public final class Settings {
             private String setHomeTrustLevel = "access";
         }
 
+        private HuskTownsHookSettings huskTowns = new HuskTownsHookSettings();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class HuskTownsHookSettings {
+            @Comment("Whether to hook into HuskTowns to disable claiming over town claims")
+            private boolean enabled = true;
+        }
+
+
         private EconomyHookSettings economy = new EconomyHookSettings();
 
         @Getter

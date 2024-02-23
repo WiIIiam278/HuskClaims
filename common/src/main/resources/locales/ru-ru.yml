@@ -38,6 +38,7 @@ locales:
   land_selection_overlaps: '[Выделенная территория пересекается с %1% уже существующим(и) регионом(ами).](#ff7e5e)'
   land_selection_overlaps_child: '[Выбранная территория пересекается с %1% уже существующими потомственным(и) регионом(ами).](#ff7e5e)'
   land_already_child_claim: '[Выделенная территория уже является потомственным регионом.](#ff7e5e)'
+  husktowns_claim_overlaps: '[Cannot claim here as it overlaps with a player claim.](#ff7e5e)'
   claim_tool_required: '[Для совершении операции необходимо держать в руке соответствующий инструмент.](#ff7e5e)'
   selection_resize_not_enclosing_children: '[Выбранное масштабирование региона не включает в себя всех его потомков.](#ff7e5e)'
   selection_child_not_enclosing_parent: '[Родительский регион должен полностью содержать в себе выбранный потомственный.](#ff7e5e)'

@@ -38,6 +38,7 @@ locales:
   land_selection_overlaps: '[此领地选择与%1%现有领地重叠](#ff7e5e)'
   land_selection_overlaps_child: '[此领地选择与%1%其他子领地重叠](#ff7e5e)'
   land_already_child_claim: '[此领地的此区域已被指定为子领地](#ff7e5e)'
+  husktowns_claim_overlaps: '[Cannot claim here as it overlaps with a player claim.](#ff7e5e)'
   claim_tool_required: '[您需要持有领地工具才能执行此操作](#ff7e5e)'
   selection_resize_not_enclosing_children: '[此选择调整大小不会包含所有子领地](#ff7e5e)'
   selection_child_not_enclosing_parent: '[此子领地不会被其父领地包含](#ff7e5e)'

@@ -5,6 +5,7 @@ HuskClaims offers several built-in hooks providing support for other plugins. Th
 | [Vault](#vault)                    | Economy support for claim blocks    | https://www.spigotmc.org/resources/vault.34315/   |
 | [LuckPerms](#luckperms)            | Trust tags for LuckPerms groups     | https://luckperms.net/                            |
 | [HuskHomes](#huskhomes)            | Restricting home creation in claims | https://william278.net/project/huskhomes/         |
+| [HuskTowns](#husktowns)            | Prevent claiming over town claims   | https://william278.net/project/husktowns/         |
 | [Plan](#plan)                      | Display claim analytics in Plan     | https://www.playeranalytics.net/                  |
 | [PlaceholderAPI](#placeholderapi)  | Provides HuskClaims placeholders    | https://placeholderapi.com/                       |
 | [Dynmap](#dynmap-pl3xmap-bluemap)  | Add claim markers to your Dynmap    | https://www.spigotmc.org/resources/dynmap.274/    |
@@ -21,6 +22,9 @@ If LuckPerms is installed, HuskClaims will register [Trust Tags](trust#trust-tag
 If HuskHomes is installed, the `/huskclaims teleport` command will be enabled allowing admins to quickly teleport to claims from the [claim list](claims#listing-claims).
 
 Additionally, HuskClaims will prevent creating or relocating homes within claims unless the user has a minimum [[trust]] level in the claim (default is Access Trust+).
+
+## HuskTowns
+If HuskTowns is installed, HuskClaims will prevent the creation of HuskClaims claims over existing Town claims.
 
 ## Plan
 If Plan is installed, HuskClaims will display HuskClaims analytics (such as Claim Blocks and Claims created) in the Plan web interface on user and server pages.

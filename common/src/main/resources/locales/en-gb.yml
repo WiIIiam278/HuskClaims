@@ -38,6 +38,7 @@ locales:
   land_selection_overlaps: '[This land selection overlaps %1% existing claim(s).](#ff7e5e)'
   land_selection_overlaps_child: '[This land selection overlaps with %1% other child claim(s).](#ff7e5e)'
   land_already_child_claim: '[This area of the claim is already designated as a child claim.](#ff7e5e)'
+  husktowns_claim_overlaps: '[Cannot claim here as it overlaps with a player claim.](#ff7e5e)'
   claim_tool_required: '[You need to be holding the claiming tool to do that.](#ff7e5e)'
   selection_resize_not_enclosing_children: '[This selection resize would not enclose all its child claims.](#ff7e5e)'
   selection_child_not_enclosing_parent: '[This child claim would not be enclosed by its parent claim.](#ff7e5e)'

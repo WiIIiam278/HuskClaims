@@ -37,6 +37,9 @@ public interface BukkitHookProvider extends HookProvider {
         if (isDependencyAvailable("HuskHomes") && settings.getHuskHomes().isEnabled()) {
             hooks.add(new BukkitHuskHomesHook(getPlugin()));
         }
+        if (isDependencyAvailable("HuskTowns") && settings.getHuskTowns().isEnabled()) {
+            hooks.add(new BukkitHuskTownsHook(getPlugin()));
+        }
         if (isDependencyAvailable("Vault") && settings.getEconomy().isEnabled()) {
             hooks.add(new BukkitVaultEconomyHook(getPlugin()));
         }
