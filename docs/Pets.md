@@ -21,4 +21,4 @@ Pets will automatically be protected from harm by other players when they are ta
 
 You can transfer ownership of a pet to another player by looking directly at it and using the `/transferpet <username>` command. This will allow the new owner to interact with the pet as if they had tamed it themselves.
 
-Admins can transfer animals tamed by other players with the `huskclaims.transferpet.other` permission.
+Admins can transfer animals tamed by other players with the `huskclaims.command.transferpet.other` permission.

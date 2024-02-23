@@ -142,7 +142,7 @@ locales:
   ignoring_claims_reminder: '[Вы имеете доступ ко всем регионам.](#00fb9a)\n[Используйте команду](#00fb9a) [/ignoreclaims](#00fb9a italic show_text=&7Нажмите для просмотра run_command=/ignoreclaims) [чтобы ограничить доступ.](#00fb9a)'
   respecting_claims: '[Органичен доступ ко всем регионам.](#00fb9a)'
   pet_owned_by: '[This pet belongs to %1%!](#ff7e5e)'
-  pet_transferred: '[Successfully transferred ownership %1% to %2%.](#00fb9a)'
+  pet_transferred: '[Successfully transferred ownership of %1% to %2%.](#00fb9a)'
   administrator_username: 'administrator'
   up_to_date: '[HuskClaims](#00fb9a bold) [| У вас установлена последняя версия HuskClaims (v%1%).](#00fb9a)'
   update_available: '[HuskClaims](#ff7e5e bold) [| Доступна новая версия HuskClaims: v%1% (установлена: v%2%).](#ff7e5e)'

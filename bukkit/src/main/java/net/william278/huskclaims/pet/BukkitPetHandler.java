@@ -37,30 +37,32 @@ public interface BukkitPetHandler extends PetHandler {
     // Distance to search for entities
     int TRANSFER_RANGE = 6;
     // Dot product to check if the player is looking at the entity
-    float TRANSFER_ENTITY_DOT = 0.99f;
+    float TRANSFER_ENTITY_DOT = 0.975f;
 
     @Override
     default void userTransferPet(@NotNull OnlineUser user, @NotNull User newOwner, boolean mustBeOwner) {
-        // Get the entity the player is looking at to transfer
-        final Player player = ((BukkitUser) user).getBukkitPlayer();
-        final Optional<Tameable> lookingAt = getLookingAtTamed(player);
-        final Optional<User> owner = lookingAt.flatMap(this::getPetOwner);
-        if (lookingAt.isEmpty() || owner.isEmpty()) {
-            getPlugin().getLocales().getLocale("error_look_at_pet_transfer")
-                    .ifPresent(user::sendMessage);
-            return;
-        }
+        getPlugin().runSync(() -> {
+            // Get the entity the player is looking at to transfer
+            final Player player = ((BukkitUser) user).getBukkitPlayer();
+            final Optional<Tameable> lookingAt = getLookingAtTamed(player);
+            final Optional<User> owner = lookingAt.flatMap(this::getPetOwner);
+            if (lookingAt.isEmpty() || owner.isEmpty()) {
+                getPlugin().getLocales().getLocale("error_look_at_pet_transfer")
+                        .ifPresent(user::sendMessage);
+                return;
+            }
 
-        // Transfer the pet if the user is allowed to
-        if (!mustBeOwner || !cancelPetOperation(user, owner.get())) {
-            this.transferPet(lookingAt.get(), user, newOwner);
-        }
+            // Transfer the pet if the user is allowed to
+            if (!mustBeOwner || !cancelPetOperation(user, owner.get())) {
+                this.transferPet(lookingAt.get(), user, newOwner);
+            }
+        });
     }
 
     private void transferPet(@NotNull Tameable tamed, @NotNull OnlineUser owner, @NotNull User newOwner) {
         final OfflinePlayer offline = ((BukkitHuskClaims) getPlugin()).getServer().getOfflinePlayer(newOwner.getUuid());
         tamed.setOwner(offline);
-        getPlugin().getLocales().getLocale("pet_transfer_success", tamed.getName(), newOwner.getName())
+        getPlugin().getLocales().getLocale("pet_transferred", tamed.getName(), newOwner.getName())
                 .ifPresent(owner::sendMessage);
     }
 

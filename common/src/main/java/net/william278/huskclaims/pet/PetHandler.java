@@ -32,7 +32,7 @@ public interface PetHandler {
         if (user.equals(owner)) {
             return false;
         }
-        getPlugin().getLocales().getLocale("pet_transferred", owner.getName())
+        getPlugin().getLocales().getLocale("pet_owned_by", owner.getName())
                 .ifPresent(user::sendMessage);
         return true;
     }
