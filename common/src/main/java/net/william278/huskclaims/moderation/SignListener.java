@@ -25,6 +25,7 @@ import net.william278.huskclaims.config.Settings;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
@@ -63,7 +64,9 @@ public interface SignListener {
         boolean isFiltered = false;
         final List<String> filtered = Lists.newArrayList();
         for (String line : text) {
-            final String afterFilter = getFiltered(line, signs.getFilteredWords(), signs.getReplacementCharacter());
+            final String afterFilter = getFiltered(
+                    line.toLowerCase(Locale.ENGLISH), signs.getFilteredWords(), signs.getReplacementCharacter()
+            );
             filtered.add(afterFilter);
             isFiltered = isFiltered || !afterFilter.equals(line);
         }
