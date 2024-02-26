@@ -22,6 +22,8 @@ package net.william278.huskclaims;
 import lombok.NoArgsConstructor;
 import net.kyori.adventure.audience.Audience;
 import net.william278.huskclaims.highlighter.BlockDisplayHighlighter;
+import net.william278.huskclaims.listener.ClaimsListener;
+import net.william278.huskclaims.listener.PaperListener;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.user.BukkitUser;
 import net.william278.huskclaims.user.OnlineUser;
@@ -55,6 +57,12 @@ public class PaperHuskClaims extends BukkitHuskClaims {
             return;
         }
         setHighlighter(new BlockDisplayHighlighter(this));
+    }
+
+    @NotNull
+    @Override
+    public ClaimsListener createListener() {
+        return new PaperListener(this);
     }
 
 }

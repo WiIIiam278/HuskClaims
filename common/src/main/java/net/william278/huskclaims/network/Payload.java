@@ -23,6 +23,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import net.william278.huskclaims.moderation.SignWrite;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -50,6 +51,10 @@ public class Payload {
     @Expose
     @SerializedName("user_list")
     private List<User> userList;
+    @Nullable
+    @Expose
+    @SerializedName("sign_edit")
+    private SignWrite signWrite;
 
     @NotNull
     public static Payload empty() {
@@ -91,6 +96,13 @@ public class Payload {
         return payload;
     }
 
+    @NotNull
+    public static Payload signEdit(@NotNull SignWrite edit) {
+        final Payload payload = new Payload();
+        payload.signWrite = edit;
+        return payload;
+    }
+
     public Optional<UUID> getUuid() {
         return Optional.ofNullable(uuid);
     }
@@ -109,6 +121,10 @@ public class Payload {
 
     public Optional<List<User>> getUserList() {
         return Optional.ofNullable(userList);
+    }
+
+    public Optional<SignWrite> getSignWrite() {
+        return Optional.ofNullable(signWrite);
     }
 
 }

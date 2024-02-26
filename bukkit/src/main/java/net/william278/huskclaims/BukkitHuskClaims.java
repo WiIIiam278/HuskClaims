@@ -266,7 +266,7 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
 
     @NotNull
     @Override
-    public ClaimsListener createClaimsListener() {
+    public ClaimsListener createListener() {
         return new BukkitListener(this);
     }
 

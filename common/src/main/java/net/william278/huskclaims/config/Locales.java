@@ -24,11 +24,19 @@ import de.exlll.configlib.Configuration;
 import de.themoep.minedown.adventure.MineDown;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.command.HuskClaimsCommand;
+import net.william278.huskclaims.hook.HuskHomesHook;
+import net.william278.huskclaims.position.BlockPosition;
+import net.william278.huskclaims.position.ServerWorld;
+import net.william278.huskclaims.user.CommandUser;
+import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.util.PaginatedListProvider;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -153,6 +161,48 @@ public class Locales implements PaginatedListProvider {
             value.append(c);
         }
         return value.toString().replace("__", "_\\_");
+    }
+
+
+    @NotNull
+    public String getPositionText(@NotNull BlockPosition position, int yPosition, @NotNull ServerWorld serverWorld,
+                                  @NotNull CommandUser user, @NotNull HuskClaims plugin) {
+        final boolean crossServer = plugin.getSettings().getCrossServer().isEnabled();
+        return plugin.getLocales().getRawLocale(
+                switch (serverWorld.world().getEnvironment().toLowerCase(Locale.ENGLISH)) {
+                    case "nether" -> "position_nether";
+                    case "the_end" -> "position_end";
+                    default -> "position_overworld";
+                },
+                crossServer ? serverWorld.toString() : serverWorld.world().getName(),
+                Integer.toString(position.getBlockX()),
+                Integer.toString(position.getBlockZ()),
+                getRawLocale(
+                        "claim_list_%sworld_tooltip".formatted(!crossServer ? "" : "server_")
+                ).orElse(""),
+                user instanceof OnlineUser online ? getTeleportText(
+                        position, yPosition, serverWorld, online, plugin
+                ) : ""
+        ).orElse("");
+    }
+
+
+    @NotNull
+    private String getTeleportText(@NotNull BlockPosition position, int yPosition, @NotNull ServerWorld serverWorld,
+                                   @NotNull CommandUser user, @NotNull HuskClaims plugin) {
+        final Optional<HuskHomesHook> homesHook = plugin.getHook(HuskHomesHook.class);
+        if (homesHook.isEmpty() || !plugin.canUseCommand(HuskClaimsCommand.class, user, "teleport")) {
+            return "";
+        }
+        return plugin.getHook(HuskHomesHook.class).map(hook -> String.format(
+                "%s run_command=/huskclaims teleport %s %s %s %s %s",
+                getRawLocale("position_teleport_tooltip").orElse(""),
+                serverWorld.server(),
+                position.getBlockX(),
+                yPosition,
+                position.getBlockZ(),
+                serverWorld.world().getName()
+        )).orElse("");
     }
 
     @NotNull

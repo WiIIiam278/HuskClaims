@@ -24,16 +24,20 @@ import net.william278.cloplib.operation.OperationPosition;
 import net.william278.cloplib.operation.OperationUser;
 import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.moderation.SignListener;
+import net.william278.huskclaims.moderation.SignWrite;
 import net.william278.huskclaims.user.BukkitUser;
 import net.william278.huskclaims.user.User;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Sign;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -44,9 +48,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-public class BukkitListener extends BukkitOperationListener implements BukkitPetListener, ClaimsListener, UserListener {
+public class BukkitListener extends BukkitOperationListener implements BukkitPetListener, ClaimsListener,
+        UserListener, SignListener {
 
-    private final BukkitHuskClaims plugin;
+    protected final BukkitHuskClaims plugin;
 
     public BukkitListener(@NotNull BukkitHuskClaims plugin) {
         super(plugin, plugin);
@@ -55,8 +60,8 @@ public class BukkitListener extends BukkitOperationListener implements BukkitPet
 
     @Override
     public void register() {
-        ClaimsListener.super.register();
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        setInspectorCallbacks();
     }
 
     @EventHandler
@@ -89,6 +94,32 @@ public class BukkitListener extends BukkitOperationListener implements BukkitPet
                 (mainHand != null ? mainHand.getType() : Material.AIR).getKey().toString(),
                 (offHand != null ? offHand.getType() : Material.AIR).getKey().toString()
         );
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    public void onUserPlaceSign(@NotNull BlockPlaceEvent e) {
+        if (!(e.getBlock() instanceof Sign sign)) {
+            return;
+        }
+
+        filterSign(
+                handleSignEdit(SignWrite.create(
+                        BukkitUser.adapt(e.getPlayer(), plugin),
+                        BukkitHuskClaims.Adapter.adapt(sign.getLocation()),
+                        SignWrite.Type.SIGN_PLACE,
+                        sign.getLines(),
+                        plugin.getServerName()
+                )), sign
+        );
+    }
+
+    private void filterSign(@NotNull SignWrite write, @NotNull Sign sign) {
+        if (!write.isFiltered()) {
+            return;
+        }
+        for (int l = 0; l < sign.getLines().length; l++) {
+            sign.setLine(l, write.getText().get(l));
+        }
     }
 
     @Override

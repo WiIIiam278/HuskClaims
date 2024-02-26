@@ -25,7 +25,9 @@ import org.jetbrains.annotations.NotNull;
 
 public interface ClaimsListener extends OperationListener, ClaimsToolHandler, InspectionToolHandler {
 
-    default void register() {
+    void register();
+
+    default void setInspectorCallbacks() {
         setInspectorCallback(getPlugin().getSettings().getClaims().getInspectionTool(), this::onInspectionToolUse);
         setInspectorCallback(getPlugin().getSettings().getClaims().getClaimTool(), this::onClaimToolUse);
     }

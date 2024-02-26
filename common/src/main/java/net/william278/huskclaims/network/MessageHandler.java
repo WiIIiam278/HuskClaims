@@ -79,6 +79,13 @@ public interface MessageHandler {
         );
     }
 
+    // Handle inbound sign write notifications
+    default void handleSignWrite(@NotNull Message message) {
+        message.getPayload().getSignWrite().ifPresent(
+                (signWrite) -> getPlugin().notifyLocalSignModerators(signWrite)
+        );
+    }
+
     @NotNull
     Broker getBroker();
 
