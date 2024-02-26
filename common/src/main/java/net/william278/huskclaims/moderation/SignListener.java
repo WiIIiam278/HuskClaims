@@ -65,7 +65,7 @@ public interface SignListener {
         for (String line : text) {
             final String afterFilter = getFiltered(line, signs.getFilteredWords(), signs.getReplacementCharacter());
             filtered.add(afterFilter);
-            isFiltered = isFiltered || afterFilter.equals(line);
+            isFiltered = isFiltered || !afterFilter.equals(line);
         }
         return isFiltered ? Optional.of(filtered) : Optional.empty();
     }

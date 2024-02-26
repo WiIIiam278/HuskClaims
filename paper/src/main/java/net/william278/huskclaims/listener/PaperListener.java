@@ -63,7 +63,7 @@ public class PaperListener extends BukkitListener {
         for (int l = 0; l < e.lines().size(); l++) {
             e.line(l, Component.text(
                     write.getText().get(l),
-                    Objects.requireNonNull(e.line(l)).style()
+                    Objects.requireNonNull(e.line(l)).color()
             ));
         }
     }
