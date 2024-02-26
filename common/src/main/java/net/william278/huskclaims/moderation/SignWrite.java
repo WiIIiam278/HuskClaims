@@ -27,12 +27,13 @@ import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.user.User;
 import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
 
 @Getter
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SignWrite {
 
@@ -45,21 +46,21 @@ public class SignWrite {
     @NotNull
     private Type type;
     @NotNull
-    @Setter
     private List<String> text;
+    @Nullable
     @Setter
-    boolean filtered;
+    private List<String> filteredText = null;
 
     @NotNull
     public static SignWrite create(@NotNull User editor, @NotNull Position position, @NotNull Type type,
                                    @NotNull List<Component> lines, @NotNull String server) {
-        return new SignWrite(editor, position, server, type, joinLines(lines), false);
+        return new SignWrite(editor, position, server, type, joinLines(lines));
     }
 
     @NotNull
     public static SignWrite create(@NotNull User editor, @NotNull Position position, @NotNull Type type,
                                    @NotNull String[] lines, @NotNull String server) {
-        return new SignWrite(editor, position, server, type, Arrays.stream(lines).toList(), false);
+        return new SignWrite(editor, position, server, type, Arrays.stream(lines).toList());
     }
 
     @NotNull
@@ -67,6 +68,10 @@ public class SignWrite {
         return lines.stream()
                 .map(line -> PlainTextComponentSerializer.plainText().serialize(line))
                 .toList();
+    }
+
+    public boolean isFiltered() {
+        return filteredText != null;
     }
 
     @Getter

@@ -22,10 +22,10 @@ package net.william278.huskclaims.moderation;
 import com.google.common.collect.Lists;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.config.Settings;
+import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
@@ -46,9 +46,10 @@ public interface SignListener {
      */
     @NotNull
     default SignWrite handleSignEdit(@NotNull SignWrite edit) {
-        filterSignText(edit.getText()).ifPresent(text -> {
-            edit.setText(text);
-            edit.setFiltered(true);
+        filterSignText(edit.getText()).ifPresent(e -> {
+            edit.setFilteredText(e);
+            getPlugin().getLocales().getLocale("sign_filtered")
+                    .ifPresent(l -> ((OnlineUser) edit.getEditor()).sendMessage(l));
         });
         getPlugin().notifyAllSignModerators(edit);
         return edit;
@@ -57,16 +58,14 @@ public interface SignListener {
     // Filter sign text against regex
     private Optional<List<String>> filterSignText(@NotNull List<String> text) {
         final Settings.ModerationSettings.SignSettings signs = getPlugin().getSettings().getModeration().getSigns();
-        if (!signs.isFilterMessages()) {
+        if (!signs.isFilterMessages() || signs.getFilteredWords().isEmpty()) {
             return Optional.empty();
         }
 
         boolean isFiltered = false;
         final List<String> filtered = Lists.newArrayList();
         for (String line : text) {
-            final String afterFilter = getFiltered(
-                    line.toLowerCase(Locale.ENGLISH), signs.getFilteredWords(), signs.getReplacementCharacter()
-            );
+            final String afterFilter = getFiltered(line, signs.getFilteredWords(), signs.getReplacementCharacter());
             filtered.add(afterFilter);
             isFiltered = isFiltered || !afterFilter.equals(line);
         }
@@ -75,7 +74,8 @@ public interface SignListener {
 
     @NotNull
     private String getFiltered(@NotNull String line, @NotNull List<String> words, char replaceWith) {
-        return line.replaceAll(getFiltered(words), String.valueOf(replaceWith));
+        return Pattern.compile(getFiltered(words), Pattern.CASE_INSENSITIVE).matcher(line)
+                .replaceAll(String.valueOf(replaceWith));
     }
 
     @NotNull

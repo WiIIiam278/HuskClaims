@@ -1,0 +1,9 @@
+HuskClaims offers a moderation feature for spying on the text contents of signs and hanging signs placed by players, and automatically filtering contents against a prohibited words list. Sign moderation works on all types of text-entry signs (hanging signs, wall signs, and standing signs&mdash;and on both sides) and requires a Minecraft 1.19.4+ Paper server.
+
+## Sign spying
+To start sign spying, use `/signspy [on|off]` (see [[Commands]]). This requires the `huskclaims.command.signspy` permission to use. You will then begin receiving messages whenever users place a sign or edit sign text (except if the sign is blank) &mdash; this includes signs placed on other servers if you are using cross-server mode.
+
+## Sign filtering
+You can choose to filter signs against a configured list of prohibited words. If a sign contains any of the prohibited words, the words in the sign text will automatically be censored and replaced with a chosen glyph. The user who placed the sign will also be informed their sign was filtered in chat.
+
+When a sign is filtered, a notification warning will appear for all those spying on signs. You can additionally choose to only have moderators spy on signs that have required filtering to reduce clutter in chat.

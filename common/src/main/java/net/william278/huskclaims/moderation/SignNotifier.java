@@ -20,6 +20,7 @@
 package net.william278.huskclaims.moderation;
 
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.command.SignSpyCommand;
 import net.william278.huskclaims.config.Locales;
 import net.william278.huskclaims.config.Settings;
 import net.william278.huskclaims.network.Message;
@@ -27,18 +28,18 @@ import net.william278.huskclaims.network.Payload;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.position.ServerWorld;
 import net.william278.huskclaims.user.OnlineUser;
+import net.william278.huskclaims.user.Preferences;
 import org.jetbrains.annotations.NotNull;
 
 public interface SignNotifier {
 
-    String MODERATOR_POSITION = "huskclaims.moderate_signs";
-
+    // Notify online sign spying moderators of a sign edit (excluding the writer)
     default void notifyLocalSignModerators(@NotNull SignWrite write) {
         if (shouldIgnoreSignWrite(write)) {
             return;
         }
-        getPlugin().getOnlineUsers()
-//                .stream().filter(mod -> mod.hasPermission(MODERATOR_POSITION))
+        getPlugin().getOnlineUsers().stream()
+                .filter(this::isSignSpying).filter(u -> !u.equals(write.getEditor()))
                 .forEach(mod -> notifySignModerator(mod, write));
     }
 
@@ -66,10 +67,10 @@ public interface SignNotifier {
                         getPlugin().getLocales().getPositionText(position, (int) position.getY(),
                                 new ServerWorld(write.getServer(), position.getWorld()), moderator, getPlugin()),
                         write.isFiltered() ? locales.getRawLocale("sign_write_filtered").orElse("") : "",
-                        Locales.escapeText(String.join(
+                        String.join(
                                 locales.getRawLocale("sign_notify_line_separator").orElse("\n"),
-                                write.getText()
-                        )))
+                                write.getText().stream().map(Locales::escapeText).toArray(String[]::new)
+                        ))
                 .map(t -> getPlugin().getLocales().format(t))
                 .ifPresent(moderator::sendMessage);
     }
@@ -80,6 +81,20 @@ public interface SignNotifier {
             return true;
         }
         return write.getText().stream().allMatch(String::isBlank);
+    }
+
+    private boolean isSignSpying(@NotNull OnlineUser user) {
+        boolean toggled = getPlugin().getUserPreferences(user.getUuid())
+                .map(Preferences::isSignNotifications).orElse(false);
+        if (toggled && !getPlugin().canUseCommand(SignSpyCommand.class, user)) {
+            getPlugin().runAsync(() -> {
+                getPlugin().editUserPreferences(user, (preferences) -> preferences.setSignNotifications(false));
+                getPlugin().getLocales().getLocale("sign_notify_off")
+                        .ifPresent(user::sendMessage);
+            });
+            return false;
+        }
+        return toggled;
     }
 
     @NotNull

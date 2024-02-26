@@ -105,6 +105,11 @@ public interface CommandProvider {
         commands.add(new RestrictClaimCommand(getPlugin()));
         commands.add(new IgnoreClaimsCommand(getPlugin()));
 
+        // Register sign spying
+        if (getPlugin().getSettings().getModeration().getSigns().isNotifyModerators()) {
+            commands.add(new SignSpyCommand(getPlugin()));
+        }
+
         // Register pet transfer command
         if (getPlugin().getSettings().getPets().isEnabled()) {
             commands.add(new TransferPetCommand(getPlugin()));

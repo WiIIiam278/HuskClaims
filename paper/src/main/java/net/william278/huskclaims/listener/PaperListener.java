@@ -57,12 +57,12 @@ public class PaperListener extends BukkitListener {
 
     // Apply filter edits to a sign if needed
     private void filterSign(@NotNull SignWrite write, @NotNull SignChangeEvent e) {
-        if (!write.isFiltered()) {
+        if (write.getFilteredText() == null) {
             return;
         }
         for (int l = 0; l < e.lines().size(); l++) {
             e.line(l, Component.text(
-                    write.getText().get(l),
+                    write.getFilteredText().get(l),
                     Objects.requireNonNull(e.line(l)).color()
             ));
         }

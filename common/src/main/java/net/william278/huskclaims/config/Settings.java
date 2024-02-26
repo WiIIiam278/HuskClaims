@@ -421,7 +421,7 @@ public final class Settings {
             private boolean onlyNotifyIfFiltered = false;
 
             @Comment("Single character to replace filtered message content with")
-            private char replacementCharacter = '*';
+            private char replacementCharacter = '#';
 
             @Comment("List of words to filter out of signs")
             private List<String> filteredWords = List.of();

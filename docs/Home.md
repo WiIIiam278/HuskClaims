@@ -14,8 +14,8 @@ Welcome to the plugin documentation for HuskClaims v1.x+, the clean, cross-serve
 * 🥄 [[Claims]]
 * ❤️ [[Trust]]
 * 🎛️ [[Operation Groups]]
+* 🪧 [[Sign Moderation]]
 * 🐕 [[Pets]]
-
 ## Developers
 * 📦 [[API]]
 * ⚙️ [[Claims API]]
