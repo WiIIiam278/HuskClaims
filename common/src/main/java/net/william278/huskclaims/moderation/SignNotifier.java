@@ -34,16 +34,16 @@ public interface SignNotifier {
     String MODERATOR_POSITION = "huskclaims.moderate_signs";
 
     default void notifyLocalSignModerators(@NotNull SignWrite write) {
-        if (!shouldNotify(write)) {
+        if (shouldIgnoreSignWrite(write)) {
             return;
         }
         getPlugin().getOnlineUsers()
-                .stream().filter(mod -> mod.hasPermission(MODERATOR_POSITION))
+//                .stream().filter(mod -> mod.hasPermission(MODERATOR_POSITION))
                 .forEach(mod -> notifySignModerator(mod, write));
     }
 
     default void notifyAllSignModerators(@NotNull SignWrite write) {
-        if (!shouldNotify(write)) {
+        if (shouldIgnoreSignWrite(write)) {
             return;
         }
         notifyLocalSignModerators(write);
@@ -55,26 +55,31 @@ public interface SignNotifier {
     }
 
     private void notifySignModerator(@NotNull OnlineUser moderator, @NotNull SignWrite write) {
-        if (!shouldNotify(write)) {
+        if (shouldIgnoreSignWrite(write)) {
             return;
         }
         final Locales locales = getPlugin().getLocales();
         final Position position = write.getPosition();
 
         locales.getRawLocale("sign_write_notify",
-                        Locales.escapeText(write.getEditor().getName()),
-                        Locales.escapeText(write.getType().getLocale(locales)),
+                        write.getType().getLocale(locales, write.getEditor().getName()),
                         getPlugin().getLocales().getPositionText(position, (int) position.getY(),
                                 new ServerWorld(write.getServer(), position.getWorld()), moderator, getPlugin()),
                         write.isFiltered() ? locales.getRawLocale("sign_write_filtered").orElse("") : "",
-                        Locales.escapeText(String.join(" / ", write.getText())))
+                        Locales.escapeText(String.join(
+                                locales.getRawLocale("sign_notify_line_separator").orElse("\n"),
+                                write.getText()
+                        )))
                 .map(t -> getPlugin().getLocales().format(t))
                 .ifPresent(moderator::sendMessage);
     }
 
-    private boolean shouldNotify(@NotNull SignWrite write) {
+    private boolean shouldIgnoreSignWrite(@NotNull SignWrite write) {
         final Settings.ModerationSettings.SignSettings signs = getPlugin().getSettings().getModeration().getSigns();
-        return signs.isNotifyModerators() && (!signs.isOnlyNotifyIfFiltered() || write.isFiltered());
+        if (!signs.isNotifyModerators() || (signs.isOnlyNotifyIfFiltered() && !write.isFiltered())) {
+            return true;
+        }
+        return write.getText().stream().allMatch(String::isBlank);
     }
 
     @NotNull

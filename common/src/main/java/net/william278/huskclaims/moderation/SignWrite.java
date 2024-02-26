@@ -22,7 +22,6 @@ package net.william278.huskclaims.moderation;
 import lombok.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.config.Locales;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.user.User;
@@ -31,7 +30,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -74,18 +72,16 @@ public class SignWrite {
     @Getter
     @AllArgsConstructor
     public enum Type {
-        SIGN_PLACE(true, "sign_write_place"),
-        SIGN_EDIT_FRONT(true, "sign_write_edit_front"),
-        SIGN_EDIT_BACK(false, "sign_write_edit_back");
+        SIGN_EDIT_FRONT(true, "sign_write_on_front"),
+        SIGN_EDIT_BACK(false, "sign_write_on_back");
 
         private final boolean front;
         private final String locale;
 
         @NotNull
-        public String getLocale(@NotNull Locales locales) {
-            return locales.getRawLocale(locale).orElse(
-                    WordUtils.capitalizeFully(name().replace("_", " "))
-            );
+        public String getLocale(@NotNull Locales locales, @NotNull String actorName) {
+            return locales.getRawLocale(locale, Locales.escapeText(actorName))
+                    .orElse(WordUtils.capitalizeFully(name().replace("_", " ")));
         }
     }
 

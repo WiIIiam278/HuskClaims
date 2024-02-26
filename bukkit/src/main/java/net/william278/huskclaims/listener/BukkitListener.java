@@ -96,7 +96,7 @@ public class BukkitListener extends BukkitOperationListener implements BukkitPet
         );
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    /*@EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onUserPlaceSign(@NotNull BlockPlaceEvent e) {
         if (!(e.getBlock() instanceof Sign sign)) {
             return;
@@ -120,7 +120,7 @@ public class BukkitListener extends BukkitOperationListener implements BukkitPet
         for (int l = 0; l < sign.getLines().length; l++) {
             sign.setLine(l, write.getText().get(l));
         }
-    }
+    }*/
 
     @Override
     public void onUserTamedEntityAction(@NotNull Cancellable event, @Nullable Entity player, @NotNull Entity entity) {

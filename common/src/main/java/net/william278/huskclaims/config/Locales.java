@@ -178,7 +178,7 @@ public class Locales implements PaginatedListProvider {
                 Integer.toString(position.getBlockX()),
                 Integer.toString(position.getBlockZ()),
                 getRawLocale(
-                        "claim_list_%sworld_tooltip".formatted(!crossServer ? "" : "server_")
+                        "position_%sworld_tooltip".formatted(!crossServer ? "" : "server_")
                 ).orElse(""),
                 user instanceof OnlineUser online ? getTeleportText(
                         position, yPosition, serverWorld, online, plugin
