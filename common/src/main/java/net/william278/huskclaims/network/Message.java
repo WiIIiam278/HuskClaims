@@ -165,6 +165,10 @@ public class Message {
         /**
          * Notify other servers of the need to update user groups for the user by payload.
          */
-        INVALIDATE_USER_GROUPS
+        INVALIDATE_USER_GROUPS,
+        /**
+         * Handle a sign edit
+         */
+        SIGN_WRITE
     }
 }

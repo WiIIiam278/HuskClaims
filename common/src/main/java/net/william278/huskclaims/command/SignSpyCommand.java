@@ -17,27 +17,32 @@
  *  limitations under the License.
  */
 
-package net.william278.huskclaims.listener;
+package net.william278.huskclaims.command;
 
-import net.william278.cloplib.listener.OperationListener;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
-public interface ClaimsListener extends OperationListener, ClaimsToolHandler, InspectionToolHandler {
+import java.util.List;
 
-    void register();
+public class SignSpyCommand extends OnlineUserCommand implements ToggleTabCompletable {
 
-    default void setInspectorCallbacks() {
-        setInspectorCallback(getPlugin().getSettings().getClaims().getInspectionTool(), this::onInspectionToolUse);
-        setInspectorCallback(getPlugin().getSettings().getClaims().getClaimTool(), this::onClaimToolUse);
+    public SignSpyCommand(@NotNull HuskClaims plugin) {
+        super(
+                List.of("signspy"),
+                "[on|off]",
+                plugin
+        );
+        setOperatorCommand(true);
     }
 
     @Override
-    default int getInspectionDistance() {
-        return getPlugin().getSettings().getClaims().getInspectionDistance();
+    public void execute(@NotNull OnlineUser executor, @NotNull String[] args) {
+        plugin.editUserPreferences(executor, (preferences) -> {
+            preferences.setSignNotifications(parseBooleanArg(args, 0).orElse(!preferences.isSignNotifications()));
+            plugin.getLocales().getLocale(preferences.isSignNotifications() ? "sign_notify_on" : "sign_notify_off")
+                    .ifPresent(executor::sendMessage);
+        });
     }
-
-    @NotNull
-    HuskClaims getPlugin();
 
 }

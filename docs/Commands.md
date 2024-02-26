@@ -302,12 +302,19 @@ This is a table of HuskClaims commands, how to use them, their required permissi
             <td align="center">❌</td>
         </tr>
         <tr><th colspan="5">Other administrator commands</th></tr>
-        <tr><td colspan="5" align="center">Ignore claims and manage the plugin.</td></tr>
+        <tr><td colspan="5" align="center">Moderation and plugin management utilities.</td></tr>
         <tr>
             <td><code>/ignoreclaims</code></td>
             <td><code>/ignoreclaims [on|off]</code></td>
             <td>Toggle ignoring claim rules/trust levels. Note you must constantly have the permission to keep ignoring claims.</td>
             <td><code>huskclaims.command.ignoreclaims</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <tr>
+            <td><code>/signspy</code></td>
+            <td><code>/signspy [on|off]</code></td>
+            <td>Toggle receiving sign moderation notifications when users place or edit signs.</td>
+            <td><code>huskclaims.command.signspy</code></td>
             <td align="center">❌</td>
         </tr>
         <tr>

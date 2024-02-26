@@ -24,6 +24,7 @@ import net.william278.cloplib.operation.OperationPosition;
 import net.william278.cloplib.operation.OperationUser;
 import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.moderation.SignListener;
 import net.william278.huskclaims.user.BukkitUser;
 import net.william278.huskclaims.user.User;
 import org.bukkit.Location;
@@ -44,9 +45,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-public class BukkitListener extends BukkitOperationListener implements BukkitPetListener, ClaimsListener, UserListener {
+public class BukkitListener extends BukkitOperationListener implements BukkitPetListener, ClaimsListener,
+        UserListener, SignListener {
 
-    private final BukkitHuskClaims plugin;
+    protected final BukkitHuskClaims plugin;
 
     public BukkitListener(@NotNull BukkitHuskClaims plugin) {
         super(plugin, plugin);
@@ -55,8 +57,8 @@ public class BukkitListener extends BukkitOperationListener implements BukkitPet
 
     @Override
     public void register() {
-        ClaimsListener.super.register();
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        setInspectorCallbacks();
     }
 
     @EventHandler

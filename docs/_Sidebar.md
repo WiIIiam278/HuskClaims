@@ -11,6 +11,7 @@
 * 🥄 [[Claims]]
 * ❤️ [[Trust]]
 * 🎛️ [[Operation Groups]]
+* 🪧 [[Sign Moderation]]
 * 🐕 [[Pets]]
 
 ## Developers

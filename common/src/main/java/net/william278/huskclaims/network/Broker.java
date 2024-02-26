@@ -54,6 +54,7 @@ public abstract class Broker implements MessageHandler {
             case DELETE_ALL_CLAIMS -> handleDeleteAllClaims(message);
             case INVALIDATE_USER_GROUPS -> handleInvalidateUserGroups(message);
             case INVALIDATE_USER_CACHE -> handleInvalidateUserCache(message);
+            case SIGN_WRITE -> handleSignWrite(message);
             default -> plugin.log(Level.SEVERE, "Received unknown message type: " + message.getType());
         }
     }

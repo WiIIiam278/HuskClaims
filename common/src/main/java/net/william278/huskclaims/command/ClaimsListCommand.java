@@ -25,10 +25,7 @@ import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ServerWorldClaim;
 import net.william278.huskclaims.config.Locales;
-import net.william278.huskclaims.hook.HuskHomesHook;
-import net.william278.huskclaims.position.ServerWorld;
 import net.william278.huskclaims.user.CommandUser;
-import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.User;
 import net.william278.paginedown.ListOptions;
 import net.william278.paginedown.PaginatedList;
@@ -59,50 +56,14 @@ public abstract class ClaimsListCommand extends Command implements GlobalClaimsP
     private String getClaimListRow(@NotNull ServerWorldClaim claim, @NotNull CommandUser user) {
         return plugin.getLocales().getRawLocale("claim_list_item_separator")
                 .map(separator -> String.join(separator, List.of(
-                        getClaimPosition(claim.claim(), claim.serverWorld(), user),
+                        plugin.getLocales().getPositionText(claim.claim().getRegion().getCenter(),
+                                TELEPORT_Y_LEVEL, claim.serverWorld(), user, plugin),
                         getClaimSize(claim.claim()),
                         getClaimChildren(claim.claim()),
                         getClaimMembers(claim.claim())
                 ))).orElse("");
     }
 
-    @NotNull
-    private String getClaimPosition(@NotNull Claim claim, @NotNull ServerWorld serverWorld, @NotNull CommandUser user) {
-        final boolean crossServer = plugin.getSettings().getCrossServer().isEnabled();
-        return plugin.getLocales().getRawLocale(
-                switch (serverWorld.world().getEnvironment().toLowerCase(Locale.ENGLISH)) {
-                    case "nether" -> "claim_list_position_nether";
-                    case "the_end" -> "claim_list_position_end";
-                    default -> "claim_list_position_overworld";
-                },
-                crossServer ? serverWorld.toString() : serverWorld.world().getName(),
-                Integer.toString(claim.getRegion().getCenter().getBlockX()),
-                Integer.toString(claim.getRegion().getCenter().getBlockZ()),
-                plugin.getLocales().getRawLocale(
-                        "claim_list_%sworld_tooltip".formatted(!crossServer ? "" : "server_")
-                ).orElse(""),
-                user instanceof OnlineUser online ? getTeleportOption(claim, serverWorld, online) : ""
-        ).orElse("");
-    }
-
-    @NotNull
-    private String getTeleportOption(@NotNull Claim claim, @NotNull ServerWorld serverWorld, @NotNull OnlineUser user) {
-        final Optional<HuskHomesHook> homesHook = plugin.getHook(HuskHomesHook.class);
-        if (homesHook.isEmpty() || !plugin.canUseCommand(HuskClaimsCommand.class, user, "teleport")) {
-            return "";
-        }
-
-        return plugin.getHook(HuskHomesHook.class).map(hook -> String.format(
-                "%s run_command=/huskclaims teleport %s %s %s %s %s",
-                getPlugin().getLocales().getRawLocale("claim_list_teleport_tooltip")
-                        .orElse(""),
-                serverWorld.server(),
-                claim.getRegion().getCenter().getBlockX(),
-                TELEPORT_Y_LEVEL,
-                claim.getRegion().getCenter().getBlockZ(),
-                serverWorld.world().getName()
-        )).orElse("");
-    }
 
     @NotNull
     private String getClaimSize(@NotNull Claim claim) {

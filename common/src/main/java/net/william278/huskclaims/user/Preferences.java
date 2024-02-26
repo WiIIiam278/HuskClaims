@@ -51,6 +51,11 @@ public class Preferences implements AuditLogger {
     @SerializedName("ignoring_claims")
     private boolean isIgnoringClaims = false;
 
+    @Setter
+    @Expose
+    @SerializedName("sign_notifications")
+    private boolean signNotifications = false;
+
     @Expose
     @SerializedName("audit_log")
     private TreeMap<String, Entry> logEntries = Maps.newTreeMap();
