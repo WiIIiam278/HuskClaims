@@ -411,7 +411,8 @@ public final class Settings {
         @Configuration
         @NoArgsConstructor(access = AccessLevel.PRIVATE)
         public static class SignSettings {
-            @Comment("Whether to notify 'huskclaims.moderate_signs' permission holders when signs are placed / edited")
+            @Comment("Whether to notify 'huskclaims.moderate_signs' permission holders when signs are placed / edited. "
+                    + "Requires Minecraft 1.19.4+")
             private boolean notifyModerators = true;
 
             @Comment("Whether to filter messages")

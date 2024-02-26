@@ -31,6 +31,11 @@ import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.Preferences;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Interface for notifying moderators of sign edits
+ *
+ * @since 1.0.4
+ */
 public interface SignNotifier {
 
     // Notify online sign spying moderators of a sign edit (excluding the writer)
