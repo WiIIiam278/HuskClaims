@@ -397,6 +397,37 @@ public final class Settings {
 
     }
 
+    @Comment("Settings for moderation tools")
+    private ModerationSettings moderation = new ModerationSettings();
+
+    @Getter
+    @Configuration
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class ModerationSettings {
+
+        private SignSettings signs = new SignSettings();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class SignSettings {
+            @Comment("Whether to notify 'huskclaims.moderate_signs' permission holders when signs are placed / edited")
+            private boolean notifyModerators = true;
+
+            @Comment("Whether to filter messages")
+            private boolean filterMessages = false;
+
+            @Comment("Whether sign notifications should be limited to just filtered signs")
+            private boolean onlyNotifyIfFiltered = false;
+
+            @Comment("Single character to replace filtered message content with")
+            private char replacementCharacter = '*';
+
+            @Comment("List of words to filter out of signs")
+            private List<String> filteredWords = List.of();
+        }
+    }
+
     @Comment("Settings for integration hooks with other plugins")
     private HookSettings hooks = new HookSettings();
 
