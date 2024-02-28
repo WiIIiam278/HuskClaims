@@ -39,10 +39,11 @@ public interface DropsProtector {
                 .forEach(getTrackedDrops()::add);
     }
 
-    default void unlockDrops(@NotNull User user) {
-        getTrackedDrops().stream().filter(a -> a.isLockedBy(user, getPlugin()))
-                .peek(g -> g.unlock(getPlugin())).toList()
-                .forEach(getTrackedDrops()::remove);
+    default long unlockDrops(@NotNull User user) {
+        return getTrackedDrops().stream().filter(a -> a.isLockedBy(user, getPlugin()))
+                .peek(g -> g.unlock(getPlugin()))
+                .peek(getTrackedDrops()::remove)
+                .count();
     }
 
     @NotNull

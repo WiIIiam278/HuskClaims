@@ -301,6 +301,22 @@ This is a table of HuskClaims commands, how to use them, their required permissi
             <td><code>huskclaims.command.transferpet.other</code></td>
             <td align="center">❌</td>
         </tr>
+        <!-- /unlockdrops command -->
+        <tr><th colspan="5">Death drop commands</th></tr>
+        <tr><td colspan="5" align="center">Manage the locking of dropped items on death.</td></tr>
+        <tr>
+            <td rowspan="2"><code>/unlockdrops</code></td>
+            <td><code>/unlockdrops</code></td>
+            <td>Unlock locked item drops from when you died</td>
+            <td><code>huskclaims.command.unlockdrops</code></td>
+            <td align="center">✅</td>
+        </tr>
+        <tr>
+            <td><code>/unlockdrops &lt;username&gt;</code></td>
+            <td>Unlock someone else's death drops</td>
+            <td><code>huskclaims.command.unlockdrops.other</code></td>
+            <td align="center">❌</td>
+        </tr>
         <tr><th colspan="5">Other administrator commands</th></tr>
         <tr><td colspan="5" align="center">Moderation and plugin management utilities.</td></tr>
         <tr>

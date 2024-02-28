@@ -22,7 +22,6 @@ package net.william278.huskclaims.moderation;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.config.Settings;
 import net.william278.huskclaims.user.OnlineUser;
-import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,11 +29,13 @@ import java.util.Collection;
 
 public interface DropsListener {
 
-    default void handleDeathDrops(@NotNull User user, @NotNull Collection<? extends DropsProtector.GroundItem> items) {
+    default void handleDeathDrops(@NotNull OnlineUser user, @NotNull Collection<? extends DropsProtector.GroundItem> items) {
         if (!getSettings().isLockItems()) {
             return;
         }
         getPlugin().lockDrops(items, user);
+        getPlugin().getLocales().getLocale("death_drops_locked")
+                .ifPresent(user::sendMessage);
     }
 
     default boolean cancelItemPickup(@Nullable OnlineUser pickerUpper, @NotNull DropsProtector.GroundItem item) {

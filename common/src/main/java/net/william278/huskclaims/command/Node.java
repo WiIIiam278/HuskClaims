@@ -76,8 +76,6 @@ public abstract class Node implements Executable {
         return aliases.get(0);
     }
 
-
-    @NotNull
     protected Optional<User> resolveUser(@NotNull CommandUser executor, @NotNull String[] args) {
         return parseStringArg(args, 0)
                 .flatMap(a -> plugin.getDatabase().getUser(a)).map(SavedUser::getUser)
@@ -87,6 +85,16 @@ public abstract class Node implements Executable {
                     }
                     return Optional.empty();
                 });
+    }
+
+    protected Optional<OnlineUser> resolveOnlineUser(@NotNull CommandUser executor, @NotNull String[] args) {
+        final Optional<OnlineUser> user = parseStringArg(args, 0)
+                .flatMap(a -> plugin.getOnlineUsers().stream()
+                        .filter(o -> o.getName().equalsIgnoreCase(a)).findFirst());
+        if (user.isEmpty() && executor instanceof OnlineUser online) {
+            return Optional.of(online);
+        }
+        return user;
     }
 
     @NotNull

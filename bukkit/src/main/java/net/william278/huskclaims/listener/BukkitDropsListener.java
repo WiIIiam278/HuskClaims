@@ -75,11 +75,11 @@ public interface BukkitDropsListener extends DropsListener, Listener {
         }
     }
 
-    record BukkitGroundItem(@NotNull ItemStack stack) implements DropsProtector.GroundItem {
+    record BukkitGroundItem(@Nullable ItemStack stack) implements DropsProtector.GroundItem {
 
         @Override
         public Optional<User> getLockedBy(@NotNull HuskClaims plugin) {
-            if (!stack().hasItemMeta()) {
+            if (stack() == null || !stack().hasItemMeta()) {
                 return Optional.empty();
             }
             final ItemMeta meta = Objects.requireNonNull(stack().getItemMeta(), "Couldn't get null ItemMeta");
@@ -88,7 +88,7 @@ public interface BukkitDropsListener extends DropsListener, Listener {
 
         @Override
         public void setLocked(@Nullable User user, @NotNull HuskClaims plugin) {
-            if (!stack.hasItemMeta()) {
+            if (stack() == null || !stack().hasItemMeta()) {
                 return;
             }
             final ItemMeta meta = Objects.requireNonNull(stack().getItemMeta(), "Couldn't set null ItemMeta");

@@ -110,6 +110,11 @@ public interface CommandProvider {
             commands.add(new SignSpyCommand(getPlugin()));
         }
 
+        // Register drop unlocking
+        if (getPlugin().getSettings().getModeration().getDrops().isLockItems()) {
+            commands.add(new UnlockDropsCommand(getPlugin()));
+        }
+
         // Register pet transfer command
         if (getPlugin().getSettings().getPets().isEnabled()) {
             commands.add(new TransferPetCommand(getPlugin()));
