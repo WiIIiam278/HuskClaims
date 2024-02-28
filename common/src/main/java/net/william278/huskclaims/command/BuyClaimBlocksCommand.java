@@ -58,7 +58,7 @@ public class BuyClaimBlocksCommand extends OnlineUserCommand {
 
     private void buyClaimBlocks(@NotNull OnlineUser executor, int amount, @NotNull EconomyHook hook) {
         final double cost = getBlockPrice(amount);
-        if (!hook.takeMoney(executor, cost)) {
+        if (!hook.takeMoney(executor, cost, EconomyHook.EconomyReason.BUY_CLAIM_BLOCKS)) {
             plugin.getLocales().getLocale("error_insufficient_funds")
                     .ifPresent(executor::sendMessage);
             return;
