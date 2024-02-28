@@ -21,7 +21,6 @@ package net.william278.huskclaims.api;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import net.william278.cloplib.operation.Operation;
 import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.HuskClaims;
@@ -69,7 +68,6 @@ public class HuskClaimsAPI {
     protected static HuskClaimsAPI instance;
 
     // Plugin instance
-    @Getter(onMethod_ = @ApiStatus.Internal)
     protected final HuskClaims plugin;
 
     /**
@@ -1240,6 +1238,16 @@ public class HuskClaimsAPI {
     @ApiStatus.Internal
     public static void unregister() {
         instance = null;
+    }
+
+    /**
+     * <b>(Internal use only)</b> - Get the plugin instance
+     *
+     * @since 1.0.4
+     */
+    @ApiStatus.Internal
+    public HuskClaims getPlugin() {
+        return plugin;
     }
 
     /**
