@@ -58,6 +58,11 @@ public interface GsonProvider {
     }
 
     @NotNull
+    default User getUserFromJson(@NotNull String json) throws JsonSyntaxException {
+        return getGson().fromJson(json, User.class);
+    }
+
+    @NotNull
     default List<User> getUserListFromJson(@NotNull String json) throws JsonSyntaxException {
         return getGson().fromJson(json, USER_LIST_TOKEN);
     }

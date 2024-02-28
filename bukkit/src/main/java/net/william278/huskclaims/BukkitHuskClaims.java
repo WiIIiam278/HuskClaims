@@ -42,6 +42,7 @@ import net.william278.huskclaims.highlighter.BlockUpdateHighlighter;
 import net.william278.huskclaims.highlighter.Highlighter;
 import net.william278.huskclaims.hook.BukkitHookProvider;
 import net.william278.huskclaims.hook.Hook;
+import net.william278.huskclaims.listener.BukkitDropsListener;
 import net.william278.huskclaims.listener.BukkitListener;
 import net.william278.huskclaims.listener.ClaimsListener;
 import net.william278.huskclaims.network.Broker;
@@ -83,6 +84,7 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     private MorePaperLib morePaperLib;
     private AudienceProvider audiences;
     private final Set<TrustTag> trustTags = ConcurrentHashMap.newKeySet();
+    private final Set<BukkitDropsListener.BukkitGroundItem> trackedDrops = ConcurrentHashMap.newKeySet();
     private final ConcurrentMap<String, List<User>> globalUserList = Maps.newConcurrentMap();
     private final ConcurrentMap<UUID, ClaimSelection> claimSelections = Maps.newConcurrentMap();
     private final ConcurrentMap<UUID, SavedUser> userCache = Maps.newConcurrentMap();

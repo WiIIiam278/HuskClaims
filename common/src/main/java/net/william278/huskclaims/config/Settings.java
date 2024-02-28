@@ -427,6 +427,20 @@ public final class Settings {
             @Comment("List of words to filter out of signs")
             private List<String> filteredWords = List.of();
         }
+
+        private DropSettings drops = new DropSettings();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class DropSettings {
+            @Comment("Whether to lock ground items dropped by players when they die from being picked up by others")
+            private boolean lockItems = true;
+
+            @Comment("Whether to also prevent death drops from being destroyed by lava, fire, cacti, etc.")
+            private boolean preventDestruction = true;
+        }
+
     }
 
     @Comment("Settings for integration hooks with other plugins")
