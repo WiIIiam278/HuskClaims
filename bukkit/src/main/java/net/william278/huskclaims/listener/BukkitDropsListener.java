@@ -45,6 +45,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 
+import static org.bukkit.event.entity.EntityDamageEvent.DamageCause.CUSTOM;
+import static org.bukkit.event.entity.EntityDamageEvent.DamageCause.VOID;
+
 public interface BukkitDropsListener extends DropsListener, Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
@@ -57,7 +60,7 @@ public interface BukkitDropsListener extends DropsListener, Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     default void onItemDestroy(@NotNull EntityDamageEvent e) {
-        if (!(e.getEntity() instanceof Item item)) {
+        if (!(e.getEntity() instanceof Item item) || e.getCause() == VOID || e.getCause() == CUSTOM) {
             return;
         }
         if (cancelItemDestroy(new BukkitGroundItem(item.getItemStack()))) {

@@ -438,7 +438,7 @@ public final class Settings {
             private boolean lockItems = true;
 
             @Comment("Whether to also prevent death drops from being destroyed by lava, fire, cacti, etc.")
-            private boolean preventDestruction = true;
+            private boolean preventDestruction = false;
         }
 
     }

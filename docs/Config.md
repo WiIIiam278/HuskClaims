@@ -223,7 +223,7 @@ moderation:
     # Whether to lock ground items dropped by players when they die from being picked up by others
     lock_items: true
     # Whether to also prevent death drops from being destroyed by lava, fire, cacti, etc.
-    prevent_destruction: true
+    prevent_destruction: false
 # Settings for integration hooks with other plugins
 hooks:
   luck_perms:
