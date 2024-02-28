@@ -21,6 +21,7 @@ package net.william278.huskclaims.api;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import net.william278.cloplib.operation.Operation;
 import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.HuskClaims;
@@ -29,6 +30,7 @@ import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.claim.Region;
 import net.william278.huskclaims.claim.ServerWorldClaim;
 import net.william278.huskclaims.highlighter.Highlighter;
+import net.william278.huskclaims.hook.EconomyHook;
 import net.william278.huskclaims.position.BlockPosition;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.position.ServerWorld;
@@ -65,7 +67,9 @@ public class HuskClaimsAPI {
 
     // Singleton API instance
     protected static HuskClaimsAPI instance;
+
     // Plugin instance
+    @Getter(onMethod_ = @ApiStatus.Internal)
     protected final HuskClaims plugin;
 
     /**
@@ -1032,6 +1036,7 @@ public class HuskClaimsAPI {
 
     /**
      * Get a {@link UserGroup} by name.
+     *
      * @param user the user who owns the group
      * @param name the name of the group
      * @return the user group
@@ -1098,6 +1103,19 @@ public class HuskClaimsAPI {
      */
     public void setHighlighter(@NotNull Highlighter highlighter) {
         plugin.setHighlighter(highlighter);
+    }
+
+    /**
+     * Register a custom economy hook for processing transactions.
+     * <p>
+     * This will replace any existing active economy hook.
+     *
+     * @param hook the hook to register
+     * @since 1.0.4
+     */
+    public <T extends EconomyHook> void registerEconomyHook(@NotNull T hook) {
+        plugin.getHook(EconomyHook.class).ifPresent(p -> plugin.getHooks().remove(p));
+        plugin.getHooks().add(hook);
     }
 
     /**

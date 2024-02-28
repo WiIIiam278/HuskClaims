@@ -411,7 +411,7 @@ public final class Settings {
         @Configuration
         @NoArgsConstructor(access = AccessLevel.PRIVATE)
         public static class SignSettings {
-            @Comment("Whether to notify 'huskclaims.moderate_signs' permission holders when signs are placed / edited. "
+            @Comment("Whether to notify users with /signspy on when signs are placed.edited. Requires Minecraft 1.19.4+"
                     + "Requires Minecraft 1.19.4+")
             private boolean notifyModerators = true;
 
@@ -427,6 +427,20 @@ public final class Settings {
             @Comment("List of words to filter out of signs")
             private List<String> filteredWords = List.of();
         }
+
+        private DropSettings drops = new DropSettings();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class DropSettings {
+            @Comment("Whether to lock ground items dropped by players when they die from being picked up by others")
+            private boolean lockItems = true;
+
+            @Comment("Whether to also prevent death drops from being destroyed by lava, fire, cacti, etc.")
+            private boolean preventDestruction = false;
+        }
+
     }
 
     @Comment("Settings for integration hooks with other plugins")

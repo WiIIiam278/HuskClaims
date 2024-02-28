@@ -12,6 +12,7 @@
 * ❤️ [[Trust]]
 * 🎛️ [[Operation Groups]]
 * 🪧 [[Sign Moderation]]
+* 🪦 [[Drops Moderation]]
 * 🐕 [[Pets]]
 
 ## Developers

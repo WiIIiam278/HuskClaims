@@ -50,7 +50,7 @@ public class BukkitVaultEconomyHook extends EconomyHook {
     }
 
     @Override
-    public boolean takeMoney(@NotNull OnlineUser user, double amount) {
+    public boolean takeMoney(@NotNull OnlineUser user, double amount, @NotNull EconomyReason reason) {
         return economy.withdrawPlayer(((BukkitUser) user).getBukkitPlayer(), amount).transactionSuccess();
     }
 

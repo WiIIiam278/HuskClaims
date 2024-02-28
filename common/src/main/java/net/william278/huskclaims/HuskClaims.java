@@ -28,6 +28,7 @@ import net.william278.huskclaims.database.DatabaseProvider;
 import net.william278.huskclaims.event.EventDispatcher;
 import net.william278.huskclaims.hook.HookProvider;
 import net.william278.huskclaims.listener.ListenerProvider;
+import net.william278.huskclaims.moderation.DropsProtector;
 import net.william278.huskclaims.moderation.SignNotifier;
 import net.william278.huskclaims.network.BrokerProvider;
 import net.william278.huskclaims.pet.PetHandler;
@@ -48,9 +49,9 @@ import java.util.logging.Level;
  * @since 1.0
  */
 public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvider, GsonProvider, UserManager,
-        SignNotifier, ClaimManager, GroupManager, TrustTagManager, ListenerProvider, UserListProvider, CommandProvider,
-        PetHandler, BrokerProvider, TextValidator, AudiencesProvider, BlockProvider, MetaProvider, EventDispatcher,
-        HookProvider {
+        SignNotifier, DropsProtector, ClaimManager, GroupManager, TrustTagManager, ListenerProvider, UserListProvider,
+        CommandProvider, PetHandler, BrokerProvider, TextValidator, AudiencesProvider, BlockProvider, MetaProvider,
+        EventDispatcher, HookProvider {
 
     /**
      * Initialize all plugin systems

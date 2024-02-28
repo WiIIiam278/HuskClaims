@@ -206,6 +206,24 @@ highlighter:
 pets:
   # Whether to enable protecting tamed animals to only be harmed/used by their owner
   enabled: true
+# Settings for moderation tools
+moderation:
+  signs:
+    # Whether to notify users with /signspy on when signs are placed.edited. Requires Minecraft 1.19.4+
+    notify_moderators: true
+    # Whether to filter messages
+    filter_messages: false
+    # Whether sign notifications should be limited to just filtered signs
+    only_notify_if_filtered: false
+    # Single character to replace filtered message content with
+    replacement_character: '#'
+    # List of words to filter out of signs
+    filtered_words: []
+  drops:
+    # Whether to lock ground items dropped by players when they die from being picked up by others
+    lock_items: true
+    # Whether to also prevent death drops from being destroyed by lava, fire, cacti, etc.
+    prevent_destruction: false
 # Settings for integration hooks with other plugins
 hooks:
   luck_perms:
@@ -215,6 +233,9 @@ hooks:
     trust_tag_use_permission: true
     # The prefix to use when specifying a LuckPerms group trust tag (e.g. /trust #role/groupname)
     trust_tag_prefix: role/
+  plan:
+    # Whether to hook into Plan to display claim analytics
+    enabled: true
   husk_homes:
     # Whether to hook into HuskHomes for claim teleportation and home restriction
     enabled: true
@@ -222,11 +243,17 @@ hooks:
     restrict_set_home: true
     # The trust level required to set a home in a claim (the ID of a level in 'trust_levels.yml')
     set_home_trust_level: access
+  husk_towns:
+    # Whether to hook into HuskTowns to disable claiming over town claims
+    enabled: true
   economy:
     # Whether to hook into an economy plugin to allow buying claim blocks
     enabled: true
     # The cost of buying 1 claim block
     cost_per_block: 1.0
+  placeholders:
+    # Whether to hook into PlaceholderAPI to provide a HuskClaims placeholder expansion
+    enabled: true
   map:
     # Whether to hook into Dynmap, BlueMap, or Pl3xMap to show claims on the map
     enabled: true
