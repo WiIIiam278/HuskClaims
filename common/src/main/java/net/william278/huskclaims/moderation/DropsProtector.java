@@ -65,7 +65,8 @@ public interface DropsProtector {
         }
 
         default boolean isLockedBy(@NotNull User user, @NotNull HuskClaims plugin) {
-            return getLockedBy(plugin).isPresent() && getLockedBy(plugin).get().equals(user);
+            final Optional<User> lockedBy = getLockedBy(plugin);
+            return lockedBy.isPresent() && lockedBy.get().equals(user);
         }
 
     }

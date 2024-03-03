@@ -82,20 +82,20 @@ public interface BukkitDropsListener extends DropsListener, Listener {
 
         @Override
         public Optional<User> getLockedBy(@NotNull HuskClaims plugin) {
-            if (stack() == null || !stack().hasItemMeta()) {
+            if (stack() == null || stack().getItemMeta() == null) {
                 return Optional.empty();
             }
-            final ItemMeta meta = Objects.requireNonNull(stack().getItemMeta(), "Couldn't get null ItemMeta");
-            return getLockedBy(meta.getPersistentDataContainer(), plugin);
+            return getLockedBy(stack().getItemMeta().getPersistentDataContainer(), plugin);
         }
 
         @Override
         public void setLocked(@Nullable User user, @NotNull HuskClaims plugin) {
-            if (stack() == null || !stack().hasItemMeta()) {
+            if (stack() == null || stack().getItemMeta() == null) {
                 return;
             }
-            final ItemMeta meta = Objects.requireNonNull(stack().getItemMeta(), "Couldn't set null ItemMeta");
+            final ItemMeta meta = stack().getItemMeta();
             setLockedBy(meta.getPersistentDataContainer(), user, plugin);
+            stack().setItemMeta(meta);
         }
 
         @NotNull
