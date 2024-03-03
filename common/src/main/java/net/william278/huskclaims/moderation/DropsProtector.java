@@ -40,7 +40,8 @@ public interface DropsProtector {
     }
 
     default long unlockDrops(@NotNull User user) {
-        return getTrackedDrops().stream().filter(a -> a.isLockedBy(user, getPlugin()))
+        return getTrackedDrops().stream()
+                .filter(a -> a.isLockedBy(user, getPlugin()))
                 .peek(g -> g.unlock(getPlugin()))
                 .peek(getTrackedDrops()::remove)
                 .count();

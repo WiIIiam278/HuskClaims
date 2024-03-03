@@ -22,10 +22,12 @@ package net.william278.huskclaims.moderation;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.config.Settings;
 import net.william278.huskclaims.user.OnlineUser;
+import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.Optional;
 
 public interface DropsListener {
 
@@ -42,7 +44,8 @@ public interface DropsListener {
         if (!getSettings().isLockItems() || pickerUpper == null) {
             return false;
         }
-        if (item.isLockedBy(pickerUpper, getPlugin())) {
+        final Optional<User> locker = item.getLockedBy(getPlugin());
+        if (locker.isPresent() && locker.get().equals(pickerUpper)) {
             item.unlock(getPlugin());
             return false;
         }
