@@ -57,13 +57,14 @@ public interface ClaimBlocksManager {
 
     default void editClaimBlocks(@NotNull User user, @NotNull UserManager.ClaimBlockSource source,
                                  @NotNull Function<Long, Long> consumer, @Nullable Consumer<Long> callback) {
-
+        // Calculate block balance
         final long originalBlocks = getClaimBlocks(user);
         final long newBlocks = consumer.apply(originalBlocks);
         if (newBlocks < 0) {
             throw new IllegalArgumentException("Claim blocks cannot be negative (" + newBlocks + ")");
         }
 
+        // Fire the event, update the blocks, trigger callback
         getPlugin().fireClaimBlocksChangeEvent(
                 user, originalBlocks, newBlocks, source,
                 (event) -> editSavedUser(user.getUuid(), (savedUser) -> {
@@ -124,6 +125,7 @@ public interface ClaimBlocksManager {
         CLAIM_CREATED,
         CLAIM_TRANSFER_AWAY,
         CLAIM_DELETED,
+        CLAIMS_DELETED_PRUNED,
         API;
 
         @NotNull

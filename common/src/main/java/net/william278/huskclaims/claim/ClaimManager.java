@@ -47,7 +47,7 @@ import java.util.logging.Level;
  *
  * @since 1.0
  */
-public interface ClaimManager extends ClaimHandler, ClaimEditor {
+public interface ClaimManager extends ClaimHandler, ClaimEditor, ClaimPruner {
 
     /**
      * Get the claim worlds
@@ -360,10 +360,14 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
         }
         setClaimWorlds(loadedWorlds);
 
+        // Determine loaded claim worlds
         final Collection<ClaimWorld> claimWorlds = getClaimWorlds().values();
         final int claimCount = claimWorlds.stream().mapToInt(ClaimWorld::getClaimCount).sum();
         getPlugin().log(Level.INFO, String.format("Loaded %s claim(s) across %s world(s) in %s seconds",
                 claimCount, claimWorlds.size(), ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d));
+
+        // Carry out pruning as necessary
+        pruneClaims();
     }
 
     /**
@@ -391,6 +395,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor {
      * @param position The position to highlight the claim at
      * @since 1.0
      */
+    @SuppressWarnings("unused")
     default void highlightClaimAt(@NotNull OnlineUser user, @NotNull Position position) {
         getClaimWorld(position.getWorld()).flatMap(world -> world.getClaimAt(position))
                 .ifPresent(claim -> getHighlighter().startHighlighting(user, position.getWorld(), claim));

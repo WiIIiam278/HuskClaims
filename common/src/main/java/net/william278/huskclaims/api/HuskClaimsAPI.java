@@ -1109,7 +1109,7 @@ public class HuskClaimsAPI {
      * This will replace any existing active economy hook.
      *
      * @param hook the hook to register
-     * @since 1.0.4
+     * @since 1.1
      */
     public <T extends EconomyHook> void registerEconomyHook(@NotNull T hook) {
         plugin.getHook(EconomyHook.class).ifPresent(p -> plugin.getHooks().remove(p));
@@ -1243,7 +1243,7 @@ public class HuskClaimsAPI {
     /**
      * <b>(Internal use only)</b> - Get the plugin instance
      *
-     * @since 1.0.4
+     * @since 1.1
      */
     @ApiStatus.Internal
     public HuskClaims getPlugin() {

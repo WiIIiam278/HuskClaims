@@ -34,7 +34,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Interface for notifying moderators of sign edits
  *
- * @since 1.0.4
+ * @since 1.1
  */
 public interface SignNotifier {
 

@@ -228,6 +228,28 @@ public final class Settings {
         @Comment("Whether to require confirmation when deleting claims that have children")
         private boolean confirmDeletingParentClaims = true;
 
+        @Comment("Settings for automatically removing claims made by now-inactive users")
+        private InactivityPruningSettings inactivityPruning = new InactivityPruningSettings();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class InactivityPruningSettings {
+
+            @Comment("Whether to delete all claims made by users marked as inactive. (Warning: Dangerous!)")
+            private boolean enabled = false;
+
+            @Comment("The number of days a user must not log on for to be marked as inactive (Minimum: 1)")
+            private long inactiveDays = 60;
+
+            @Comment("List of worlds to exclude from being pruned.")
+            private List<String> excludedWorlds = Lists.newArrayList();
+
+            @Comment("List of users (by either UUID or username) to exclude from inactive claim pruning")
+            private List<String> excludedUsers = Lists.newArrayList();
+
+        }
+
         public boolean isWorldUnclaimable(@NotNull World world) {
             return unclaimableWorlds.stream().anyMatch(world.getName()::equalsIgnoreCase);
         }
