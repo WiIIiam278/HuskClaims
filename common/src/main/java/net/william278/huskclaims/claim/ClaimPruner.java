@@ -107,7 +107,7 @@ public interface ClaimPruner {
     @Unmodifiable
     default Set<ClaimWorld> getWorldsToPrune() {
         return getPlugin().getClaimWorlds().entrySet().stream()
-                .filter((entry) -> getSettings().getExcludedWorlds().contains(entry.getKey()))
+                .filter((entry) -> !getSettings().getExcludedWorlds().contains(entry.getKey()))
                 .map(Map.Entry::getValue).collect(Collectors.toSet());
     }
 
