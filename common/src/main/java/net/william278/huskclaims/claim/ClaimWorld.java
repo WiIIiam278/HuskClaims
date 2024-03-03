@@ -110,14 +110,6 @@ public class ClaimWorld {
     }
 
     @NotNull
-    @Unmodifiable
-    public Set<User> getClaimers() {
-        return claims.stream()
-                .map(c -> c.getOwner().flatMap(this::getUser).orElse(null))
-                .filter(Objects::nonNull).collect(Collectors.toSet());
-    }
-
-    @NotNull
     public List<Claim> getAdminClaims() {
         return getClaimsByUser(null);
     }

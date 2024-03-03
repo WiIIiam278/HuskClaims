@@ -64,7 +64,7 @@ public interface ClaimPruner {
 
         // Determine who to prune
         final Set<ClaimWorld> toPrune = getWorldsToPrune();
-        final Set<User> inactiveUsers = Sets.intersection(getInactiveUsers(), getAllClaimers(toPrune));
+        final Set<User> inactiveUsers = getInactiveUsers();
         final LocalTime startTime = LocalTime.now();
         getPlugin().log(Level.INFO, String.format("Pruning %s claim worlds with claims by %s inactive users...",
                 toPrune.size(), inactiveUsers.size()));
@@ -109,13 +109,6 @@ public interface ClaimPruner {
         return getPlugin().getClaimWorlds().entrySet().stream()
                 .filter((entry) -> !getSettings().getExcludedWorlds().contains(entry.getKey()))
                 .map(Map.Entry::getValue).collect(Collectors.toSet());
-    }
-
-    @NotNull
-    @Unmodifiable
-    default Set<User> getAllClaimers(@NotNull Set<ClaimWorld> worlds) {
-        return worlds.stream().map(ClaimWorld::getClaimers)
-                .flatMap(Collection::stream).collect(Collectors.toSet());
     }
 
     @NotNull
