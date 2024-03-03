@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
 /**
  * Interface for handling sign edits / placements, for moderation.
  *
- * @since 1.0.4
+ * @since 1.1
  */
 public interface SignListener {
 

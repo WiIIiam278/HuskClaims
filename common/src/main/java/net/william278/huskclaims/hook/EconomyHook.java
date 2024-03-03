@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Represents a hook for handling economy functions within the plugin
  *
- * @since 1.0.4
+ * @since 1.1
  */
 public abstract class EconomyHook extends Hook {
 
@@ -42,7 +42,7 @@ public abstract class EconomyHook extends Hook {
      *
      * @param name The name of the hook
      * @param api  the {@link HuskClaimsAPI API instance}
-     * @since 1.0.4
+     * @since 1.1
      */
     @SuppressWarnings("unused")
     public EconomyHook(@NotNull String name, @NotNull HuskClaimsAPI api) {
@@ -55,7 +55,7 @@ public abstract class EconomyHook extends Hook {
      * @param user   the user
      * @param amount the amount
      * @return whether the transaction was successful
-     * @since 1.0.4
+     * @since 1.1
      */
     public abstract boolean takeMoney(@NotNull OnlineUser user, double amount, @NotNull EconomyReason reason);
 
