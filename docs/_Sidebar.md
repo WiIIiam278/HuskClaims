@@ -13,6 +13,7 @@
 * 🎛️ [[Operation Groups]]
 * 🪧 [[Sign Moderation]]
 * 🪦 [[Drops Moderation]]
+* 😴 [[Inactivity Pruning]]
 * 🐕 [[Pets]]
 
 ## Developers

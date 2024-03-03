@@ -77,51 +77,51 @@ cross_server:
 claims:
   # Default flags for regular claims
   default_flags:
-    - PLAYER_DAMAGE_MONSTER
-    - EXPLOSION_DAMAGE_ENTITY
-    - PLAYER_DAMAGE_PLAYER
-    - MONSTER_SPAWN
-    - PASSIVE_MOB_SPAWN
+  - PLAYER_DAMAGE_MONSTER
+  - EXPLOSION_DAMAGE_ENTITY
+  - PLAYER_DAMAGE_PLAYER
+  - MONSTER_SPAWN
+  - PASSIVE_MOB_SPAWN
   # Default flags for admin claims
   admin_flags:
-    - PLAYER_DAMAGE_MONSTER
-    - EXPLOSION_DAMAGE_ENTITY
-    - PLAYER_DAMAGE_PLAYER
-    - MONSTER_SPAWN
-    - PASSIVE_MOB_SPAWN
+  - PLAYER_DAMAGE_MONSTER
+  - EXPLOSION_DAMAGE_ENTITY
+  - PLAYER_DAMAGE_PLAYER
+  - MONSTER_SPAWN
+  - PASSIVE_MOB_SPAWN
   # List of enabled claim types. Must include at least the regular "CLAIMS" mode
   enabled_claiming_modes:
-    - CLAIMS
-    - CHILD_CLAIMS
-    - ADMIN_CLAIMS
+  - CLAIMS
+  - CHILD_CLAIMS
+  - ADMIN_CLAIMS
   # Default flags for the wilderness (outside claims)
   wilderness_rules:
-    - BLOCK_PLACE
-    - BLOCK_BREAK
-    - BLOCK_INTERACT
-    - REDSTONE_INTERACT
-    - FARM_BLOCK_BREAK
-    - FARM_BLOCK_PLACE
-    - PLAYER_DAMAGE_PLAYER
-    - PLAYER_DAMAGE_MONSTER
-    - PLAYER_DAMAGE_ENTITY
-    - PLAYER_DAMAGE_PERSISTENT_ENTITY
-    - MONSTER_SPAWN
-    - PASSIVE_MOB_SPAWN
-    - MONSTER_DAMAGE_TERRAIN
-    - EXPLOSION_DAMAGE_TERRAIN
-    - EXPLOSION_DAMAGE_ENTITY
-    - FIRE_BURN
-    - FIRE_SPREAD
-    - FILL_BUCKET
-    - EMPTY_BUCKET
-    - PLACE_HANGING_ENTITY
-    - BREAK_HANGING_ENTITY
-    - ENTITY_INTERACT
-    - FARM_BLOCK_INTERACT
-    - USE_SPAWN_EGG
-    - ENDER_PEARL_TELEPORT
-    - CONTAINER_OPEN
+  - BLOCK_PLACE
+  - BLOCK_BREAK
+  - BLOCK_INTERACT
+  - REDSTONE_INTERACT
+  - FARM_BLOCK_BREAK
+  - FARM_BLOCK_PLACE
+  - PLAYER_DAMAGE_PLAYER
+  - PLAYER_DAMAGE_MONSTER
+  - PLAYER_DAMAGE_ENTITY
+  - PLAYER_DAMAGE_PERSISTENT_ENTITY
+  - MONSTER_SPAWN
+  - PASSIVE_MOB_SPAWN
+  - MONSTER_DAMAGE_TERRAIN
+  - EXPLOSION_DAMAGE_TERRAIN
+  - EXPLOSION_DAMAGE_ENTITY
+  - FIRE_BURN
+  - FIRE_SPREAD
+  - FILL_BUCKET
+  - EMPTY_BUCKET
+  - PLACE_HANGING_ENTITY
+  - BREAK_HANGING_ENTITY
+  - ENTITY_INTERACT
+  - FARM_BLOCK_INTERACT
+  - USE_SPAWN_EGG
+  - ENDER_PEARL_TELEPORT
+  - CONTAINER_OPEN
   # List of worlds where users cannot claim
   unclaimable_worlds: []
   # The number of claim blocks a user gets when they first join the server
@@ -143,15 +143,25 @@ claims:
   allow_nearby_claim_inspection: true
   # Whether to require confirmation when deleting claims that have children
   confirm_deleting_parent_claims: true
+  # Settings for automatically removing claims made by now-inactive users
+  inactivity_pruning:
+    # Whether to delete all claims made by users marked as inactive. (Warning: Dangerous!)
+    enabled: false
+    # The number of days a user must not log on for to be marked as inactive (Minimum: 1)
+    inactive_days: 60
+    # List of worlds to exclude from being pruned.
+    excluded_worlds: []
+    # List of users (by either UUID or username) to exclude from inactive claim pruning
+    excluded_users: []
 # Groups of operations that can be toggled on/off in claims
 operation_groups:
-  - name: Claim Explosions
-    description: Toggle whether explosions can damage terrain in claims
-    toggle_command_aliases:
-      - claimexplosions
-    allowed_operations:
-      - EXPLOSION_DAMAGE_TERRAIN
-      - MONSTER_DAMAGE_TERRAIN
+- name: Claim Explosions
+  description: Toggle whether explosions can damage terrain in claims
+  toggle_command_aliases:
+  - claimexplosions
+  allowed_operations:
+  - EXPLOSION_DAMAGE_TERRAIN
+  - MONSTER_DAMAGE_TERRAIN
 # Settings for user groups, letting users quickly manage trust for groups of multiple players at once
 user_groups:
   # Whether to enable user groups
@@ -209,7 +219,7 @@ pets:
 # Settings for moderation tools
 moderation:
   signs:
-    # Whether to notify users with /signspy on when signs are placed.edited. Requires Minecraft 1.19.4+
+    # Whether to notify users with /signspy on when signs are placed.edited. Requires Minecraft 1.19.4+Requires Minecraft 1.19.4+
     notify_moderators: true
     # Whether to filter messages
     filter_messages: false
@@ -223,7 +233,7 @@ moderation:
     # Whether to lock ground items dropped by players when they die from being picked up by others
     lock_items: true
     # Whether to also prevent death drops from being destroyed by lava, fire, cacti, etc.
-    prevent_destruction: false
+    prevent_destruction: true
 # Settings for integration hooks with other plugins
 hooks:
   luck_perms:
