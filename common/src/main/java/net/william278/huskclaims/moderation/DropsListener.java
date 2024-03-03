@@ -45,7 +45,10 @@ public interface DropsListener {
             return false;
         }
         final Optional<User> locker = item.getLockedBy(getPlugin());
-        if (locker.isPresent() && locker.get().equals(pickerUpper)) {
+        if (locker.isEmpty()) {
+            return false;
+        }
+        if (locker.get().equals(pickerUpper)) {
             item.unlock(getPlugin());
             return false;
         }
