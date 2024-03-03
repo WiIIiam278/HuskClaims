@@ -56,7 +56,7 @@ public interface ClaimPruner {
      */
     @Blocking
     default void pruneClaims() {
-        if (!getSettings().isEnabled()) {
+        if (!getSettings().isEnabled() || getSettings().getInactiveDays() <= 0) {
             return;
         }
 
@@ -111,7 +111,8 @@ public interface ClaimPruner {
 
     @NotNull
     default Set<User> getInactiveUsers() {
-        return getPlugin().getDatabase().getInactiveUsers(getSettings().getInactiveDays()).stream()
+        final long days = Math.max(1, getSettings().getInactiveDays());
+        return getPlugin().getDatabase().getInactiveUsers(days).stream()
                 .map(SavedUser::getUser)
                 .filter(user -> !(getSettings().getExcludedUsers().contains(user.getUuid().toString())
                         || getSettings().getExcludedUsers().contains(user.getName())))
