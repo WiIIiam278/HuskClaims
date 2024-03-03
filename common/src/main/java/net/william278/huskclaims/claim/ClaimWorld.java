@@ -38,12 +38,10 @@ import net.william278.huskclaims.user.Preferences;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)

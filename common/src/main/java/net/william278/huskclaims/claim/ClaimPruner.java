@@ -20,7 +20,6 @@
 package net.william278.huskclaims.claim;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.database.Database;
 import net.william278.huskclaims.user.ClaimBlocksManager.ClaimBlockSource;
@@ -32,7 +31,6 @@ import org.jetbrains.annotations.Unmodifiable;
 
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
