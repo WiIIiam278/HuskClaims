@@ -13,3 +13,10 @@ libraries:
 softdepend:
   - 'LuckPerms'
   - 'HuskHomes'
+  - 'HuskTowns'
+  - 'Vault'
+  - 'Plan'
+  - 'PlaceholderAPI'
+  - 'Pl3xMap'
+  - 'BlueMap'
+  - 'dynmap'
