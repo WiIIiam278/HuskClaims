@@ -38,12 +38,10 @@ import net.william278.huskclaims.user.Preferences;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -107,14 +105,6 @@ public class ClaimWorld {
         return claims.stream().filter(claim -> claim.getOwner()
                 .map(o -> o.equals(uuid))
                 .orElse(uuid == null)).toList();
-    }
-
-    @NotNull
-    @Unmodifiable
-    public Set<User> getClaimers() {
-        return claims.stream()
-                .map(c -> c.getOwner().flatMap(this::getUser).orElse(null))
-                .filter(Objects::nonNull).collect(Collectors.toSet());
     }
 
     @NotNull

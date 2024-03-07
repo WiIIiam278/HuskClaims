@@ -40,7 +40,8 @@ public interface DropsProtector {
     }
 
     default long unlockDrops(@NotNull User user) {
-        return getTrackedDrops().stream().filter(a -> a.isLockedBy(user, getPlugin()))
+        return getTrackedDrops().stream()
+                .filter(a -> a.isLockedBy(user, getPlugin()))
                 .peek(g -> g.unlock(getPlugin()))
                 .peek(getTrackedDrops()::remove)
                 .count();
@@ -64,7 +65,8 @@ public interface DropsProtector {
         }
 
         default boolean isLockedBy(@NotNull User user, @NotNull HuskClaims plugin) {
-            return getLockedBy(plugin).isPresent() && getLockedBy(plugin).get().equals(user);
+            final Optional<User> lockedBy = getLockedBy(plugin);
+            return lockedBy.isPresent() && lockedBy.get().equals(user);
         }
 
     }

@@ -20,7 +20,6 @@
 package net.william278.huskclaims.claim;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.database.Database;
 import net.william278.huskclaims.user.ClaimBlocksManager.ClaimBlockSource;
@@ -32,7 +31,6 @@ import org.jetbrains.annotations.Unmodifiable;
 
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -58,13 +56,13 @@ public interface ClaimPruner {
      */
     @Blocking
     default void pruneClaims() {
-        if (!getSettings().isEnabled()) {
+        if (!getSettings().isEnabled() || getSettings().getInactiveDays() <= 0) {
             return;
         }
 
         // Determine who to prune
         final Set<ClaimWorld> toPrune = getWorldsToPrune();
-        final Set<User> inactiveUsers = Sets.intersection(getInactiveUsers(), getAllClaimers(toPrune));
+        final Set<User> inactiveUsers = getInactiveUsers();
         final LocalTime startTime = LocalTime.now();
         getPlugin().log(Level.INFO, String.format("Pruning %s claim worlds with claims by %s inactive users...",
                 toPrune.size(), inactiveUsers.size()));
@@ -107,20 +105,14 @@ public interface ClaimPruner {
     @Unmodifiable
     default Set<ClaimWorld> getWorldsToPrune() {
         return getPlugin().getClaimWorlds().entrySet().stream()
-                .filter((entry) -> getSettings().getExcludedWorlds().contains(entry.getKey()))
+                .filter((entry) -> !getSettings().getExcludedWorlds().contains(entry.getKey()))
                 .map(Map.Entry::getValue).collect(Collectors.toSet());
     }
 
     @NotNull
-    @Unmodifiable
-    default Set<User> getAllClaimers(@NotNull Set<ClaimWorld> worlds) {
-        return worlds.stream().map(ClaimWorld::getClaimers)
-                .flatMap(Collection::stream).collect(Collectors.toSet());
-    }
-
-    @NotNull
     default Set<User> getInactiveUsers() {
-        return getPlugin().getDatabase().getInactiveUsers(getSettings().getInactiveDays()).stream()
+        final long days = Math.max(1, getSettings().getInactiveDays());
+        return getPlugin().getDatabase().getInactiveUsers(days).stream()
                 .map(SavedUser::getUser)
                 .filter(user -> !(getSettings().getExcludedUsers().contains(user.getUuid().toString())
                         || getSettings().getExcludedUsers().contains(user.getName())))
