@@ -22,7 +22,7 @@ dependencies {
     compileOnly 'net.kyori:adventure-platform-api:4.3.2'
     compileOnly 'org.jetbrains:annotations:24.1.0'
     compileOnly 'com.google.guava:guava:33.0.0-jre'
-    compileOnly 'org.projectlombok:lombok:1.18.30'
+    compileOnly 'org.projectlombok:lombok:1.18.32'
 
     compileOnly 'net.luckperms:api:5.4'
     compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:2.7.0'
@@ -38,5 +38,5 @@ dependencies {
     compileOnly "org.mariadb.jdbc:mariadb-java-client:$mariadb_driver_version"
     compileOnly "redis.clients:jedis:$jedis_version"
 
-    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.32'
 }
