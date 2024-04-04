@@ -53,13 +53,11 @@ public class TrustListCommand extends InClaimCommand {
     }
 
     private void sendTrustListMenu(@NotNull OnlineUser executor, @NotNull Claim claim, @NotNull ClaimWorld world) {
+        plugin.getLocales().getRawLocale("trust_list_header", getListHeaderClaimDetails(claim, world))
+                .map(plugin.getLocales()::format).ifPresent(executor::sendMessage);
+
         final List<TrustLevel> levels = plugin.getTrustLevels();
         levels.sort((o1, o2) -> Integer.compare(o2.getWeight(), o1.getWeight()));
-
-        plugin.getLocales().getRawLocale("trust_list_header",
-                        getListHeaderClaimDetails(claim, world),
-                        Integer.toString(claim.getTrustedUsers().keySet().size()))
-                .map(plugin.getLocales()::format).ifPresent(executor::sendMessage);
         levels.forEach(level -> sendTrustListRow(executor, level, claim, world));
         getFooter(levels).ifPresent(executor::sendMessage);
     }
