@@ -98,6 +98,8 @@ locales:
   claim_block_balance: '[%1% 的领地方块余额:](#00fb9a) [■ %2%](#00fb9a show_text=&#00fb9a&点击查看领地列表 run_command=/claimslist %1%)'
   child_claims_inherit: '[您所在位置的子领地已取消限制](#00fb9a)\n[它将从其父领地继承信任访问权限](gray)'
   child_claims_do_not_inherit: '[您所在位置的子领地已限制](#00fb9a)\n[它将不会从其父领地继承信任访问权限](gray)'
+  child_claims_inherit_restricted: 'Restricted'
+  child_claims_inherit_unrestricted: 'Unrestricted'
   claim_transferred: '[成功将领地所有权从 %1% 转让至 %2%](#00fb9a)\n[领地方块余额未更改](gray)'
   public_tag_description: '授予所有玩家访问权限'
   group_tag_description: '授予 %1% 权限组中的玩家访问权限.'

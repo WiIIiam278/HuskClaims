@@ -98,6 +98,8 @@ locales:
   claim_block_balance: '[Баланс блоков привата игрока %1%:](#00fb9a) [■ %2%](#00fb9a show_text=&#00fb9a&Нажмите для просмотра регионов run_command=/claimslist %1%)'
   child_claims_inherit: '[Неограниченный потомственный регион.](#00fb9a)\n[Он будет наследовать права доверия у родителя.](gray)'
   child_claims_do_not_inherit: '[Ограниченный потомственный регион.](#00fb9a)\n[Он не будет наследовать права доверия родителя.](gray)'
+  child_claims_inherit_restricted: 'Restricted'
+  child_claims_inherit_unrestricted: 'Unrestricted'
   claim_transferred: '[Передано право владения регионом: %1% → %2%.](#00fb9a)\n[Балансы блоков привата не изменились.](gray)'
   public_tag_description: 'Разрешает доступ всем игрокам'
   group_tag_description: 'Разрешает доступ всем игрокам группы прав %1%.'

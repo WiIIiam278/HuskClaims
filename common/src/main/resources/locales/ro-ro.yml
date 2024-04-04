@@ -98,6 +98,8 @@ locales:
   claim_block_balance: '[Soldul de blocuri de revendicare al lui %1%:](#00fb9a) [■ %2%](#00fb9a show_text=&#00fb9a&Click pentru a vedea o listă de revendicări run_command=/claimslist %1%)'
   child_claims_inherit: '[Revendicare fiu nerestricționată la poziția ta.](#00fb9a)\n[Aceasta  va moșteni drepturile nivelului de încredere de la părintele său.](gray)'
   child_claims_do_not_inherit: '[Revendicare fiu nerestricționată la poziția ta.](#00fb9a)\n[Aceasta  nu va moșteni drepturile nivelului de încredere de la părintele său.](gray)'
+  child_claims_inherit_restricted: 'Restricted'
+  child_claims_inherit_unrestricted: 'Unrestricted'
   claim_transferred: '[S-a transferat cu succes dreptul de proprietate al revendicării de la %1% → %2%.](#00fb9a)\n[Soldurile de revendicare a blocurilor nu au fost schimbate.](gray)'
   public_tag_description: 'Permite accesul tuturor jucătorilor'
   group_tag_description: 'Permite accesul jucătorilor din grupul de permisiuni %1%.'
