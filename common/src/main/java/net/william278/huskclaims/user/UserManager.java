@@ -88,18 +88,18 @@ public interface UserManager extends ClaimBlocksManager {
 
     @Blocking
     default void loadUserData(@NotNull User user) {
-        this.editSavedUser(
-                user.getUuid(), (saved) -> {
+        // Get the user object, or create a new one if they don't exist
+        final SavedUser savedUser = getPlugin().getDatabase()
+                .getUser(user.getUuid()).map(saved -> {
                     saved.setLastLogin(OffsetDateTime.now());
-                    getUserCache().put(user.getUuid(), saved);
-                    getPlugin().invalidateUserCache(user.getUuid());
-                },
-                () -> {
-                    final SavedUser newUser = SavedUser.createNew(user, getPlugin());
-                    getPlugin().getDatabase().createUser(newUser);
-                    getUserCache().put(user.getUuid(), newUser);
-                }
-        );
+                    return saved;
+                })
+                .orElse(SavedUser.createNew(user, getPlugin()));
+
+        // Update the cache and database (creating them if they don't exist)
+        invalidateUserCache(user.getUuid());
+        getPlugin().getDatabase().createOrUpdateUser(savedUser);
+        getUserCache().put(user.getUuid(), savedUser);
     }
 
     @NotNull
