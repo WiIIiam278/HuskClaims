@@ -24,10 +24,48 @@ import org.jetbrains.annotations.NotNull;
 
 public interface EnterEvent extends OnlineUserEvent {
 
+    /**
+     * Get the position the user moved from
+     *
+     * @return the position the user moved from
+     * @since 1.1.2
+     */
     @NotNull
-    Position getEnteredFrom();
+    Position getFrom();
 
+    /**
+     * Get the position the user moved to
+     *
+     * @return the position the user moved to
+     * @since 1.1.2
+     */
     @NotNull
-    Position getEnteredTo();
+    Position getTo();
+
+
+    /**
+     * Get the position the user entered from
+     *
+     * @return the position the user entered from
+     * @since 1.1.2
+     * @deprecated for removal in a future version, use {@link #getFrom()} instead
+     */
+    @Deprecated(forRemoval = true, since = "1.1.2")
+    @NotNull
+    default Position getEnteredFrom() {
+        return getFrom();
+    }
+
+    /**
+     * Get the position the user moved from
+     *
+     * @return the position the user moved from
+     * @deprecated for removal in a future version, use {@link #getTo()} instead
+     */
+    @Deprecated(forRemoval = true, since = "1.1.2")
+    @NotNull
+    default Position getEnteredTo() {
+        return getTo();
+    }
 
 }

@@ -148,6 +148,8 @@ locales:
   ignoring_claims: '[Получен доступ ко всем регионам.](#00fb9a)'
   ignoring_claims_reminder: '[Вы имеете доступ ко всем регионам.](#00fb9a)\n[Используйте команду](#00fb9a) [/ignoreclaims](#00fb9a italic show_text=&7Нажмите для просмотра run_command=/ignoreclaims) [чтобы ограничить доступ.](#00fb9a)'
   respecting_claims: '[Органичен доступ ко всем регионам.](#00fb9a)'
+  claim_entered: '[Now entering %1%''s claim.](#00fb9a)'
+  claim_exited: '[Now leaving %1%''s claim.](#00fb9a)'
   pet_owned_by: '[This pet belongs to %1%!](#ff7e5e)'
   pet_transferred: '[Successfully transferred ownership of %1% to %2%.](#00fb9a)'
   sign_notify_on: '[Sign moderation notifications are now enabled.](#00fb9a)'

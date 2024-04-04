@@ -30,7 +30,7 @@ import org.bukkit.event.Cancellable;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
-public class BukkitEnterClaimEvent extends BukkitPlayerEvent implements EnterClaimEvent, Cancellable {
+public class BukkitExitClaimEvent extends BukkitPlayerEvent implements ExitClaimEvent, Cancellable {
 
     private final Claim claim;
     private final ClaimWorld claimWorld;
@@ -39,9 +39,9 @@ public class BukkitEnterClaimEvent extends BukkitPlayerEvent implements EnterCla
     @Setter
     private boolean cancelled;
 
-    protected BukkitEnterClaimEvent(@NotNull OnlineUser user, @NotNull Claim claim, @NotNull ClaimWorld claimWorld,
-                                    @NotNull Position enteredFrom, @NotNull Position enteredTo,
-                                    @NotNull HuskClaims plugin) {
+    protected BukkitExitClaimEvent(@NotNull OnlineUser user, @NotNull Claim claim, @NotNull ClaimWorld claimWorld,
+                                   @NotNull Position enteredFrom, @NotNull Position enteredTo,
+                                   @NotNull HuskClaims plugin) {
         super(user, plugin);
         this.claim = claim;
         this.claimWorld = claimWorld;

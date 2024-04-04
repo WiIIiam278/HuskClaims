@@ -66,6 +66,11 @@ public interface EventProvider {
                                        @NotNull Position enteredFrom, @NotNull Position enteredTo);
 
     @NotNull
+    ExitClaimEvent getExitClaimEvent(@NotNull OnlineUser user, @NotNull Claim claim,
+                                     @NotNull ClaimWorld claimWorld,
+                                     @NotNull Position exitedFrom, @NotNull Position exitedTo);
+
+    @NotNull
     ResizeChildClaimEvent getResizeChildClaimEvent(@NotNull OnlineUser resizer, @NotNull Claim parent,
                                                    @NotNull Claim child, @NotNull Region newRegion,
                                                    @NotNull ClaimWorld claimWorld);

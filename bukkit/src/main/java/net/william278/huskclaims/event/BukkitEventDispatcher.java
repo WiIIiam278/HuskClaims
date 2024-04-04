@@ -96,6 +96,14 @@ public interface BukkitEventDispatcher extends EventDispatcher {
 
     @Override
     @NotNull
+    default ExitClaimEvent getExitClaimEvent(@NotNull OnlineUser user, @NotNull Claim claim,
+                                             @NotNull ClaimWorld claimWorld,
+                                             @NotNull Position exitedFrom, @NotNull Position exitedTo) {
+        return new BukkitExitClaimEvent(user, claim, claimWorld, exitedFrom, exitedTo, getPlugin());
+    }
+
+    @Override
+    @NotNull
     default ResizeChildClaimEvent getResizeChildClaimEvent(@NotNull OnlineUser resizer, @NotNull Claim parent,
                                                            @NotNull Claim child, @NotNull Region newRegion,
                                                            @NotNull ClaimWorld claimWorld) {

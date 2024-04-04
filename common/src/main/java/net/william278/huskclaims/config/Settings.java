@@ -228,6 +228,12 @@ public final class Settings {
         @Comment("Whether to require confirmation when deleting claims that have children")
         private boolean confirmDeletingParentClaims = true;
 
+        @Comment("Whether to send a message when a player enters a claim")
+        private boolean sendEntryMessage = false;
+
+        @Comment("Whether to send a message when a player exits a claim")
+        private boolean sendExitMessage = false;
+
         @Comment("Settings for automatically removing claims made by now-inactive users")
         private InactivityPruningSettings inactivityPruning = new InactivityPruningSettings();
 

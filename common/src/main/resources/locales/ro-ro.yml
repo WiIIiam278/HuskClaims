@@ -148,6 +148,8 @@ locales:
   ignoring_claims: '[Se ignoră revendicările jucătorilor.](#00fb9a)'
   ignoring_claims_reminder: '[În momentul de față ignori revendicările jucătorilor.](#00fb9a)\n[Folosește](#00fb9a) [/ignoreclaims](#00fb9a italic show_text=&7Click pentru a sugera run_command=/ignoreclaims) [pentru a te opri din a le ignora.](#00fb9a)'
   respecting_claims: '[Se respectă revendicările jucătorilor.](#00fb9a)'
+  claim_entered: '[Now entering %1%''s claim.](#00fb9a)'
+  claim_exited: '[Now leaving %1%''s claim.](#00fb9a)'
   pet_owned_by: '[Proprietarul acestui animal de companie este %1%!](#ff7e5e)'
   pet_transferred: '[S-a transfera cu succes dreptul de proprietate al lui %1% către %2%.](#00fb9a)'
   sign_notify_on: '[Notificările pentru moderarea semnelor sunt acum activate.](#00fb9a)'
