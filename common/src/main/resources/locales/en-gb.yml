@@ -6,6 +6,7 @@ locales:
   error_invalid_syntax: '[Error:](#ff3300) [Invalid syntax. Usage: %1%](#ff7e5e)'
   error_invalid_user: '[Error:](#ff3300) [The user %1% could not be found.](#ff7e5e)'
   error_invalid_group: '[Error:](#ff3300) [The group %1% could not be found.](#ff7e5e)'
+  error_no_groups: '[Error:](#ff3300) [You don''t have any groups.](#ff7e5e)\n[Create a group with](gray) [/usergroup <name> add <user(s)>.](gray italic show_text=&7Click to suggest command suggest_command=/usergroup )'
   error_invalid_tag: '[Error:](#ff3300) [The tag %1% could not be found.](#ff7e5e)'
   error_invalid_group_name: '[Error:](#ff3300) [%1% is not a valid group name.](#ff7e5e)'
   error_not_enough_claim_blocks: '[Error:](#ff3300) [You don''t have enough claim blocks! (Need ■ %1% more)](#ff7e5e)'

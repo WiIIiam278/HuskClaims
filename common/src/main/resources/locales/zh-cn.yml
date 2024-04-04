@@ -6,6 +6,7 @@ locales:
   error_invalid_syntax: '[错误:](#ff3300) [无效的语法.用法: %1%](#ff7e5e)'
   error_invalid_user: '[错误:](#ff3300) [找不到用户%1%](#ff7e5e)'
   error_invalid_group: '[错误:](#ff3300) [找不到组%1%](#ff7e5e)'
+  error_no_groups: '[Error:](#ff3300) [You don''t have any groups.](#ff7e5e)\n[Create a group with](gray) [/usergroup <name> add <user(s)>.](gray italic show_text=&7Click to suggest command suggest_command=/usergroup )'
   error_invalid_tag: '[错误:](#ff3300) [找不到标签%1%](#ff7e5e)'
   error_invalid_group_name: '[错误:](#ff3300) [%1%不是有效的组名](#ff7e5e)'
   error_not_enough_claim_blocks: '[错误:](#ff3300) [您没有足够的领地方块!(还需要 ■ %1%)](#ff7e5e)'

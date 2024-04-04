@@ -6,6 +6,7 @@ locales:
   error_invalid_syntax: '[Ошибка:](#ff3300) [Неправильно введена команда.\nИспользование: %1%](#ff7e5e)'
   error_invalid_user: '[Ошибка:](#ff3300) [Пользователь %1% не найден.](#ff7e5e)'
   error_invalid_group: '[Ошибка:](#ff3300) [Группа %1% не найдена.](#ff7e5e)'
+  error_no_groups: '[Error:](#ff3300) [You don''t have any groups.](#ff7e5e)\n[Create a group with](gray) [/usergroup <name> add <user(s)>.](gray italic show_text=&7Click to suggest command suggest_command=/usergroup )'
   error_invalid_tag: '[Ошибка:](#ff3300) [Тег %1% не найден.](#ff7e5e)'
   error_invalid_group_name: '[Ошибка:](#ff3300) [Неправильно введено название группы: %1%.](#ff7e5e)'
   error_not_enough_claim_blocks: '[Ошибка:](#ff3300) [Ваш регион слишком большой! (Нужно ещё ■ %1% блоков привата)](#ff7e5e)'

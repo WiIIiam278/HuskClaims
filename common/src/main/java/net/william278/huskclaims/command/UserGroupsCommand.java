@@ -68,13 +68,16 @@ public class UserGroupsCommand extends OnlineUserCommand implements TabCompletab
 
     private void showGroupList(@NotNull OnlineUser user) {
         final List<UserGroup> groups = plugin.getUserGroups(user.getUuid());
-        plugin.getLocales().getRawLocale(
-                        "group_list",
-                        groups.isEmpty()
-                                ? plugin.getLocales().getNone()
-                                : groups.stream().map(group -> getGroupEntry(group, plugin))
-                                .collect(Collectors.joining(plugin.getLocales().getListJoiner()))
-                )
+        if (groups.isEmpty()) {
+            plugin.getLocales().getLocale("error_no_groups")
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+
+        // Show the list of groups
+        plugin.getLocales().getRawLocale("group_list", groups.stream()
+                        .map(group -> getGroupEntry(group, plugin))
+                        .collect(Collectors.joining(plugin.getLocales().getListJoiner())))
                 .map(l -> plugin.getLocales().format(l))
                 .ifPresent(user::sendMessage);
     }
