@@ -397,6 +397,7 @@ The following commands have aliases that can also be used for convenience:
 | Command            | Aliases                                    |
 |--------------------|--------------------------------------------|
 | `/claimslist`      | `/claims`                                  |
+| `/trustlist`       | `/claiminfo`                               |
 | `/adminclaimslist` | `/adminclaims`                             |
 | `/unclaim`         | `/abandonclaim`                            |
 | `/unclaimall`      | `/abandonallclaims`                        |
