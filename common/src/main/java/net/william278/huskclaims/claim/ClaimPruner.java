@@ -79,14 +79,14 @@ public interface ClaimPruner {
     private Map<User, Long> pruneAndCalculateRefunds(@NotNull Set<ClaimWorld> worlds, @NotNull Set<User> users) {
         final Map<User, Long> blocksToRefund = Maps.newHashMap();
         worlds.stream()
-                .filter(w -> users.stream().anyMatch(u -> {
+                .filter(w -> !users.stream().filter(u -> {
                     final long blocks = w.getSurfaceClaimedBy(u);
                     if (blocks > 0 && w.removeClaimsBy(u)) {
                         blocksToRefund.compute(u, (k, v) -> v == null ? blocks : v + blocks);
                         return true;
                     }
                     return false;
-                }))
+                }).collect(Collectors.toSet()).isEmpty())
                 .forEach(w -> getDatabase().updateClaimWorld(w));
         return blocksToRefund;
     }
