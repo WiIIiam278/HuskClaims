@@ -43,7 +43,7 @@ locales:
   claim_tool_required: '[Для совершении операции необходимо держать в руке соответствующий инструмент.](#ff7e5e)'
   selection_resize_not_enclosing_children: '[Выбранное масштабирование региона не включает в себя всех его потомков.](#ff7e5e)'
   selection_child_not_enclosing_parent: '[Родительский регион должен полностью содержать в себе выбранный потомственный.](#ff7e5e)'
-  selection_child_no_parent: '[Вы в режиме привата потомственных регионов. Потомственные регионы должны содержаться в каком-либо родительском.](#ff7e5e)'
+  selection_child_no_parent: '[Вы в режиме привата потомственных регионов. Потомственные регионы должны содержаться в каком-либо родительском.](#ff7e5e) [Switch to regular claiming mode with](gray) [/claim](gray italic show_text=&7Click to suggest suggest_command=/claim)'
   claim_selection_create: '[Первый угол привата установлен.](#00fb9a) [Нажмите ПКМ для размещения второго угла.](gray)'
   claim_selection_create_child: '[Первый угол потомственного привата установлен.](#00fb9a) [Нажмите ПКМ для размещения второго угла.](gray)'
   claim_selection_resize: '[Идёт масштабирование региона.](#00fb9a) [Нажмите ПКМ, чтобы установить новое расположение углов.](gray)'

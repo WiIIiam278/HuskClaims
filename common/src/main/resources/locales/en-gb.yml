@@ -43,7 +43,7 @@ locales:
   claim_tool_required: '[You need to be holding the claiming tool to do that.](#ff7e5e)'
   selection_resize_not_enclosing_children: '[This selection resize would not enclose all its child claims.](#ff7e5e)'
   selection_child_not_enclosing_parent: '[This child claim would not be enclosed by its parent claim.](#ff7e5e)'
-  selection_child_no_parent: '[You are in child claiming mode. Child claims must be enclosed by a parent.](#ff7e5e)'
+  selection_child_no_parent: '[You are in child claiming mode. Child claims must be enclosed by a parent.](#ff7e5e) [Switch to regular claiming mode with](gray) [/claim](gray italic show_text=&7Click to suggest suggest_command=/claim)'
   claim_selection_create: '[First claim corner set.](#00fb9a) [Right click to set the second.](gray)'
   claim_selection_create_child: '[First child claim corner set.](#00fb9a) [Right click to set the second.](gray)'
   claim_selection_resize: '[Resizing claim.](#00fb9a) [Right click to set the new corner position.](gray)'

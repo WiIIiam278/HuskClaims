@@ -43,7 +43,7 @@ locales:
   claim_tool_required: '[Trebuie să ții unealta pentru a putea face asta.](#ff7e5e)'
   selection_resize_not_enclosing_children: '[Această redimensionare a selecției nu ar cuprinde toate revendicările sale fiu.](#ff7e5e)'
   selection_child_not_enclosing_parent: '[Această revendicare fiu nu ar fi cuprinsă de către revendicarea sa părinte.](#ff7e5e)'
-  selection_child_no_parent: '[Ești în modul de revendicare a fiilor. Revendicările fiu trebuie să fie cuprinse de către un părinte.](#ff7e5e)'
+  selection_child_no_parent: '[Ești în modul de revendicare a fiilor. Revendicările fiu trebuie să fie cuprinse de către un părinte.](#ff7e5e) [Switch to regular claiming mode with](gray) [/claim](gray italic show_text=&7Click to suggest suggest_command=/claim)'
   claim_selection_create: '[First claim corner set.](#00fb9a) [Click dreapta pentru a seta pe al doilea.](gray)'
   claim_selection_create_child: '[Primul colț al revendicării fiu setat.](#00fb9a) [Click dreapta pentru a seta pe al doilea.](gray)'
   claim_selection_resize: '[Se redimensionează revendicarea.](#00fb9a) [Click dreapta pentru a seta poziția nouă a colțului.](gray)'
