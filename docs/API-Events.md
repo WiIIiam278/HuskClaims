@@ -15,5 +15,6 @@ HuskClaims provides several API events your plugin can listen to when players do
 | `BukkitTrustEvent`             |  1.0  |      ✅      | When a player trusts a user, group or trust tag in any kind of claim |
 | `BukkitUnTrustEvent`           |  1.0  |      ✅      | When a player removes trust from a user, group, or trust tag         |
 | `BukkitTransferClaimEvent`     |  1.0  |      ✅      | When a player changes who owns a claim or admin claim                |
-| `BukkitEnterClaimEvent`        |  1.0  |      ✅      | When a player walks into a claim                                     |
+| `BukkitEnterClaimEvent`        |  1.0  |      ✅      | When a player walks into a (child/admin/regular) claim               |
+| `BukkitExitClaimEvent`         | 1.1.2 |      ✅      | When a player walks out of a (child/admin/regular) claim             |
 | `BukkitClaimBlocksChangeEvent` |  1.0  |      ✅      | When a user has their claim block balance changed                    |
