@@ -83,7 +83,10 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
                         AboutMenu.Credit.of("AlexDev_").description("Code"))
                 .credits("Translators",
                         AboutMenu.Credit.of("jhqwqmc").description("Simplified Chinese (zh-cn)"),
-                        AboutMenu.Credit.of("Artem4ikBaik").description("Russian (ru-ru)"))
+                        AboutMenu.Credit.of("Artem4ikBaik").description("Russian (ru-ru)"),
+                        AboutMenu.Credit.of("Edward205").description("Romanian (ro-ro)"),
+                        AboutMenu.Credit.of("iRazvan2745").description("Romanian (ro-ro)")
+                )
                 .buttons(
                         AboutMenu.Link.of("https://william278.net/docs/huskclaims").text("Documentation").icon("⛏"),
                         AboutMenu.Link.of("https://github.com/WiIIiam278/HuskClaims/issues").text("Issues").icon("❌").color(TextColor.color(0xff9f0f)),
