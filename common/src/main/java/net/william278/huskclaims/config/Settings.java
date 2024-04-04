@@ -457,7 +457,7 @@ public final class Settings {
         @NoArgsConstructor(access = AccessLevel.PRIVATE)
         public static class DropSettings {
             @Comment("Whether to lock ground items dropped by players when they die from being picked up by others")
-            private boolean lockItems = true;
+            private boolean lockItems = false;
 
             @Comment("Whether to also prevent death drops from being destroyed by lava, fire, cacti, etc.")
             private boolean preventDestruction = false;
