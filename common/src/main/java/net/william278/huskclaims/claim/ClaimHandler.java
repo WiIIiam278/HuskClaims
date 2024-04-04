@@ -69,39 +69,43 @@ public interface ClaimHandler extends Handler {
 
         // Handle claim -> claim movement
         if (fromClaim.isPresent() && toClaim.isPresent()) {
-            if (getPlugin().fireIsCancelledExitClaimEvent(online, fromClaim.get(), world, fromPos, toPos)
-                    || getPlugin().fireIsCancelledEnterClaimEvent(online, toClaim.get(), world, fromPos, toPos)) {
+            final Claim fc = fromClaim.get();
+            final Claim tc = toClaim.get();
+            if (getPlugin().fireIsCancelledExitClaimEvent(online, fc, world, fromPos, toPos)
+                    || getPlugin().fireIsCancelledEnterClaimEvent(online, tc, world, fromPos, toPos)) {
                 return true;
             }
 
             // Send an entry message
-            if (getPlugin().getSettings().getClaims().isSendEntryMessage() && !toClaim.get().isChildClaim(world)) {
-                getPlugin().getLocales().getLocale("claim_entered",
-                        toClaim.get().getOwnerName(world, getPlugin())).ifPresent(online::sendMessage);
+            if (getPlugin().getSettings().getClaims().isSendEntryMessage()
+                    && !tc.isChildClaim(world) && !fc.isChildClaim(world)) {
+                getPlugin().getLocales().getLocale("claim_entered", tc.getOwnerName(world, getPlugin()))
+                        .ifPresent(online::sendMessage);
             }
             return false;
-        }
+        } else if (toClaim.isPresent()) {
+            // Handle wilderness -> claim movement
+            final Claim tc = toClaim.get();
+            if (getPlugin().fireIsCancelledEnterClaimEvent(online, tc, world, fromPos, toPos)) {
+                return true;
+            }
 
-        // Handle wilderness -> claim movement (or vice versa)
-        if (fromClaim.isPresent()) {
-            if (getPlugin().fireIsCancelledExitClaimEvent(online, fromClaim.get(), world, fromPos, toPos)) {
+            // Send an entry message
+            if (getPlugin().getSettings().getClaims().isSendEntryMessage() && !tc.isChildClaim(world)) {
+                getPlugin().getLocales().getLocale("claim_entered", tc.getOwnerName(world, getPlugin()))
+                        .ifPresent(online::sendMessage);
+            }
+        } else if (fromClaim.isPresent()) {
+            // Handle claim -> wilderness movement
+            final Claim fc = fromClaim.get();
+            if (getPlugin().fireIsCancelledExitClaimEvent(online, fc, world, fromPos, toPos)) {
                 return true;
             }
 
             // Send an exit message
-            if (getPlugin().getSettings().getClaims().isSendExitMessage() && !fromClaim.get().isChildClaim(world)) {
-                getPlugin().getLocales().getLocale("claim_exited",
-                        fromClaim.get().getOwnerName(world, getPlugin())).ifPresent(online::sendMessage);
-            }
-        } else if (toClaim.isPresent()) {
-            if (getPlugin().fireIsCancelledEnterClaimEvent(online, toClaim.get(), world, fromPos, toPos)) {
-                return true;
-            }
-
-            // Send an entry message
-            if (getPlugin().getSettings().getClaims().isSendEntryMessage() && !toClaim.get().isChildClaim(world)) {
-                getPlugin().getLocales().getLocale("claim_entered",
-                        toClaim.get().getOwnerName(world, getPlugin())).ifPresent(online::sendMessage);
+            if (getPlugin().getSettings().getClaims().isSendExitMessage() && !fc.isChildClaim(world)) {
+                getPlugin().getLocales().getLocale("claim_exited", fc.getOwnerName(world, getPlugin()))
+                        .ifPresent(online::sendMessage);
             }
         }
         return false;
