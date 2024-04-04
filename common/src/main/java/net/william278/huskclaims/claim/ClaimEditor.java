@@ -489,6 +489,7 @@ public interface ClaimEditor {
 
         getPlugin().getLocales().getLocale("land_already_child_claim")
                 .ifPresent(user::sendMessage);
+        getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claim, true);
         return Optional.empty();
     }
 
