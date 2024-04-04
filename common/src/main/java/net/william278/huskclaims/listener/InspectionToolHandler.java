@@ -100,11 +100,12 @@ public interface InspectionToolHandler {
         getPlugin().getLocales().getLocale("land_claimed_by", claim.getOwnerName(world, getPlugin()))
                 .ifPresent(user::sendMessage);
 
-        // Send last seen message if the user has permission
+        // Send "last seen..." message if the user has permission
         if (user.hasPermission(VIEW_LAST_SEEN_PERMISSION)) {
             claim.getOwner().flatMap(owner -> getPlugin().getSavedUser(owner)).map(SavedUser::getDaysSinceLastLogin)
-                    .flatMap(days -> getPlugin().getLocales().getLocale("days_since_last_login",
-                            Long.toString(days))).ifPresent(user::sendMessage);
+                    .flatMap(days -> getPlugin().getLocales()
+                            .getLocale("days_since_last_login", Long.toString(days)))
+                    .ifPresent(user::sendMessage);
         }
     }
 

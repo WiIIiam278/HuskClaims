@@ -39,7 +39,7 @@ public class TrustListCommand extends InClaimCommand {
 
     protected TrustListCommand(@NotNull HuskClaims plugin) {
         super(
-                List.of("trustlist"),
+                List.of("trustlist", "claiminfo"),
                 "",
                 TrustLevel.Privilege.MANAGE_TRUSTEES,
                 plugin
@@ -53,12 +53,28 @@ public class TrustListCommand extends InClaimCommand {
     }
 
     private void sendTrustListMenu(@NotNull OnlineUser executor, @NotNull Claim claim, @NotNull ClaimWorld world) {
-        plugin.getLocales().getLocale("trust_list_header",
-                claim.getOwnerName(world, plugin)).ifPresent(executor::sendMessage);
         final List<TrustLevel> levels = plugin.getTrustLevels();
         levels.sort((o1, o2) -> Integer.compare(o2.getWeight(), o1.getWeight()));
+
+        plugin.getLocales().getRawLocale("trust_list_header",
+                        getListHeaderClaimDetails(claim, world),
+                        Integer.toString(claim.getTrustedUsers().keySet().size()))
+                .map(plugin.getLocales()::format).ifPresent(executor::sendMessage);
         levels.forEach(level -> sendTrustListRow(executor, level, claim, world));
         getFooter(levels).ifPresent(executor::sendMessage);
+    }
+
+    @NotNull
+    private String getListHeaderClaimDetails(@NotNull Claim claim, @NotNull ClaimWorld world) {
+        final String ownerName = claim.getOwnerName(world, plugin);
+        return plugin.getLocales().getRawLocale("trust_list_claim",
+                Locales.escapeText(ownerName),
+                Long.toString(claim.getRegion().getSurfaceArea()),
+                Integer.toString(claim.getRegion().getLongestEdge()),
+                Integer.toString(claim.getRegion().getShortestEdge()),
+                Integer.toString(claim.getChildren().size()),
+                Integer.toString(claim.getTrustedUsers().keySet().size())
+        ).orElse(ownerName);
     }
 
     private void sendTrustListRow(@NotNull OnlineUser executor, @NotNull TrustLevel level,
