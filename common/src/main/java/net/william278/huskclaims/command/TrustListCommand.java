@@ -53,7 +53,8 @@ public class TrustListCommand extends InClaimCommand {
     }
 
     private void sendTrustListMenu(@NotNull OnlineUser executor, @NotNull Claim claim, @NotNull ClaimWorld world) {
-        plugin.getLocales().getRawLocale("trust_list_header", getListHeaderClaimDetails(claim, world))
+        plugin.getLocales().getRawLocale("trust_list_header", claim.isChildClaim(world)
+                        ? getChildClaimHeaderDetails(claim, world) : getClaimHeaderDetails(claim, world))
                 .map(plugin.getLocales()::format).ifPresent(executor::sendMessage);
 
         final List<TrustLevel> levels = plugin.getTrustLevels();
@@ -63,7 +64,7 @@ public class TrustListCommand extends InClaimCommand {
     }
 
     @NotNull
-    private String getListHeaderClaimDetails(@NotNull Claim claim, @NotNull ClaimWorld world) {
+    private String getClaimHeaderDetails(@NotNull Claim claim, @NotNull ClaimWorld world) {
         final String ownerName = claim.getOwnerName(world, plugin);
         return plugin.getLocales().getRawLocale("trust_list_claim",
                 Locales.escapeText(ownerName),
@@ -72,6 +73,20 @@ public class TrustListCommand extends InClaimCommand {
                 Integer.toString(claim.getRegion().getShortestEdge()),
                 Integer.toString(claim.getChildren().size()),
                 Integer.toString(claim.getTrustedUsers().keySet().size())
+        ).orElse(ownerName);
+    }
+
+    @NotNull
+    private String getChildClaimHeaderDetails(@NotNull Claim claim, @NotNull ClaimWorld world) {
+        final String ownerName = claim.getOwnerName(world, plugin);
+        return plugin.getLocales().getRawLocale("trust_list_child_claim",
+                Locales.escapeText(ownerName),
+                Long.toString(claim.getRegion().getSurfaceArea()),
+                Integer.toString(claim.getRegion().getLongestEdge()),
+                Integer.toString(claim.getRegion().getShortestEdge()),
+                Integer.toString(claim.getTrustedUsers().keySet().size()),
+                plugin.getLocales().getRawLocale(String.format("child_claims_inherit_%srestricted",
+                        claim.isInheritParent() ? "un" : "")).orElse(Boolean.toString(claim.isInheritParent()))
         ).orElse(ownerName);
     }
 
