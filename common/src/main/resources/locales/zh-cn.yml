@@ -182,3 +182,6 @@ locales:
   ignoreclaims_command_description: '切换忽略玩家声明.'
   signspy_command_description: '切换告示牌审核通知.'
   unlockdrops_command_description: '死亡时解锁掉落物品.'
+  transferclaim_command_description: 'Transfer ownership of the claim you''re standing in.'
+  unclaimall_command_description: 'Delete all of your claims.'
+  transferpet_command_description: 'Transfer ownership of a tamed animal.'

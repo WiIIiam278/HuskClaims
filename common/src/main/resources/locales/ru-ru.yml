@@ -182,3 +182,6 @@ locales:
   ignoreclaims_command_description: 'Toggle ignoring player claims.'
   signspy_command_description: 'Toggle sign moderation notifications.'
   unlockdrops_command_description: 'Unlock dropped items on death.'
+  transferclaim_command_description: 'Transfer ownership of the claim you''re standing in.'
+  unclaimall_command_description: 'Delete all of your claims.'
+  transferpet_command_description: 'Transfer ownership of a tamed animal.'
