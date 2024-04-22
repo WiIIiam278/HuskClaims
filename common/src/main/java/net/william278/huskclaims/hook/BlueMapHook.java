@@ -106,10 +106,10 @@ public class BlueMapHook extends MapHook {
     @NotNull
     private ShapeMarker getClaimMarker(@NotNull Claim claim, @NotNull ClaimWorld claimWorld, @NotNull String hex) {
         final Color color = new Color(hex);
-        final int x1 = claim.getRegion().getNearCorner().getBlockX();
-        final int z1 = claim.getRegion().getNearCorner().getBlockZ();
-        final int x2 = claim.getRegion().getFarCorner().getBlockX();
-        final int z2 = claim.getRegion().getFarCorner().getBlockZ();
+        final int x1 = claim.getRegion().getNearCorner().getBlockX() - 1;
+        final int z1 = claim.getRegion().getNearCorner().getBlockZ() - 1;
+        final int x2 = claim.getRegion().getFarCorner().getBlockX() + 1;
+        final int z2 = claim.getRegion().getFarCorner().getBlockZ() + 1;
         return ShapeMarker.builder()
                 .label(claim.getOwnerName(claimWorld, plugin))
                 .fillColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), 0.5f))
