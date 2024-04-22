@@ -55,13 +55,13 @@ public class ClaimWorld {
     private ConcurrentMap<UUID, String> userCache;
     @Expose
     @SerializedName("wilderness_flags")
-    private ArrayList<OperationType> wildernessFlags;
+    private Set<OperationType> wildernessFlags;
 
     private ClaimWorld(@NotNull HuskClaims plugin) {
         this.id = 0;
         this.claims = Sets.newCopyOnWriteArraySet();
         this.userCache = Maps.newConcurrentMap();
-        this.wildernessFlags = Lists.newArrayList(plugin.getSettings().getClaims().getWildernessRules());
+        this.wildernessFlags = Sets.newHashSet(plugin.getSettings().getClaims().getWildernessRules());
     }
 
     @NotNull

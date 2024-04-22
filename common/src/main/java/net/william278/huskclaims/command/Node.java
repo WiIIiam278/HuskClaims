@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.Getter;
 import lombok.Setter;
+import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.position.World;
@@ -147,6 +148,16 @@ public abstract class Node implements Executable {
             ));
         }
         return Optional.empty();
+    }
+
+    protected Optional<OperationType> parseOperationTypeArg(@NotNull String[] args, int index) {
+        return parseStringArg(args, index).flatMap(arg -> {
+            try {
+                return Optional.of(OperationType.valueOf(arg.toUpperCase(Locale.ENGLISH)));
+            } catch (IllegalArgumentException e) {
+                return Optional.empty();
+            }
+        });
     }
 
     protected Optional<Integer> parseIntArg(@NotNull String[] args, int index) {

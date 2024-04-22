@@ -169,7 +169,7 @@ public final class Settings {
     @Configuration
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class ClaimSettings {
-        @Comment("Default flags for regular claims")
+        @Comment("Default flags for new regular claims")
         private List<OperationType> defaultFlags = List.of(
                 OperationType.PLAYER_DAMAGE_MONSTER,
                 OperationType.EXPLOSION_DAMAGE_ENTITY,
@@ -178,7 +178,7 @@ public final class Settings {
                 OperationType.PASSIVE_MOB_SPAWN
         );
 
-        @Comment("Default flags for admin claims")
+        @Comment("Default flags for new admin claims")
         private List<OperationType> adminFlags = List.of(
                 OperationType.PLAYER_DAMAGE_MONSTER,
                 OperationType.EXPLOSION_DAMAGE_ENTITY,
@@ -192,7 +192,8 @@ public final class Settings {
                 ClaimingMode.values() // Allow all claiming modes
         );
 
-        @Comment("Default flags for the wilderness (outside claims)")
+        @Comment({"Default flags for the wilderness (outside claims)",
+                "To modify existing worlds, use /huskclaims flag <flag> <true/false> while standing outside a claim."})
         private List<OperationType> wildernessRules = List.of(
                 OperationType.values() // Allow all operation types
         );

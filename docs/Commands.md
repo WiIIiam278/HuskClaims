@@ -377,6 +377,12 @@ This is a table of HuskClaims commands, how to use them, their required permissi
             <td align="center">❌</td>
         </tr>
         <tr>
+            <td><code>/huskclaims flags [flag] [true/false]</code></td>
+            <td>Set the value of a flag in a claim, or the world's wilderness.</td>
+            <td><code>huskclaims.command.huskclaims.flags</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <tr>
             <td><code>/huskclaims logs &lt;username&gt;</code></td>
             <td>View audit logs for a player, such as claim block transaction receipts.</td>
             <td><code>huskclaims.command.huskclaims.logs</code></td>

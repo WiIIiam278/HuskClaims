@@ -29,3 +29,13 @@ operation_groups:
 </details>
 
 Whether an Operation Group is the default in a claim depends on whether the `allowed_operations` of the group are also present in the `default_flags` list in the config.
+
+## Fine-Grained Admin Flag Management
+> **Note:** This is a powerful command, only intended for use by admins. Create operation group commands to let users manage flags in a user-friendly way within claims.
+
+The `/huskclaims flags` admin command exposes a way for admins to fine-tune the allowed operation group settings within a claim. Run the command to bring up a list of enabled operation types in the claim you are standing in.
+
+To modify a flag while standing in a claim, use `/huskclaims flags [operation_type] <true/false>`, or click the operation type in the list to toggle it.
+
+### Adjusting the flags outside of claims
+You can also can adjust the value of flags outside of claims (the "Wilderness") by using `/huskclaims flags` while standing outside a claim.
