@@ -75,6 +75,7 @@ public class BukkitPlaceholderAPIHook extends Hook {
         private final String name = "HuskClaims";
         private final String identifier = Placeholder.IDENTIFIER;
         private final List<String> placeholders = Placeholder.getFormattedList();
+        private final boolean persist = true;
 
         @Override
         public String onRequest(@NotNull OfflinePlayer offlinePlayer, @NotNull String identifier) {
@@ -103,13 +104,13 @@ public class BukkitPlaceholderAPIHook extends Hook {
                     .map(TrustLevel::getDisplayName)
                     .orElse(plugin.getLocales().getNotApplicable())),
             CAN_BUILD((plugin, user) -> formatBoolean(plugin.cancelOperation(
-                    Operation.of(user, OperationType.BLOCK_PLACE, user.getPosition())
+                    Operation.of(user, OperationType.BLOCK_PLACE, user.getPosition(), true)
             ))),
             CAN_OPEN_CONTAINERS((plugin, user) -> formatBoolean(plugin.cancelOperation(
-                    Operation.of(user, OperationType.CONTAINER_OPEN, user.getPosition())
+                    Operation.of(user, OperationType.CONTAINER_OPEN, user.getPosition(), true)
             ))),
             CAN_INTERACT((plugin, user) -> formatBoolean(plugin.cancelOperation(
-                    Operation.of(user, OperationType.BLOCK_INTERACT, user.getPosition())
+                    Operation.of(user, OperationType.BLOCK_INTERACT, user.getPosition(), true)
             )));
 
             private static final String IDENTIFIER = "huskclaims";
