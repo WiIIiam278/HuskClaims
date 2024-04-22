@@ -82,7 +82,7 @@ public class UnTrustCommand extends InClaimCommand implements TabCompletable {
         }
 
         // Remove the trust level from the trustable
-        plugin.fireUntrustEvent(executor, trustLevel.get(), toUntrust, claim, world, (event) -> {
+        plugin.fireUnTrustEvent(executor, trustLevel.get(), toUntrust, claim, world, (event) -> {
             claim.removeTrustLevel(toUntrust, world);
             plugin.getLocales().getLocale("trust_level_removed", identifier)
                     .ifPresent(executor::sendMessage);

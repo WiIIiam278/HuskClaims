@@ -134,7 +134,7 @@ public interface EventDispatcher extends EventProvider {
         fireEvent(getTrustEvent(user, level, trusted, claim, claimWorld), callback);
     }
 
-    default void fireUntrustEvent(@NotNull OnlineUser user, @NotNull TrustLevel level, @NotNull Trustable untrusted,
+    default void fireUnTrustEvent(@NotNull OnlineUser user, @NotNull TrustLevel level, @NotNull Trustable untrusted,
                                   @NotNull Claim claim, @NotNull ClaimWorld claimWorld,
                                   @NotNull Consumer<UnTrustEvent> callback) {
         fireEvent(getUnTrustEvent(user, level, untrusted, claim, claimWorld), callback);
