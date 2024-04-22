@@ -146,8 +146,8 @@ public interface GroupManager {
     private void publishGroupChange(@NotNull OnlineUser user) {
         getPlugin().getBroker().ifPresent(broker -> Message.builder()
                 .type(Message.MessageType.INVALIDATE_USER_GROUPS)
-                .payload(Payload.uuid(user.getUuid()))
                 .target(Message.TARGET_ALL, Message.TargetType.SERVER)
+                .payload(Payload.uuid(user.getUuid()))
                 .build().send(broker, user));
     }
 

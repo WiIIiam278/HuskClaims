@@ -55,9 +55,9 @@ public interface SignNotifier {
         notifyLocalSignModerators(write);
         getPlugin().getBroker().ifPresent(broker -> Message.builder()
                 .type(Message.MessageType.SIGN_WRITE)
-                .target(Message.TARGET_ALL, Message.TargetType.PLAYER)
                 .payload(Payload.signEdit(write))
-                .build().send(broker, (OnlineUser) write.getEditor()));
+                .target(Message.TARGET_ALL, Message.TargetType.PLAYER).build()
+                .send(broker, (OnlineUser) write.getEditor()));
     }
 
     private void notifySignModerator(@NotNull OnlineUser moderator, @NotNull SignWrite write) {

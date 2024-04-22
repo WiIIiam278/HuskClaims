@@ -35,9 +35,9 @@ public interface MessageHandler {
 
         Message.builder()
                 .type(Message.MessageType.UPDATE_USER_LIST)
-                .target(message.getSourceServer(), Message.TargetType.SERVER)
                 .payload(Payload.userList(getPlugin().getOnlineUsers().stream().map(online -> (User) online).toList()))
-                .build().send(getBroker(), receiver);
+                .target(message.getSourceServer(), Message.TargetType.SERVER).build()
+                .send(getBroker(), receiver);
     }
 
     // Handle inbound user list updates (returned from requests)

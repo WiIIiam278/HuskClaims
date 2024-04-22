@@ -76,7 +76,7 @@ public interface UserManager extends ClaimBlocksManager {
                 sender -> Message.builder()
                         .type(Message.MessageType.INVALIDATE_USER_CACHE)
                         .payload(Payload.uuid(uuid))
-                        .build()
+                        .target(Message.TARGET_ALL, Message.TargetType.SERVER).build()
                         .send(broker, sender))
         );
     }

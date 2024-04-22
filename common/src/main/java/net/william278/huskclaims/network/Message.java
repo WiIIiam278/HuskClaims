@@ -21,6 +21,7 @@ package net.william278.huskclaims.network;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.william278.huskclaims.user.OnlineUser;
@@ -57,11 +58,12 @@ public class Message {
     @SerializedName("source_server")
     private String sourceServer;
 
-    private Message(@NotNull MessageType type, @NotNull String target, @NotNull TargetType targetType, @NotNull Payload payload) {
+    private Message(@NotNull MessageType type, @NotNull String target, @NotNull TargetType targetType,
+                    @NotNull Payload payload) {
         this.type = type;
         this.target = target;
-        this.payload = payload;
         this.targetType = targetType;
+        this.payload = payload;
     }
 
     @NotNull
@@ -78,14 +80,12 @@ public class Message {
     /**
      * Builder for {@link Message}s
      */
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Builder {
         private MessageType type;
         private Payload payload = Payload.empty();
         private TargetType targetType = TargetType.PLAYER;
         private String target;
-
-        private Builder() {
-        }
 
         @NotNull
         public Builder type(@NotNull MessageType type) {
@@ -108,6 +108,9 @@ public class Message {
 
         @NotNull
         public Message build() {
+            if (target == null || type == null) {
+                throw new IllegalStateException("Message not fully built. Type: " + type + ", Target: " + target);
+            }
             return new Message(type, target, targetType, payload);
         }
 
