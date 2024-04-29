@@ -10,7 +10,7 @@ dependencies {
 
     compileOnly 'org.jetbrains:annotations:24.1.0'
     compileOnly 'org.projectlombok:lombok:1.18.32'
-    compileOnly 'net.william278.cloplib:cloplib-bukkit:1.0.3'
+    compileOnly 'net.william278.cloplib:cloplib-bukkit:1.0.4'
 
     annotationProcessor 'org.projectlombok:lombok:1.18.32'
 }
@@ -47,7 +47,7 @@ shadowJar {
 
 tasks {
     runServer {
-        minecraftVersion('1.20.4')
+        minecraftVersion('1.20.5')
         downloadPlugins {
             url("https://download.luckperms.net/1526/bukkit/loader/LuckPerms-Bukkit-5.4.113.jar")
             url("https://ci.lucko.me/job/spark/399/artifact/spark-bukkit/build/libs/spark-1.10.58-bukkit.jar")
