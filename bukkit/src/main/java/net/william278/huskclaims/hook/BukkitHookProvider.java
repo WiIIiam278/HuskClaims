@@ -46,6 +46,9 @@ public interface BukkitHookProvider extends HookProvider {
         if (isDependencyAvailable("PlaceholderAPI") && settings.getPlaceholders().isEnabled()) {
             hooks.add(new BukkitPlaceholderAPIHook(getPlugin()));
         }
+        if(isDependencyAvailable("WorldGuard") && settings.getWorldGuard().isEnabled()) {
+            hooks.add(new BukkitWorldGuardHook(getPlugin()));
+        }
 
         // Add bukkit importers
         hooks.add(new BukkitGriefPreventionImporter(getPlugin()));

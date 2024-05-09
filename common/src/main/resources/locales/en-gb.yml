@@ -38,6 +38,7 @@ locales:
   world_not_claimable: '[Claiming is disabled in this world.](#ff7e5e)'
   land_already_claimed: '[This land has already been claimed by %1%.](#ff7e5e)'
   land_selection_overlaps: '[This land selection overlaps %1% existing claim(s).](#ff7e5e)'
+  land_selection_overlaps_worldguard: '[This land selection overlaps with a WorldGuard region.](#ff7e5e)'
   land_selection_overlaps_child: '[This land selection overlaps with %1% other child claim(s).](#ff7e5e)'
   land_already_child_claim: '[This area of the claim is already designated as a child claim.](#ff7e5e)'
   husktowns_claim_overlaps: '[Cannot claim here as it overlaps with a player claim.](#ff7e5e)'

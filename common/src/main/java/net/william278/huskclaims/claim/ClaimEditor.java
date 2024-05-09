@@ -23,6 +23,7 @@ import lombok.Builder;
 import lombok.Getter;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.highlighter.Highlightable;
+import net.william278.huskclaims.hook.WorldGuardHook;
 import net.william278.huskclaims.position.BlockPosition;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.trust.TrustLevel;
@@ -291,12 +292,22 @@ public interface ClaimEditor {
 
     private boolean doesClaimOverlap(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {
         final List<Claim> overlapsWith = world.getParentClaimsOverlapping(region);
+        final boolean worldGuardOverlap = getPlugin().getHook(WorldGuardHook.class)
+                .map(hook -> hook.isChunkInRestrictedRegion(region, world.getName(getPlugin())))
+                .orElse(false);
+
         if (!overlapsWith.isEmpty()) {
             getPlugin().getLocales().getLocale("land_selection_overlaps", Integer.toString(overlapsWith.size()))
                     .ifPresent(user::sendMessage);
             getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), overlapsWith, true);
             return true;
         }
+        if(worldGuardOverlap){
+            getPlugin().getLocales().getLocale("land_selection_overlaps_worldguard")
+                    .ifPresent(user::sendMessage);
+            return true;
+        }
+
         return false;
     }
 
