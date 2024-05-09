@@ -38,6 +38,7 @@ locales:
   world_not_claimable: '[В этом мире приваты отключены.](#ff7e5e)'
   land_already_claimed: '[Выделенная территория уже занята игроком %1%.](#ff7e5e)'
   land_selection_overlaps: '[Выделенная территория пересекается с %1% уже существующим(и) регионом(ами).](#ff7e5e)'
+  land_selection_overlaps_worldguard: '[Этот выбор земли совпадает с регионом WorldGuard.](#ff7e5e)'
   land_selection_overlaps_child: '[Выбранная территория пересекается с %1% уже существующими потомственным(и) регионом(ами).](#ff7e5e)'
   land_already_child_claim: '[Выделенная территория уже является потомственным регионом.](#ff7e5e)'
   husktowns_claim_overlaps: '[Cannot claim here as it overlaps with a player claim.](#ff7e5e)'

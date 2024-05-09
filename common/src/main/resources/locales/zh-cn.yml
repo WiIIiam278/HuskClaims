@@ -38,6 +38,7 @@ locales:
   world_not_claimable: '[在此世界中无法声明](#ff7e5e)'
   land_already_claimed: '[此地已被%1%声明](#ff7e5e)'
   land_selection_overlaps: '[此领地选择与%1%现有领地重叠](#ff7e5e)'
+  land_selection_overlaps_worldguard: '[此土地选择与 WorldGuard 区域重叠.](#ff7e5e)'
   land_selection_overlaps_child: '[此领地选择与%1%其他子领地重叠](#ff7e5e)'
   land_already_child_claim: '[此领地的此区域已被指定为子领地](#ff7e5e)'
   husktowns_claim_overlaps: '[无法在此处声明因为它与玩家领地重叠](#ff7e5e)'

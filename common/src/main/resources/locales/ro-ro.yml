@@ -38,6 +38,7 @@ locales:
   world_not_claimable: '[Revendicarea este dezactivată în această lume.](#ff7e5e)'
   land_already_claimed: '[Acest teren a fost revendicat deja de către %1%.](#ff7e5e)'
   land_selection_overlaps: '[Această selecție de teren se suprapune cu %1% revendicări existente.](#ff7e5e)'
+  land_selection_overlaps_worldguard: '[Această selecție de teren se suprapune cu o regiune WorldGuard.](#ff7e5e)'
   land_selection_overlaps_child: '[Această selecție de teren se suprapune cu %1% alte revendicări fiu.](#ff7e5e)'
   land_already_child_claim: '[Această zonă a revendicării este deja desemnată ca o revendicare   fiu.](#ff7e5e)'
   husktowns_claim_overlaps: '[Nu se poate revendica aici deoarece se suprapune cu revendicarea unui jucător.](#ff7e5e)'
