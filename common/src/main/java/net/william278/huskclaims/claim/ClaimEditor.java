@@ -302,7 +302,7 @@ public interface ClaimEditor {
             getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), overlapsWith, true);
             return true;
         }
-        if(worldGuardOverlap){
+        if (worldGuardOverlap) {
             getPlugin().getLocales().getLocale("land_selection_overlaps_worldguard")
                     .ifPresent(user::sendMessage);
             return true;
