@@ -173,6 +173,7 @@ public class ClaimWorld {
     }
 
     private void cacheClaim(@NotNull Claim claim) {
+        claim.getChildren().forEach(c -> c.setParent(claim));
         cacheOwnedClaim(claim);
 
         claim.getRegion().getChunks().forEach(chunk -> {
