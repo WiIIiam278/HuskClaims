@@ -70,6 +70,8 @@ import org.jetbrains.annotations.Nullable;
 import space.arim.morepaperlib.MorePaperLib;
 
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -287,6 +289,16 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
                         "Invalid material: " + materialBlock.getMaterialKey()
                 ).createBlockData()
         ));
+    }
+
+    @Override
+    public void startQueuePoller() {
+        getRepeatingTask(()->{
+            Runnable task = claimBlocksEditQueue.poll();
+            if (task != null) {
+                task.run();
+            }
+        }, Duration.of(100, ChronoUnit.MILLIS), Duration.of(100, ChronoUnit.MILLIS)).run();
     }
 
     @Override

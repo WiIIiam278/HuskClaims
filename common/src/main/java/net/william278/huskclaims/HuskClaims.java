@@ -77,6 +77,7 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvi
             loadHooks();
             loadAPI();
             loadMetrics();
+            startQueuePoller();
         } catch (Throwable e) {
             log(Level.SEVERE, "An error occurred whilst initializing HuskClaims", e);
             disablePlugin();

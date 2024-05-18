@@ -29,6 +29,7 @@ import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -40,6 +41,8 @@ public interface ClaimBlocksManager {
     String HOURLY_BLOCKS_PERMISSION = "huskclaims.hourly_blocks.";
 
     Optional<SavedUser> getSavedUser(@NotNull UUID uuid);
+
+    ConcurrentLinkedQueue<Runnable> claimBlocksEditQueue = new ConcurrentLinkedQueue<>();
 
     @Blocking
     void editSavedUser(@NotNull UUID uuid, @NotNull Consumer<SavedUser> consumer);
@@ -57,27 +60,35 @@ public interface ClaimBlocksManager {
 
     default void editClaimBlocks(@NotNull User user, @NotNull UserManager.ClaimBlockSource source,
                                  @NotNull Function<Long, Long> consumer, @Nullable Consumer<Long> callback) {
-        // Calculate block balance
-        final long originalBlocks = getClaimBlocks(user);
-        final long newBlocks = consumer.apply(originalBlocks);
-        if (newBlocks < 0) {
-            throw new IllegalArgumentException("Claim blocks cannot be negative (" + newBlocks + ")");
-        }
+        // Create a runnable to queue
+        Runnable task = () -> {
+            // Calculate block balance
+            final long originalBlocks = getClaimBlocks(user);
+            final long newBlocks = consumer.apply(originalBlocks);
+            if (newBlocks < 0) {
+                throw new IllegalArgumentException("Claim blocks cannot be negative (" + newBlocks + ")");
+            }
 
-        // Fire the event, update the blocks, trigger callback
-        getPlugin().fireClaimBlocksChangeEvent(
-                user, originalBlocks, newBlocks, source,
-                (event) -> editSavedUser(user.getUuid(), (savedUser) -> {
-                    if (source != ClaimBlockSource.HOURLY_BLOCKS) {
-                        savedUser.getPreferences().log(source, newBlocks);
-                    }
-                    savedUser.setClaimBlocks(newBlocks);
-                    if (callback != null) {
-                        callback.accept(newBlocks);
-                    }
-                })
-        );
+            // Fire the event, update the blocks, trigger callback
+            getPlugin().fireClaimBlocksChangeEvent(
+                    user, originalBlocks, newBlocks, source,
+                    (event) -> editSavedUser(user.getUuid(), (savedUser) -> {
+                        if (source != ClaimBlockSource.HOURLY_BLOCKS) {
+                            savedUser.getPreferences().log(source, newBlocks);
+                        }
+                        savedUser.setClaimBlocks(newBlocks);
+                        if (callback != null) {
+                            callback.accept(newBlocks);
+                        }
+                    })
+            );
+        };
+
+        // Add task to queue
+        claimBlocksEditQueue.offer(task);
     }
+
+    void startQueuePoller();
 
     default void editClaimBlocks(@NotNull User user, @NotNull UserManager.ClaimBlockSource source,
                                  @NotNull Function<Long, Long> consumer) {
