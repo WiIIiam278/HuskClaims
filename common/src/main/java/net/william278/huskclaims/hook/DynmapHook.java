@@ -112,14 +112,14 @@ public class DynmapHook extends MapHook {
     @Override
     public void markAllClaims() {
         plugin.getClaimWorlds().forEach((name, claimWorld) -> {
-            final Collection<Claim> claims = claimWorld.getClaims();
+            final Collection<Claim> claims = claimWorld.getAllClaims();
             markClaims(claims, claimWorld);
             plugin.log(Level.INFO, "Populated web map with %s claims in %s".formatted(claims.size(), name));
         });
     }
 
     private void addMarker(@NotNull Claim claim, @NotNull ClaimWorld claimWorld, @NotNull MarkerSet markerSet) {
-        final Optional<Integer> color = getClaimColor(claim, claimWorld).map(TextColor::value);
+        final Optional<Integer> color = getClaimColor(claim).map(TextColor::value);
         if (color.isEmpty()) {
             return;
         }

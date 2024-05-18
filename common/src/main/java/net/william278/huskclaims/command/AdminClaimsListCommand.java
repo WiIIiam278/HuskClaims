@@ -47,7 +47,7 @@ public class AdminClaimsListCommand extends ClaimsListCommand implements GlobalC
 
     @Override
     public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
-        final SortOption sort = parseSortArg(args, 0).orElse(SortOption.DIMENSION);
+        final SortOption sort = parseSortArg(args, 0).orElse(SortOption.WORLD);
         final boolean ascend = parseOrderArg(args, 1).orElse(false);
         final int page = parseIntArg(args, 2).orElse(1);
 

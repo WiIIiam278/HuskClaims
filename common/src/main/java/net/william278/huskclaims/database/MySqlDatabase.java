@@ -485,10 +485,11 @@ public class MySqlDatabase extends Database {
                             UUID.fromString(resultSet.getString("world_uuid")),
                             resultSet.getString("world_environment")
                     );
-                    final ClaimWorld claimWorld = plugin.getClaimWorldFromJson(
+                    final int id = resultSet.getInt("id");
+                    final ClaimWorld claimWorld = plugin.getClaimWorldFromJson(id,
                             new String(resultSet.getBytes("data"), StandardCharsets.UTF_8)
                     );
-                    claimWorld.updateId(resultSet.getInt("id"));
+                    claimWorld.updateId(id);
                     if (!plugin.getSettings().getClaims().isWorldUnclaimable(world)) {
                         worlds.put(world, claimWorld);
                     }
@@ -515,10 +516,11 @@ public class MySqlDatabase extends Database {
                             UUID.fromString(resultSet.getString("world_uuid")),
                             resultSet.getString("world_environment")
                     );
-                    final ClaimWorld claimWorld = plugin.getClaimWorldFromJson(
+                    final int id = resultSet.getInt("id");
+                    final ClaimWorld claimWorld = plugin.getClaimWorldFromJson(id,
                             new String(resultSet.getBytes("data"), StandardCharsets.UTF_8)
                     );
-                    claimWorld.updateId(resultSet.getInt("id"));
+                    claimWorld.updateId(id);
                     worlds.put(new ServerWorld(resultSet.getString("server_name"), world), claimWorld);
                 }
             }

@@ -137,7 +137,7 @@ public abstract class ClaimsListCommand extends Command implements GlobalClaimsP
             if (selected) {
                 options.add(locales.getRawLocale("claim_list_sort_option_selected",
                                 option.getDisplayName(plugin.getLocales()))
-                        .orElse(option.getId()));
+                        .orElse(option.getDisplayName(plugin.getLocales())));
                 continue;
             }
             options.add(locales.getRawLocale("claim_list_sort_option",
@@ -145,7 +145,7 @@ public abstract class ClaimsListCommand extends Command implements GlobalClaimsP
                             getName(),
                             option.getId(),
                             ascend ? "ascending" : "descending", "%current_page%")
-                    .orElse(option.getId()));
+                    .orElse(option.getDisplayName(plugin.getLocales())));
         }
         return options.toString();
     }
@@ -160,13 +160,13 @@ public abstract class ClaimsListCommand extends Command implements GlobalClaimsP
         MEMBERS(Comparator.comparingInt(c -> c.claim().getTrustedUsers().size())),
         CHILDREN(Comparator.comparingInt(c -> c.claim().getChildren().size()));
 
-        public static final List<SortOption> LISTED_OPTIONS = List.of(SIZE, DIMENSION, CHILDREN);
+        public static final List<SortOption> LISTED_OPTIONS = List.of(SIZE, WORLD, CHILDREN);
 
         private final Comparator<ServerWorldClaim> comparator;
 
         @NotNull
         public String getDisplayName(@NotNull Locales locales) {
-            return locales.getRawLocale(String.format("claim_list_sort_option_%s", getId())).orElse(getId());
+            return locales.getRawLocale(String.format("claim_list_sort_option_label_%s", getId())).orElse(getId());
         }
 
         @NotNull
@@ -175,7 +175,9 @@ public abstract class ClaimsListCommand extends Command implements GlobalClaimsP
         }
 
         public static Optional<SortOption> matchSortOption(@NotNull String text) {
-            return Arrays.stream(values()).filter(o -> o.getId().equals(text.toLowerCase(Locale.ENGLISH))).findFirst();
+            return Arrays.stream(values())
+                    .filter(o -> o.getId().equals(text.toLowerCase(Locale.ENGLISH)))
+                    .findFirst();
         }
     }
 

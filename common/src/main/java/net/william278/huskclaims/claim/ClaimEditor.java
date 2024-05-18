@@ -372,7 +372,7 @@ public interface ClaimEditor {
 
     default void userResizeChildClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world,
                                       @NotNull Claim child, @NotNull Region resized) {
-        final Optional<Claim> optionalParent = child.getParent(world);
+        final Optional<Claim> optionalParent = child.getParent();
         if (optionalParent.isEmpty()) {
             getPlugin().getLocales().getLocale("error_parent_claim_deleted")
                     .ifPresent(user::sendMessage);
@@ -440,7 +440,7 @@ public interface ClaimEditor {
     // Handle deletion of a child claim
     default void userDeleteChildClaim(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
                                       @NotNull Claim claim, @NotNull Claim parent) {
-        if (!claim.isPrivilegeAllowed(TrustLevel.Privilege.MANAGE_CHILD_CLAIMS, executor, world, getPlugin())) {
+        if (!claim.isPrivilegeAllowed(TrustLevel.Privilege.MANAGE_CHILD_CLAIMS, executor, getPlugin())) {
             getPlugin().getLocales().getLocale("no_child_deletion_permission")
                     .ifPresent(executor::sendMessage);
             return;
@@ -466,8 +466,8 @@ public interface ClaimEditor {
 
         final Claim claim = clickedClaim.get();
         final ClaimSelection.ClaimSelectionBuilder builder = ClaimSelection.builder().selectedPosition(clicked);
-        if (!claim.isChildClaim(world)) {
-            if (!claim.isPrivilegeAllowed(TrustLevel.Privilege.MANAGE_CHILD_CLAIMS, user, world, getPlugin())) {
+        if (!claim.isChildClaim()) {
+            if (!claim.isPrivilegeAllowed(TrustLevel.Privilege.MANAGE_CHILD_CLAIMS, user, getPlugin())) {
                 getPlugin().getLocales().getLocale("no_claiming_child_permission")
                         .ifPresent(user::sendMessage);
                 return Optional.empty();
@@ -531,9 +531,9 @@ public interface ClaimEditor {
             }
 
             // Check child claim resize privileges
-            if (claimBeingResized.isChildClaim(world)) {
+            if (claimBeingResized.isChildClaim()) {
                 return claimBeingResized.isPrivilegeAllowed(
-                        TrustLevel.Privilege.MANAGE_CHILD_CLAIMS, user, world, plugin
+                        TrustLevel.Privilege.MANAGE_CHILD_CLAIMS, user, plugin
                 ) && ClaimingMode.CHILD_CLAIMS.canUse(user);
             }
 

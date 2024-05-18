@@ -75,8 +75,8 @@ public abstract class MapHook extends Hook {
         return plugin.getSettings().getHooks().getMap();
     }
 
-    protected Optional<TextColor> getClaimColor(@NotNull Claim claim, @NotNull ClaimWorld claimWorld) {
-        final ClaimingMode type = claim.isChildClaim(claimWorld) ? ClaimingMode.CHILD_CLAIMS
+    protected Optional<TextColor> getClaimColor(@NotNull Claim claim) {
+        final ClaimingMode type = claim.isChildClaim() ? ClaimingMode.CHILD_CLAIMS
                 : claim.getOwner().isPresent() ? ClaimingMode.CLAIMS : ClaimingMode.ADMIN_CLAIMS;
         return Optional.ofNullable(getSettings().getColors().get(type)).map(TextColor::fromHexString);
     }

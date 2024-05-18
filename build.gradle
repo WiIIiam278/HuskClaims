@@ -21,6 +21,8 @@ ext {
     set 'mysql_driver_version', mysql_driver_version.toString()
     set 'mariadb_driver_version', mariadb_driver_version.toString()
     set 'sqlite_driver_version', sqlite_driver_version.toString()
+    set 'fastutil_version', fastutil_version.toString()
+    set 'configlib_version', configlib_version.toString()
 }
 
 publishing {

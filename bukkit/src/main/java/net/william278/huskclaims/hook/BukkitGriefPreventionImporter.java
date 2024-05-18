@@ -222,7 +222,7 @@ public class BukkitGriefPreventionImporter extends Importer {
                             parent.getChildren().add(hcc);
                         });
             } else {
-                claimWorld.getClaims().add(hcc);
+                claimWorld.addClaim(hcc);
             }
 
             if (amount.incrementAndGet() % CLAIMS_PER_PAGE == 0) {

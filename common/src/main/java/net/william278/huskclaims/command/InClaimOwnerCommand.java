@@ -44,7 +44,7 @@ public abstract class InClaimOwnerCommand extends InClaimCommand {
     @Override
     public void execute(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
                         @NotNull Claim claim, @NotNull String[] args) {
-        final Optional<Claim> parent = claim.getParent(world);
+        final Optional<Claim> parent = claim.getParent();
         final boolean otherPermission = hasPermission(executor, "other");
         final boolean isAdminEditable = claim.isAdminClaim() && !ClaimingMode.ADMIN_CLAIMS.canUse(executor);
 
@@ -62,7 +62,7 @@ public abstract class InClaimOwnerCommand extends InClaimCommand {
 
         // Handle parent claims
         if (isAdminEditable || !otherPermission && !claim.isPrivilegeAllowed(
-                TrustLevel.Privilege.MANAGE_CHILD_CLAIMS, executor, world, plugin)) {
+                TrustLevel.Privilege.MANAGE_CHILD_CLAIMS, executor, plugin)) {
             plugin.getLocales().getLocale(noPrivilegeMessage)
                     .ifPresent(executor::sendMessage);
             return;
