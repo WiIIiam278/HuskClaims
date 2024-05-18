@@ -83,7 +83,8 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     private MorePaperLib morePaperLib;
     private AudienceProvider audiences;
     private final Set<TrustTag> trustTags = ConcurrentHashMap.newKeySet();
-    private final Set<GroundItem> trackedDrops = ConcurrentHashMap.newKeySet();
+    private final Map<UUID, List<DroppedItem>> markedDrops = Maps.newHashMap();
+    private final Map<UUID, Set<GroundStack>> trackedItems = Maps.newHashMap();
     private final ConcurrentMap<String, List<User>> globalUserList = Maps.newConcurrentMap();
     private final ConcurrentMap<UUID, ClaimSelection> claimSelections = Maps.newConcurrentMap();
     private final ConcurrentMap<UUID, SavedUser> userCache = Maps.newConcurrentMap();
