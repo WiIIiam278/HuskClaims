@@ -21,7 +21,6 @@ package net.william278.huskclaims.claim;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import lombok.AccessLevel;
@@ -34,7 +33,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static net.william278.huskclaims.highlighter.Highlightable.Type.getClaimType;
 
@@ -327,16 +325,18 @@ public class Region {
         );
     }
 
-     @NotNull
-     public Set<int[]> getChunks() {
-         final Set<int[]> chunks = Sets.newHashSet();
-         for (int x = nearCorner.getBlockX(); x <= farCorner.getBlockX(); x += 16) {
-             for (int z = nearCorner.getBlockZ(); z <= farCorner.getBlockZ(); z += 16) {
-                 chunks.add(new int[]{x >> 4, z >> 4});
-             }
-         }
-         return chunks;
-     }
+    @NotNull
+    public List<int[]> getChunks() {
+        final int listSize = ((farCorner.getBlockX() - nearCorner.getBlockX()) / 16 + 1)
+                * ((farCorner.getBlockZ() - nearCorner.getBlockZ()) / 16 + 1);
+        final List<int[]> chunks = Lists.newArrayListWithExpectedSize(listSize);
+        for (int x = nearCorner.getBlockX(); x <= farCorner.getBlockX(); x += 16) {
+            for (int z = nearCorner.getBlockZ(); z <= farCorner.getBlockZ(); z += 16) {
+                chunks.add(new int[]{x >> 4, z >> 4});
+            }
+        }
+        return chunks;
+    }
 
     /**
      * {@link BlockPosition} implementation representing a (corner) Block of a {@link Region}

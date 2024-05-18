@@ -166,6 +166,13 @@ public class Claim implements Highlightable {
     }
 
     @NotNull
+    @ApiStatus.Internal
+    public static Claim creteEmptyClaim(@NotNull UUID owner, @NotNull Region region) {
+        return new Claim(owner, region, Maps.newConcurrentMap(), Maps.newConcurrentMap(), Maps.newConcurrentMap(),
+                Maps.newConcurrentMap(), Sets.newConcurrentHashSet(), true, Sets.newConcurrentHashSet());
+    }
+
+    @NotNull
     public static Claim create(@NotNull User owner, @NotNull Region region, @NotNull HuskClaims plugin) {
         return new Claim(owner.getUuid(), region, plugin);
     }
