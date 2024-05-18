@@ -10,6 +10,8 @@ dependencies {
     implementation 'space.arim.morepaperlib:morepaperlib:0.4.4'
     implementation 'net.william278.cloplib:cloplib-bukkit:1.0.4'
     implementation 'org.bstats:bstats-bukkit:3.0.2'
+    implementation 'de.exlll:configlib-yaml:4.5.0'
+
 
     compileOnly 'org.spigotmc:spigot-api:1.17.1-R0.1-SNAPSHOT'
     compileOnly 'org.jetbrains:annotations:24.1.0'
@@ -46,6 +48,7 @@ shadowJar {
     relocate 'org.snakeyaml', 'net.william278.huskclaims.libraries.snakeyaml'
     relocate 'com.google.gson', 'net.william278.huskclaims.libraries.gson'
     relocate 'com.fatboyindustrial', 'net.william278.huskclaims.libraries'
+    relocate 'de.exlll', 'net.william278.huskclaims.libraries'
 
     relocate 'org.bstats', 'net.william278.huskclaims.libraries.bstats'
     relocate 'io.papermc', 'net.william278.huskclaims.libraries.paperlib'

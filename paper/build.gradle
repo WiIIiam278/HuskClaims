@@ -20,6 +20,9 @@ shadowJar {
         exclude(dependency('com.mojang:brigadier'))
     }
 
+    exclude 'net/kyori/**'
+
+
     relocate 'net.jodah', 'net.william278.huskclaims.libraries'
     relocate 'org.apache.commons.io', 'net.william278.huskclaims.libraries.commons.io'
     relocate 'org.apache.commons.text', 'net.william278.huskclaims.libraries.commons.text'
@@ -36,10 +39,12 @@ shadowJar {
     relocate 'org.snakeyaml', 'net.william278.huskclaims.libraries.snakeyaml'
     relocate 'com.google.gson', 'net.william278.huskclaims.libraries.gson'
     relocate 'com.fatboyindustrial', 'net.william278.huskclaims.libraries'
+    relocate 'de.exlll', 'net.william278.huskclaims.libraries'
     relocate 'org.bstats', 'net.william278.huskclaims.libraries.bstats'
     relocate 'space.arim', 'net.william278.huskclaims.libraries.paperlib'
     relocate 'me.lucko', 'net.william278.huskclaims.libraries'
     relocate 'net.roxeez', 'net.william278.huskclaims.libraries'
+
 
     minimize()
 }
