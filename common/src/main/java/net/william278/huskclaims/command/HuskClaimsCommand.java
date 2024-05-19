@@ -303,7 +303,7 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
                 .map(op -> plugin.getLocales().getRawLocale("claim_flag_%s"
                                 .formatted((claim == null ? world.getWildernessFlags() : claim.getDefaultFlags())
                                         .contains(op) ? "enabled" : "disabled"),
-                        WordUtils.capitalizeFully(op.name().replaceAll("_", " "))
+                        op.name()
                 ).orElse(op.name())).collect(Collectors.joining(plugin.getLocales().getListJoiner()))));
     }
 

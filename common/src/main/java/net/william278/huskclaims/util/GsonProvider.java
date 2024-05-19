@@ -67,7 +67,7 @@ public interface GsonProvider {
 
     @NotNull
     default ClaimWorld getClaimWorldFromJson(int id, @NotNull String json) throws JsonSyntaxException {
-        return ClaimWorld.upgradeSchema(json, getGson(), getPlugin(), id);
+        return ClaimWorldSerializer.upgradeSchema(json, getGson(), getPlugin(), id);
     }
 
     @NotNull

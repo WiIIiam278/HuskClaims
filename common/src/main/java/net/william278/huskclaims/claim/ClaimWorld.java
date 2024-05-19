@@ -22,12 +22,8 @@ package net.william278.huskclaims.claim;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.google.gson.reflect.TypeToken;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -42,14 +38,12 @@ import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.Preferences;
 import net.william278.huskclaims.user.User;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 @Getter
@@ -98,65 +92,6 @@ public class ClaimWorld {
         world.schemaVersion = CURRENT_SCHEMA;
         claims.forEach(world::cacheClaim);
         return world;
-    }
-
-    @ApiStatus.Internal
-    @NotNull
-    public static ClaimWorld upgradeSchema(@NotNull String json, @NotNull Gson gson, @NotNull HuskClaims plugin, int id) {
-        final JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
-        final int schemaVersion = jsonObject.has("schema_version") ? jsonObject.get("schema_version").getAsInt() : 0;
-
-        if (schemaVersion >= CURRENT_SCHEMA) {
-            return gson.fromJson(json, ClaimWorld.class);
-        }
-
-        final Set<Claim> claims = new HashSet<>();
-        final JsonArray claimsArray = jsonObject.getAsJsonArray("claims");
-        claimsArray.forEach(c -> {
-            final JsonObject claimObject = c.getAsJsonObject();
-            final Claim claim = getUpgradableClaim(claimObject, gson);
-            claims.add(claim);
-        });
-
-        final ConcurrentMap<UUID, String> userCache = jsonObject.has("user_cache") ? gson.fromJson(jsonObject.getAsJsonObject("user_cache"), new TypeToken<ConcurrentMap<UUID, String>>() {
-        }.getType()) : new ConcurrentHashMap<>();
-        final Set<OperationType> wildernessFlags = jsonObject.has("wilderness_flags") ? gson.fromJson(jsonObject.getAsJsonArray("wilderness_flags"), new TypeToken<Set<OperationType>>() {
-        }.getType()) : Sets.newHashSet();
-        final ClaimWorld claimWorld = ClaimWorld.convert(id, claims, userCache, wildernessFlags);
-        claimWorld.schemaVersion = CURRENT_SCHEMA;
-        plugin.getDatabase().updateClaimWorld(claimWorld); // Update the database with the new format
-        plugin.log(Level.INFO, "Converted old claim world to new format");
-        return claimWorld;
-    }
-
-    private static Claim getUpgradableClaim(@NotNull JsonObject claimObject, @NotNull Gson gson) {
-        final JsonObject regionObject = claimObject.getAsJsonObject("region");
-        final JsonObject nearCornerObject = regionObject.getAsJsonObject("near_corner");
-        final JsonObject farCornerObject = regionObject.getAsJsonObject("far_corner");
-        final int x1 = nearCornerObject.get("x").getAsInt();
-        final int z1 = nearCornerObject.get("z").getAsInt();
-        final int x2 = farCornerObject.get("x").getAsInt();
-        final int z2 = farCornerObject.get("z").getAsInt();
-        final Region.Point nearCorner = Region.Point.at(x1, z1);
-        final Region.Point farCorner = Region.Point.at(x2, z2);
-        final Region region = Region.from(nearCorner, farCorner);
-
-        final UUID owner = UUID.fromString(claimObject.get("owner").getAsString());
-        final ConcurrentMap<UUID, String> trustedUsers = new ConcurrentHashMap<>(gson.fromJson(claimObject.getAsJsonObject("trusted_users"), new TypeToken<Map<UUID, String>>() {
-        }.getType()));
-        final ConcurrentMap<String, String> trustedGroups = new ConcurrentHashMap<>(gson.fromJson(claimObject.getAsJsonObject("trusted_groups"), new TypeToken<Map<String, String>>() {
-        }.getType()));
-        final ConcurrentMap<String, String> trustedTags = new ConcurrentHashMap<>(gson.fromJson(claimObject.getAsJsonObject("trusted_tags"), new TypeToken<Map<String, String>>() {
-        }.getType()));
-
-        final JsonArray childrenArray = claimObject.getAsJsonArray("children");
-        final Set<Claim> children = Sets.newConcurrentHashSet();
-        childrenArray.forEach(c -> children.add(getUpgradableClaim(c.getAsJsonObject(), gson)));
-        final Set<OperationType> defaultFlags = gson.fromJson(claimObject.getAsJsonArray("default_flags"), new TypeToken<Set<OperationType>>() {
-        }.getType());
-        final boolean inheritParent = claimObject.get("inherit_parent").getAsBoolean();
-
-        return new Claim(owner, region, trustedUsers, trustedGroups, trustedTags, Maps.newConcurrentMap(), children, inheritParent, defaultFlags);
     }
 
     protected void loadClaims(@NotNull Set<Claim> claims) {
