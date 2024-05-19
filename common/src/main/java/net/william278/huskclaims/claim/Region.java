@@ -325,6 +325,11 @@ public class Region {
         );
     }
 
+    /**
+     * Returns a list of integer arrays representing the chunks within the region.
+     *
+     * @return The list of integer arrays representing the chunks
+     */
     @NotNull
     public List<int[]> getChunks() {
         final int listSize = ((farCorner.getBlockX() - nearCorner.getBlockX()) / 16 + 1)

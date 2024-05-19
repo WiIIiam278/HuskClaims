@@ -81,10 +81,9 @@ public class ClaimWorld {
         this.userClaims = Maps.newConcurrentMap();
     }
 
-    public static ClaimWorld convert(int id, @NotNull Set<Claim> claims,
+    public static ClaimWorld convert(@NotNull Set<Claim> claims,
                                      @NotNull Map<UUID, String> userCache, @NotNull Set<OperationType> wildernessFlags) {
         final ClaimWorld world = new ClaimWorld();
-        world.id = id;
         world.userCache = new ConcurrentHashMap<>(userCache);
         world.wildernessFlags = Sets.newConcurrentHashSet(wildernessFlags);
         world.cachedClaims = new Long2ObjectOpenHashMap<>();
@@ -164,18 +163,16 @@ public class ClaimWorld {
 
     public boolean removeClaimsBy(@Nullable User owner) {
         final UUID uuid = owner != null ? owner.getUuid() : ADMIN_CLAIM;
-        return userClaims.remove(uuid).stream().allMatch(claim -> {
-            return claim.getRegion().getChunks().stream().allMatch(chunk -> {
-                final long asLong = ((long) chunk[0] << 32) | (chunk[1] & 0xffffffffL);
-                final Set<Claim> chunkClaims = cachedClaims.get(asLong);
-                if (chunkClaims != null) {
-                    chunkClaims.remove(claim);
-                    return true;
-                }
+        return userClaims.remove(uuid).stream().allMatch(claim -> claim.getRegion().getChunks().stream().allMatch(chunk -> {
+            final long asLong = ((long) chunk[0] << 32) | (chunk[1] & 0xffffffffL);
+            final Set<Claim> chunkClaims = cachedClaims.get(asLong);
+            if (chunkClaims != null) {
+                chunkClaims.remove(claim);
+                return true;
+            }
 
-                return false;
-            });
-        });
+            return false;
+        }));
     }
 
     public boolean removeAdminClaims() {

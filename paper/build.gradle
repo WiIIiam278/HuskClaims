@@ -42,7 +42,6 @@ shadowJar {
     relocate 'me.lucko', 'net.william278.huskclaims.libraries'
     relocate 'net.roxeez', 'net.william278.huskclaims.libraries'
 
-
     minimize()
 }
 

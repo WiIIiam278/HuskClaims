@@ -96,12 +96,12 @@ public class Claim implements Highlightable {
     private Map<String, String> trustedTags;
 
     /**
-     * Map of banned users in this claim (UUID of the banned player, who banned them)
+     * Map of banned users in this claim (UUID of the banned player, UUID of the banner)
      */
     @Expose
     @Getter
     @SerializedName("banned_users")
-    private Map<UUID, String> bannedUsers;
+    private Map<UUID, UUID> bannedUsers;
 
     /**
      * List of child claims
@@ -140,9 +140,9 @@ public class Claim implements Highlightable {
     private boolean inheritParent;
 
     protected Claim(@Nullable UUID owner, @NotNull Region region, @NotNull ConcurrentMap<UUID, String> users,
-                  @NotNull ConcurrentMap<String, String> groups, @NotNull ConcurrentMap<String, String> tags,
-                  @NotNull ConcurrentMap<UUID, String> bannedUsers, @NotNull Set<Claim> children, boolean inheritParent,
-                  @NotNull Set<OperationType> defaultFlags) {
+                    @NotNull ConcurrentMap<String, String> groups, @NotNull ConcurrentMap<String, String> tags,
+                    @NotNull ConcurrentMap<UUID, UUID> bannedUsers, @NotNull Set<Claim> children, boolean inheritParent,
+                    @NotNull Set<OperationType> defaultFlags) {
         this.owner = owner;
         this.region = region;
         this.trustedUsers = users;
@@ -164,13 +164,6 @@ public class Claim implements Highlightable {
                         ? plugin.getSettings().getClaims().getDefaultFlags()
                         : plugin.getSettings().getClaims().getAdminFlags())
         );
-    }
-
-    @NotNull
-    @ApiStatus.Internal
-    public static Claim creteEmptyClaim(@NotNull UUID owner, @NotNull Region region) {
-        return new Claim(owner, region, Maps.newConcurrentMap(), Maps.newConcurrentMap(), Maps.newConcurrentMap(),
-                Maps.newConcurrentMap(), Sets.newConcurrentHashSet(), true, Sets.newConcurrentHashSet());
     }
 
     @NotNull
@@ -434,8 +427,7 @@ public class Claim implements Highlightable {
      * @since 1.0
      */
     @NotNull
-    public Optional<TrustLevel> getEffectiveTrustLevel(@NotNull Trustable trustable,
-                                                       @NotNull HuskClaims plugin) {
+    public Optional<TrustLevel> getEffectiveTrustLevel(@NotNull Trustable trustable, @NotNull HuskClaims plugin) {
         return getTrustLevel(trustable, plugin)
                 .or(() -> inheritParent
                         ? getParent().flatMap(parent -> parent.getEffectiveTrustLevel(trustable, plugin))
@@ -450,8 +442,7 @@ public class Claim implements Highlightable {
      * @return whether the operation is allowed
      * @since 1.0
      */
-    public boolean isOperationAllowed(@NotNull Operation operation,
-                                      @NotNull HuskClaims plugin) {
+    public boolean isOperationAllowed(@NotNull Operation operation, @NotNull HuskClaims plugin) {
         // If the operation is explicitly allowed, return it
         return defaultFlags.contains(operation.getType())
 
