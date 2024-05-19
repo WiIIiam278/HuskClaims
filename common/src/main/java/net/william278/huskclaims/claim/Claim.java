@@ -117,6 +117,7 @@ public class Claim implements Highlightable {
      */
     @Nullable
     @Setter
+    @Expose(deserialize = false, serialize = false)
     private Claim parent;
 
     /**
