@@ -24,6 +24,7 @@ import de.exlll.configlib.Comment;
 import de.exlll.configlib.Configuration;
 import lombok.*;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.william278.cloplib.listener.InspectorCallbackProvider;
 import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.ClaimingMode;
@@ -211,8 +212,22 @@ public final class Settings {
         @Comment("Claim inspection tool (right click with this to inspect claims)")
         private String inspectionTool = "minecraft:stick";
 
+        @Comment("Model data settings for the inspection tool")
+        private ModelDataSettings inspectionToolModelData = new ModelDataSettings();
+
         @Comment("Claim creation & resize tool (right click with this to create/resize claims)")
         private String claimTool = "minecraft:golden_shovel";
+
+        @Comment("Model data settings for the claim tool")
+        private ModelDataSettings claimToolModelData = new ModelDataSettings();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class ModelDataSettings {
+            private boolean required = false;
+            private int modelData = 0;
+        }
 
         @Comment("Require players to hold the claim tool to use claim commands (e.g. /claim <radius>, /extendclaim)")
         private boolean requireToolForCommands = true;
@@ -259,6 +274,20 @@ public final class Settings {
 
         public boolean isWorldUnclaimable(@NotNull World world) {
             return unclaimableWorlds.stream().anyMatch(world.getName()::equalsIgnoreCase);
+        }
+
+        @NotNull
+        public InspectorCallbackProvider.InspectionTool getInspectionToolData() {
+            return new InspectorCallbackProvider.InspectionTool(
+                    inspectionTool, inspectionToolModelData.isRequired(), inspectionToolModelData.getModelData()
+            );
+        }
+
+        @NotNull
+        public InspectorCallbackProvider.InspectionTool getClaimToolData() {
+            return new InspectorCallbackProvider.InspectionTool(
+                    claimTool, claimToolModelData.isRequired(), claimToolModelData.getModelData()
+            );
         }
 
     }

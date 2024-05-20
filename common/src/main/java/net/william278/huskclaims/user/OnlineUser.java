@@ -22,6 +22,7 @@ package net.william278.huskclaims.user;
 import de.themoep.minedown.adventure.MineDown;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
+import net.william278.cloplib.listener.InspectorCallbackProvider;
 import net.william278.cloplib.operation.OperationUser;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.position.Position;
@@ -70,7 +71,19 @@ public abstract class OnlineUser extends User implements OperationUser, CommandU
 
     public abstract boolean hasPermission(@NotNull String permission);
 
-    public abstract boolean isHolding(@NotNull String material);
+    public abstract boolean isHolding(@NotNull InspectorCallbackProvider.InspectionTool tool);
+
+    /**
+     * Returns whether the user is holding an item with the specified material
+     *
+     * @param material The material to check for
+     * @return Whether the user is holding the specified material
+     * @deprecated Use {@link #isHolding(InspectorCallbackProvider.InspectionTool)} instead
+     */
+    @Deprecated(since = "1.3", forRemoval = true)
+    public boolean isHolding(@NotNull String material) {
+        return this.isHolding(InspectorCallbackProvider.InspectionTool.builder().material(material).build());
+    }
 
     public abstract Optional<Long> getNumericalPermission(@NotNull String prefix);
 

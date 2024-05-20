@@ -58,7 +58,7 @@ public class ExtendClaimCommand extends InClaimOwnerCommand {
     private void extendClaim(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
                              @NotNull Claim claim, @Nullable Claim parent, @NotNull String[] args) {
         final Settings.ClaimSettings claims = plugin.getSettings().getClaims();
-        if (claims.isRequireToolForCommands() && !executor.isHolding(claims.getClaimTool())) {
+        if (claims.isRequireToolForCommands() && !executor.isHolding(claims.getClaimToolData())) {
             plugin.getLocales().getLocale("claim_tool_required")
                     .ifPresent(executor::sendMessage);
             return;

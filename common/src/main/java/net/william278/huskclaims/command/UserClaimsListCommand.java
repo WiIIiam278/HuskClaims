@@ -32,7 +32,10 @@ import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class UserClaimsListCommand extends ClaimsListCommand implements UserListTabCompletable, GlobalClaimsProvider {

@@ -83,7 +83,7 @@ public class ClaimCommand extends OnlineUserCommand {
 
     private void createClaim(@NotNull OnlineUser user, @Nullable ClaimWorld world, int radius) {
         final Settings.ClaimSettings claims = plugin.getSettings().getClaims();
-        if (claims.isRequireToolForCommands() && !user.isHolding(claims.getClaimTool())) {
+        if (claims.isRequireToolForCommands() && !user.isHolding(claims.getClaimToolData())) {
             plugin.getLocales().getLocale("claim_tool_required")
                     .ifPresent(user::sendMessage);
             return;

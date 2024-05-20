@@ -28,8 +28,8 @@ public interface ClaimsListener extends OperationListener, ClaimsToolHandler, In
     void register();
 
     default void setInspectorCallbacks() {
-        setInspectorCallback(getPlugin().getSettings().getClaims().getInspectionTool(), this::onInspectionToolUse);
-        setInspectorCallback(getPlugin().getSettings().getClaims().getClaimTool(), this::onClaimToolUse);
+        setInspectorCallback(getPlugin().getSettings().getClaims().getInspectionToolData(), this::onInspectionToolUse);
+        setInspectorCallback(getPlugin().getSettings().getClaims().getClaimToolData(), this::onClaimToolUse);
     }
 
     @Override

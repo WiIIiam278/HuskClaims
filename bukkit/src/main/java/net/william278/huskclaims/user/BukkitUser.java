@@ -20,10 +20,12 @@
 package net.william278.huskclaims.user;
 
 import lombok.Getter;
+import net.william278.cloplib.listener.InspectorCallbackProvider;
 import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.position.Position;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
@@ -31,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 @Getter
 public class BukkitUser extends OnlineUser {
@@ -71,10 +74,16 @@ public class BukkitUser extends OnlineUser {
     }
 
     @Override
-    public boolean isHolding(@NotNull String material) {
+    public boolean isHolding(@NotNull InspectorCallbackProvider.InspectionTool tool) {
         final PlayerInventory inventory = bukkitPlayer.getInventory();
-        return inventory.getItemInMainHand().getType().getKey().toString().equals(material)
-                || inventory.getItemInOffHand().getType().getKey().toString().equals(material);
+        final Set<ItemStack> toCheck = Set.of(inventory.getItemInMainHand(), inventory.getItemInOffHand());
+        return toCheck.stream().anyMatch(
+                item -> item != null && item.getType().getKey().getKey().equals(tool.material()) && (
+                        !tool.useCustomModelData() || item.hasItemMeta()
+                                && item.getItemMeta() != null && item.getItemMeta().hasCustomModelData()
+                                && item.getItemMeta().getCustomModelData() == tool.customModelData()
+                )
+        );
     }
 
     @Override
