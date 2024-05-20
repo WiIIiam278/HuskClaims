@@ -23,6 +23,7 @@ import lombok.Getter;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.moderation.DropsHandler;
 import net.william278.huskclaims.user.BukkitUser;
+import org.bukkit.Location;
 import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -41,7 +42,7 @@ public interface BukkitDropsListener extends Listener {
     default void onPlayerDeath(@NotNull PlayerDeathEvent e) {
         getPlugin().markItemsForLocking(
                 BukkitUser.adapt(e.getEntity(), getPlugin()),
-                e.getDrops().stream().map(BukkitDroppedItem::new).toList()
+                e.getDrops().stream().map(item -> new BukkitDroppedItem(item, e.getEntity().getLocation())).toList()
         );
     }
 
@@ -53,49 +54,60 @@ public interface BukkitDropsListener extends Listener {
     @NotNull
     HuskClaims getPlugin();
 
-    record BukkitDroppedItem(@Nullable ItemStack stack) implements DropsHandler.DroppedItem {
+    @Getter
+    class BukkitDroppedItem implements DropsHandler.DroppedItem {
+
+        private final ItemStack stack;
+        private final Location dropLocation;
+
+        BukkitDroppedItem(@NotNull ItemStack stack, @NotNull Location dropLocation) {
+            this.stack = stack;
+            this.dropLocation = dropLocation;
+        }
 
         @Override
         public boolean equals(Object obj) {
-            return obj instanceof BukkitDroppedItem item && item.stack() != null && item.stack().equals(stack());
+            return obj instanceof BukkitDroppedItem item
+                    && item.getDropLocation().distance(getDropLocation()) <= DEATH_DROPS_EQUAL_RANGE
+                    && item.getStack() != null && item.getStack().equals(getStack());
         }
 
     }
-    
+
     class BukkitGroundItem implements DropsHandler.GroundStack {
 
         @NotNull
         @Getter
         private final Item entity;
-        
+
         @Nullable
         private UUID owner;
-        
+
         public BukkitGroundItem(@NotNull Item entity) {
             this.entity = entity;
         }
-        
+
         public void lock(@NotNull UUID owner, boolean preventDestruction) {
             this.owner = owner;
             updateEntity(preventDestruction);
         }
-        
+
         public void unlock() {
             this.owner = null;
             updateEntity(false);
         }
-        
+
         private void updateEntity(boolean preventDestruction) {
             entity.setInvulnerable(owner != null && preventDestruction);
             entity.setOwner(owner);
         }
-        
+
         @Override
         @NotNull
         public DropsHandler.DroppedItem getStack() {
-            return new BukkitDroppedItem(entity.getItemStack());
+            return new BukkitDroppedItem(entity.getItemStack(), entity.getLocation());
         }
-        
+
     }
 
 }

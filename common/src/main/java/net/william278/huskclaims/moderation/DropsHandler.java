@@ -52,7 +52,10 @@ public interface DropsHandler {
         if (!getSettings().isLockItems()) {
             return;
         }
-        getMarkedDropper(item.getStack()).ifPresent(owner -> lockDrops(item, owner));
+        removeIfMarkedDropper(item.getStack()).ifPresent(owner -> {
+            lockDrops(item, owner);
+            getMarkedDrops().get(owner).remove(item.getStack());
+        });
     }
 
     default void lockDrops(@NotNull GroundStack item, @NotNull UUID owner) {
@@ -82,7 +85,7 @@ public interface DropsHandler {
         return getPlugin().getSettings().getModeration().getDrops();
     }
 
-    default Optional<UUID> getMarkedDropper(@NotNull DroppedItem item) {
+    default Optional<UUID> removeIfMarkedDropper(@NotNull DroppedItem item) {
         return getMarkedDrops().entrySet().stream()
                 .filter(entry -> entry.getValue().contains(item))
                 .map(Map.Entry::getKey)
@@ -93,6 +96,8 @@ public interface DropsHandler {
     HuskClaims getPlugin();
 
     interface DroppedItem {
+        // How far to count death dropped stacks as equal, from their spawn origin (in blocks)
+        double DEATH_DROPS_EQUAL_RANGE = 5.0d;
     }
 
     interface GroundStack {
