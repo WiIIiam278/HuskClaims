@@ -56,7 +56,7 @@ public interface DropsHandler {
     }
 
     default void lockDrops(@NotNull GroundStack item, @NotNull UUID owner) {
-        item.lock(owner);
+        item.lock(owner, getSettings().isPreventDestruction());
         if (getTrackedItems().containsKey(owner)) {
             getTrackedItems().get(owner).add(item);
             return;
@@ -99,7 +99,7 @@ public interface DropsHandler {
         @NotNull
         DroppedItem getStack();
 
-        void lock(@NotNull UUID user);
+        void lock(@NotNull UUID user, boolean preventDestruction);
 
         void unlock();
     }

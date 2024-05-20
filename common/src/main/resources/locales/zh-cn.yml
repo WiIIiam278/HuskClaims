@@ -27,7 +27,7 @@ locales:
   error_look_at_pet_transfer: '[错误:](#ff3300) [您必须看着要转让的宠物.](#ff7e5e)'
   error_huskhomes_not_found: '[错误:](#ff3300) [在服务器上找不到HuskHomes](#ff7e5e)'
   error_economy_not_found: '[错误:](#ff3300) [在服务器上找不到经济插件](#ff7e5e)'
-  error_no_death_drops: '[错误:](#ff3300) [您没有锁定的掉落物品.](#ff7e5e)'
+  error_no_death_drops: '[Error:](#ff3300) [%1% has no locked dropped items.](#ff7e5e)'
   group_list: '[您的组列表:](#00fb9a) [%1%](gray)'
   group_list_item: '[%1%](white show_text=&7包含 %2% 玩家的组:\n&8执行命令=/group %1%)'
   group_member_list: '[%1%组成员列表:](#00fb9a) %2%'

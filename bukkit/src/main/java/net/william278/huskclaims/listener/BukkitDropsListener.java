@@ -75,18 +75,18 @@ public interface BukkitDropsListener extends Listener {
             this.entity = entity;
         }
         
-        public void lock(@NotNull UUID owner) {
+        public void lock(@NotNull UUID owner, boolean preventDestruction) {
             this.owner = owner;
-            updateEntity();
+            updateEntity(preventDestruction);
         }
         
         public void unlock() {
             this.owner = null;
-            updateEntity();
+            updateEntity(false);
         }
         
-        private void updateEntity() {
-            entity.setInvulnerable(owner != null);
+        private void updateEntity(boolean preventDestruction) {
+            entity.setInvulnerable(owner != null && preventDestruction);
             entity.setOwner(owner);
         }
         
