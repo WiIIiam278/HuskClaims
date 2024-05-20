@@ -22,19 +22,17 @@ package net.william278.huskclaims.claim;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
 import lombok.RequiredArgsConstructor;
 import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.util.GsonProvider;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 
@@ -98,19 +96,18 @@ public class ClaimWorldSerializer implements JsonSerializer<ClaimWorld>, JsonDes
         final Region region = Region.from(nearCorner, farCorner);
         final UUID owner = UUID.fromString(claimObject.get("owner").getAsString());
         final ConcurrentMap<UUID, String> trustedUsers = claimObject.has("trusted_users") ?
-                new ConcurrentHashMap<>(gson.fromJson(claimObject.getAsJsonObject("trusted_users"), new TypeToken<Map<UUID, String>>() {
-                }.getType())) : new ConcurrentHashMap<>();
+                gson.fromJson(claimObject.getAsJsonObject("trusted_users"), GsonProvider.UUID_STRING_MAP_TOKEN) :
+                Maps.newConcurrentMap();
         final ConcurrentMap<String, String> trustedGroups = claimObject.has("trusted_groups") ?
-                new ConcurrentHashMap<>(gson.fromJson(claimObject.getAsJsonObject("trusted_groups"), new TypeToken<Map<String, String>>() {
-                }.getType())) : new ConcurrentHashMap<>();
+                gson.fromJson(claimObject.getAsJsonObject("trusted_groups"), GsonProvider.STRING_STRING_MAP_TOKEN) :
+                Maps.newConcurrentMap();
         final ConcurrentMap<String, String> trustedTags = claimObject.has("trusted_tags") ?
-                new ConcurrentHashMap<>(gson.fromJson(claimObject.getAsJsonObject("trusted_tags"), new TypeToken<Map<String, String>>() {
-                }.getType())) : new ConcurrentHashMap<>();
+                gson.fromJson(claimObject.getAsJsonObject("trusted_tags"), GsonProvider.STRING_STRING_MAP_TOKEN) :
+                Maps.newConcurrentMap();
         final JsonArray childrenArray = claimObject.getAsJsonArray("children");
         final Set<Claim> children = Sets.newConcurrentHashSet();
         childrenArray.forEach(c -> children.add(getUpgradableClaim(c.getAsJsonObject(), gson)));
-        final Set<OperationType> defaultFlags = gson.fromJson(claimObject.getAsJsonArray("default_flags"), new TypeToken<Set<OperationType>>() {
-        }.getType());
+        final Set<OperationType> defaultFlags = gson.fromJson(claimObject.getAsJsonArray("default_flags"), GsonProvider.OPERATION_TYPE_SET_TOKEN);
         final boolean inheritParent = claimObject.get("inherit_parent").getAsBoolean();
         return new Claim(owner, region, trustedUsers, trustedGroups, trustedTags, Maps.newConcurrentMap(), children, inheritParent, defaultFlags);
     }
@@ -133,11 +130,11 @@ public class ClaimWorldSerializer implements JsonSerializer<ClaimWorld>, JsonDes
         });
 
         final ConcurrentMap<UUID, String> userCache = jsonObject.has("user_cache") ?
-                gson.fromJson(jsonObject.getAsJsonObject("user_cache"), new TypeToken<ConcurrentMap<UUID, String>>() {
-                }.getType()) : new ConcurrentHashMap<>();
+                gson.fromJson(jsonObject.getAsJsonObject("user_cache"), GsonProvider.UUID_STRING_MAP_TOKEN) :
+                Maps.newConcurrentMap();
         final Set<OperationType> wildernessFlags = jsonObject.has("wilderness_flags") ?
-                gson.fromJson(jsonObject.getAsJsonArray("wilderness_flags"), new TypeToken<Set<OperationType>>() {
-                }.getType()) : Sets.newHashSet();
+                Sets.newConcurrentHashSet(gson.fromJson(jsonObject.getAsJsonArray("wilderness_flags"), GsonProvider.OPERATION_TYPE_SET_TOKEN)) :
+                Sets.newConcurrentHashSet();
         final ClaimWorld claimWorld = ClaimWorld.convert(claims, userCache, wildernessFlags);
         claimWorld.updateId(id);
         claimWorld.setSchemaVersion(ClaimWorld.CURRENT_SCHEMA);

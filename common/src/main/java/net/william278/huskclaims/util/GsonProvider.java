@@ -22,7 +22,6 @@ package net.william278.huskclaims.util;
 import com.fatboyindustrial.gsonjavatime.Converters;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import net.william278.cloplib.operation.OperationType;
@@ -37,9 +36,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.logging.Level;
 
 /**
  * Interface for providing JSON adaptation utilities via Gson
@@ -49,6 +45,12 @@ import java.util.logging.Level;
 public interface GsonProvider {
 
     TypeToken<List<User>> USER_LIST_TOKEN = new TypeToken<>() {
+    };
+    TypeToken<ConcurrentMap<UUID, String>> UUID_STRING_MAP_TOKEN = new TypeToken<>() {
+    };
+    TypeToken<ConcurrentMap<String, String>> STRING_STRING_MAP_TOKEN = new TypeToken<>() {
+    };
+    TypeToken<Set<OperationType>> OPERATION_TYPE_SET_TOKEN = new TypeToken<>() {
     };
 
     @NotNull

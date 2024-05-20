@@ -467,6 +467,12 @@ public class Claim implements Highlightable {
         return Optional.ofNullable(parent);
     }
 
+    @Deprecated(forRemoval = true)
+    @SuppressWarnings("unused")
+    public Optional<Claim> getParent(@NotNull ClaimWorld claimWorld) {
+        return getParent();
+    }
+
     public boolean isChildClaim() {
         return getParent().isPresent();
     }
