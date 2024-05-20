@@ -79,6 +79,7 @@ public class ClaimWorld {
         this.wildernessFlags = Sets.newHashSet(plugin.getSettings().getClaims().getWildernessRules());
         this.cachedClaims = new Long2ObjectOpenHashMap<>();
         this.userClaims = Maps.newConcurrentMap();
+        this.schemaVersion = CURRENT_SCHEMA;
     }
 
     public static ClaimWorld convert(@NotNull Set<Claim> claims,

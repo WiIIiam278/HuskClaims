@@ -78,7 +78,7 @@ public class ClaimWorldSerializer implements JsonSerializer<ClaimWorld>, JsonDes
         final JsonArray wildernessFlags = jsonObject.has("wilderness_flags") ? jsonObject.getAsJsonArray("wilderness_flags") : new JsonArray();
         wildernessFlags.forEach(w -> claimWorld.getWildernessFlags().add(OperationType.valueOf(w.getAsString())));
 
-        claimWorld.setSchemaVersion(jsonObject.has("schema_version") ? jsonObject.get("schema_version").getAsInt() : 1);
+        claimWorld.setSchemaVersion(jsonObject.has("schema_version") ? jsonObject.get("schema_version").getAsInt() : ClaimWorld.CURRENT_SCHEMA);
         return claimWorld;
     }
 

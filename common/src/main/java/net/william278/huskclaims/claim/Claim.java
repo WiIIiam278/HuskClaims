@@ -473,6 +473,12 @@ public class Claim implements Highlightable {
         return getParent();
     }
 
+    @Deprecated(forRemoval = true)
+    @SuppressWarnings("unused")
+    public boolean isChildClaim(@NotNull ClaimWorld claimWorld) {
+        return isChildClaim();
+    }
+
     public boolean isChildClaim() {
         return getParent().isPresent();
     }
