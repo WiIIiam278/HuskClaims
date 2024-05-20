@@ -66,7 +66,7 @@ public class UnTrustCommand extends InClaimCommand implements TabCompletable {
     private void removeTrust(@NotNull OnlineUser executor, @NotNull String name,
                              @NotNull ClaimWorld world, @NotNull Claim claim) {
         resolveTrustable(executor, name, claim)
-                .flatMap(t -> checkUserHasAccess(executor, t, world, claim) ? Optional.of(t) : Optional.empty())
+                .flatMap(t -> checkUserHasAccess(executor, t, claim) ? Optional.of(t) : Optional.empty())
                 .ifPresent(trustable -> removeTrust(executor, trustable, world, claim));
     }
 

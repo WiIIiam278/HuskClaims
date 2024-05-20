@@ -109,7 +109,7 @@ public class PlanHook extends Hook {
                     .columnOne("World", Icon.called("globe").build())
                     .columnTwo("Claims", Icon.called("map-marker-alt").build());
             plugin.getClaimWorlds().forEach((worldName, world) -> table.addRow(
-                    worldName, world.getClaims().size()
+                    worldName, world.getClaimCount()
             ));
             return table.build();
         }

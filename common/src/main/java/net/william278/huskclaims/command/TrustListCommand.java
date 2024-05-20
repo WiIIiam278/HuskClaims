@@ -53,7 +53,7 @@ public class TrustListCommand extends InClaimCommand {
     }
 
     private void sendTrustListMenu(@NotNull OnlineUser executor, @NotNull Claim claim, @NotNull ClaimWorld world) {
-        plugin.getLocales().getRawLocale("trust_list_header", claim.isChildClaim(world)
+        plugin.getLocales().getRawLocale("trust_list_header", claim.isChildClaim()
                         ? getChildClaimHeaderDetails(claim, world) : getClaimHeaderDetails(claim, world))
                 .map(plugin.getLocales()::format).ifPresent(executor::sendMessage);
 

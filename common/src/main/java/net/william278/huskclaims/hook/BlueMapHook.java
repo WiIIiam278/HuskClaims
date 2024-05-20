@@ -92,7 +92,7 @@ public class BlueMapHook extends MapHook {
 
     @Override
     public void markClaim(@NotNull Claim claim, @NotNull ClaimWorld claimWorld) {
-        final Optional<String> color = getClaimColor(claim, claimWorld).map(TextColor::asHexString);
+        final Optional<String> color = getClaimColor(claim).map(TextColor::asHexString);
         if (color.isEmpty()) {
             return;
         }
@@ -151,7 +151,7 @@ public class BlueMapHook extends MapHook {
     @Override
     public void markAllClaims() {
         plugin.getClaimWorlds().forEach((name, claimWorld) -> {
-            final Collection<Claim> claims = claimWorld.getClaims();
+            final Collection<Claim> claims = claimWorld.getAllClaims();
             markClaims(claims, claimWorld);
             plugin.log(Level.INFO, "Populated web map with %s claims in %s".formatted(claims.size(), name));
         });

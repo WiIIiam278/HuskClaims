@@ -31,8 +31,7 @@ public interface GlobalClaimsProvider {
     @NotNull
     default List<ServerWorldClaim> getUserClaims(@NotNull User user) {
         return getPlugin().getDatabase().getAllClaimWorlds().entrySet().stream()
-                .flatMap(e -> e.getValue().getClaims().stream()
-                        .filter(c -> user.getUuid().equals(c.getOwner().orElse(null)))
+                .flatMap(e -> e.getValue().getClaimsByUser(user.getUuid()).stream()
                         .map(c -> new ServerWorldClaim(e.getKey(), c)))
                 .toList();
     }

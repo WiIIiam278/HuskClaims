@@ -24,13 +24,18 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import net.william278.huskclaims.claim.ClaimWorld;
+import net.william278.cloplib.operation.OperationType;
+import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.claim.*;
 import net.william278.huskclaims.network.Message;
 import net.william278.huskclaims.user.Preferences;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Interface for providing JSON adaptation utilities via Gson
@@ -41,10 +46,20 @@ public interface GsonProvider {
 
     TypeToken<List<User>> USER_LIST_TOKEN = new TypeToken<>() {
     };
+    TypeToken<ConcurrentMap<UUID, String>> UUID_STRING_MAP_TOKEN = new TypeToken<>() {
+    };
+    TypeToken<ConcurrentMap<String, String>> STRING_STRING_MAP_TOKEN = new TypeToken<>() {
+    };
+    TypeToken<Set<OperationType>> OPERATION_TYPE_SET_TOKEN = new TypeToken<>() {
+    };
 
     @NotNull
     default GsonBuilder getGsonBuilder() {
-        return Converters.registerOffsetDateTime(new GsonBuilder().excludeFieldsWithoutExposeAnnotation());
+        return Converters.registerOffsetDateTime(new GsonBuilder()
+                .excludeFieldsWithoutExposeAnnotation()
+                .registerTypeAdapter(ClaimWorld.class, new ClaimWorldSerializer(getPlugin()))
+                .registerTypeAdapter(Region.class, new RegionSerializer(getPlugin()))
+        );
     }
 
     @NotNull
@@ -53,8 +68,8 @@ public interface GsonProvider {
     }
 
     @NotNull
-    default ClaimWorld getClaimWorldFromJson(@NotNull String json) throws JsonSyntaxException {
-        return getGson().fromJson(json, ClaimWorld.class);
+    default ClaimWorld getClaimWorldFromJson(int id, @NotNull String json) throws JsonSyntaxException {
+        return ClaimWorldSerializer.upgradeSchema(json, getGson(), getPlugin(), id);
     }
 
     @NotNull
@@ -76,5 +91,8 @@ public interface GsonProvider {
     default Message getMessageFromJson(@NotNull String json) throws JsonSyntaxException {
         return getGson().fromJson(json, Message.class);
     }
+
+    @NotNull
+    HuskClaims getPlugin();
 
 }

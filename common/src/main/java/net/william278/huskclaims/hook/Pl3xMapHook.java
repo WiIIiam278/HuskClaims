@@ -129,7 +129,7 @@ public class Pl3xMapHook extends MapHook {
     @Override
     public void markAllClaims() {
         plugin.getClaimWorlds().forEach((name, claimWorld) -> {
-            final Collection<Claim> claims = claimWorld.getClaims();
+            final Collection<Claim> claims = claimWorld.getAllClaims();
             markClaims(claims, claimWorld);
             plugin.log(Level.INFO, "Populated web map with %s claims in %s".formatted(claims.size(), name));
         });
@@ -158,13 +158,13 @@ public class Pl3xMapHook extends MapHook {
 
                 if (claimQueue != null) {
                     claimQueue.forEach(claim -> {
-                        final Optional<TextColor> color = hook.getClaimColor(claim, claimWorld);
+                        final Optional<TextColor> color = hook.getClaimColor(claim);
                         if (color.isEmpty()) {
                             return;
                         }
 
                         //used to see child claims above parent claims
-                        final int weight = !claim.isChildClaim(claimWorld) ? claim.getOwner().map(o -> 2).orElse(1) : 0;
+                        final int weight = !claim.isChildClaim() ? claim.getOwner().map(o -> 2).orElse(1) : 0;
 
                         markers.add(Marker.rectangle(
                                 hook.getClaimMarkerKey(claim, world.get()),

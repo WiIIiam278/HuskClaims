@@ -78,7 +78,7 @@ public interface ClaimHandler extends Handler {
 
             // Send an entry message
             if (getPlugin().getSettings().getClaims().isSendEntryMessage()
-                    && !tc.isChildClaim(world) && !fc.isChildClaim(world)) {
+                    && !tc.isChildClaim() && !fc.isChildClaim()) {
                 getPlugin().getLocales().getLocale("claim_entered", tc.getOwnerName(world, getPlugin()))
                         .ifPresent(online::sendMessage);
             }
@@ -91,7 +91,7 @@ public interface ClaimHandler extends Handler {
             }
 
             // Send an entry message
-            if (getPlugin().getSettings().getClaims().isSendEntryMessage() && !tc.isChildClaim(world)) {
+            if (getPlugin().getSettings().getClaims().isSendEntryMessage() && !tc.isChildClaim()) {
                 getPlugin().getLocales().getLocale("claim_entered", tc.getOwnerName(world, getPlugin()))
                         .ifPresent(online::sendMessage);
             }
@@ -103,7 +103,7 @@ public interface ClaimHandler extends Handler {
             }
 
             // Send an exit message
-            if (getPlugin().getSettings().getClaims().isSendExitMessage() && !fc.isChildClaim(world)) {
+            if (getPlugin().getSettings().getClaims().isSendExitMessage() && !fc.isChildClaim()) {
                 getPlugin().getLocales().getLocale("claim_exited", fc.getOwnerName(world, getPlugin()))
                         .ifPresent(online::sendMessage);
             }

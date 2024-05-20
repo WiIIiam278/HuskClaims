@@ -126,7 +126,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor, ClaimPruner {
         final Claim claim = owner != null
                 ? Claim.create(owner, region, getPlugin())
                 : Claim.createAdminClaim(region, getPlugin());
-        world.getClaims().add(claim);
+        world.addClaim(claim);
         getDatabase().updateClaimWorld(world);
         getPlugin().addMappedClaim(claim, world);
 
@@ -169,7 +169,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor, ClaimPruner {
      */
     default void resizeClaim(@NotNull ClaimWorld world, @NotNull Claim claim, @NotNull Region newRegion) {
         // Ensure this is not a child claim and doesn't overlap with other claims
-        if (claim.isChildClaim(world)) {
+        if (claim.isChildClaim()) {
             throw new IllegalArgumentException("Cannot resize a child claim at the world level");
         }
         if (world.isRegionClaimed(newRegion, claim.getRegion())) {
@@ -203,13 +203,13 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor, ClaimPruner {
 
     default void deleteClaim(@NotNull ClaimWorld claimWorld, @NotNull Claim claim) {
         // Ensure this is not a child claim
-        if (claim.isChildClaim(claimWorld)) {
+        if (claim.isChildClaim()) {
             throw new IllegalArgumentException("Cannot delete a child claim at the world level");
         }
 
         // Delete the claim
         final long surfaceArea = claim.getRegion().getSurfaceArea();
-        claimWorld.getClaims().remove(claim);
+        claimWorld.removeClaim(claim);
         getDatabase().updateClaimWorld(claimWorld);
 
         // Adjust the owner's claim block count
@@ -287,7 +287,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor, ClaimPruner {
         }
 
         // Create and add child claim
-        final Claim child = parent.createAndAddChild(region, world, getPlugin());
+        final Claim child = parent.createAndAddChild(region, getPlugin());
         getDatabase().updateClaimWorld(world);
         getPlugin().addMappedClaim(child, world);
         getPlugin().invalidateClaimListCache(parent.getOwner().orElse(null));
@@ -307,7 +307,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor, ClaimPruner {
     @Blocking
     default void resizeChildClaim(@NotNull ClaimWorld world, @NotNull Claim claim, @NotNull Region newRegion) {
         // Ensure this is a child claim
-        final Optional<Claim> optionalParent = claim.getParent(world);
+        final Optional<Claim> optionalParent = claim.getParent();
         if (optionalParent.isEmpty()) {
             throw new IllegalArgumentException("Cannot resize a non-child claim");
         }

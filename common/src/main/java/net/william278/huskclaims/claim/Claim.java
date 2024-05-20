@@ -96,11 +96,29 @@ public class Claim implements Highlightable {
     private Map<String, String> trustedTags;
 
     /**
+     * Map of banned users in this claim (UUID of the banned player, UUID of the banner)
+     */
+    @Expose
+    @Getter
+    @SerializedName("banned_users")
+    private Map<UUID, UUID> bannedUsers;
+
+    /**
      * List of child claims
      */
     @Expose
     @Getter
     private Set<Claim> children;
+
+
+    /**
+     * The parent claim of this claim
+     * It's double linked, so it's easier to get the parent claim from a child claim and vice versa
+     */
+    @Nullable
+    @Setter
+    @Expose(deserialize = false, serialize = false)
+    private Claim parent;
 
     /**
      * List of OperationTypes allowed on this claim to everyone
@@ -121,25 +139,28 @@ public class Claim implements Highlightable {
     @SerializedName("inherit_parent")
     private boolean inheritParent;
 
-    private Claim(@Nullable UUID owner, @NotNull Region region, @NotNull ConcurrentMap<UUID, String> users,
-                  @NotNull ConcurrentMap<String, String> groups, @NotNull ConcurrentMap<String, String> tags,
-                  @NotNull Set<Claim> children, boolean inheritParent, @NotNull Set<OperationType> defaultFlags) {
+    protected Claim(@Nullable UUID owner, @NotNull Region region, @NotNull ConcurrentMap<UUID, String> users,
+                    @NotNull ConcurrentMap<String, String> groups, @NotNull ConcurrentMap<String, String> tags,
+                    @NotNull ConcurrentMap<UUID, UUID> bannedUsers, @NotNull Set<Claim> children, boolean inheritParent,
+                    @NotNull Set<OperationType> defaultFlags) {
         this.owner = owner;
         this.region = region;
         this.trustedUsers = users;
         this.trustedGroups = groups;
         this.trustedTags = tags;
+        this.bannedUsers = bannedUsers;
         this.children = children;
         this.defaultFlags = defaultFlags;
         this.inheritParent = inheritParent;
+        children.forEach(child -> child.setParent(this));
     }
 
     private Claim(@Nullable UUID owner, @NotNull Region region, @NotNull HuskClaims plugin) {
         this(
                 owner, region,
                 Maps.newConcurrentMap(), Maps.newConcurrentMap(), Maps.newConcurrentMap(),
-                Sets.newHashSet(), true,
-                Sets.newHashSet(owner != null
+                Maps.newConcurrentMap(), Sets.newConcurrentHashSet(), true,
+                Sets.newConcurrentHashSet(owner != null
                         ? plugin.getSettings().getClaims().getDefaultFlags()
                         : plugin.getSettings().getClaims().getAdminFlags())
         );
@@ -224,14 +245,13 @@ public class Claim implements Highlightable {
      *
      * @param privilege the privilege to check
      * @param user      the user to check
-     * @param world     the claim world the claim is in
      * @param plugin    the plugin instance
      * @return whether the user is allowed the privilege
      * @since 1.0
      */
     public boolean isPrivilegeAllowed(@NotNull TrustLevel.Privilege privilege, @NotNull User user,
-                                      @NotNull ClaimWorld world, @NotNull HuskClaims plugin) {
-        return user.getUuid().equals(owner) || getEffectiveTrustLevel(user, world, plugin)
+                                      @NotNull HuskClaims plugin) {
+        return user.getUuid().equals(owner) || getEffectiveTrustLevel(user, plugin)
                 .map(level -> level.getPrivileges().contains(privilege))
                 .orElse(false);
     }
@@ -343,7 +363,7 @@ public class Claim implements Highlightable {
 
     /**
      * Get the user's explicit {@link TrustLevel} in this claim. This does not take into account parent claims;
-     * see {@link #getEffectiveTrustLevel(Trustable, ClaimWorld, HuskClaims)}.
+     * see {@link #getEffectiveTrustLevel(Trustable, HuskClaims)}.
      * <p>
      * Level priority checks are handled by order of explicitness:
      * <ol>
@@ -402,17 +422,15 @@ public class Claim implements Highlightable {
      * Get the user's effective {@link TrustLevel}, taking parent claims into account
      *
      * @param trustable the user to get the effective trust level for
-     * @param world     the world the claim is in
      * @param plugin    the plugin instance
      * @return the user's effective trust level, if they have one defined
      * @since 1.0
      */
     @NotNull
-    public Optional<TrustLevel> getEffectiveTrustLevel(@NotNull Trustable trustable, @NotNull ClaimWorld world,
-                                                       @NotNull HuskClaims plugin) {
+    public Optional<TrustLevel> getEffectiveTrustLevel(@NotNull Trustable trustable, @NotNull HuskClaims plugin) {
         return getTrustLevel(trustable, plugin)
                 .or(() -> inheritParent
-                        ? getParent(world).flatMap(parent -> parent.getEffectiveTrustLevel(trustable, world, plugin))
+                        ? getParent().flatMap(parent -> parent.getEffectiveTrustLevel(trustable, plugin))
                         : Optional.empty());
     }
 
@@ -420,13 +438,11 @@ public class Claim implements Highlightable {
      * Returns whether the given operation is allowed on this claim
      *
      * @param operation the operation to check
-     * @param world     the claim world the claim is in
      * @param plugin    the plugin instance
      * @return whether the operation is allowed
      * @since 1.0
      */
-    public boolean isOperationAllowed(@NotNull Operation operation, @NotNull ClaimWorld world,
-                                      @NotNull HuskClaims plugin) {
+    public boolean isOperationAllowed(@NotNull Operation operation, @NotNull HuskClaims plugin) {
         // If the operation is explicitly allowed, return it
         return defaultFlags.contains(operation.getType())
 
@@ -442,19 +458,29 @@ public class Claim implements Highlightable {
                 .orElse(false))
 
                 // Or, if the user doesn't have a trust level here, try getting it from the parent
-                || (inheritParent && getParent(world)
-                .map(parent -> parent.isOperationAllowed(operation, world, plugin))
+                || (inheritParent && getParent()
+                .map(parent -> parent.isOperationAllowed(operation, plugin))
                 .orElse(false));
     }
 
-    public Optional<Claim> getParent(@NotNull ClaimWorld world) {
-        return world.getClaims().stream()
-                .filter(claim -> claim.getChildren().contains(this))
-                .findFirst();
+    public Optional<Claim> getParent() {
+        return Optional.ofNullable(parent);
     }
 
-    public boolean isChildClaim(@NotNull ClaimWorld world) {
-        return getParent(world).isPresent();
+    @Deprecated(forRemoval = true)
+    @SuppressWarnings("unused")
+    public Optional<Claim> getParent(@NotNull ClaimWorld claimWorld) {
+        return getParent();
+    }
+
+    @Deprecated(forRemoval = true)
+    @SuppressWarnings("unused")
+    public boolean isChildClaim(@NotNull ClaimWorld claimWorld) {
+        return isChildClaim();
+    }
+
+    public boolean isChildClaim() {
+        return getParent().isPresent();
     }
 
     public boolean isAdminClaim() {
@@ -502,9 +528,9 @@ public class Claim implements Highlightable {
 
     @NotNull
     @ApiStatus.Internal
-    public Claim createAndAddChild(@NotNull Region subRegion, @NotNull ClaimWorld world, @NotNull HuskClaims plugin)
+    public Claim createAndAddChild(@NotNull Region subRegion, @NotNull HuskClaims plugin)
             throws IllegalArgumentException {
-        if (isChildClaim(world)) {
+        if (isChildClaim()) {
             throw new IllegalArgumentException("A child claim cannot be within another child claim");
         }
         if (!region.fullyEncloses(subRegion)) {
@@ -519,7 +545,7 @@ public class Claim implements Highlightable {
     @NotNull
     public Map<Region.Point, Type> getHighlightPoints(@NotNull ClaimWorld world, boolean showOverlap,
                                                       @NotNull BlockPosition viewer, long range) {
-        final Optional<Claim> parent = getParent(world);
+        final Optional<Claim> parent = getParent();
         return region.getHighlightPoints(
                 showOverlap,
                 parent.isPresent(),

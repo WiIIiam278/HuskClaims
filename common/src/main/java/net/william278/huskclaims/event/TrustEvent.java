@@ -26,7 +26,7 @@ import java.util.Optional;
 public interface TrustEvent extends OnlineUserEvent, TrustableEvent, ClaimEvent, CancellableEvent {
 
     default Optional<Claim> getParentClaim() {
-        return getClaim().getParent(getClaimWorld());
+        return getClaim().getParent();
     }
 
     default boolean isChildClaim() {

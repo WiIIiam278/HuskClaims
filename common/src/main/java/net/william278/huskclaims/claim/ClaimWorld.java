@@ -24,9 +24,11 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import net.william278.cloplib.operation.Operation;
 import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.HuskClaims;
@@ -40,28 +42,100 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.stream.Collectors;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ClaimWorld {
 
+    // The UUID of the admin claim
+    public final static UUID ADMIN_CLAIM = UUID.fromString("00000000-0000-0000-0000-000000000000");
+    // The current schema version
+    public static final int CURRENT_SCHEMA = 1;
+
     private transient int id;
-    @Expose
-    private CopyOnWriteArraySet<Claim> claims;
+
     @Expose
     @SerializedName("user_cache")
     private ConcurrentMap<UUID, String> userCache;
     @Expose
     @SerializedName("wilderness_flags")
     private Set<OperationType> wildernessFlags;
+    @Expose
+    @SerializedName("cached_claims")
+    private Long2ObjectOpenHashMap<Set<Claim>> cachedClaims;
+    @Expose(deserialize = false, serialize = false)
+    private transient Map<UUID, Set<Claim>> userClaims;
+    @Expose
+    @Setter
+    @SerializedName("schema_version")
+    private int schemaVersion;
 
     private ClaimWorld(@NotNull HuskClaims plugin) {
         this.id = 0;
-        this.claims = Sets.newCopyOnWriteArraySet();
         this.userCache = Maps.newConcurrentMap();
         this.wildernessFlags = Sets.newHashSet(plugin.getSettings().getClaims().getWildernessRules());
+        this.cachedClaims = new Long2ObjectOpenHashMap<>();
+        this.userClaims = Maps.newConcurrentMap();
+        this.schemaVersion = CURRENT_SCHEMA;
+    }
+
+    public static ClaimWorld convert(@NotNull Set<Claim> claims,
+                                     @NotNull Map<UUID, String> userCache, @NotNull Set<OperationType> wildernessFlags) {
+        final ClaimWorld world = new ClaimWorld();
+        world.userCache = new ConcurrentHashMap<>(userCache);
+        world.wildernessFlags = Sets.newConcurrentHashSet(wildernessFlags);
+        world.cachedClaims = new Long2ObjectOpenHashMap<>();
+        world.userClaims = Maps.newConcurrentMap();
+        world.schemaVersion = CURRENT_SCHEMA;
+        claims.forEach(world::cacheClaim);
+        return world;
+    }
+
+    protected void loadClaims(@NotNull Set<Claim> claims) {
+        this.cachedClaims = new Long2ObjectOpenHashMap<>();
+        this.userCache = Maps.newConcurrentMap();
+        this.userClaims = Maps.newConcurrentMap();
+        this.wildernessFlags = Sets.newConcurrentHashSet();
+        claims.forEach(this::cacheClaim);
+    }
+
+    private void cacheOwnedClaim(@NotNull Claim claim) {
+        final Set<Claim> ownedClaims = userClaims.computeIfAbsent(claim.getOwner().orElse(ADMIN_CLAIM), k -> Sets.newConcurrentHashSet());
+        ownedClaims.add(claim);
+    }
+
+    private void cacheClaim(@NotNull Claim claim) {
+        claim.getChildren().forEach(c -> c.setParent(claim));
+        cacheOwnedClaim(claim);
+
+        claim.getRegion().getChunks().forEach(chunk -> {
+            final long asLong = ((long) chunk[0] << 32) | (chunk[1] & 0xffffffffL);
+            final Set<Claim> chunkClaims = cachedClaims.computeIfAbsent(asLong, k -> Sets.newConcurrentHashSet());
+            chunkClaims.add(claim);
+        });
+    }
+
+    public void addClaim(@NotNull Claim claim) {
+        cacheClaim(claim);
+    }
+
+    public void removeClaim(@NotNull Claim claim) {
+        final UUID owner = claim.getOwner().orElse(ADMIN_CLAIM);
+        final Set<Claim> ownedClaims = userClaims.get(owner);
+        if (ownedClaims != null) {
+            ownedClaims.remove(claim);
+        }
+
+        claim.getRegion().getChunks().forEach(chunk -> {
+            final long asLong = ((long) chunk[0] << 32) | (chunk[1] & 0xffffffffL);
+            final Set<Claim> chunkClaims = cachedClaims.get(asLong);
+            if (chunkClaims != null) {
+                chunkClaims.remove(claim);
+            }
+        });
     }
 
     @NotNull
@@ -88,12 +162,22 @@ public class ClaimWorld {
         return getClaimsByUser(owner.getUuid()).stream().mapToInt(c -> c.getRegion().getSurfaceArea()).sum();
     }
 
-    public boolean removeClaimsBy(@NotNull User owner) {
-        return claims.removeIf(claim -> claim.getOwner().map(owner.getUuid()::equals).orElse(false));
+    public boolean removeClaimsBy(@Nullable User owner) {
+        final UUID uuid = owner != null ? owner.getUuid() : ADMIN_CLAIM;
+        return userClaims.remove(uuid).stream().allMatch(claim -> claim.getRegion().getChunks().stream().allMatch(chunk -> {
+            final long asLong = ((long) chunk[0] << 32) | (chunk[1] & 0xffffffffL);
+            final Set<Claim> chunkClaims = cachedClaims.get(asLong);
+            if (chunkClaims != null) {
+                chunkClaims.remove(claim);
+                return true;
+            }
+
+            return false;
+        }));
     }
 
     public boolean removeAdminClaims() {
-        return claims.removeIf(claim -> claim.getOwner().isEmpty());
+        return removeClaimsBy(null);
     }
 
     public Optional<User> getUser(@NotNull UUID uuid) {
@@ -102,18 +186,20 @@ public class ClaimWorld {
 
     @NotNull
     public List<Claim> getClaimsByUser(@Nullable UUID uuid) {
-        return claims.stream().filter(claim -> claim.getOwner()
-                .map(o -> o.equals(uuid))
-                .orElse(uuid == null)).toList();
+        return List.copyOf(userClaims.getOrDefault(uuid, Collections.emptySet()));
     }
 
     @NotNull
     public List<Claim> getAdminClaims() {
-        return getClaimsByUser(null);
+        return getClaimsByUser(ADMIN_CLAIM);
     }
 
     public Optional<Claim> getParentClaimAt(@NotNull BlockPosition position) {
-        return getClaims().stream().filter(claim -> claim.getRegion().contains(position)).findFirst();
+        final long asLong = position.getLongChunkCoords();
+        return Optional.ofNullable(cachedClaims.get(asLong)).stream()
+                .flatMap(Collection::stream)
+                .filter(c -> c.getRegion().contains(position))
+                .findFirst();
     }
 
     public Optional<Claim> getClaimAt(@NotNull BlockPosition position) {
@@ -123,8 +209,23 @@ public class ClaimWorld {
     }
 
     @NotNull
+    public Set<Claim> getAllClaims() {
+        return userClaims.values()
+                .stream()
+                .flatMap(Set::stream)
+                .collect(Collectors.toSet());
+    }
+
+    @NotNull
     public List<Claim> getParentClaimsOverlapping(@NotNull Region region) {
-        return getClaims().stream().filter(claim -> claim.getRegion().overlaps(region)).toList();
+        final List<Claim> overlappingClaims = Lists.newArrayList();
+        region.getChunks().forEach(chunk -> {
+            final long asLong = ((long) chunk[0] << 32) | (chunk[1] & 0xffffffffL);
+            cachedClaims.getOrDefault(asLong, Collections.emptySet()).stream()
+                    .filter(claim -> claim.getRegion().overlaps(region))
+                    .forEach(overlappingClaims::add);
+        });
+        return overlappingClaims;
     }
 
     public void cacheUser(@NotNull User user) {
@@ -180,7 +281,7 @@ public class ClaimWorld {
 
     private boolean isOperationAllowedInClaim(@NotNull Operation operation, @NotNull Claim claim,
                                               @NotNull HuskClaims plugin) {
-        if (isOperationIgnored(operation, plugin) || claim.isOperationAllowed(operation, this, plugin)) {
+        if (isOperationIgnored(operation, plugin) || claim.isOperationAllowed(operation, plugin)) {
             return true;
         }
 
@@ -227,7 +328,7 @@ public class ClaimWorld {
     }
 
     public int getClaimCount() {
-        return getClaims().size();
+        return userClaims.values().stream().mapToInt(Set::size).sum();
     }
 
     public void updateId(int id) {
