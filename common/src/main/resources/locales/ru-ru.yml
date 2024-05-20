@@ -27,7 +27,7 @@ locales:
   error_look_at_pet_transfer: '[Error:](#ff3300) [You must look directly at the pet you want to transfer.](#ff7e5e)'
   error_huskhomes_not_found: '[Ошибка:](#ff3300) [Планин HuskHomes не найден на сервере.](#ff7e5e)'
   error_economy_not_found: '[Ошибка:](#ff3300) [Экономический плагин не найден на сервере.](#ff7e5e)'
-  error_no_death_drops: '[Error:](#ff3300) [You have no locked dropped items.](#ff7e5e)'
+  error_no_death_drops: '[Error:](#ff3300) [%1% has no locked dropped items.](#ff7e5e)'
   group_list: '[Список ваших групп:](#00fb9a) [%1%](gray)'
   group_list_item: '[%1%](white show_text=&7Группа из %2%-х игроков:\n&8 run_command=/group %1%)'
   group_member_list: '[Список участников группы %1%:](#00fb9a) %2%'

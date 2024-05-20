@@ -19,101 +19,93 @@
 
 package net.william278.huskclaims.listener;
 
-import net.william278.huskclaims.BukkitHuskClaims;
+import lombok.Getter;
 import net.william278.huskclaims.HuskClaims;
-import net.william278.huskclaims.moderation.DropsListener;
-import net.william278.huskclaims.moderation.DropsProtector;
+import net.william278.huskclaims.moderation.DropsHandler;
 import net.william278.huskclaims.user.BukkitUser;
-import net.william278.huskclaims.user.OnlineUser;
-import net.william278.huskclaims.user.User;
-import org.bukkit.NamespacedKey;
+import org.bukkit.Location;
 import org.bukkit.entity.Item;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
-import java.util.Optional;
+import java.util.UUID;
 
-import static org.bukkit.event.entity.EntityDamageEvent.DamageCause.CUSTOM;
-import static org.bukkit.event.entity.EntityDamageEvent.DamageCause.VOID;
-
-public interface BukkitDropsListener extends DropsListener, Listener {
+public interface BukkitDropsListener extends Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     default void onPlayerDeath(@NotNull PlayerDeathEvent e) {
-        handleDeathDrops(
+        getPlugin().markItemsForLocking(
                 BukkitUser.adapt(e.getEntity(), getPlugin()),
-                e.getDrops().stream().map(BukkitGroundItem::new).toList()
+                e.getDrops().stream().map(item -> new BukkitDroppedItem(item, e.getEntity().getLocation())).toList()
         );
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
-    default void onItemDestroy(@NotNull EntityDamageEvent e) {
-        if (!(e.getEntity() instanceof Item item) || e.getCause() == VOID || e.getCause() == CUSTOM) {
-            return;
-        }
-        if (cancelItemDestroy(new BukkitGroundItem(item.getItemStack()))) {
-            e.setCancelled(true);
-            item.setInvulnerable(true);
-        }
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    default void onItemSpawn(@NotNull ItemSpawnEvent e) {
+        getPlugin().checkDroppedItem(new BukkitGroundItem(e.getEntity()));
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
-    default void onItemPickup(@NotNull EntityPickupItemEvent e) {
-        final Optional<OnlineUser> pickerUpper = e.getEntity() instanceof Player player
-                ? Optional.of(BukkitUser.adapt(player, getPlugin())) : Optional.empty();
-        if (cancelItemPickup(pickerUpper.orElse(null), new BukkitGroundItem(e.getItem().getItemStack()))) {
-            e.setCancelled(true);
-        }
-    }
+    @NotNull
+    HuskClaims getPlugin();
 
-    record BukkitGroundItem(@Nullable ItemStack stack) implements DropsProtector.GroundItem {
+    @Getter
+    class BukkitDroppedItem implements DropsHandler.DroppedItem {
 
-        @Override
-        public Optional<User> getLockedBy(@NotNull HuskClaims plugin) {
-            if (stack() == null || stack().getItemMeta() == null) {
-                return Optional.empty();
-            }
-            return getLockedBy(stack().getItemMeta().getPersistentDataContainer(), plugin);
+        private final ItemStack stack;
+        private final Location dropLocation;
+
+        BukkitDroppedItem(@NotNull ItemStack stack, @NotNull Location dropLocation) {
+            this.stack = stack;
+            this.dropLocation = dropLocation;
         }
 
         @Override
-        public void setLocked(@Nullable User user, @NotNull HuskClaims plugin) {
-            if (stack() == null || stack().getItemMeta() == null) {
-                return;
-            }
-            final ItemMeta meta = stack().getItemMeta();
-            setLockedBy(meta.getPersistentDataContainer(), user, plugin);
-            stack().setItemMeta(meta);
+        public boolean equals(Object obj) {
+            return obj instanceof BukkitDroppedItem item
+                    && item.getDropLocation().distance(getDropLocation()) <= DEATH_DROPS_EQUAL_RANGE
+                    && item.getStack() != null && item.getStack().equals(getStack());
         }
+
+    }
+
+    class BukkitGroundItem implements DropsHandler.GroundStack {
 
         @NotNull
-        private static NamespacedKey getLockedKey(@NotNull HuskClaims plugin) {
-            return Objects.requireNonNull(NamespacedKey.fromString("locked", (BukkitHuskClaims) plugin));
+        @Getter
+        private final Item entity;
+
+        @Nullable
+        private UUID owner;
+
+        public BukkitGroundItem(@NotNull Item entity) {
+            this.entity = entity;
         }
 
-        private Optional<User> getLockedBy(@NotNull PersistentDataContainer container, @NotNull HuskClaims plugin) {
-            return Optional.ofNullable(container.get(getLockedKey(plugin), PersistentDataType.STRING))
-                    .map(plugin::getUserFromJson);
+        public void lock(@NotNull UUID owner, boolean preventDestruction) {
+            this.owner = owner;
+            updateEntity(preventDestruction);
         }
 
-        void setLockedBy(@NotNull PersistentDataContainer container, @Nullable User user, @NotNull HuskClaims plugin) {
-            if (user == null) {
-                container.remove(getLockedKey(plugin));
-                return;
-            }
-            container.set(getLockedKey(plugin), PersistentDataType.STRING, plugin.getGson().toJson(user));
+        public void unlock() {
+            this.owner = null;
+            updateEntity(false);
+        }
+
+        private void updateEntity(boolean preventDestruction) {
+            entity.setInvulnerable(owner != null && preventDestruction);
+            entity.setOwner(owner);
+        }
+
+        @Override
+        @NotNull
+        public DropsHandler.DroppedItem getStack() {
+            return new BukkitDroppedItem(entity.getItemStack(), entity.getLocation());
         }
 
     }

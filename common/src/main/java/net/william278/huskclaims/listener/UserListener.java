@@ -39,7 +39,9 @@ public interface UserListener {
 
     default void onUserQuit(@NotNull OnlineUser user) {
         getPlugin().invalidateUserCache(user.getUuid());
-        getPlugin().unlockDrops(user);
+        if (!getPlugin().getSettings().getCrossServer().isEnabled()) {
+            getPlugin().unlockDrops(user);
+        }
     }
 
     default void onUserSwitchHeldItem(@NotNull OnlineUser user, @NotNull String mainHand, @NotNull String offHand) {

@@ -19,12 +19,11 @@
 
 package net.william278.huskclaims.listener;
 
+import lombok.Getter;
 import net.william278.cloplib.listener.BukkitOperationListener;
 import net.william278.cloplib.operation.OperationPosition;
 import net.william278.cloplib.operation.OperationUser;
 import net.william278.huskclaims.BukkitHuskClaims;
-import net.william278.huskclaims.HuskClaims;
-import net.william278.huskclaims.moderation.DropsListener;
 import net.william278.huskclaims.moderation.SignListener;
 import net.william278.huskclaims.user.BukkitUser;
 import net.william278.huskclaims.user.User;
@@ -46,8 +45,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
+@Getter
 public class BukkitListener extends BukkitOperationListener implements BukkitPetListener, BukkitDropsListener,
-        ClaimsListener, UserListener, SignListener, DropsListener {
+        ClaimsListener, UserListener, SignListener {
 
     protected final BukkitHuskClaims plugin;
 
@@ -124,12 +124,6 @@ public class BukkitListener extends BukkitOperationListener implements BukkitPet
     @NotNull
     public OperationUser getUser(@NotNull Player player) {
         return BukkitUser.adapt(player, plugin);
-    }
-
-    @NotNull
-    @Override
-    public HuskClaims getPlugin() {
-        return plugin;
     }
 
     @Override

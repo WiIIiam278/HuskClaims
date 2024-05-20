@@ -51,7 +51,7 @@ public class UnlockDropsCommand extends Command implements UserListTabCompletabl
                         Long.toString(unlocked)).ifPresent(executor::sendMessage);
                 return;
             }
-            getPlugin().getLocales().getLocale("error_no_death_drops")
+            getPlugin().getLocales().getLocale("error_no_death_drops", user.get().getName())
                     .ifPresent(executor::sendMessage);
         });
     }
