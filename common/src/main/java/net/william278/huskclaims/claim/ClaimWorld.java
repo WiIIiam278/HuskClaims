@@ -195,9 +195,7 @@ public class ClaimWorld {
     }
 
     public Optional<Claim> getParentClaimAt(@NotNull BlockPosition position) {
-        final int x = position.getBlockX() >> 4;
-        final int z = position.getBlockZ() >> 4;
-        final long asLong = ((long) x << 32) | (z & 0xffffffffL);
+        final long asLong = position.getLongChunkCoords();
         return Optional.ofNullable(cachedClaims.get(asLong)).stream()
                 .flatMap(Collection::stream)
                 .filter(c -> c.getRegion().contains(position))

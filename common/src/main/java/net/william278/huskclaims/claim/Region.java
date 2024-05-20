@@ -31,8 +31,7 @@ import net.william278.huskclaims.highlighter.Highlightable;
 import net.william278.huskclaims.position.BlockPosition;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static net.william278.huskclaims.highlighter.Highlightable.Type.getClaimType;
 
@@ -331,15 +330,23 @@ public class Region {
      * @return The list of integer arrays representing the chunks
      */
     @NotNull
-    public List<int[]> getChunks() {
-        final int listSize = ((farCorner.getBlockX() - nearCorner.getBlockX()) / 16 + 1)
-                * ((farCorner.getBlockZ() - nearCorner.getBlockZ()) / 16 + 1);
-        final List<int[]> chunks = Lists.newArrayListWithExpectedSize(listSize);
-        for (int x = nearCorner.getBlockX(); x <= farCorner.getBlockX(); x += 16) {
-            for (int z = nearCorner.getBlockZ(); z <= farCorner.getBlockZ(); z += 16) {
-                chunks.add(new int[]{x >> 4, z >> 4});
+    public Set<int[]> getChunks() {
+        final int chunkX1 = getNearCorner().getBlockX() >> 4;
+        final int chunkZ1 = getNearCorner().getBlockZ() >> 4;
+        final int chunkX2 = getFarCorner().getBlockX() >> 4;
+        final int chunkZ2 = getFarCorner().getBlockZ() >> 4;
+        final int chunkXMin = Math.min(chunkX1, chunkX2);
+        final int chunkXMax = Math.max(chunkX1, chunkX2);
+        final int chunkZMin = Math.min(chunkZ1, chunkZ2);
+        final int chunkZMax = Math.max(chunkZ1, chunkZ2);
+
+        final Set<int[]> chunks = new HashSet<>();
+        for (int x = chunkXMin; x <= chunkXMax; x++) {
+            for (int z = chunkZMin; z <= chunkZMax; z++) {
+                chunks.add(new int[]{x, z});
             }
         }
+
         return chunks;
     }
 
@@ -380,6 +387,13 @@ public class Region {
         @Override
         public int getBlockZ() {
             return z;
+        }
+
+        @Override
+        public long getLongChunkCoords() {
+            final int chunkX = x >> 4;
+            final int chunkZ = z >> 4;
+            return ((long) chunkX << 32) | (chunkZ & 0xffffffffL);
         }
 
         @Override

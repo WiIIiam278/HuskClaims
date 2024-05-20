@@ -65,12 +65,12 @@ public class Position implements BlockPosition, OperationPosition {
         return new OperationChunk() {
             @Override
             public int getX() {
-                return ((int) x) << 16;
+                return getBlockX() >> 4;
             }
 
             @Override
             public int getZ() {
-                return ((int) z) << 16;
+                return getBlockZ() >> 4;
             }
         };
     }
@@ -83,6 +83,11 @@ public class Position implements BlockPosition, OperationPosition {
     @Override
     public int getBlockZ() {
         return (int) getZ();
+    }
+
+    @Override
+    public long getLongChunkCoords() {
+        return ((long) getChunk().getX() << 32) | (getChunk().getZ() & 0xFFFFFFFFL);
     }
 
 
