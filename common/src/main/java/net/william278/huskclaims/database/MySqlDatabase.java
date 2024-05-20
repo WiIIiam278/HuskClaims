@@ -538,13 +538,17 @@ public class MySqlDatabase extends Database {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
                     INSERT INTO `%claim_data%` (`world_uuid`, `world_name`, `world_environment`, `server_name`, `data`)
-                    VALUES (?, ?, ?, ?, ?)"""))) {
+                    VALUES (?, ?, ?, ?, ?)"""), Statement.RETURN_GENERATED_KEYS)) {
                 statement.setString(1, world.getUuid().toString());
                 statement.setString(2, world.getName());
                 statement.setString(3, world.getEnvironment());
                 statement.setString(4, plugin.getServerName());
                 statement.setBytes(5, plugin.getGson().toJson(claimWorld).getBytes(StandardCharsets.UTF_8));
-                claimWorld.updateId(statement.executeUpdate());
+                statement.executeUpdate();
+                final ResultSet resultSet = statement.getGeneratedKeys();
+                if (resultSet.next()) {
+                    claimWorld.updateId(resultSet.getInt(1));
+                }
             }
         } catch (SQLException | JsonSyntaxException e) {
             plugin.log(Level.SEVERE, "Failed to create claim world in table", e);
