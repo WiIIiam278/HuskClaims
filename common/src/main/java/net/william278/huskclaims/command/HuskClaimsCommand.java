@@ -295,7 +295,7 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
             plugin.getLocales().getLocale("claim_flags_header", claim.getOwnerName(world, plugin))
                     .ifPresent(onlineUser::sendMessage);
         } else {
-            plugin.getLocales().getLocale("claim_flags_header_wilderness", world.getName(plugin))
+            plugin.getLocales().getLocale("claim_flags_wilderness_header", world.getName(plugin))
                     .ifPresent(onlineUser::sendMessage);
         }
 
