@@ -164,16 +164,20 @@ public class ClaimWorld {
 
     public boolean removeClaimsBy(@Nullable User owner) {
         final UUID uuid = owner != null ? owner.getUuid() : ADMIN_CLAIM;
-        return userClaims.remove(uuid).stream().allMatch(claim -> claim.getRegion().getChunks().stream().allMatch(chunk -> {
-            final long asLong = ((long) chunk[0] << 32) | (chunk[1] & 0xffffffffL);
-            final Set<Claim> chunkClaims = cachedClaims.get(asLong);
-            if (chunkClaims != null) {
-                chunkClaims.remove(claim);
-                return true;
-            }
-
+        if (!userClaims.containsKey(uuid)) {
             return false;
-        }));
+        }
+        return userClaims.remove(uuid).stream().allMatch(claim -> claim.getRegion().getChunks().stream().allMatch(
+                (chunk) -> {
+                    final long asLong = ((long) chunk[0] << 32) | (chunk[1] & 0xffffffffL);
+                    final Set<Claim> chunkClaims = cachedClaims.get(asLong);
+                    if (chunkClaims != null) {
+                        chunkClaims.remove(claim);
+                        return true;
+                    }
+                    return false;
+                }
+        ));
     }
 
     public boolean removeAdminClaims() {
