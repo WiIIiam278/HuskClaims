@@ -171,6 +171,7 @@ public class ClaimWorld {
                 chunkClaims.remove(claim);
                 return true;
             }
+
             return false;
         }));
     }

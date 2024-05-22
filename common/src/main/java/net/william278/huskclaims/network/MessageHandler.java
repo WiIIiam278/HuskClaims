@@ -53,16 +53,13 @@ public interface MessageHandler {
                 // Delete all claims by a UUID-given user
                 (uuid) -> {
                     getPlugin().getSavedUser(uuid).ifPresent((saved) -> getPlugin().getClaimWorlds()
-                            .entrySet().stream().filter((e) -> e.getValue().removeClaimsBy(saved.getUser()))
-                            .forEach((e) -> getPlugin().getDatabase().updateClaimWorld(e.getValue())));
+                            .forEach((key, value) -> value.removeClaimsBy(saved.getUser())));
                     getPlugin().removeAllMappedClaims(uuid);
                     getPlugin().invalidateUserCache(uuid);
                 },
                 // Delete all admin claims
                 () -> {
-                    getPlugin().getClaimWorlds()
-                            .entrySet().stream().filter((e) -> e.getValue().removeAdminClaims())
-                            .forEach((e) -> getPlugin().getDatabase().updateClaimWorld(e.getValue()));
+                    getPlugin().getClaimWorlds().forEach((key, value) -> value.removeAdminClaims());
                     getPlugin().removeAllMappedAdminClaims();
                     getPlugin().invalidateAdminClaimListCache();
                 });
