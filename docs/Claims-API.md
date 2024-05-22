@@ -56,7 +56,8 @@ void showClaimWorld(org.bukkit.World world) {
 * On the Bukkit platform, get an `OnlineUser` object using `#getOnlineUser(@NotNull org.bukkit.Player player)`
   * Use `#getPosition()` to get the `Position` of an `OnlineUser` to check if there's a claim where they stand (see #1)
 * Check if a user can perform `OperationTypes` using `isOperationAllowed(user, type, position)` 
-  * Use the `#isOperationAllowed` method that accepts and build an `Operation` via `Operation.builder()` for more complex operation checks!
+  * Note that by default checks are not silent - the user will be informed if your check fails; there's no need to display a message yourself.
+  * Use the `#isOperationAllowed` method that accepts and build an `Operation` via `Operation.of()` for more complex operation checks
 * Additionally, we can check if a user has a `TrustLevel.Privileges` at a location using `#isPrivilegeAllowed(TrustLevel.Privilege privilege, User user, Position position)`
 * Finally, we can also look up a user''s [[trust]] level in a claim using `#getTrustLevelAt(Position position, Trustable user)` (`User` and `OnlineUser` implement `Trustable`!)
   * This will return an `Optional<TrustLevel>`, which you can check if it is present using `Optional#isPresent()`, or through the `#ifPresent((trustLevel) -> {})` lambda syntax.
@@ -70,6 +71,9 @@ void checkUserAccessAt(org.bukkit.Player player, org.bukkit.Location location) {
     Position position = huskClaims.getPosition(location);
     if (huskClaims.isOperationAllowed(user, OperationType.BREAK_BLOCKS, position)) {
         System.out.println("User can build here!");
+    }
+    if (huskClaims.isOperationAllowed(Operation.of(user, OperationType.PLACE_BLOCKS, position, true))) {
+        System.out.println("'true' sets this operation to be done silently.");
     }
     if (huskClaims.isPrivilegeAllowed(TrustLevel.Privilege.MANAGE_CHILD_CLAIMS, user, position)) {
         System.out.println("User can manage child claims here!");
