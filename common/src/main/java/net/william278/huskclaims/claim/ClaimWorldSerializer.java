@@ -46,7 +46,7 @@ public class ClaimWorldSerializer implements JsonSerializer<ClaimWorld>, JsonDes
     public JsonElement serialize(ClaimWorld claimWorld, Type type, JsonSerializationContext jsonSerializationContext) {
         final JsonObject jsonObject = new JsonObject();
         final JsonArray claimsArray = new JsonArray();
-        claimWorld.getAllClaims().forEach(c -> claimsArray.add(plugin.getGson().toJsonTree(c, Claim.class)));
+        claimWorld.getClaims().forEach(c -> claimsArray.add(plugin.getGson().toJsonTree(c, Claim.class)));
         jsonObject.add("claims", claimsArray);
 
         final JsonObject userCache = new JsonObject();

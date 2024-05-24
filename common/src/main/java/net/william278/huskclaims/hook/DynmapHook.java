@@ -112,7 +112,7 @@ public class DynmapHook extends MapHook {
     @Override
     public void markAllClaims() {
         plugin.getClaimWorlds().forEach((name, claimWorld) -> {
-            final Collection<Claim> claims = claimWorld.getAllClaims();
+            final Collection<Claim> claims = claimWorld.getClaims();
             markClaims(claims, claimWorld);
             plugin.log(Level.INFO, "Populated web map with %s claims in %s".formatted(claims.size(), name));
         });
