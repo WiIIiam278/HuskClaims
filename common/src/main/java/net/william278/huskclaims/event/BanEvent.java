@@ -22,6 +22,7 @@ package net.william278.huskclaims.event;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("unused")
 public interface BanEvent extends OnlineUserEvent, ClaimEvent, CancellableEvent {
 
     @NotNull
