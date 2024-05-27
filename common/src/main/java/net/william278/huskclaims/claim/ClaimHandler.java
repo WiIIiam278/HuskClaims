@@ -72,13 +72,14 @@ public interface ClaimHandler extends Handler {
             final Claim fc = fromClaim.get();
             final Claim tc = toClaim.get();
             if (getPlugin().fireIsCancelledExitClaimEvent(online, fc, world, fromPos, toPos)
-                    || getPlugin().fireIsCancelledEnterClaimEvent(online, tc, world, fromPos, toPos)) {
+                || tc.isUserBanned(online) // Check if the user is banned before entering the claim
+                || getPlugin().fireIsCancelledEnterClaimEvent(online, tc, world, fromPos, toPos)) {
                 return true;
             }
 
             // Send an entry message
             if (getPlugin().getSettings().getClaims().isSendEntryMessage()
-                    && !tc.isChildClaim() && !fc.isChildClaim()) {
+                && !tc.isChildClaim() && !fc.isChildClaim()) {
                 getPlugin().getLocales().getLocale("claim_entered", tc.getOwnerName(world, getPlugin()))
                         .ifPresent(online::sendMessage);
             }
@@ -86,7 +87,7 @@ public interface ClaimHandler extends Handler {
         } else if (toClaim.isPresent()) {
             // Handle wilderness -> claim movement
             final Claim tc = toClaim.get();
-            if (getPlugin().fireIsCancelledEnterClaimEvent(online, tc, world, fromPos, toPos)) {
+            if (tc.isUserBanned(online) || getPlugin().fireIsCancelledEnterClaimEvent(online, tc, world, fromPos, toPos)) {
                 return true;
             }
 

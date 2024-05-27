@@ -125,6 +125,11 @@ public interface CommandProvider {
             commands.add(new BuyClaimBlocksCommand(getPlugin()));
         }
 
+        // Register claim banning
+        if (getPlugin().getSettings().getClaims().getBans().isEnabled()) {
+            commands.add(new ClaimBanCommand(getPlugin()));
+        }
+
         // Register claim commands
         getPlugin().getSettings().getClaims().getEnabledClaimingModes().stream()
                 .filter(mode -> !mode.getCommandAliases().isEmpty())

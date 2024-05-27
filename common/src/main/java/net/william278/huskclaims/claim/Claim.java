@@ -469,7 +469,7 @@ public class Claim implements Highlightable {
      * @param user the user to unban
      * @since 1.3
      */
-    public void unbanUser(@NotNull User user) {
+    public void unBanUser(@NotNull User user) {
         bannedUsers.remove(user.getUuid());
     }
 

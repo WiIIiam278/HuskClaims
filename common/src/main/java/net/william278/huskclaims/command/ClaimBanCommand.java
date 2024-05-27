@@ -37,20 +37,19 @@ public class ClaimBanCommand extends InClaimCommand {
     }
 
     @Override
-    public void execute(@NotNull OnlineUser executor, @NotNull ClaimWorld world, @NotNull Claim claim,
+    public void execute(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Claim claim,
                         @NotNull String[] args) {
         final Optional<BanAction> action = parseStringArg(args, 0).flatMap(BanAction::from);
         if (action.isEmpty()) {
             plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                    .ifPresent(executor::sendMessage);
+                    .ifPresent(user::sendMessage);
             return;
         }
 
         switch (action.get()) {
-            case BAN -> parseUser(executor, removeFirstArg(args)).ifPresent(u -> banUser(executor, world, claim, u));
-            case UNBAN ->
-                    parseUser(executor, removeFirstArg(args)).ifPresent(u -> unbanUser(executor, world, claim, u));
-            case LIST -> showBanList(executor, world, claim);
+            case BAN -> parseUser(user, removeFirstArg(args)).ifPresent(u -> banUser(user, world, claim, u));
+            case UNBAN -> parseUser(user, removeFirstArg(args)).ifPresent(u -> unBanUser(user, world, claim, u));
+            case LIST -> showBanList(user, world, claim);
         }
     }
 
@@ -67,12 +66,14 @@ public class ClaimBanCommand extends InClaimCommand {
             plugin.getDatabase().updateClaimWorld(world);
             plugin.invalidateClaimListCache(claim.getOwner().orElse(null));
 
+            // TODO: Teleport a banned user to a safe place outside the claim, if they are within it
+
             plugin.getLocales().getLocale("user_banned", user.getName())
                     .ifPresent(executor::sendMessage);
         });
     }
 
-    private void unbanUser(@NotNull OnlineUser executor, @NotNull ClaimWorld world, @NotNull Claim claim,
+    private void unBanUser(@NotNull OnlineUser executor, @NotNull ClaimWorld world, @NotNull Claim claim,
                            @NotNull User user) {
         if (!claim.getBannedUsers().containsKey(user.getUuid())) {
             plugin.getLocales().getLocale("error_user_not_banned", user.getName())
@@ -81,7 +82,7 @@ public class ClaimBanCommand extends InClaimCommand {
         }
 
         plugin.fireClaimUnBanEvent(executor, claim, world, user, (event) -> {
-            claim.unbanUser(user);
+            claim.unBanUser(user);
             plugin.getDatabase().updateClaimWorld(world);
             plugin.invalidateClaimListCache(claim.getOwner().orElse(null));
             plugin.getLocales().getLocale("user_unbanned", user.getName())
