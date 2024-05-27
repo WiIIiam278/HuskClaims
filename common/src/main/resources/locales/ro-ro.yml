@@ -28,7 +28,7 @@ locales:
   error_huskhomes_not_found: '[Eroare:](#ff3300) [HuskHomes nu a fost găsit pe server.](#ff7e5e)'
   error_economy_not_found: '[Eroare:](#ff3300) [Nu a putut fi găsit un plugin de economie pe server.](#ff7e5e)'
   error_no_death_drops: '[Error:](#ff3300) [%1% has no locked dropped items.](#ff7e5e)'
-  error_user_banned: '[Error:](#ff3300) [%1% is banned from this claim.](#ff7e5e)'
+  error_user_already_banned: '[Error:](#ff3300) [%1% is already banned from this claim.](#ff7e5e)'
   error_user_not_banned: '[Error:](#ff3300) [%1% is not banned from this claim.](#ff7e5e)'
   error_cannot_ban_owner: '[Error:](#ff3300) [You cannot ban the owner of the claim.](#ff7e5e)'
   error_cannot_ban_self: '[Error:](#ff3300) [You cannot ban yourself from a claim.](#ff7e5e)'
@@ -207,4 +207,3 @@ locales:
   transferclaim_command_description: 'Transfer ownership of the claim you''re standing in.'
   unclaimall_command_description: 'Delete all of your claims.'
   transferpet_command_description: 'Transfer ownership of a tamed animal.'
-  claimban_command_description: 'Ban a player from a claim.'
