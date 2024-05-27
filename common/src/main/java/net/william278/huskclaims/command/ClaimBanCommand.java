@@ -23,6 +23,7 @@ import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.trust.TrustLevel;
+import net.william278.huskclaims.user.CommandUser;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class ClaimBanCommand extends InClaimCommand {
+public class ClaimBanCommand extends InClaimCommand implements UserListTabCompletable {
 
     protected ClaimBanCommand(@NotNull HuskClaims plugin) {
         super(List.of("claimban"), "<ban|unban|list> [username]", TrustLevel.Privilege.MANAGE_BANS, plugin);
@@ -39,7 +40,7 @@ public class ClaimBanCommand extends InClaimCommand {
     @Override
     public void execute(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Claim claim,
                         @NotNull String[] args) {
-        final Optional<BanAction> action = parseStringArg(args, 0).flatMap(BanAction::from);
+        final Optional<BanOption> action = parseStringArg(args, 0).flatMap(BanOption::from);
         if (action.isEmpty()) {
             plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                     .ifPresent(user::sendMessage);
@@ -99,14 +100,15 @@ public class ClaimBanCommand extends InClaimCommand {
         }
 
         // Send header
-        final String ownerName = claim.getOwnerName(world, plugin);
-        plugin.getLocales().getLocale("ban_list_header", plugin.getLocales().getRawLocale(
-                "ban_list_%sclaim".formatted(claim.isChildClaim() ? "child_" : ""), ownerName
-        ).orElse(ownerName)).ifPresent(executor::sendMessage);
+        final String owner = claim.getOwnerName(world, plugin);
+        plugin.getLocales().getRawLocale("ban_list_header", plugin.getLocales().getRawLocale(
+                        "ban_list_%sclaim".formatted(claim.isChildClaim() ? "child_" : ""), owner).orElse(owner))
+                .map(plugin.getLocales()::format)
+                .ifPresent(executor::sendMessage);
 
         // Send banned users
         final StringJoiner joiner = new StringJoiner(plugin.getLocales().getListJoiner());
-        bans.forEach(entry -> joiner.add(plugin.getLocales().getRawLocale("ban_list_entry",
+        bans.forEach(entry -> joiner.add(plugin.getLocales().getRawLocale("ban_list_item",
                 entry.banned().getName(), entry.arbiter().getName()).orElse(entry.banned().getName())));
         executor.sendMessage(plugin.getLocales().format(joiner.toString()));
     }
@@ -147,21 +149,52 @@ public class ClaimBanCommand extends InClaimCommand {
         return user;
     }
 
-    enum BanAction {
+    @Override
+    @Nullable
+    public List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
+        return switch (args.length) {
+            case 0, 1 -> BanOption.getSuggestions();
+            case 2 -> switch (args[0].toLowerCase(Locale.ENGLISH)) {
+                case "ban" -> UserListTabCompletable.super.suggest(user, args);
+                case "unban", "pardon" -> user instanceof OnlineUser o ? getBannedNamesAtUser(o) : null;
+                default -> null;
+            };
+            default -> null;
+        };
+    }
+
+    @Nullable
+    public List<String> getBannedNamesAtUser(@NotNull OnlineUser user) {
+        return plugin.getClaimWorld(user.getWorld())
+                .flatMap(world -> world.getClaimAt(user.getPosition())
+                        .map(claim -> claim.getBannedUsers().keySet().stream()
+                                .map(uuid -> world.getUser(uuid).map(User::getName).orElse(null))
+                                .filter(Objects::nonNull).toList()))
+                .orElse(null);
+    }
+
+    enum BanOption {
         BAN("ban"),
         UNBAN("unban", "pardon"),
         LIST("list", "banlist");
 
         private final String[] aliases;
 
-        BanAction(@NotNull String... aliases) {
+        BanOption(@NotNull String... aliases) {
             this.aliases = aliases;
         }
 
-        public static Optional<BanAction> from(@NotNull String input) {
+        public static Optional<BanOption> from(@NotNull String input) {
             return Arrays.stream(values())
                     .filter(action -> Arrays.stream(action.aliases).anyMatch(alias -> alias.equalsIgnoreCase(input)))
                     .findFirst();
+        }
+
+        @NotNull
+        public static List<String> getSuggestions() {
+            return Arrays.stream(values())
+                    .map(action -> action.aliases[0])
+                    .toList();
         }
     }
 

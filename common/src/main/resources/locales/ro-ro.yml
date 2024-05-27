@@ -32,7 +32,7 @@ locales:
   error_user_not_banned: '[Error:](#ff3300) [%1% is not banned from this claim.](#ff7e5e)'
   error_cannot_ban_owner: '[Error:](#ff3300) [You cannot ban the owner of the claim.](#ff7e5e)'
   error_cannot_ban_self: '[Error:](#ff3300) [You cannot ban yourself from a claim.](#ff7e5e)'
-  error_ban_list_empty: '[Error:](#ff3300) [There are no banned players in this claim.](#ff7e5e)'
+  error_ban_list_empty: '[Error:](#ff3300) [No players have been banned from this claim.](#ff7e5e)'
   group_list: '[Lista grupurilor tale:](#00fb9a) [%1%](gray)'
   group_list_item: '[%1%](white show_text=&7Grup de %2% jucători:\n&8 run_command=/group %1%)'
   group_member_list: '[Lista membrilor grupului %1%:](#00fb9a) %2%'
