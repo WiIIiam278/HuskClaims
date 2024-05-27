@@ -207,3 +207,4 @@ locales:
   transferclaim_command_description: '转让您正在站立的已声明的领地的所有权'
   unclaimall_command_description: '删除您的所有已声明的领地.'
   transferpet_command_description: '转让您已驯服的动物的所有权.'
+  claimban_command_description: 'Ban a player from a claim.'
