@@ -139,4 +139,18 @@ public interface BukkitEventDispatcher extends EventDispatcher {
         return new BukkitTransferClaimEvent(user, claim, claimWorld, newOwner, getPlugin());
     }
 
+    @Override
+    @NotNull
+    default ClaimBanEvent getClaimBanEvent(@NotNull OnlineUser user, @NotNull Claim claim, @NotNull ClaimWorld claimWorld,
+                                          @NotNull User bannedUser) {
+        return new BukkitClaimBanEvent(user, claim, claimWorld, bannedUser, getPlugin());
+    }
+
+    @Override
+    @NotNull
+    default ClaimUnBanEvent getClaimUnBanEvent(@NotNull OnlineUser user, @NotNull Claim claim, @NotNull ClaimWorld claimWorld,
+                                              @NotNull User bannedUser) {
+        return new BukkitClaimUnBanEvent(user, claim, claimWorld, bannedUser, getPlugin());
+    }
+
 }

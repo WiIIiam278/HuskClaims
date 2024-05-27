@@ -56,6 +56,7 @@ public class TrustLevel implements Comparable<TrustLevel> {
         MANAGE_TRUSTEES,
         MANAGE_CHILD_CLAIMS,
         MANAGE_OPERATION_GROUPS,
+        MANAGE_BANS,
     }
 
 }

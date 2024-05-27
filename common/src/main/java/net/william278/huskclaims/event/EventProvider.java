@@ -91,4 +91,11 @@ public interface EventProvider {
     TransferClaimEvent getTransferClaimEvent(@NotNull OnlineUser user, @NotNull Claim claim,
                                              @NotNull ClaimWorld claimWorld, @NotNull User newOwner);
 
+    @NotNull
+    ClaimBanEvent getClaimBanEvent(@NotNull OnlineUser user, @NotNull Claim claim, @NotNull ClaimWorld claimWorld,
+                                   @NotNull User bannedUser);
+
+    @NotNull
+    ClaimUnBanEvent getClaimUnBanEvent(@NotNull OnlineUser user, @NotNull Claim claim, @NotNull ClaimWorld claimWorld,
+                                       @NotNull User bannedUser);
 }
