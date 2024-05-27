@@ -207,3 +207,4 @@ locales:
   transferclaim_command_description: 'Transfer ownership of the claim you''re standing in.'
   unclaimall_command_description: 'Delete all of your claims.'
   transferpet_command_description: 'Transfer ownership of a tamed animal.'
+  claimban_command_description: 'Ban a player from a claim.'
