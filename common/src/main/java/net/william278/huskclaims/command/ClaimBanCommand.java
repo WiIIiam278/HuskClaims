@@ -113,7 +113,7 @@ public class ClaimBanCommand extends InClaimCommand {
 
     private boolean checkCanBan(@NotNull OnlineUser executor, @NotNull Claim claim, @NotNull User user) {
         if (claim.getBannedUsers().containsKey(user.getUuid())) {
-            plugin.getLocales().getLocale("error_user_already_banned", user.getName())
+            plugin.getLocales().getLocale("error_user_banned", user.getName())
                     .ifPresent(executor::sendMessage);
             return false;
         }

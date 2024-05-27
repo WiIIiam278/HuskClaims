@@ -370,7 +370,8 @@ public class Claim implements Highlightable {
      *     <li>Individual {@link User}s</li>
      *     <li>{@link UserGroup}s</li>
      *     <li>{@link TrustTag}s</li>
-     *     </ol>
+     * </ol>
+     * Banned users cannot have a trust level.
      *
      * @param user   the user to get the trust level for
      * @param plugin the plugin instance
@@ -378,6 +379,11 @@ public class Claim implements Highlightable {
      * @since 1.0
      */
     public Optional<TrustLevel> getUserTrustLevel(@NotNull User user, @NotNull HuskClaims plugin) {
+        // If the user is banned, return empty
+        if (isUserBanned(user)) {
+            return Optional.empty();
+        }
+
         // Handle explicit user permissions
         if (trustedUsers.containsKey(user.getUuid())) {
             return plugin.getTrustLevel(trustedUsers.get(user.getUuid()));

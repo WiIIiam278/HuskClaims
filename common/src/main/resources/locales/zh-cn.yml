@@ -28,7 +28,7 @@ locales:
   error_huskhomes_not_found: '[错误:](#ff3300) [在服务器上找不到HuskHomes](#ff7e5e)'
   error_economy_not_found: '[错误:](#ff3300) [在服务器上找不到经济插件](#ff7e5e)'
   error_no_death_drops: '[Error:](#ff3300) [%1% has no locked dropped items.](#ff7e5e)'
-  error_user_already_banned: '[Error:](#ff3300) [%1% is already banned from this claim.](#ff7e5e)'
+  error_user_banned: '[Error:](#ff3300) [%1% is banned from this claim.](#ff7e5e)'
   error_user_not_banned: '[Error:](#ff3300) [%1% is not banned from this claim.](#ff7e5e)'
   error_cannot_ban_owner: '[Error:](#ff3300) [You cannot ban the owner of the claim.](#ff7e5e)'
   error_cannot_ban_self: '[Error:](#ff3300) [You cannot ban yourself from a claim.](#ff7e5e)'

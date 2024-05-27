@@ -46,9 +46,14 @@ Using the `/ignoreclaims (on|off)` command, it is possible for administrators to
 ## Child Claims
 Child claims (also known as "subdivisions") are essentially claims-within-a-claim. This is very useful for town projects, where you may want to limit which area of a claim a player can build in. Child claims are created by first using the `/childclaim` command to toggle child claim creation mode, then right-clicking two corner points within a parent claim to create the child claim. The `/childclaim (radius)` command also works provided you are standing within a parent claim and the radius is small enough to fit within it. Creating and managing child claims requires the `MANAGE_CHILD_CLAIMS` privilege in the parent claim.
 
-By default, child claims inherit the parent claim's [[Trust]] access list, meaning users trusted in the parent claim will also have access to the child claim&mdash;but _not vice versa_. Access inheritance may be restricted by the owner with the `/restrictclaim (on|off)` toggle command.
+By default, child claims inherit the parent claim's [[Trust]] access list, meaning users trusted in the parent claim will also have access to the child claim&mdash;but _not vice versa_. The owner may restrict access inheritance with the `/restrictclaim (on|off)` toggle command.
 
 ## Admin Claims
 Admin claims are special claims that are not owned by any player, and are not subject to the same restrictions as normal claims. Admin claims can be created by first using the `/adminclaim` command to toggle admin claim creation mode, then right-clicking two corner points to create the claim. The `/adminclaim (radius)` command also works if you prefer radial claim creation.
 
 Unlike regular claims, all administrators with the `huskclaims.admin_claim` permission have full management privileges in every admin claim, allowing them to trust themselves and create child claims without being explicitly trusted.
+
+## Claim Bans
+If you have claim bans enabled (see the `bans` subsection under `claims` in the [[config]]), you can ban and unban players from your claim using the `/claimban <ban|unban|list> [username]` command.
+
+This will prevent the banned player from entering the claim/child claim. Banned players cannot be trusted in the claim, and will be unable to interact with blocks within the claim.
