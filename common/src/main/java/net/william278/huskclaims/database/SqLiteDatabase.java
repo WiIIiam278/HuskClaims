@@ -21,7 +21,7 @@ package net.william278.huskclaims.database;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Queues;
+import com.google.common.collect.Sets;
 import com.google.gson.JsonSyntaxException;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.ClaimWorld;
@@ -39,8 +39,6 @@ import java.nio.file.Path;
 import java.sql.*;
 import java.time.OffsetDateTime;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 
 @SuppressWarnings("DuplicatedCode")
@@ -346,14 +344,14 @@ public class SqLiteDatabase extends Database {
 
     @NotNull
     @Override
-    public ConcurrentLinkedQueue<UserGroup> getUserGroups(@NotNull UUID uuid) {
+    public Set<UserGroup> getUserGroups(@NotNull UUID uuid) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 SELECT `name`, `members`
                 FROM `%user_group_data%`
                 WHERE `uuid` = ?"""))) {
             statement.setString(1, uuid.toString());
             final ResultSet resultSet = statement.executeQuery();
-            final ConcurrentLinkedQueue<UserGroup> userGroups = Queues.newConcurrentLinkedQueue();
+            final Set<UserGroup> userGroups = Sets.newHashSet();
             while (resultSet.next()) {
                 userGroups.add(new UserGroup(
                         uuid,
@@ -367,31 +365,38 @@ public class SqLiteDatabase extends Database {
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to fetch user groups from table", e);
         }
-        return Queues.newConcurrentLinkedQueue();
+        return Sets.newHashSet();
     }
 
     @NotNull
     @Override
-    public Set<UserGroup> getAllUserGroups() {
+    public Map<UUID, Set<UserGroup>> getAllUserGroups() {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 SELECT `uuid`, `name`, `members`
                 FROM `%user_group_data%`"""))) {
             final ResultSet resultSet = statement.executeQuery();
-            final Set<UserGroup> userGroups = ConcurrentHashMap.newKeySet();
+            final Map<UUID, Set<UserGroup>> userGroups = Maps.newHashMap();
             while (resultSet.next()) {
-                userGroups.add(new UserGroup(
+                final UserGroup userGroup = new UserGroup(
                         UUID.fromString(resultSet.getString("uuid")),
                         resultSet.getString("name"),
                         plugin.getUserListFromJson(new String(
                                 resultSet.getBytes("members"), StandardCharsets.UTF_8
                         ))
-                ));
+                );
+                userGroups.compute(userGroup.groupOwner(), (key, value) -> {
+                    if (value == null) {
+                        value = Sets.newHashSet();
+                    }
+                    value.add(userGroup);
+                    return value;
+                });
             }
             return userGroups;
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to fetch user groups from table", e);
         }
-        return ConcurrentHashMap.newKeySet();
+        return Maps.newHashMap();
     }
 
     @Override

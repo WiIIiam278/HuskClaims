@@ -93,7 +93,7 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     private final List<Command> commands = Lists.newArrayList();
     private final HashMap<String, ClaimWorld> claimWorlds = Maps.newHashMap();
     @Setter
-    private Set<UserGroup> userGroups = ConcurrentHashMap.newKeySet();
+    private Map<UUID, Set<UserGroup>> userGroups = Maps.newConcurrentMap();
     @Setter
     private Set<Hook> hooks = Sets.newHashSet();
     @Setter

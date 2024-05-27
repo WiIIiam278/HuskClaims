@@ -19,6 +19,7 @@
 
 package net.william278.huskclaims.trust;
 
+import com.google.common.collect.Sets;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.database.Database;
 import net.william278.huskclaims.network.Message;
@@ -47,30 +48,35 @@ public interface GroupManager {
      * @since 1.0
      */
     @NotNull
-    Set<UserGroup> getUserGroups();
+    Map<UUID, Set<UserGroup>> getUserGroups();
 
     /**
      * Set the list of user groups
      *
      * @param userGroups The list of user groups
      */
-    void setUserGroups(@NotNull Set<UserGroup> userGroups);
+    void setUserGroups(@NotNull Map<UUID, Set<UserGroup>> userGroups);
 
-    default void setUserGroups(@NotNull UUID owner, @NotNull Collection<UserGroup> userGroups) {
-        getUserGroups().removeIf(userGroup -> userGroup.groupOwner().equals(owner));
-        getUserGroups().addAll(userGroups);
+    /**
+     * Set the user groups for a player
+     *
+     * @param owner      The owner of the groups
+     * @param userGroups The set of user groups
+     */
+    default void setUserGroups(@NotNull UUID owner, @NotNull Set<UserGroup> userGroups) {
+        getUserGroups().put(owner, userGroups);
     }
 
     /**
      * Get a list of user groups owned by a player
      *
      * @param owner The owner of the groups
-     * @return the list of user groups
+     * @return the set of user groups
      * @since 1.0
      */
     @NotNull
-    default List<UserGroup> getUserGroups(@NotNull UUID owner) {
-        return getUserGroups().stream().filter(userGroup -> userGroup.groupOwner().equals(owner)).toList();
+    default Set<UserGroup> getUserGroups(@NotNull UUID owner) {
+        return getUserGroups().compute(owner, (uuid, groups) -> groups == null ? Sets.newHashSet() : groups);
     }
 
     /**
@@ -82,7 +88,7 @@ public interface GroupManager {
      * @since 1.0
      */
     default Optional<UserGroup> getUserGroup(@NotNull UUID owner, @NotNull String name) {
-        return getUserGroups(owner).stream().filter(userGroup -> userGroup.name().equalsIgnoreCase(name)).findFirst();
+        return getUserGroups(owner).stream().filter(group -> group.name().equalsIgnoreCase(name)).findFirst();
     }
 
     /**
@@ -99,7 +105,7 @@ public interface GroupManager {
             throw new IllegalArgumentException("Invalid or already taken group name");
         }
         final UserGroup group = new UserGroup(owner.getUuid(), name, members);
-        getUserGroups().add(group);
+        getUserGroups(owner.getUuid()).add(group);
         getDatabase().addUserGroup(group);
         publishGroupChange(owner);
     }
@@ -118,8 +124,6 @@ public interface GroupManager {
                                @NotNull Consumer<UserGroup> editor, @NotNull Runnable notPresent) {
         getUserGroup(owner.getUuid(), groupName).ifPresentOrElse(group -> {
             editor.accept(group);
-            getUserGroups().removeIf(g -> g.groupOwner().equals(owner.getUuid()) && g.name().equalsIgnoreCase(groupName));
-            getUserGroups().add(group);
             getDatabase().updateUserGroup(owner.getUuid(), groupName, group);
             publishGroupChange(owner);
         }, notPresent);
@@ -135,12 +139,16 @@ public interface GroupManager {
      */
     @Blocking
     default boolean deleteUserGroup(@NotNull OnlineUser owner, @NotNull String groupName) {
-        return getUserGroup(owner.getUuid(), groupName).map(group -> {
-            getDatabase().deleteUserGroup(group);
-            getUserGroups().remove(group);
-            publishGroupChange(owner);
-            return true;
-        }).orElse(false);
+        final Optional<UserGroup> optionalGroup = getUserGroup(owner.getUuid(), groupName);
+        if (optionalGroup.isEmpty()) {
+            return false;
+        }
+
+        final UserGroup group = optionalGroup.get();
+        getDatabase().deleteUserGroup(group);
+        getUserGroups(owner.getUuid()).remove(group);
+        publishGroupChange(owner);
+        return true;
     }
 
     private void publishGroupChange(@NotNull OnlineUser user) {
@@ -161,13 +169,13 @@ public interface GroupManager {
         getPlugin().log(Level.INFO, "Loading user groups from the database...");
         LocalTime startTime = LocalTime.now();
 
-        // Load all users groups from the database
-        final Set<UserGroup> groups = getDatabase().getAllUserGroups();
+        // Load, then cache all users groups from the database
+        final Map<UUID, Set<UserGroup>> groups = getDatabase().getAllUserGroups();
         this.setUserGroups(groups);
 
-        final long uniqueGroups = groups.stream().map(UserGroup::groupOwner).toList().stream().distinct().count();
+        final long totalGroups = groups.values().stream().mapToLong(Set::size).sum();
         getPlugin().log(Level.INFO, String.format("Loaded %s user group(s) by %s user(s) in %s seconds",
-                groups.size(), uniqueGroups, ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d));
+                totalGroups, groups.size(), ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d));
     }
 
     @NotNull

@@ -19,6 +19,7 @@
 
 package net.william278.huskclaims.api;
 
+import com.google.common.collect.Lists;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import net.william278.cloplib.operation.Operation;
@@ -1029,7 +1030,7 @@ public class HuskClaimsAPI {
     @Unmodifiable
     @NotNull
     public List<UserGroup> getUserGroups(@NotNull UUID userUuid) {
-        return plugin.getUserGroups(userUuid);
+        return Lists.newArrayList(plugin.getUserGroups(userUuid));
     }
 
     /**

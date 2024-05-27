@@ -37,10 +37,10 @@ public interface TrustableTabCompletable extends UserListTabCompletable {
 
         // Suggest group names
         final Settings.UserGroupSettings groups = getPlugin().getSettings().getUserGroups();
-        if (getGroupOwner(onlineUser) != null && groups.isEnabled()
-                && (args.length > 0 && args[args.length - 1].startsWith(groups.getGroupSpecifierPrefix()))) {
-            return getPlugin().getUserGroups().stream()
-                    .filter(group -> group.groupOwner().equals(getGroupOwner(onlineUser)))
+        final UUID groupOwner = getGroupOwner(onlineUser);
+        if (groupOwner != null && groups.isEnabled() &&
+            (args.length > 0 && args[args.length - 1].startsWith(groups.getGroupSpecifierPrefix()))) {
+            return getPlugin().getUserGroups(groupOwner).stream()
                     .map(group -> group.getTrustIdentifier(getPlugin()))
                     .toList();
         }

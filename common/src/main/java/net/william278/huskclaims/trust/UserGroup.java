@@ -58,4 +58,9 @@ public record UserGroup(
                 name.replaceAll(" ", "_")
         );
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof UserGroup other && other.groupOwner().equals(groupOwner) && other.name().equals(name);
+    }
 }

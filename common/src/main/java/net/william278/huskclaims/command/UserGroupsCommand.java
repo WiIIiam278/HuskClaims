@@ -30,10 +30,7 @@ import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
@@ -67,14 +64,15 @@ public class UserGroupsCommand extends OnlineUserCommand implements TabCompletab
     }
 
     private void showGroupList(@NotNull OnlineUser user) {
-        final List<UserGroup> groups = plugin.getUserGroups(user.getUuid());
+        final List<UserGroup> groups = Lists.newArrayList(plugin.getUserGroups(user.getUuid()));
         if (groups.isEmpty()) {
             plugin.getLocales().getLocale("error_no_groups")
                     .ifPresent(user::sendMessage);
             return;
         }
 
-        // Show the list of groups
+        // Show the list of groups, sorted by the number of members
+        groups.sort(Comparator.comparing(group -> group.members().size()));
         plugin.getLocales().getRawLocale("group_list", groups.stream()
                         .map(group -> getGroupEntry(group, plugin))
                         .collect(Collectors.joining(plugin.getLocales().getListJoiner())))
@@ -153,12 +151,11 @@ public class UserGroupsCommand extends OnlineUserCommand implements TabCompletab
         editUserGroup(
                 executor, name, users,
                 (group, user) -> {
-                    if (!group.includes(user)) {
+                    if (!group.removeMember(user.getUuid())) {
                         plugin.getLocales().getLocale("error_not_group_member", user.getName(), group.name())
                                 .ifPresent(executor::sendMessage);
                         return;
                     }
-                    group.members().remove(user);
                     plugin.getLocales().getLocale("group_removed_player", user.getName(), group.name())
                             .ifPresent(executor::sendMessage);
                 }, () -> plugin.getLocales().getLocale("error_invalid_group", name)
@@ -169,8 +166,7 @@ public class UserGroupsCommand extends OnlineUserCommand implements TabCompletab
     private void editUserGroup(@NotNull OnlineUser executor, @NotNull String groupName, @NotNull List<String> users,
                                @NotNull BiConsumer<UserGroup, User> editor, @NotNull Runnable noGroup) {
         plugin.editUserGroup(
-                executor,
-                groupName,
+                executor, groupName,
                 (group) -> resolveUsers(executor, users).forEach(user -> editor.accept(group, user)),
                 noGroup
         );
@@ -178,16 +174,17 @@ public class UserGroupsCommand extends OnlineUserCommand implements TabCompletab
 
     @NotNull
     private List<User> resolveUsers(@NotNull OnlineUser user, @NotNull List<String> users) {
-        return users.stream().map(username -> plugin.getDatabase().getUser(username))
-                .filter(optional -> {
+        return users.stream()
+                .map(username -> {
+                    final Optional<SavedUser> optional = plugin.getDatabase().getUser(username);
                     if (optional.isEmpty()) {
-                        plugin.getLocales().getLocale("error_invalid_user")
+                        plugin.getLocales().getLocale("error_invalid_user", username)
                                 .ifPresent(user::sendMessage);
-                        return false;
+                        return null;
                     }
-                    return true;
+                    return optional.get().getUser();
                 })
-                .map(Optional::get).map(SavedUser::getUser)
+                .filter(Objects::nonNull)
                 .toList();
     }
 
