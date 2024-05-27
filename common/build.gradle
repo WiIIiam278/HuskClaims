@@ -11,7 +11,7 @@ dependencies {
     api 'com.fatboyindustrial.gson-javatime-serialisers:gson-javatime-serialisers:1.1.2'
     api 'net.william278:minedown:1.8.2'
     api 'net.william278:paginedown:1.1.2'
-    api 'net.william278.cloplib:cloplib-common:1.0.5'
+    api 'net.william278.cloplib:cloplib-common:1.0.6'
     api 'net.william278:DesertWell:2.0.4'
     api('com.zaxxer:HikariCP:5.1.0') {
         exclude module: 'slf4j-api'
