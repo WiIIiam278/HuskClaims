@@ -590,6 +590,7 @@ public class Claim implements Highlightable {
         }
         final Claim child = new Claim(owner, subRegion, plugin);
         children.add(child);
+        child.setParent(this);
         return child;
     }
 
