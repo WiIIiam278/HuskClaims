@@ -64,7 +64,7 @@ public interface UserListener {
     // Check a user is able to enter a claim on join
     private void checkClaimLoginBan(@NotNull OnlineUser u) {
         getPlugin().getClaimWorld(u.getWorld()).ifPresent(w -> w.getClaimAt(u.getPosition()).ifPresent(c -> {
-            if (w.isBannedFromClaim(u, c, true, getPlugin())) {
+            if (w.isBannedFromClaim(u, c, getPlugin())) {
                 getPlugin().teleportOutOfClaim(u);
             }
         }));

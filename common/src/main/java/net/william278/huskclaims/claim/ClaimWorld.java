@@ -391,25 +391,6 @@ public class ClaimWorld {
     }
 
     /**
-     * Get if a user is banned from a claim
-     *
-     * @param user    the user to check
-     * @param claim   the claim to check
-     * @param verbose if the user should be sent a message if they are banned
-     * @param plugin  the HuskClaims plugin instance
-     * @return {@code true} if the user is banned from the claim; {@code false} otherwise
-     */
-    public boolean isBannedFromClaim(@NotNull OnlineUser user, @NotNull Claim claim,
-                                     boolean verbose, @NotNull HuskClaims plugin) {
-        if (claim.isUserBanned(user) && !isIgnoringClaims(user, plugin)) {
-            plugin.getLocales().getLocale("user_banned_you", claim.getOwnerName(this, plugin))
-                    .ifPresent(user::sendMessage);
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * Get the total number of claims in this world
      *
      * @return the total number of claims in this world
@@ -417,6 +398,17 @@ public class ClaimWorld {
      */
     public int getClaimCount() {
         return userClaims.values().stream().mapToInt(Set::size).sum();
+    }
+
+    // Check if a user is banned from a claim
+    @ApiStatus.Internal
+    public boolean isBannedFromClaim(@NotNull OnlineUser user, @NotNull Claim claim, @NotNull HuskClaims plugin) {
+        if (claim.isUserBanned(user) && !isIgnoringClaims(user, plugin)) {
+            plugin.getLocales().getLocale("user_banned_you", claim.getOwnerName(this, plugin))
+                    .ifPresent(user::sendMessage);
+            return true;
+        }
+        return false;
     }
 
     // Load claims (caching all of them)
