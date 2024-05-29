@@ -19,35 +19,29 @@
 
 package net.william278.huskclaims.event;
 
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import net.william278.huskclaims.HuskClaims;
-import org.bukkit.event.Event;
-import org.bukkit.event.HandlerList;
+import net.william278.huskclaims.claim.ClaimWorld;
+import net.william278.huskclaims.user.User;
+import org.bukkit.event.Cancellable;
 import org.jetbrains.annotations.NotNull;
 
-@SuppressWarnings("unused")
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class BukkitEvent extends Event implements net.william278.huskclaims.event.Event {
+import java.util.Map;
 
-    private static final HandlerList HANDLER_LIST = new HandlerList();
+@Getter
+public class BukkitClaimWorldPruneEvent extends BukkitEvent implements ClaimWorldPruneEvent, Cancellable {
 
-    private final HuskClaims plugin;
+    private final Map<User, Long> userBlocksMap;
+    private final ClaimWorld claimWorld;
+    @Setter
+    private boolean cancelled;
 
-    @NotNull
-    @Override
-    public HandlerList getHandlers() {
-        return HANDLER_LIST;
-    }
-
-    public static HandlerList getHandlerList() {
-        return HANDLER_LIST;
-    }
-
-    @Override
-    @NotNull
-    public HuskClaims getPlugin() {
-        return plugin;
+    public BukkitClaimWorldPruneEvent(@NotNull ClaimWorld claimWorld, @NotNull Map<User, Long> userBlocksMap,
+                                      @NotNull HuskClaims plugin) {
+        super(plugin);
+        this.claimWorld = claimWorld;
+        this.userBlocksMap = userBlocksMap;
     }
 
 }

@@ -34,6 +34,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -153,6 +155,12 @@ public interface EventDispatcher extends EventProvider {
     default void fireClaimUnBanEvent(@NotNull OnlineUser user, @NotNull Claim claim, @NotNull ClaimWorld claimWorld,
                                      @NotNull User bannedUser, @NotNull Consumer<ClaimUnBanEvent> callback) {
         fireEvent(getClaimUnBanEvent(user, claim, claimWorld, bannedUser), callback);
+    }
+
+    default Optional<ClaimWorldPruneEvent> fireIsCancelledClaimWorldPruneEvent(@NotNull ClaimWorld world,
+                                                                               @NotNull Map<User, Long> userMap) {
+        final ClaimWorldPruneEvent event = getClaimWorldPruneEvent(world, userMap);
+        return fireIsCancelled(event) ? Optional.of(event) : Optional.empty();
     }
 
     @NotNull

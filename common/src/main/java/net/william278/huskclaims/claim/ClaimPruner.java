@@ -22,6 +22,7 @@ package net.william278.huskclaims.claim;
 import com.google.common.collect.Maps;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.database.Database;
+import net.william278.huskclaims.event.ClaimWorldPruneEvent;
 import net.william278.huskclaims.user.ClaimBlocksManager.ClaimBlockSource;
 import net.william278.huskclaims.user.SavedUser;
 import net.william278.huskclaims.user.User;
@@ -32,6 +33,7 @@ import org.jetbrains.annotations.Unmodifiable;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -77,18 +79,34 @@ public interface ClaimPruner {
     @NotNull
     @Blocking
     private Map<User, Long> pruneAndCalculateRefunds(@NotNull Set<ClaimWorld> worlds, @NotNull Set<User> users) {
-        final Map<User, Long> blocksToRefund = Maps.newHashMap();
-        worlds.stream()
-                .filter(w -> !users.stream().filter(u -> {
-                    final long blocks = w.getSurfaceClaimedBy(u);
-                    if (blocks > 0 && w.removeClaimsBy(u)) {
-                        blocksToRefund.compute(u, (k, v) -> v == null ? blocks : v + blocks);
-                        return true;
-                    }
-                    return false;
-                }).collect(Collectors.toSet()).isEmpty())
-                .forEach(w -> getDatabase().updateClaimWorld(w));
-        return blocksToRefund;
+        // Prune each claim world
+        final Map<User, Long> toRefund = Maps.newHashMap();
+        for (ClaimWorld world : worlds) {
+            if (world.getClaims().isEmpty()) {
+                continue;
+            }
+
+            // Determine users to prune and claim block volume
+            final Map<User, Long> blocks = Maps.newHashMap();
+            for (User user : users) {
+                final long surfaceArea = world.getSurfaceClaimedBy(user);
+                if (surfaceArea > 0) {
+                    blocks.put(user, surfaceArea);
+                }
+            }
+
+            // Fire event, carry out pruning
+            final Optional<ClaimWorldPruneEvent> event = getPlugin().fireIsCancelledClaimWorldPruneEvent(world, blocks);
+            if (event.isEmpty()) {
+                continue;
+            }
+            event.get().getUserBlocksMap().forEach((u, b) -> {
+                toRefund.compute(u, (k, v) -> v == null ? b : v + b);
+                world.removeClaimsBy(u);
+            });
+            getDatabase().updateClaimWorld(world);
+        }
+        return toRefund;
     }
 
     // Refunds claim blocks based on a user map of blocks to refund
