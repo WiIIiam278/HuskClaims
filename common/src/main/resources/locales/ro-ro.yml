@@ -75,6 +75,7 @@ locales:
   trust_level_removed: '[S-a revocat cu succes nivelul de încredere al lui %1% în această revendicare.](#00fb9a)'
   user_banned: '[🔨 %1% has been banned from this claim.](#00fb9a)'
   user_unbanned: '[🔨 %1% has been unbanned from this claim.](#00fb9a)'
+  user_banned_you: '[🔨 You have been banned from this claim.](#ff7e5e)'
   no_inspecting_permission: '[Nu ai permisiunea de a inspecta revendicări.](#ff7e5e)'
   no_claiming_permission: '[Nu ai permisiunea de a crea sau edita revendicări.](#ff7e5e)'
   no_claiming_child_permission: '[Nu ai permisiunea de a to crea sau edita revendicări fiu.](#ff7e5e)'

@@ -75,6 +75,7 @@ locales:
   trust_level_removed: '[Successfully revoked %1%''s trust level to this claim.](#00fb9a)'
   user_banned: '[🔨 %1% has been banned from this claim.](#00fb9a)'
   user_unbanned: '[🔨 %1% has been unbanned from this claim.](#00fb9a)'
+  user_banned_you: '[🔨 You have been banned from this claim.](#ff7e5e)'
   no_inspecting_permission: '[You do not have permission to inspect claims.](#ff7e5e)'
   no_claiming_permission: '[You do not have permission to create or edit claims.](#ff7e5e)'
   no_claiming_child_permission: '[You do not have permission to create or edit child claims.](#ff7e5e)'

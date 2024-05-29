@@ -66,11 +66,14 @@ public class ClaimBanCommand extends InClaimCommand implements UserListTabComple
             world.cacheUser(executor);
             plugin.getDatabase().updateClaimWorld(world);
             plugin.invalidateClaimListCache(claim.getOwner().orElse(null));
-
-            // TODO: Teleport a banned user to a safe place outside the claim, if they are within it
-
             plugin.getLocales().getLocale("user_banned", user.getName())
                     .ifPresent(executor::sendMessage);
+
+            // Teleport the user out of the claim
+            plugin.getOnlineUsers().stream().filter(u -> u.equals(user)).findFirst()
+                    .ifPresent(o -> plugin.teleportOutOfClaim(o, (done) -> plugin.getLocales()
+                            .getLocale("user_banned_you")
+                            .ifPresent(o::sendMessage)));
         });
     }
 

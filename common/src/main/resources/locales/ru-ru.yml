@@ -75,6 +75,7 @@ locales:
   trust_level_removed: '[У игрока %1% успешно отозваны права доверия в данный регион.](#00fb9a)'
   user_banned: '[🔨 %1% has been banned from this claim.](#00fb9a)'
   user_unbanned: '[🔨 %1% has been unbanned from this claim.](#00fb9a)'
+  user_banned_you: '[🔨 You have been banned from this claim.](#ff7e5e)'
   no_inspecting_permission: '[У вас нет доступа на просмотр регионов.](#ff7e5e)'
   no_claiming_permission: '[У вас нет прав на создание или редактирование регионов.](#ff7e5e)'
   no_claiming_child_permission: '[У вас нет прав на создание или редактирование потомственных регионов.](#ff7e5e)'

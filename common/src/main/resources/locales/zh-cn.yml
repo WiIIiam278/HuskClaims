@@ -75,6 +75,7 @@ locales:
   trust_level_removed: '[成功撤销%1%对此领地的信任级别](#00fb9a)'
   user_banned: '[🔨 %1% has been banned from this claim.](#00fb9a)'
   user_unbanned: '[🔨 %1% has been unbanned from this claim.](#00fb9a)'
+  user_banned_you: '[🔨 You have been banned from this claim.](#ff7e5e)'
   no_inspecting_permission: '[您没有权限查看领地](#ff7e5e)'
   no_claiming_permission: '[您没有创建或编辑领地的权限](#ff7e5e)'
   no_claiming_child_permission: '[您没有创建或编辑子领地的权限](#ff7e5e)'
