@@ -19,7 +19,14 @@
 
 package net.william278.huskclaims.command;
 
+import com.google.common.collect.Lists;
+import de.themoep.minedown.adventure.MineDown;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.claim.ServerWorldClaim;
+import net.william278.huskclaims.config.Locales;
+import net.william278.huskclaims.config.Settings;
 import net.william278.huskclaims.user.ClaimBlocksManager;
 import net.william278.huskclaims.user.CommandUser;
 import net.william278.huskclaims.user.OnlineUser;
@@ -29,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class ClaimBlocksCommand extends Command implements UserListTabCompletable {
+public class ClaimBlocksCommand extends Command implements UserListTabCompletable, GlobalClaimsProvider {
 
     protected ClaimBlocksCommand(@NotNull HuskClaims plugin) {
         super(
@@ -67,14 +74,46 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
     private void performClaimBlockOperation(@NotNull CommandUser executor, @NotNull User user,
                                             @NotNull ClaimBlockOption option, int amount) {
         switch (option) {
-            case SHOW -> plugin.getLocales().getLocale("claim_block_balance", user.getName(),
-                    Long.toString(plugin.getClaimBlocks(user))).ifPresent(executor::sendMessage);
+            case SHOW -> showClaimBlocks(executor, user);
             case ADD -> changeClaimBlocks(executor, user, amount, false);
             case REMOVE -> changeClaimBlocks(executor, user, -amount, false);
             case SET -> changeClaimBlocks(executor, user, amount, true);
         }
     }
 
+    private void showClaimBlocks(@NotNull CommandUser executor, @NotNull User user) {
+        final List<ServerWorldClaim> claims = getUserClaims(user);
+        final Settings.ClaimSettings settings = getPlugin().getSettings().getClaims();
+        final Locales locales = plugin.getLocales();
+
+        // Calculate the user's claim block totals
+        long started = settings.getStartingClaimBlocks();
+        long available = Math.max(0, plugin.getClaimBlocks(user));
+        long spent = Math.max(0, claims.stream().map(ServerWorldClaim::getSurfaceArea).reduce(0L, Long::sum));
+        long earned = (available + spent) - started;
+        long accrued = Math.max(0, Math.max(started, available) + spent);
+
+        // Prepare from locales
+        final String name = user.getName();
+        final String count = Integer.toString(claims.size());
+        final List<MineDown> lines = Lists.newArrayList();
+        locales.getLocale("claim_block_balance_header", name).ifPresent(lines::add);
+        locales.getLocale("claim_block_balance_started", Long.toString(started)).ifPresent(lines::add);
+        if (earned >= 0) {
+            locales.getLocale("claim_block_balance_acquired", Long.toString(earned)).ifPresent(lines::add);
+        }
+        locales.getLocale("claim_block_balance_accrued", Long.toString(accrued)).ifPresent(lines::add);
+        if (earned < 0) {
+            locales.getLocale("claim_block_balance_deducted", Long.toString(-earned)).ifPresent(lines::add);
+        }
+        locales.getLocale("claim_block_balance_spent", Long.toString(spent), count, name).ifPresent(lines::add);
+        locales.getLocale("claim_block_balance_available", Long.toString(available)).ifPresent(lines::add);
+
+        // Build component & dispatch
+        final TextComponent.Builder builder = Component.text();
+        lines.stream().map(MineDown::toComponent).forEach(c -> builder.append(c).append(Component.newline()));
+        executor.sendMessage(builder.build());
+    }
 
     private void changeClaimBlocks(@NotNull CommandUser executor, @NotNull User user, int changeBy, boolean set) {
         plugin.editClaimBlocks(
