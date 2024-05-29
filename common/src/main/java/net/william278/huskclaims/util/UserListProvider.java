@@ -54,6 +54,10 @@ public interface UserListProvider {
         getGlobalUserList().put(server, players);
     }
 
+    default boolean isUserOnline(@NotNull User user) {
+        return getUserList().contains(user);
+    }
+
     @NotNull
     HuskClaims getPlugin();
 

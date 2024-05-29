@@ -71,9 +71,11 @@ public class ClaimBanCommand extends InClaimCommand implements UserListTabComple
 
             // Teleport the user out of the claim
             plugin.getOnlineUsers().stream().filter(u -> u.equals(user)).findFirst()
-                    .ifPresent(o -> plugin.teleportOutOfClaim(o, (done) -> plugin.getLocales()
-                            .getLocale("user_banned_you")
-                            .ifPresent(o::sendMessage)));
+                    .ifPresent(o -> {
+                        plugin.teleportOutOfClaim(o);
+                        plugin.getLocales().getLocale("user_banned_you", claim.getOwnerName(world, plugin))
+                                .ifPresent(o::sendMessage);
+                    });
         });
     }
 

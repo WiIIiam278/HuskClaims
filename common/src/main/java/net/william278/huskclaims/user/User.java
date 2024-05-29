@@ -55,10 +55,7 @@ public class User implements Trustable, Comparable<User> {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof User user)) {
-            return false;
-        }
-        return user.getUuid().equals(uuid);
+        return obj instanceof User user && user.getUuid().equals(uuid);
     }
 
     @Override
