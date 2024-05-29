@@ -62,7 +62,7 @@ public class ClaimBanCommand extends InClaimCommand implements UserListTabComple
 
         plugin.fireClaimBanEvent(executor, claim, world, user, (event) -> {
             claim.banUser(user, executor);
-            claim.removeTrustLevel(user, world);
+            world.cacheUser(user);
             world.cacheUser(executor);
             plugin.getDatabase().updateClaimWorld(world);
             plugin.invalidateClaimListCache(claim.getOwner().orElse(null));

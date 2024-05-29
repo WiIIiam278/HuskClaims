@@ -261,9 +261,13 @@ public class Claim implements Highlightable {
      *
      * @param uuid  the user to set the trust level for
      * @param level the trust level to set
+     * @throws IllegalArgumentException if the user is banned
      * @since 1.0
      */
     public void setUserTrustLevel(@NotNull UUID uuid, @NotNull TrustLevel level) {
+        if (bannedUsers.containsKey(uuid)) {
+            throw new IllegalArgumentException("Cannot set trust level for banned user");
+        }
         trustedUsers.put(uuid, level.getId());
     }
 
@@ -452,7 +456,9 @@ public class Claim implements Highlightable {
     }
 
     /**
-     * Ban a user from this claim
+     * Ban a user from this claim.
+     * <p>
+     * This action will also clear any trust levels the user has in this claim.
      *
      * @param user    the user to ban
      * @param arbiter the arbiter of the ban
@@ -466,6 +472,7 @@ public class Claim implements Highlightable {
         if (arbiter.equals(user)) {
             throw new IllegalArgumentException("Cannot ban self from claim");
         }
+        trustedUsers.remove(user.getUuid());
         bannedUsers.put(user.getUuid(), arbiter.getUuid());
     }
 
@@ -491,19 +498,19 @@ public class Claim implements Highlightable {
         // If the operation is explicitly allowed, return it
         return defaultFlags.contains(operation.getType())
 
-               // Or, if the user is the owner, return true
-               || (owner != null && operation.getUser()
+                // Or, if the user is the owner, return true
+                || (owner != null && operation.getUser()
                 .map(user -> owner.equals(user.getUuid()))
                 .orElse(false))
 
-               // Or, if there's a user involved in this operation, check their rights
-               || (operation.getUser()
+                // Or, if there's a user involved in this operation, check their rights
+                || (operation.getUser()
                 .flatMap(user -> getUserTrustLevel((OnlineUser) user, plugin)
                         .map(level -> level.getFlags().contains(operation.getType())))
                 .orElse(false))
 
-               // Or, if the user doesn't have a trust level here, try getting it from the parent
-               || (inheritParent && getParent()
+                // Or, if the user doesn't have a trust level here, try getting it from the parent
+                || (inheritParent && getParent()
                 .map(parent -> parent.isOperationAllowed(operation, plugin))
                 .orElse(false));
     }
