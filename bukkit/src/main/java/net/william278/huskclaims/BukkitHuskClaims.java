@@ -55,6 +55,7 @@ import net.william278.huskclaims.trust.UserGroup;
 import net.william278.huskclaims.user.*;
 import net.william278.huskclaims.util.BlockProvider;
 import net.william278.huskclaims.util.BukkitBlockProvider;
+import net.william278.huskclaims.util.BukkitSafeTeleportProvider;
 import net.william278.huskclaims.util.BukkitTask;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
@@ -80,7 +81,7 @@ import java.util.logging.Level;
 @NoArgsConstructor
 @Getter
 public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTask.Supplier, BukkitBlockProvider,
-        BukkitPetHandler, BukkitEventDispatcher, BukkitHookProvider, PluginMessageListener {
+        BukkitSafeTeleportProvider, BukkitPetHandler, BukkitEventDispatcher, BukkitHookProvider, PluginMessageListener {
 
     private MorePaperLib morePaperLib;
     private AudienceProvider audiences;

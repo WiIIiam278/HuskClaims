@@ -35,10 +35,7 @@ import org.bukkit.entity.Tameable;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -94,6 +91,17 @@ public class BukkitListener extends BukkitOperationListener implements BukkitPet
         );
     }
 
+    @EventHandler(ignoreCancelled = true)
+    public void onUserTeleport(@NotNull PlayerTeleportEvent e) {
+        if (e.getTo() != null && getPlugin().cancelMovement(
+                BukkitUser.adapt(e.getPlayer(), getPlugin()),
+                BukkitHuskClaims.Adapter.adapt(e.getFrom()),
+                BukkitHuskClaims.Adapter.adapt(e.getTo())
+        )) {
+            e.setCancelled(true);
+        }
+    }
+
     @Override
     public void onUserTamedEntityAction(@NotNull Cancellable event, @Nullable Entity player, @NotNull Entity entity) {
         // If pets are enabled, check if the entity is tamed
@@ -103,7 +111,7 @@ public class BukkitListener extends BukkitOperationListener implements BukkitPet
 
         // Check it was damaged by a player
         final Optional<Player> source = getPlayerSource(player);
-        final Optional<User> owner = ((BukkitHuskClaims) getPlugin()).getPetOwner(tamed);
+        final Optional<User> owner = getPlugin().getPetOwner(tamed);
         if (source.isEmpty() || owner.isEmpty()) {
             return;
         }

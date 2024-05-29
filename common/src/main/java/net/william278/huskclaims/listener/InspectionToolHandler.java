@@ -102,9 +102,13 @@ public interface InspectionToolHandler {
 
         // Send "last seen..." message if the user has permission
         if (user.hasPermission(VIEW_LAST_SEEN_PERMISSION)) {
-            claim.getOwner().flatMap(owner -> getPlugin().getSavedUser(owner)).map(SavedUser::getDaysSinceLastLogin)
+            claim.getOwner()
+                    .flatMap(owner -> getPlugin().getSavedUser(owner))
+                    .flatMap(saved -> getPlugin()
+                            .isUserOnline(saved.getUser()) ? Optional.empty() : Optional.of(saved))
+                    .map(SavedUser::getDaysSinceLastLogin)
                     .flatMap(days -> getPlugin().getLocales()
-                            .getLocale("days_since_last_login", Long.toString(days)))
+                            .getLocale((days < 1 ? "today_last_login" : "days_since_last_login"), Long.toString(days)))
                     .ifPresent(user::sendMessage);
         }
     }

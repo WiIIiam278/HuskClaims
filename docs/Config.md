@@ -153,6 +153,11 @@ claims:
     excluded_worlds: []
     # List of users (by either UUID or username) to exclude from inactive claim pruning
     excluded_users: []
+  # Settings for banning users from claims
+  bans:
+    # Whether to let users ban others from their claims (prevent them from entering) using /claimban
+    # Also requires the MANAGE_BANS privilege (by default, restricted to those with 'manage' trust)
+    enabled: false
 # Groups of operations that can be toggled on/off in claims
 operation_groups:
 - name: Claim Explosions

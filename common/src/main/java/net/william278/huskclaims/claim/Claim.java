@@ -261,9 +261,13 @@ public class Claim implements Highlightable {
      *
      * @param uuid  the user to set the trust level for
      * @param level the trust level to set
+     * @throws IllegalArgumentException if the user is banned
      * @since 1.0
      */
     public void setUserTrustLevel(@NotNull UUID uuid, @NotNull TrustLevel level) {
+        if (bannedUsers.containsKey(uuid)) {
+            throw new IllegalArgumentException("Cannot set trust level for banned user");
+        }
         trustedUsers.put(uuid, level.getId());
     }
 
@@ -370,7 +374,8 @@ public class Claim implements Highlightable {
      *     <li>Individual {@link User}s</li>
      *     <li>{@link UserGroup}s</li>
      *     <li>{@link TrustTag}s</li>
-     *     </ol>
+     * </ol>
+     * Banned users cannot have a trust level.
      *
      * @param user   the user to get the trust level for
      * @param plugin the plugin instance
@@ -378,6 +383,11 @@ public class Claim implements Highlightable {
      * @since 1.0
      */
     public Optional<TrustLevel> getUserTrustLevel(@NotNull User user, @NotNull HuskClaims plugin) {
+        // If the user is banned, return empty
+        if (isUserBanned(user)) {
+            return Optional.empty();
+        }
+
         // Handle explicit user permissions
         if (trustedUsers.containsKey(user.getUuid())) {
             return plugin.getTrustLevel(trustedUsers.get(user.getUuid()));
@@ -432,6 +442,48 @@ public class Claim implements Highlightable {
                 .or(() -> inheritParent
                         ? getParent().flatMap(parent -> parent.getEffectiveTrustLevel(trustable, plugin))
                         : Optional.empty());
+    }
+
+    /**
+     * Returns if the user is banned from this claim
+     *
+     * @param user the user to check
+     * @return whether the user is banned
+     * @since 1.3
+     */
+    public boolean isUserBanned(@NotNull User user) {
+        return bannedUsers.containsKey(user.getUuid());
+    }
+
+    /**
+     * Ban a user from this claim.
+     * <p>
+     * This action will also clear any trust levels the user has in this claim.
+     *
+     * @param user    the user to ban
+     * @param arbiter the arbiter of the ban
+     * @throws IllegalArgumentException if the user is the claim owner, or the arbiter is the user to ban
+     * @since 1.3
+     */
+    public void banUser(@NotNull User user, @NotNull User arbiter) {
+        if (user.getUuid().equals(owner)) {
+            throw new IllegalArgumentException("Cannot ban the claim owner");
+        }
+        if (arbiter.equals(user)) {
+            throw new IllegalArgumentException("Cannot ban self from claim");
+        }
+        trustedUsers.remove(user.getUuid());
+        bannedUsers.put(user.getUuid(), arbiter.getUuid());
+    }
+
+    /**
+     * Unban a user from this claim
+     *
+     * @param user the user to unban
+     * @since 1.3
+     */
+    public void unBanUser(@NotNull User user) {
+        bannedUsers.remove(user.getUuid());
     }
 
     /**

@@ -19,6 +19,7 @@
 
 package net.william278.huskclaims.user;
 
+import io.papermc.lib.PaperLib;
 import lombok.Getter;
 import net.william278.cloplib.listener.InspectorCallbackProvider;
 import net.william278.huskclaims.BukkitHuskClaims;
@@ -107,4 +108,8 @@ public class BukkitUser extends OnlineUser {
         return bukkitPlayer.isSneaking();
     }
 
+    @Override
+    public void teleport(@NotNull Position position) {
+        PaperLib.teleportAsync(bukkitPlayer, BukkitHuskClaims.Adapter.adapt(position));
+    }
 }

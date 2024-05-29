@@ -89,4 +89,6 @@ public abstract class OnlineUser extends User implements OperationUser, CommandU
 
     public abstract boolean isSneaking();
 
+    public abstract void teleport(@NotNull Position position);
+
 }

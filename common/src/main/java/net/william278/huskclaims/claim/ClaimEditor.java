@@ -241,6 +241,7 @@ public interface ClaimEditor {
 
             // Set the claim, highlight it, invalidate the new owner's claim list cache
             getPlugin().removeMappedClaim(claim, claimWorld);
+            claim.unBanUser(newOwner);
             claim.setOwner(newOwner.getUuid());
             getPlugin().getDatabase().updateClaimWorld(claimWorld);
             getPlugin().addMappedClaim(claim, claimWorld);

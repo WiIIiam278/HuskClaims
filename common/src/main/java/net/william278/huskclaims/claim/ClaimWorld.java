@@ -400,6 +400,17 @@ public class ClaimWorld {
         return userClaims.values().stream().mapToInt(Set::size).sum();
     }
 
+    // Check if a user is banned from a claim
+    @ApiStatus.Internal
+    public boolean isBannedFromClaim(@NotNull OnlineUser user, @NotNull Claim claim, @NotNull HuskClaims plugin) {
+        if (claim.isUserBanned(user) && !isIgnoringClaims(user, plugin)) {
+            plugin.getLocales().getLocale("user_banned_you", claim.getOwnerName(this, plugin))
+                    .ifPresent(user::sendMessage);
+            return true;
+        }
+        return false;
+    }
+
     // Load claims (caching all of them)
     protected void loadClaims(@NotNull Set<Claim> claims) {
         this.cachedClaims = new Long2ObjectOpenHashMap<>();

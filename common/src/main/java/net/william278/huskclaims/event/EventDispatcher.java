@@ -145,6 +145,16 @@ public interface EventDispatcher extends EventProvider {
         fireEvent(getTransferClaimEvent(user, claim, claimWorld, newOwner), callback);
     }
 
+    default void fireClaimBanEvent(@NotNull OnlineUser user, @NotNull Claim claim, @NotNull ClaimWorld claimWorld,
+                                   @NotNull User bannedUser, @NotNull Consumer<ClaimBanEvent> callback) {
+        fireEvent(getClaimBanEvent(user, claim, claimWorld, bannedUser), callback);
+    }
+
+    default void fireClaimUnBanEvent(@NotNull OnlineUser user, @NotNull Claim claim, @NotNull ClaimWorld claimWorld,
+                                     @NotNull User bannedUser, @NotNull Consumer<ClaimUnBanEvent> callback) {
+        fireEvent(getClaimUnBanEvent(user, claim, claimWorld, bannedUser), callback);
+    }
+
     @NotNull
     HuskClaims getPlugin();
 

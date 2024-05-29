@@ -272,6 +272,20 @@ public final class Settings {
 
         }
 
+        @Comment("Settings for banning users from claims")
+        private BanSettings bans = new BanSettings();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class BanSettings {
+
+            @Comment({"Whether to let users ban others from their claims (prevent them from entering) using /claimban",
+                    "Also requires the MANAGE_BANS privilege (by default, restricted to those with 'manage' trust)"})
+            private boolean enabled = false;
+
+        }
+
         public boolean isWorldUnclaimable(@NotNull World world) {
             return unclaimableWorlds.stream().anyMatch(world.getName()::equalsIgnoreCase);
         }
@@ -470,7 +484,7 @@ public final class Settings {
         @NoArgsConstructor(access = AccessLevel.PRIVATE)
         public static class SignSettings {
             @Comment("Whether to notify users with /signspy on when signs are placed.edited. Requires Minecraft 1.19.4+"
-                    + "Requires Minecraft 1.19.4+")
+                     + "Requires Minecraft 1.19.4+")
             private boolean notifyModerators = true;
 
             @Comment("Whether to filter messages")

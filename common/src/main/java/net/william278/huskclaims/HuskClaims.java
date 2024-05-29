@@ -51,7 +51,7 @@ import java.util.logging.Level;
 public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvider, GsonProvider, UserManager,
         SignNotifier, ClaimManager, GroupManager, TrustTagManager, ListenerProvider, UserListProvider,
         CommandProvider, PetHandler, DropsHandler, BrokerProvider, TextValidator, AudiencesProvider, BlockProvider,
-        MetaProvider, EventDispatcher, HookProvider {
+        SafeTeleportProvider, MetaProvider, EventDispatcher, HookProvider {
 
     /**
      * Initialize all plugin systems

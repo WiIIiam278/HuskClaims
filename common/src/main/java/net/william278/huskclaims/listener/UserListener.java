@@ -34,6 +34,9 @@ public interface UserListener {
                 getPlugin().getLocales().getLocale("ignoring_claims_reminder")
                         .ifPresent(user::sendMessage);
             }
+            if (getPlugin().getSettings().getClaims().getBans().isEnabled()) {
+                checkClaimLoginBan(user);
+            }
         });
     }
 
@@ -56,6 +59,15 @@ public interface UserListener {
             getPlugin().getLocales().getLocale("claim_selection_cancelled")
                     .ifPresent(user::sendMessage);
         }
+    }
+
+    // Check a user is able to enter a claim on join
+    private void checkClaimLoginBan(@NotNull OnlineUser u) {
+        getPlugin().getClaimWorld(u.getWorld()).ifPresent(w -> w.getClaimAt(u.getPosition()).ifPresent(c -> {
+            if (w.isBannedFromClaim(u, c, getPlugin())) {
+                getPlugin().teleportOutOfClaim(u);
+            }
+        }));
     }
 
     @NotNull
