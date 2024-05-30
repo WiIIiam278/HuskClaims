@@ -149,6 +149,10 @@ public class ClaimWorld {
      * @since 1.0
      */
     public void removeClaim(@NotNull Claim claim) {
+        if (claim.isChildClaim()) {
+            throw new IllegalArgumentException("Cannot remove a child claim directly");
+        }
+
         final UUID owner = claim.getOwner().orElse(ADMIN_CLAIM);
         final Set<Claim> ownedClaims = userClaims.get(owner);
         if (ownedClaims != null) {
@@ -161,6 +165,40 @@ public class ClaimWorld {
             if (chunkClaims != null) {
                 chunkClaims.remove(claim);
             }
+        });
+    }
+
+    /**
+     * Resize a claim in the ClaimWorld, caching the new chunks.
+     * <p>
+     * It is important that this method is used to resize claims, instead of simply just setting the new claim region,
+     * as this method ensures that the claim's chunks are correctly cached.
+     *
+     * @param claim     the claim to resize
+     * @param newRegion the new region of the claim
+     * @since 1.3.1
+     */
+    public void resizeClaim(@NotNull Claim claim, @NotNull Region newRegion) {
+        if (claim.isChildClaim()) {
+            throw new IllegalArgumentException("Cannot resize a child claim in a world context");
+        }
+
+        // Clear old region chunks
+        final Region oldRegion = claim.getRegion();
+        oldRegion.getChunks().forEach(chunk -> {
+            final long asLong = ((long) chunk[0] << 32) | (chunk[1] & 0xffffffffL);
+            final Set<Claim> chunkClaims = cachedClaims.get(asLong);
+            if (chunkClaims != null) {
+                chunkClaims.remove(claim);
+            }
+        });
+
+        // Set new region, cache new chunks
+        claim.setRegion(newRegion);
+        newRegion.getChunks().forEach(chunk -> {
+            final long asLong = ((long) chunk[0] << 32) | (chunk[1] & 0xffffffffL);
+            final Set<Claim> chunkClaims = cachedClaims.computeIfAbsent(asLong, k -> Sets.newConcurrentHashSet());
+            chunkClaims.add(claim);
         });
     }
 
@@ -322,7 +360,7 @@ public class ClaimWorld {
                     .filter(claim -> claim.getRegion().overlaps(region))
                     .forEach(overlappingClaims::add);
         });
-        return overlappingClaims;
+        return overlappingClaims.stream().distinct().toList();
     }
 
     /**
@@ -428,6 +466,11 @@ public class ClaimWorld {
 
     // Cache a claim in the world
     private void cacheClaim(@NotNull Claim claim) {
+        if (claim.isChildClaim()) {
+            throw new IllegalArgumentException("Cannot cache a child claim in a world context");
+        }
+
+        // Set parents
         claim.getChildren().forEach(c -> c.setParent(claim));
         cacheOwnedClaim(claim);
 

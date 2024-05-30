@@ -188,9 +188,9 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor, ClaimPruner {
             throw new IllegalArgumentException("Owner does not have enough claim blocks to resize claim");
         }
 
-        // Update the claim
+        // Update the claim, resizing it in the claim world context
         getPlugin().removeMappedClaim(claim, world);
-        claim.setRegion(newRegion);
+        world.resizeClaim(claim, newRegion);
         getDatabase().updateClaimWorld(world);
         getPlugin().addMappedClaim(claim, world);
         getPlugin().invalidateClaimListCache(claim.getOwner().orElse(null));
