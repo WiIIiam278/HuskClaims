@@ -64,6 +64,7 @@ public class ExtendClaimCommand extends InClaimOwnerCommand {
             return;
         }
 
+        // Validate and parse input distance
         final Optional<Integer> distance = parseIntArg(args, 0);
         if (distance.isEmpty() || distance.get() <= 0) {
             plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
@@ -71,6 +72,15 @@ public class ExtendClaimCommand extends InClaimOwnerCommand {
             return;
         }
 
+        // Protect against extending claims to a size that is too large (can cause extreme lag)
+        final int extendDistance = plugin.getSettings().getClaims().getInspectionDistance() * 2;
+        if (distance.get() > extendDistance) {
+            plugin.getLocales().getLocale("error_extendclaim_too_large", Integer.toString(extendDistance))
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        // Extend the region, resize the claim
         final Region extendedRegion = getExtendedRegion(
                 claim.getRegion(),
                 ExtendDirection.getFrom(executor.getPosition().getYaw()), distance.get()

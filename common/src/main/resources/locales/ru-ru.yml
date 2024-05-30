@@ -11,6 +11,7 @@ locales:
   error_invalid_group_name: '[Ошибка:](#ff3300) [Неправильно введено название группы: %1%.](#ff7e5e)'
   error_not_enough_claim_blocks: '[Ошибка:](#ff3300) [Ваш регион слишком большой! (Нужно ещё ■ %1% блоков привата)](#ff7e5e)'
   error_claim_too_small: '[Ошибка:](#ff3300) [Ваш регион слишком мал! (Минимальный размер: %1%x%1%)](#ff7e5e)'
+  error_extendclaim_too_large: '[Error:](#ff3300) [You can only extend claims by %1% blocks at a time!](#ff7e5e)'
   error_not_in_claim: '[Ошибка:](#ff3300) [Вы не находитесь в каком-либо регионе.](#ff7e5e)'
   error_trust_level_rank: '[Ошибка:](#ff3300) [Вы не можете устанавливать уровень доверия игрока %1%, так как у них более высокий ранг в этом регионе.](#ff7e5e)'
   error_not_trusted: '[Ошибка:](#ff3300) [Игрок %1% не был доверенным в этом регионе.](#ff7e5e)'

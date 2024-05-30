@@ -11,6 +11,7 @@ locales:
   error_invalid_group_name: '[Error:](#ff3300) [%1% is not a valid group name.](#ff7e5e)'
   error_not_enough_claim_blocks: '[Error:](#ff3300) [You don''t have enough claim blocks! (Need ■ %1% more)](#ff7e5e)'
   error_claim_too_small: '[Error:](#ff3300) [This claim would be too small! (Minimum claim size: %1%x%1%)](#ff7e5e)'
+  error_extendclaim_too_large: '[Error:](#ff3300) [You can only extend claims by %1% blocks at a time!](#ff7e5e)'
   error_not_in_claim: '[Error:](#ff3300) [You are not standing in a claim.](#ff7e5e)'
   error_trust_level_rank: '[Error:](#ff3300) [You cannot set the trust level of %1% as they outrank you.](#ff7e5e)'
   error_not_trusted: '[Error:](#ff3300) [%1% has not been trusted in this claim.](#ff7e5e)'

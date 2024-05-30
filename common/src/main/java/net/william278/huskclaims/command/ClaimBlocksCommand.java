@@ -54,7 +54,7 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
     public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
         final Optional<User> optionalUser = resolveUser(executor, args);
         final ClaimBlockOption option = parseClaimBlockOption(args).orElse(ClaimBlockOption.SHOW);
-        final Optional<Integer> amount = parseIntArg(args, 2).map(i -> Math.max(0, i));
+        final Optional<Long> amount = parseLongArg(args, 2).map(i -> Math.max(0, i));
         if (optionalUser.isEmpty() || (amount.isEmpty() && option != ClaimBlockOption.SHOW)) {
             plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                     .ifPresent(executor::sendMessage);
@@ -68,11 +68,11 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
                     .ifPresent(executor::sendMessage);
             return;
         }
-        performClaimBlockOperation(executor, user, option, amount.orElse(0));
+        performClaimBlockOperation(executor, user, option, amount.orElse(0L));
     }
 
     private void performClaimBlockOperation(@NotNull CommandUser executor, @NotNull User user,
-                                            @NotNull ClaimBlockOption option, int amount) {
+                                            @NotNull ClaimBlockOption option, long amount) {
         switch (option) {
             case SHOW -> showClaimBlocks(executor, user);
             case ADD -> changeClaimBlocks(executor, user, amount, false);
@@ -115,7 +115,7 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
         executor.sendMessage(builder.build());
     }
 
-    private void changeClaimBlocks(@NotNull CommandUser executor, @NotNull User user, int changeBy, boolean set) {
+    private void changeClaimBlocks(@NotNull CommandUser executor, @NotNull User user, long changeBy, boolean set) {
         plugin.editClaimBlocks(
                 user,
                 ClaimBlocksManager.ClaimBlockSource.ADMIN_ADJUSTMENT,

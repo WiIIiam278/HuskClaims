@@ -170,6 +170,16 @@ public abstract class Node implements Executable {
         });
     }
 
+    protected Optional<Long> parseLongArg(@NotNull String[] args, int index) {
+        return parseStringArg(args, index).flatMap(arg -> {
+            try {
+                return Optional.of(Long.parseLong(arg));
+            } catch (NumberFormatException e) {
+                return Optional.empty();
+            }
+        });
+    }
+
     protected Optional<Boolean> parseBooleanArg(@NotNull String[] args, int index) {
         if (args.length <= index) {
             return Optional.empty();
