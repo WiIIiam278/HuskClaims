@@ -54,7 +54,7 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
     public void execute(@NotNull CommandUser executor, @NotNull String[] args) {
         final Optional<User> optionalUser = resolveUser(executor, args);
         final ClaimBlockOption option = parseClaimBlockOption(args).orElse(ClaimBlockOption.SHOW);
-        final Optional<Long> amount = parseLongArg(args, 2).map(i -> Math.max(0, i));
+        final Optional<Long> amount = parseClaimBlocksArg(args, 2);
         if (optionalUser.isEmpty() || (amount.isEmpty() && option != ClaimBlockOption.SHOW)) {
             plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                     .ifPresent(executor::sendMessage);

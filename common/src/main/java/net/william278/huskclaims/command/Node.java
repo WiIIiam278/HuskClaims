@@ -160,20 +160,20 @@ public abstract class Node implements Executable {
         });
     }
 
-    protected Optional<Integer> parseIntArg(@NotNull String[] args, int index) {
+    protected Optional<Long> parseClaimBlocksArg(@NotNull String[] args, int index) {
         return parseStringArg(args, index).flatMap(arg -> {
             try {
-                return Optional.of(Integer.parseInt(arg));
+                return Optional.of(Math.min(SavedUser.MAX_CLAIM_BLOCKS, Math.abs(Long.parseLong(arg))));
             } catch (NumberFormatException e) {
                 return Optional.empty();
             }
         });
     }
 
-    protected Optional<Long> parseLongArg(@NotNull String[] args, int index) {
+    protected Optional<Integer> parseIntArg(@NotNull String[] args, int index) {
         return parseStringArg(args, index).flatMap(arg -> {
             try {
-                return Optional.of(Long.parseLong(arg));
+                return Optional.of(Integer.parseInt(arg));
             } catch (NumberFormatException e) {
                 return Optional.empty();
             }

@@ -24,6 +24,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.william278.huskclaims.HuskClaims;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Range;
 
 import java.time.OffsetDateTime;
 
@@ -36,11 +37,14 @@ import java.time.OffsetDateTime;
 @AllArgsConstructor
 public class SavedUser {
 
+    public static final long MAX_CLAIM_BLOCKS = 999999999999999999L;
+
     private User user;
     private Preferences preferences;
     @Setter
     private OffsetDateTime lastLogin;
     @Setter
+    @Range(from = 0, to = MAX_CLAIM_BLOCKS)
     private long claimBlocks;
     @Setter
     private int hoursPlayed;
@@ -82,7 +86,7 @@ public class SavedUser {
         return new SavedUser(
                 user,
                 Preferences.IMPORTED,
-                OffsetDateTime.now(),
+                lastLogin,
                 claimBlocks,
                 0
         );

@@ -40,7 +40,7 @@ public class BuyClaimBlocksCommand extends OnlineUserCommand {
 
     @Override
     public void execute(@NotNull OnlineUser executor, @NotNull String[] args) {
-        final Optional<Integer> amount = parseIntArg(args, 0).map(i -> Math.max(0, i));
+        final Optional<Long> amount = parseClaimBlocksArg(args, 0);
         if (amount.isEmpty()) {
             plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                     .ifPresent(executor::sendMessage);
@@ -56,7 +56,7 @@ public class BuyClaimBlocksCommand extends OnlineUserCommand {
         buyClaimBlocks(executor, amount.get(), hook.get());
     }
 
-    private void buyClaimBlocks(@NotNull OnlineUser executor, int amount, @NotNull EconomyHook hook) {
+    private void buyClaimBlocks(@NotNull OnlineUser executor, long amount, @NotNull EconomyHook hook) {
         final double cost = getBlockPrice(amount);
         if (!hook.takeMoney(executor, cost, EconomyHook.EconomyReason.BUY_CLAIM_BLOCKS)) {
             plugin.getLocales().getLocale("error_insufficient_funds")
@@ -68,7 +68,7 @@ public class BuyClaimBlocksCommand extends OnlineUserCommand {
                 ClaimBlocksManager.ClaimBlockSource.PURCHASE,
                 (blocks) -> blocks + amount,
                 (newBalance) -> plugin.getLocales().getLocale("claim_blocks_purchased",
-                                Integer.toString(amount), hook.format(cost), Long.toString(newBalance))
+                                Long.toString(amount), hook.format(cost), Long.toString(newBalance))
                         .ifPresent(executor::sendMessage)
         );
     }
