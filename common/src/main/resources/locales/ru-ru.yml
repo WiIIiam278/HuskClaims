@@ -42,6 +42,7 @@ locales:
   group_created: '[Успешно создана группа %1% со следующими участниками:](#00fb9a) [%2%](#00fb9a show_text=&#00fb9a&Нажмите для просмотра группы run_command=/group %1%)'
   group_deleted: '[Группа %1% была удалена.](#00fb9a)\n[Участники группы потеряют доступ ко всем приватам, где у данной группы установлены права доверия.](gray)'
   world_not_claimable: '[В этом мире приваты отключены.](#ff7e5e)'
+  region_outside_world_limits: '[You cannot claim land outside the world limits.](#ff7e5e)'
   land_already_claimed: '[Выделенная территория уже занята игроком %1%.](#ff7e5e)'
   land_selection_overlaps: '[Выделенная территория пересекается с %1% уже существующим(и) регионом(ами).](#ff7e5e)'
   land_selection_overlaps_child: '[Выбранная территория пересекается с %1% уже существующими потомственным(и) регионом(ами).](#ff7e5e)'

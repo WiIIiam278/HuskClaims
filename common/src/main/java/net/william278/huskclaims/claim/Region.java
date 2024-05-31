@@ -24,12 +24,12 @@ import com.google.common.collect.Maps;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.william278.huskclaims.highlighter.Highlightable;
 import net.william278.huskclaims.position.BlockPosition;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Range;
 
 import java.util.HashSet;
 import java.util.List;
@@ -359,13 +359,23 @@ public class Region {
      * @since 1.0
      */
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Point implements BlockPosition {
+
+        // We restrict the distance to +/-32000000 blocks (maximum Minecraft world size) to prevent abuse
+        private static final int RANGE = 32000000;
 
         @Expose
         private int x;
         @Expose
         private int z;
+
+        private Point(int x, int z) {
+            if (Math.abs(x) > RANGE || Math.abs(z) > RANGE) {
+                throw new IllegalArgumentException("Point coords (%s, %s) out of range (+/-%s)".formatted(x, z, RANGE));
+            }
+            this.x = x;
+            this.z = z;
+        }
 
         @NotNull
         public static Point at(int x, int z) {
@@ -383,11 +393,13 @@ public class Region {
         }
 
         @Override
+        @Range(from = -RANGE, to = RANGE)
         public int getBlockX() {
             return x;
         }
 
         @Override
+        @Range(from = -RANGE, to = RANGE)
         public int getBlockZ() {
             return z;
         }
@@ -406,5 +418,12 @@ public class Region {
             }
             return false;
         }
+
+        // Check if a point, when modified by numberBy on either axis, is out of the supported range
+        public static boolean isOutOfRange(@NotNull BlockPosition position, int dx, int dz) {
+            return Math.abs(position.getBlockX()) + Math.abs(dx) > RANGE
+                    || Math.abs(position.getBlockZ()) + Math.abs(dz) > RANGE;
+        }
+
     }
 }

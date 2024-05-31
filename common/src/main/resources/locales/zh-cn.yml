@@ -42,6 +42,7 @@ locales:
   group_created: '[创建组%1%并添加成员:](#00fb9a) [%2%](#00fb9a show_text=&#00fb9a&点击查看组 run_command=/group %1%)'
   group_deleted: '[成功删除您的%1%组](#00fb9a)\n[成员将失去在该组设置信任级别的任何领地的访问权限](gray)'
   world_not_claimable: '[在此世界中无法声明](#ff7e5e)'
+  region_outside_world_limits: '[You cannot claim land outside the world limits.](#ff7e5e)'
   land_already_claimed: '[此地已被%1%声明](#ff7e5e)'
   land_selection_overlaps: '[此领地选择与%1%现有领地重叠](#ff7e5e)'
   land_selection_overlaps_child: '[此领地选择与%1%其他子领地重叠](#ff7e5e)'

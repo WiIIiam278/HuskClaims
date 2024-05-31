@@ -42,6 +42,7 @@ locales:
   group_created: '[S-a creat grupul %1% cu membrii:](#00fb9a) [%2%](#00fb9a show_text=&#00fb9a&Click pentru a vedea grupul run_command=/group %1%)'
   group_deleted: '[Grupul tău, %1%, a fost șters cu succes.](#00fb9a)\n[Membrii vor pierde acces la orice revendicări unde grupul acesta a setat un nivel de încredere.](gray)'
   world_not_claimable: '[Revendicarea este dezactivată în această lume.](#ff7e5e)'
+  region_outside_world_limits: '[You cannot claim land outside the world limits.](#ff7e5e)'
   land_already_claimed: '[Acest teren a fost revendicat deja de către %1%.](#ff7e5e)'
   land_selection_overlaps: '[Această selecție de teren se suprapune cu %1% revendicări existente.](#ff7e5e)'
   land_selection_overlaps_child: '[Această selecție de teren se suprapune cu %1% alte revendicări fiu.](#ff7e5e)'

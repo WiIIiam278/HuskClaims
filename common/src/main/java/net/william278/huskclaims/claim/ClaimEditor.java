@@ -72,11 +72,11 @@ public interface ClaimEditor {
         }
 
         // If the selection involves the resizing of a claim, resize it
-        final ClaimSelection selection = optionalSelection.get();
-        if (selection.isResizeSelection()) {
+        final ClaimSelection select = optionalSelection.get();
+        if (select.isResizeSelection()) {
             switch (mode) {
-                case CLAIMS, ADMIN_CLAIMS -> userResizeClaim(user, world, clicked, selection);
-                case CHILD_CLAIMS -> userResizeChildClaim(user, world, clicked, selection);
+                case CLAIMS, ADMIN_CLAIMS -> userResizeClaim(user, world, clicked, select);
+                case CHILD_CLAIMS -> userResizeChildClaim(user, world, clicked, select);
             }
             clearClaimSelection(user);
             return;
@@ -84,11 +84,9 @@ public interface ClaimEditor {
 
         // Otherwise, create a new claim
         switch (mode) {
-            case CLAIMS -> userCreateClaim(user, world, Region.from(selection.getSelectedPosition(), clicked));
-            case ADMIN_CLAIMS ->
-                    userCreateAdminClaim(user, world, Region.from(selection.getSelectedPosition(), clicked));
-            case CHILD_CLAIMS ->
-                    userCreateChildClaim(user, world, Region.from(selection.getSelectedPosition(), clicked));
+            case CLAIMS -> userCreateClaim(user, world, Region.from(select.getSelectedPosition(), clicked));
+            case ADMIN_CLAIMS -> userCreateAdminClaim(user, world, Region.from(select.getSelectedPosition(), clicked));
+            case CHILD_CLAIMS -> userCreateChildClaim(user, world, Region.from(select.getSelectedPosition(), clicked));
         }
         clearClaimSelection(user);
     }
@@ -96,11 +94,11 @@ public interface ClaimEditor {
     // Make a claim selection and add it to the map if valid
     private void userMakeClaimSelection(@NotNull OnlineUser user, @NotNull ClaimWorld world,
                                         @NotNull Position clickedBlock, boolean isAdmin) {
-        createClaimSelection(user, world, clickedBlock, isAdmin).ifPresent(selection -> {
-            getClaimSelections().put(user.getUuid(), selection);
-            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), selection);
+        createClaimSelection(user, world, clickedBlock, isAdmin).ifPresent(select -> {
+            getClaimSelections().put(user.getUuid(), select);
+            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), select);
 
-            if (selection.isResizeSelection()) {
+            if (select.isResizeSelection()) {
                 getPlugin().getLocales().getLocale("claim_selection_resize")
                         .ifPresent(user::sendMessage);
                 return;
@@ -304,6 +302,12 @@ public interface ClaimEditor {
     @NotNull
     private Optional<ClaimSelection> createClaimSelection(@NotNull OnlineUser user, @NotNull ClaimWorld world,
                                                           @NotNull BlockPosition clicked, boolean isAdmin) {
+        // Ensure the clicked position is within the world limits
+        if (Region.Point.isOutOfRange(clicked, 0, 0)) {
+            getPlugin().getLocales().getLocale("region_outside_world_limits")
+                    .ifPresent(user::sendMessage);
+            return Optional.empty();
+        }
         final Optional<Claim> clickedClaim = world.getParentClaimAt(clicked);
 
         // If there's no claim, create a selection at the clicked position
@@ -322,7 +326,7 @@ public interface ClaimEditor {
         final Claim claim = clickedClaim.get();
         if (claim.getRegion().getClickedCorner(Region.Point.wrap(clicked)) != -1) {
             final ClaimSelection selection = builder.claimBeingResized(claim).build();
-            if (!selection.canResize(user, world, getPlugin())) {
+            if (selection.cannotResize(user, getPlugin())) {
                 getPlugin().getLocales().getLocale("no_resizing_permission")
                         .ifPresent(user::sendMessage);
                 return Optional.empty();
@@ -479,7 +483,7 @@ public interface ClaimEditor {
 
         if (claim.getRegion().getClickedCorner(Region.Point.wrap(clicked)) != -1) {
             final ClaimSelection selection = builder.claimBeingResized(claim).build();
-            if (!selection.canResize(user, world, getPlugin())) {
+            if (selection.cannotResize(user, getPlugin())) {
                 getPlugin().getLocales().getLocale("no_resizing_child_permission")
                         .ifPresent(user::sendMessage);
                 return Optional.empty();
@@ -526,16 +530,24 @@ public interface ClaimEditor {
             return claimBeingResized.getRegion().getCorners().indexOf(Region.Point.wrap(selectedPosition));
         }
 
+        /**
+         * @deprecated Use the inverse of {@link #cannotResize(OnlineUser, HuskClaims)} instead
+         */
+        @Deprecated(since = "1.3.2")
         public boolean canResize(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull HuskClaims plugin) {
+            return !cannotResize(user, plugin);
+        }
+
+        public boolean cannotResize(@NotNull OnlineUser user, @NotNull HuskClaims plugin) {
             if (claimBeingResized == null) {
-                return false;
+                return true;
             }
 
             // Check child claim resize privileges
             if (claimBeingResized.isChildClaim()) {
-                return claimBeingResized.isPrivilegeAllowed(
+                return !claimBeingResized.isPrivilegeAllowed(
                         TrustLevel.Privilege.MANAGE_CHILD_CLAIMS, user, plugin
-                ) && ClaimingMode.CHILD_CLAIMS.canUse(user);
+                ) || !ClaimingMode.CHILD_CLAIMS.canUse(user);
             }
 
             // Check claim resize privileges
