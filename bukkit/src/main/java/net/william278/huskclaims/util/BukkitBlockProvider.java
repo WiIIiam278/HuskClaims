@@ -57,7 +57,8 @@ public interface BukkitBlockProvider extends BlockProvider {
         positions.forEach((position, highlightType) -> {
             final Location location = Adapter.adapt(Position.at(position, viewerPosition.getY(), surfaceWorld));
             final org.bukkit.World world = Objects.requireNonNull(location.getWorld(), "World is null");
-            if (location.getChunk().isLoaded() && location.distance(viewerLocation) <= BlockHighlighter.VIEWING_RANGE) {
+            final boolean loaded = world.isChunkLoaded(location.getBlockX() >> 4, location.getBlockZ() >> 4);
+            if (loaded && location.distance(viewerLocation) <= BlockHighlighter.VIEWING_RANGE) {
                 final Block block = getSurfaceBlockAt(location.getBlock(), world.getMinHeight(), world.getMaxHeight());
                 blocks.put(new BlockHighlighter.HighlightBlock(
                         Adapter.adapt(block.getLocation()),
