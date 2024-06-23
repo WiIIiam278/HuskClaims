@@ -34,7 +34,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
+import java.util.List;
 
 @Getter
 public class BukkitUser extends OnlineUser {
@@ -77,7 +77,7 @@ public class BukkitUser extends OnlineUser {
     @Override
     public boolean isHolding(@NotNull InspectorCallbackProvider.InspectionTool tool) {
         final PlayerInventory inventory = bukkitPlayer.getInventory();
-        final Set<ItemStack> toCheck = Set.of(inventory.getItemInMainHand(), inventory.getItemInOffHand());
+        final List<ItemStack> toCheck = List.of(inventory.getItemInMainHand(), inventory.getItemInOffHand());
         return toCheck.stream().anyMatch(
                 item -> item != null && item.getType().getKey().getKey().equals(tool.material()) && (
                         !tool.useCustomModelData() || item.hasItemMeta()
