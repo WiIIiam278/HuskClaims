@@ -33,8 +33,8 @@ import org.jetbrains.annotations.NotNull;
 public abstract class EconomyHook extends Hook {
 
     @ApiStatus.Internal
-    protected EconomyHook(@NotNull String name, @NotNull HuskClaims plugin) {
-        super(name, plugin);
+    protected EconomyHook(@NotNull HuskClaims plugin) {
+        super(plugin);
     }
 
     /**
@@ -46,7 +46,7 @@ public abstract class EconomyHook extends Hook {
      */
     @SuppressWarnings("unused")
     public EconomyHook(@NotNull String name, @NotNull HuskClaimsAPI api) {
-        this(name, api.getPlugin());
+        super(api.getPlugin());
     }
 
     /**

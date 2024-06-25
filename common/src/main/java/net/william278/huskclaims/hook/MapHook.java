@@ -34,8 +34,8 @@ import java.util.UUID;
 
 public abstract class MapHook extends Hook {
 
-    protected MapHook(@NotNull String name, @NotNull HuskClaims plugin) {
-        super(name, plugin);
+    protected MapHook(@NotNull HuskClaims plugin) {
+        super(plugin);
     }
 
     public abstract void markClaim(@NotNull Claim claim, @NotNull ClaimWorld claimWorld);

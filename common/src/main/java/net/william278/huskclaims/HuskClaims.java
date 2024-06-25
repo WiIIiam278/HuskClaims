@@ -27,6 +27,7 @@ import net.william278.huskclaims.config.ConfigProvider;
 import net.william278.huskclaims.database.DatabaseProvider;
 import net.william278.huskclaims.event.EventDispatcher;
 import net.william278.huskclaims.hook.HookProvider;
+import net.william278.huskclaims.hook.PluginHook;
 import net.william278.huskclaims.listener.ListenerProvider;
 import net.william278.huskclaims.moderation.DropsHandler;
 import net.william278.huskclaims.moderation.SignNotifier;
@@ -54,17 +55,35 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvi
         SafeTeleportProvider, MetaProvider, EventDispatcher, HookProvider {
 
     /**
-     * Initialize all plugin systems
+     * Load plugin systems
      *
-     * @since 1.0
+     * @since 1.3.2
      */
-    default void initialize() {
-        log(Level.INFO, String.format("Initializing HuskClaims v%s...", getPluginVersion()));
+    default void load() {
+        log(Level.INFO, String.format("Loading HuskClaims v%s...", getPluginVersion()));
         try {
             loadSettings();
             loadServer();
             loadTrustLevels();
             loadLocales();
+            loadHooks();
+            registerHooks(PluginHook.Register.ON_LOAD);
+        } catch (Throwable e) {
+            log(Level.SEVERE, "An error occurred whilst loading HuskClaims", e);
+            disablePlugin();
+            return;
+        }
+        log(Level.INFO, String.format("Loaded HuskClaims v%s...", getPluginVersion()));
+    }
+
+    /**
+     * Enable all plugin systems
+     *
+     * @since 1.0
+     */
+    default void enable() {
+        log(Level.INFO, String.format("Enabling HuskClaims v%s...", getPluginVersion()));
+        try {
             loadDatabase();
             loadClaimWorlds();
             loadClaimHighlighter();
@@ -74,16 +93,16 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvi
             loadCommands();
             loadListeners();
             loadClaimBlockScheduler();
-            loadHooks();
+            registerHooks(PluginHook.Register.ON_ENABLE);
             loadAPI();
             loadMetrics();
             startQueuePoller();
         } catch (Throwable e) {
-            log(Level.SEVERE, "An error occurred whilst initializing HuskClaims", e);
+            log(Level.SEVERE, "An error occurred whilst enabling HuskClaims", e);
             disablePlugin();
             return;
         }
-        log(Level.INFO, String.format("Successfully initialized HuskClaims v%s", getPluginVersion()));
+        log(Level.INFO, String.format("Successfully enabled HuskClaims v%s", getPluginVersion()));
         checkForUpdates();
     }
 

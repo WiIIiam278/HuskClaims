@@ -41,12 +41,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.BiFunction;
 
+@PluginHook(
+        name = "PlaceholderAPI",
+        register = PluginHook.Register.ON_ENABLE
+)
 public class BukkitPlaceholderAPIHook extends Hook {
 
     private HuskClaimsExpansion expansion;
 
     protected BukkitPlaceholderAPIHook(@NotNull HuskClaims plugin) {
-        super("PlaceholderAPI", plugin);
+        super(plugin);
     }
 
     @Override

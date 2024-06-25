@@ -33,6 +33,7 @@ import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.config.Locales;
 import net.william278.huskclaims.hook.HuskHomesHook;
 import net.william278.huskclaims.hook.Importer;
+import net.william278.huskclaims.hook.PluginHook;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.user.AuditLogger;
 import net.william278.huskclaims.user.CommandUser;
@@ -128,7 +129,7 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
                     plugin.unloadHooks();
                     plugin.loadLocales();
                     plugin.loadSettings();
-                    plugin.loadHooks();
+                    plugin.registerHooks(PluginHook.Register.values());
                     plugin.getLocales().getLocale("reload_complete").ifPresent(executor::sendMessage);
                 } catch (Throwable e) {
                     executor.sendMessage(new MineDown(

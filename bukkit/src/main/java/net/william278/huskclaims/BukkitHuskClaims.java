@@ -115,10 +115,15 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     private Server serverName;
 
     @Override
+    public void onLoad() {
+        this.load();
+    }
+
+    @Override
     public void onEnable() {
         this.audiences = BukkitAudiences.create(this);
         this.morePaperLib = new MorePaperLib(this);
-        this.initialize();
+        this.enable();
     }
 
     @Override

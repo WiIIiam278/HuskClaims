@@ -35,6 +35,10 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
 
+@PluginHook(
+        name = "HuskHomes",
+        register = PluginHook.Register.ON_ENABLE
+)
 public class BukkitHuskHomesHook extends HuskHomesHook {
 
     private HuskHomesAPI huskHomes;

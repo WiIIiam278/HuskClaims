@@ -41,15 +41,16 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
-/**
- * Hook to display warps and public homes on <a href="https://github.com/BlueMap-Minecraft/BlueMap">BlueMap</a> maps.
- */
+@PluginHook(
+        name = "BlueMap",
+        register = PluginHook.Register.ON_ENABLE
+)
 public class BlueMapHook extends MapHook {
 
     private Map<String, MarkerSet> claimsMarkerSets;
 
     public BlueMapHook(@NotNull HuskClaims plugin) {
-        super("BlueMap", plugin);
+        super(plugin);
         BlueMapAPI.onEnable(api -> load());
         BlueMapAPI.onDisable(api -> unload());
     }

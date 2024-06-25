@@ -32,7 +32,7 @@ public abstract class HuskHomesHook extends Hook {
     private TrustLevel requiredLevel;
 
     protected HuskHomesHook(@NotNull HuskClaims plugin) {
-        super("HuskHomes", plugin);
+        super(plugin);
     }
 
     @Override

@@ -26,10 +26,7 @@ import net.william278.huskclaims.config.Settings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -64,15 +61,25 @@ public interface HookProvider extends MapHookProvider {
 
     default void loadHooks() {
         setHooks(Sets.newHashSet(getAvailableHooks()));
+    }
+
+    default void registerHooks(@NotNull PluginHook.Register... register) {
+        final Set<PluginHook.Register> registers = Arrays.stream(register).collect(Collectors.toSet());
         getHooks().removeIf(hook -> {
+            if (!registers.contains(hook.getRegister())) {
+                return false;
+            }
             try {
                 hook.load();
                 return false;
             } catch (Throwable e) {
-                getPlugin().log(Level.SEVERE, "Failed to load the " + hook.getName() + " hook", e);
+                getPlugin().log(Level.SEVERE, "Failed to register the %s hook".formatted(hook.getName()), e);
             }
             return true;
         });
+        getPlugin().log(Level.INFO, "Registered %s hooks".formatted(
+                registers.stream().map(PluginHook.Register::name).collect(Collectors.joining(" & "))
+        ));
     }
 
     default void unloadHooks() {
@@ -80,7 +87,7 @@ public interface HookProvider extends MapHookProvider {
             try {
                 hook.unload();
             } catch (Throwable e) {
-                getPlugin().log(Level.SEVERE, "Failed to unload the " + hook.getName() + " hook", e);
+                getPlugin().log(Level.SEVERE, "Failed to unload the %s hook".formatted(hook.getName()), e);
             }
             return true;
         });

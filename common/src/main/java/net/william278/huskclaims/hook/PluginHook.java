@@ -19,35 +19,27 @@
 
 package net.william278.huskclaims.hook;
 
-import com.google.common.base.Preconditions;
-import lombok.Getter;
-import net.william278.huskclaims.HuskClaims;
+import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 
-@Getter
-public abstract class Hook {
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-    protected final HuskClaims plugin;
-    protected final PluginHook hook;
-
-    protected Hook(@NotNull HuskClaims plugin) {
-        this.plugin = plugin;
-        this.hook = getClass().getAnnotation(PluginHook.class);
-        Preconditions.checkNotNull(hook, "Hook class must be annotated with PluginHook");
-    }
+@Target(value = ElementType.TYPE)
+@Retention(value = RetentionPolicy.RUNTIME)
+public @interface PluginHook {
 
     @NotNull
-    public String getName() {
-        return hook.name();
+    String name();
+
+    @NonNull
+    Register register();
+
+    enum Register {
+        ON_LOAD,
+        ON_ENABLE
     }
-
-    @NotNull
-    public PluginHook.Register getRegister() {
-        return hook.register();
-    }
-
-    public abstract void load();
-
-    public abstract void unload();
 
 }

@@ -32,10 +32,14 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
 
+@PluginHook(
+        name = "HuskTowns",
+        register = PluginHook.Register.ON_ENABLE
+)
 public class BukkitHuskTownsHook extends Hook {
 
     protected BukkitHuskTownsHook(@NotNull HuskClaims plugin) {
-        super("HuskTowns", plugin);
+        super(plugin);
     }
 
     @Override

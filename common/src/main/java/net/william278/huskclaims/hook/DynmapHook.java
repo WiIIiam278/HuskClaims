@@ -38,14 +38,20 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
 
+
+@PluginHook(
+        name = "Dynmap",
+        register = PluginHook.Register.ON_ENABLE
+)
 public class DynmapHook extends MapHook {
+
     @Nullable
     private DynmapCommonAPI dynmapApi;
     @Nullable
     private MarkerSet markerSet;
 
     public DynmapHook(@NotNull HuskClaims plugin) {
-        super("Dynmap", plugin);
+        super(plugin);
         DynmapCommonAPIListener.register(new DynmapCommonAPIListener() {
             @Override
             public void apiEnabled(@NotNull DynmapCommonAPI dynmapCommonAPI) {
@@ -176,4 +182,5 @@ public class DynmapHook extends MapHook {
             return markerSet;
         });
     }
+
 }

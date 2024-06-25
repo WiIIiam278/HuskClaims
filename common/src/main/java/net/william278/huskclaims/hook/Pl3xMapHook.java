@@ -43,13 +43,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 
+@PluginHook(
+        name = "Pl3xMap",
+        register = PluginHook.Register.ON_ENABLE
+)
 public class Pl3xMapHook extends MapHook {
 
     private static final String CLAIMS_LAYER = "claim_markers";
     private final ConcurrentHashMap<ClaimWorld, ConcurrentLinkedQueue<Claim>> claims = new ConcurrentHashMap<>();
 
     public Pl3xMapHook(@NotNull HuskClaims plugin) {
-        super("Pl3xMap", plugin);
+        super(plugin);
     }
 
     @NotNull

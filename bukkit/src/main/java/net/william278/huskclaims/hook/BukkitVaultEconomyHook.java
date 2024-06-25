@@ -28,12 +28,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.jetbrains.annotations.NotNull;
 
+@PluginHook(
+        name = "Vault",
+        register = PluginHook.Register.ON_ENABLE
+)
 public class BukkitVaultEconomyHook extends EconomyHook {
 
     private Economy economy;
 
     public BukkitVaultEconomyHook(@NotNull HuskClaims plugin) {
-        super("Vault", plugin);
+        super(plugin);
     }
 
     @Override

@@ -37,13 +37,17 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 
+@PluginHook(
+        name = "LuckPerms",
+        register = PluginHook.Register.ON_ENABLE
+)
 public class LuckPermsHook extends Hook {
 
     private LuckPerms luckPerms;
     private final Set<String> groupTags;
 
     protected LuckPermsHook(@NotNull HuskClaims plugin) {
-        super("LuckPerms", plugin);
+        super(plugin);
         groupTags = Sets.newHashSet();
     }
 

@@ -37,6 +37,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public abstract class Importer extends Hook {
+
     protected Map<String, String> configParameters;
     protected Map<String, String> defaultParameters;
     @Getter
@@ -46,9 +47,9 @@ public abstract class Importer extends Hook {
     @Getter
     private ImportState state;
 
-    protected Importer(@NotNull String name, @NotNull List<ImportData> supportedData, @NotNull HuskClaims plugin,
+    protected Importer(@NotNull List<ImportData> supportedData, @NotNull HuskClaims plugin,
                        @NotNull Map<String, Boolean> requiredParams, @NotNull Map<String, String> defaultParams) {
-        super(name, plugin);
+        super(plugin);
         this.state = ImportState.WAITING;
         this.supportedData = supportedData;
         this.requiredParameters = requiredParams;
@@ -63,7 +64,7 @@ public abstract class Importer extends Hook {
     @Override
     public final void unload() {
         if (state == ImportState.ACTIVE) {
-            getPlugin().log(Level.WARNING, "Importer %s was unloaded while active, cancelling import.".formatted(name));
+            getPlugin().log(Level.WARNING, "Importer %s was unloaded while active, cancelling import.".formatted(getName()));
             state = ImportState.WAITING;
             finish();
         }
@@ -107,7 +108,7 @@ public abstract class Importer extends Hook {
             return;
         }
         final LocalDateTime startTime = LocalDateTime.now();
-        log(user, Level.INFO, "⌚ Starting " + name + " data import...");
+        log(user, Level.INFO, "⌚ Starting " + getName() + " data import...");
         state = ImportState.ACTIVE;
 
         // Import data
@@ -131,7 +132,7 @@ public abstract class Importer extends Hook {
             return;
         }
         final long timeTaken = startTime.until(LocalDateTime.now(), ChronoUnit.SECONDS);
-        log(user, Level.INFO, "✔ Completed import from " + name + " (took " + timeTaken + "s)");
+        log(user, Level.INFO, "✔ Completed import from " + getName() + " (took " + timeTaken + "s)");
         state = ImportState.DONE;
     }
 

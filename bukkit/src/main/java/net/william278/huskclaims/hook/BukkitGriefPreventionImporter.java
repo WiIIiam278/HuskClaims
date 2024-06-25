@@ -51,6 +51,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.stream.IntStream;
 
+@PluginHook(
+        name = "GriefPrevention",
+        register = PluginHook.Register.ON_ENABLE
+)
 public class BukkitGriefPreventionImporter extends Importer {
 
     // Parameters for the GP database
@@ -64,7 +68,6 @@ public class BukkitGriefPreventionImporter extends Importer {
 
     public BukkitGriefPreventionImporter(@NotNull BukkitHuskClaims plugin) {
         super(
-                "GriefPrevention",
                 List.of(ImportData.USERS, ImportData.CLAIMS),
                 plugin,
                 Map.of(

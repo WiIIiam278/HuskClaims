@@ -28,16 +28,21 @@ import com.djrapitops.plan.extension.icon.Color;
 import com.djrapitops.plan.extension.icon.Family;
 import com.djrapitops.plan.extension.icon.Icon;
 import com.djrapitops.plan.extension.table.Table;
+import lombok.NonNull;
 import net.william278.huskclaims.HuskClaims;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 import java.util.logging.Level;
 
+@PluginHook(
+        name = "Plan",
+        register = PluginHook.Register.ON_ENABLE
+)
 public class PlanHook extends Hook {
 
-    protected PlanHook(@NotNull HuskClaims plugin) {
-        super("Plan", plugin);
+    public PlanHook(@NonNull HuskClaims plugin) {
+        super(plugin);
     }
 
     @Override
