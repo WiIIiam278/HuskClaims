@@ -142,7 +142,7 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
                     () -> settings.getCrossServer().isEnabled() ? "true" : "false")
             );
             metrics.addCustomChart(new SimplePie("language",
-                    () -> settings.getLanguage().toLowerCase())
+                    () -> settings.getLanguage().toLowerCase(Locale.ENGLISH))
             );
             metrics.addCustomChart(new SimplePie("database_type",
                     () -> settings.getDatabase().getType().getDisplayName())

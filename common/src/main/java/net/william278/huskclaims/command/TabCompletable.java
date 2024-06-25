@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Locale;
 
 public interface TabCompletable {
 
@@ -42,8 +43,8 @@ public interface TabCompletable {
     @NotNull
     default List<String> filter(@NotNull List<String> suggestions, @NotNull String[] args) {
         return suggestions.stream()
-                .filter(suggestion -> args.length == 0 || suggestion.toLowerCase()
-                        .startsWith(args[args.length - 1].toLowerCase().trim()))
+                .filter(suggestion -> args.length == 0 || suggestion.toLowerCase(Locale.ENGLISH)
+                        .startsWith(args[args.length - 1].toLowerCase(Locale.ENGLISH).trim()))
                 .toList();
     }
 
