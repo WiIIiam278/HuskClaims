@@ -17,6 +17,7 @@ softdepend:
   - 'Vault'
   - 'Plan'
   - 'PlaceholderAPI'
+  - 'WorldGuard'
   - 'Pl3xMap'
   - 'BlueMap'
   - 'dynmap'

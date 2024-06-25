@@ -43,6 +43,14 @@ public interface HookProvider extends MapHookProvider {
     }
 
     @NotNull
+    default List<RestrictedRegionHook> getRestrictedRegionHooks() {
+        return getHooks().stream()
+                .filter(hook -> hook instanceof RestrictedRegionHook)
+                .map(hook -> (RestrictedRegionHook) hook)
+                .toList();
+    }
+
+    @NotNull
     @Unmodifiable
     default Set<Importer> getImporters() {
         return getHooks().stream()

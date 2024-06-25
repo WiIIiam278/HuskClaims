@@ -47,6 +47,7 @@ locales:
   land_selection_overlaps: '[Această selecție de teren se suprapune cu %1% revendicări existente.](#ff7e5e)'
   land_selection_overlaps_child: '[Această selecție de teren se suprapune cu %1% alte revendicări fiu.](#ff7e5e)'
   land_already_child_claim: '[Această zonă a revendicării este deja desemnată ca o revendicare   fiu.](#ff7e5e)'
+  land_selection_restricted: '[This land selection contains a restricted region.](#ff7e5e)'
   husktowns_claim_overlaps: '[Nu se poate revendica aici deoarece se suprapune cu revendicarea unui jucător.](#ff7e5e)'
   claim_tool_required: '[Trebuie să ții unealta pentru a putea face asta.](#ff7e5e)'
   selection_resize_not_enclosing_children: '[Această redimensionare a selecției nu ar cuprinde toate revendicările sale fiu.](#ff7e5e)'

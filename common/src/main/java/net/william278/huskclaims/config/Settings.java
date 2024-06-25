@@ -599,6 +599,16 @@ public final class Settings {
             private boolean enabled = true;
         }
 
+        private WorldGuardSettings worldGuard = new WorldGuardSettings();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class WorldGuardSettings {
+            @Comment("Whether to hook into WorldGuard to provide a flag to deny claiming in WorldGuard regions")
+            private boolean enabled = true;
+        }
+
         private MapHookSettings map = new MapHookSettings();
 
         @Getter

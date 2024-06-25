@@ -1,16 +1,17 @@
 HuskClaims offers several built-in hooks providing support for other plugins. These hooks can be enabled or disabled in the `hooks` section of the plugin [[config]].
 
-| Name                               | Description                         | Link                                              |
-|------------------------------------|-------------------------------------|---------------------------------------------------|
-| [Vault](#vault)                    | Economy support for claim blocks    | https://www.spigotmc.org/resources/vault.34315/   |
-| [LuckPerms](#luckperms)            | Trust tags for LuckPerms groups     | https://luckperms.net/                            |
-| [HuskHomes](#huskhomes)            | Restricting home creation in claims | https://william278.net/project/huskhomes/         |
-| [HuskTowns](#husktowns)            | Prevent claiming over town claims   | https://william278.net/project/husktowns/         |
-| [Plan](#plan)                      | Display claim analytics in Plan     | https://www.playeranalytics.net/                  |
-| [PlaceholderAPI](#placeholderapi)  | Provides HuskClaims placeholders    | https://placeholderapi.com/                       |
-| [Dynmap](#dynmap-pl3xmap-bluemap)  | Add claim markers to your Dynmap    | https://www.spigotmc.org/resources/dynmap.274/    |
-| [Pl3xMap](#dynmap-pl3xmap-bluemap) | Add claim markers to your Pl3xMap   | https://modrinth.com/plugin/pl3xmap/              |
-| [BlueMap](#dynmap-pl3xmap-bluemap) | Add claim markers to your BlueMap   | https://www.spigotmc.org/resources/bluemap.83557/ |
+| Name                               | Description                                   | Link                                              |
+|------------------------------------|-----------------------------------------------|---------------------------------------------------|
+| [Vault](#vault)                    | Economy support for claim blocks              | https://www.spigotmc.org/resources/vault.34315/   |
+| [LuckPerms](#luckperms)            | Trust tags for LuckPerms groups               | https://luckperms.net/                            |
+| [HuskHomes](#huskhomes)            | Restricting home creation in claims           | https://william278.net/project/huskhomes/         |
+| [HuskTowns](#husktowns)            | Prevent claiming over town claims             | https://william278.net/project/husktowns/         |
+| [Plan](#plan)                      | Display claim analytics in Plan               | https://www.playeranalytics.net/                  |
+| [PlaceholderAPI](#placeholderapi)  | Provides HuskClaims placeholders              | https://placeholderapi.com/                       |
+| [WorldGuard](#worldguard)          | Prevent claiming over flag-restricted regions | https://enginehub.org/worldguard                  |
+| [Dynmap](#dynmap-pl3xmap-bluemap)  | Add claim markers to your Dynmap              | https://www.spigotmc.org/resources/dynmap.274/    |
+| [Pl3xMap](#dynmap-pl3xmap-bluemap) | Add claim markers to your Pl3xMap             | https://modrinth.com/plugin/pl3xmap/              |
+| [BlueMap](#dynmap-pl3xmap-bluemap) | Add claim markers to your BlueMap             | https://www.spigotmc.org/resources/bluemap.83557/ |
 
 ## Vault
 If Vault (and a compatible economy plugin) is installed, the `/buyclaimblocks` command will be enabled allowing users to [purchase claim blocks for money](claim-blocks#buying-claim-blocks).
@@ -42,6 +43,9 @@ If PlaceholderAPI is installed, HuskClaims will register a PlaceholderAPI expans
 | `%huskclaims_can_build%`                 | Whether the player can build in the claim they are standing in             | `true` or `false`                 |
 | `%huskclaims_can_open_containers%`       | Whether the player can open containers in the claim they are standing in   | `true` or `false`                 |
 | `%huskclaims_can_interact%`              | Whether the player can interact in the claim they are standing in          | `true` or `false`                 |
+
+## WorldGuard
+If WorldGuard is installed, HuskClaims will register a third party flag (`huskclaims-claim`), which when set to "Deny" in a WorldGuard region will prevent players from creating or resizing a claim over that region.
 
 ## Dynmap, Pl3xMap, BlueMap
 If one of the supported mapping plugins is installed, HuskClaims will add region markers for claims on your server map:

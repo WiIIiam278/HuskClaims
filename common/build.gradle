@@ -30,6 +30,7 @@ dependencies {
     compileOnly 'us.dynmap:DynmapCoreAPI:3.6'
     compileOnly 'maven.modrinth:pl3xmap:1.20.4-492'
     compileOnly 'com.github.plan-player-analytics:Plan:5.6.2883'
+    compileOnly 'com.sk89q.worldguard:worldguard-core:7.1.0-SNAPSHOT'
 
     testImplementation 'com.github.plan-player-analytics:Plan:5.6.2883'
     testImplementation 'com.google.guava:guava:33.2.1-jre'

@@ -129,11 +129,19 @@ public interface ClaimEditor {
 
     default void userResizeClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world,
                                  @NotNull Claim claim, @NotNull Region resized) {
+        // Check the area doesn't overlap with another claim, excluding the original claim
         final List<Claim> overlapsWith = world.getParentClaimsOverlapping(resized, claim.getRegion());
         if (!overlapsWith.isEmpty()) {
             getPlugin().getLocales().getLocale("land_selection_overlaps", Integer.toString(overlapsWith.size()))
                     .ifPresent(user::sendMessage);
             getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), overlapsWith, true);
+            return;
+        }
+
+        // Check the new area isn't restricted by another plugin
+        if (getPlugin().getRestrictedRegionHooks().stream().anyMatch(h -> h.isRestricted(resized, user.getWorld()))) {
+            getPlugin().getLocales().getLocale("land_selection_restricted")
+                    .ifPresent(user::sendMessage);
             return;
         }
 
@@ -289,11 +297,19 @@ public interface ClaimEditor {
     }
 
     private boolean doesClaimOverlap(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {
+        // Check the area doesn't overlap with another claim
         final List<Claim> overlapsWith = world.getParentClaimsOverlapping(region);
         if (!overlapsWith.isEmpty()) {
             getPlugin().getLocales().getLocale("land_selection_overlaps", Integer.toString(overlapsWith.size()))
                     .ifPresent(user::sendMessage);
             getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), overlapsWith, true);
+            return true;
+        }
+
+        // Check the area isn't restricted by another plugin
+        if (getPlugin().getRestrictedRegionHooks().stream().anyMatch(h -> h.isRestricted(region, user.getWorld()))) {
+            getPlugin().getLocales().getLocale("land_selection_restricted")
+                    .ifPresent(user::sendMessage);
             return true;
         }
         return false;
