@@ -47,12 +47,12 @@ shadowJar {
 
 tasks {
     runServer {
-        minecraftVersion('1.20.6')
+        minecraftVersion('1.21')
         downloadPlugins {
-            url("https://ci.lucko.me/job/LuckPerms/lastBuild/artifact/bukkit/loader/build/libs/LuckPerms-Bukkit-5.4.130.jar")
-            url("https://ci.lucko.me/job/spark/lastBuild/artifact/spark-bukkit/build/libs/spark-1.10.66-bukkit.jar")
-            hangar("Plan-Player-Analytics", "5.6+build.2820")
-            modrinth("huskhomes", "4.6.2")
+            url("https://ci.lucko.me/job/LuckPerms/lastBuild/artifact/bukkit/loader/build/libs/LuckPerms-Bukkit-5.4.134.jar")
+            url("https://ci.lucko.me/job/spark/lastBuild/artifact/spark-bukkit/build/libs/spark-1.10.73-bukkit.jar")
+            hangar("Plan-Player-Analytics", "5.6+build.2883")
+            modrinth("huskhomes", "4.7")
 
 //            modrinth("dynmap", "5F9fwzR1")
 //            modrinth("pl3xmap", "1.20.4-478")

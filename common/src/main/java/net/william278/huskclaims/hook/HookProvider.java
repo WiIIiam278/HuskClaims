@@ -77,9 +77,8 @@ public interface HookProvider extends MapHookProvider {
             }
             return true;
         });
-        getPlugin().log(Level.INFO, "Registered %s hooks".formatted(
-                registers.stream().map(PluginHook.Register::name).collect(Collectors.joining(" & "))
-        ));
+        getPlugin().log(Level.INFO, "Registered '%s' hooks".formatted(registers.stream()
+                .map(h -> h.name().toLowerCase(Locale.ENGLISH)).collect(Collectors.joining(" & "))));
     }
 
     default void unloadHooks() {

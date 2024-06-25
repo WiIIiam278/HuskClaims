@@ -60,7 +60,6 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvi
      * @since 1.3.2
      */
     default void load() {
-        log(Level.INFO, String.format("Loading HuskClaims v%s...", getPluginVersion()));
         try {
             loadSettings();
             loadServer();
@@ -73,7 +72,7 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvi
             disablePlugin();
             return;
         }
-        log(Level.INFO, String.format("Loaded HuskClaims v%s...", getPluginVersion()));
+        log(Level.INFO, String.format("Successfully loaded HuskClaims v%s", getPluginVersion()));
     }
 
     /**
@@ -82,7 +81,6 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvi
      * @since 1.0
      */
     default void enable() {
-        log(Level.INFO, String.format("Enabling HuskClaims v%s...", getPluginVersion()));
         try {
             loadDatabase();
             loadClaimWorlds();
