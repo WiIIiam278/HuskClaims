@@ -26,7 +26,6 @@ import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.Region;
@@ -52,10 +51,7 @@ public class BukkitWorldGuardHook extends WorldGuardHook {
             return false;
         }
         final ApplicableRegionSet set = getOverlappingRegions(region, regionManager.get(), bukkitWorld);
-        for (ProtectedRegion protectedRegion : set.getRegions()) {
-            return protectedRegion.getFlag(CLAIMING) == StateFlag.State.DENY;
-        }
-        return false;
+        return set.getRegions().stream().anyMatch(overlapped -> overlapped.getFlag(CLAIMING) == StateFlag.State.DENY);
     }
 
     @NotNull
