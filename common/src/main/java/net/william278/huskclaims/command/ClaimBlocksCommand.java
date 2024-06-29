@@ -91,7 +91,7 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
         long available = Math.max(0, plugin.getClaimBlocks(user));
         long spent = Math.max(0, claims.stream().map(ServerWorldClaim::getSurfaceArea).reduce(0L, Long::sum));
         long earned = (available + spent) - started;
-        long accrued = Math.max(0, Math.max(started, available) + spent);
+        long accrued = started + earned;
 
         // Prepare from locales
         final String name = user.getName();
@@ -106,7 +106,9 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
         if (earned < 0) {
             locales.getLocale("claim_block_balance_deducted", Long.toString(-earned)).ifPresent(lines::add);
         }
-        locales.getLocale("claim_block_balance_spent", Long.toString(spent), count, name).ifPresent(lines::add);
+        if (spent > 0) {
+            locales.getLocale("claim_block_balance_spent", Long.toString(spent), count, name).ifPresent(lines::add);
+        }
         locales.getLocale("claim_block_balance_available", Long.toString(available)).ifPresent(lines::add);
 
         // Build component & dispatch

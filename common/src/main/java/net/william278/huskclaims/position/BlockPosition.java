@@ -60,7 +60,7 @@ public interface BlockPosition {
      * @since 1.0
      */
     default int getSurfaceArea(@NotNull BlockPosition other) {
-        return Math.abs(getBlockX() - other.getBlockX()) * Math.abs(getBlockZ() - other.getBlockZ());
+        return (1 + Math.abs(getBlockX() - other.getBlockX())) * (1 + Math.abs(getBlockZ() - other.getBlockZ()));
     }
 
     /**

@@ -308,7 +308,7 @@ public class Region {
      * @since 1.0
      */
     public int getShortestEdge() {
-        return Math.min(
+        return 1 + Math.min(
                 Math.abs(farCorner.getBlockX() - nearCorner.getBlockX()),
                 Math.abs(farCorner.getBlockZ() - nearCorner.getBlockZ())
         );
@@ -321,7 +321,7 @@ public class Region {
      * @since 1.0
      */
     public int getLongestEdge() {
-        return Math.max(
+        return 1 + Math.max(
                 Math.abs(farCorner.getBlockX() - nearCorner.getBlockX()),
                 Math.abs(farCorner.getBlockZ() - nearCorner.getBlockZ())
         );
