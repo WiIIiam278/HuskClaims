@@ -561,14 +561,13 @@ public interface ClaimEditor {
 
             // Check child claim resize privileges
             if (claimBeingResized.isChildClaim()) {
-                return !claimBeingResized.isPrivilegeAllowed(
-                        TrustLevel.Privilege.MANAGE_CHILD_CLAIMS, user, plugin
-                ) || !ClaimingMode.CHILD_CLAIMS.canUse(user);
+                return !(claimBeingResized.isPrivilegeAllowed(TrustLevel.Privilege.MANAGE_CHILD_CLAIMS, user, plugin)
+                         && ClaimingMode.CHILD_CLAIMS.canUse(user));
             }
 
             // Check claim resize privileges
             return claimBeingResized.getOwner()
-                    .map(uuid -> uuid.equals(user.getUuid()) && ClaimingMode.CLAIMS.canUse(user))
+                    .map(uuid -> !(uuid.equals(user.getUuid()) && ClaimingMode.CLAIMS.canUse(user)))
                     .orElseGet(() -> ClaimingMode.ADMIN_CLAIMS.canUse(user));
         }
 
