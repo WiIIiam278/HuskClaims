@@ -15,7 +15,7 @@ dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.17.1-R0.1-SNAPSHOT'
     compileOnly 'org.jetbrains:annotations:24.1.0'
     compileOnly 'net.william278:DesertWell:2.0.4'
-    compileOnly 'org.projectlombok:lombok:1.18.32'
+    compileOnly 'org.projectlombok:lombok:1.18.34'
     compileOnly 'it.unimi.dsi:fastutil:8.5.13'
 
     compileOnly 'net.william278.huskhomes:huskhomes-bukkit:4.6.1'
@@ -24,7 +24,7 @@ dependencies {
     compileOnly 'me.clip:placeholderapi:2.11.6'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.1.0-SNAPSHOT'
 
-    annotationProcessor 'org.projectlombok:lombok:1.18.32'
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
 }
 
 shadowJar {
