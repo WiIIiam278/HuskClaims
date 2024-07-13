@@ -500,7 +500,8 @@ public class Claim implements Highlightable {
 
                 // Or, if the user is the owner, return true
                 || (owner != null && operation.getUser()
-                .map(user -> owner.equals(user.getUuid()))
+                .filter(user -> owner.equals(user.getUuid()))
+                .map(u -> plugin.allowedOwnerOperations().contains(operation.getType()))
                 .orElse(false))
 
                 // Or, if there's a user involved in this operation, check their rights

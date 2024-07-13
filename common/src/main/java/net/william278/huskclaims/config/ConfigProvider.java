@@ -34,6 +34,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Level;
 
 /**
@@ -213,6 +214,9 @@ public interface ConfigProvider {
                 YAML_CONFIGURATION_PROPERTIES.header(TrustLevels.CONFIG_HEADER).build()
         ).sortByWeight());
     }
+
+    @NotNull
+    Set<OperationType> allowedOwnerOperations();
 
     /**
      * Get a plugin resource
