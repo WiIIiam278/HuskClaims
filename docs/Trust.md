@@ -283,3 +283,8 @@ The effective trust level of a user is calculated in the order described below i
 3. Trust Tag &mdash; If the user meets the criteria of a trust tag, they are trusted at that level.
 
 **Example:** The owner of a claim has trusted the tag `#public` at the "Manage" trust level, granting everyone management access. The owner has also explicitly trusted the user `Steve` at the "Build" trust level. Since "Steve" is trusted as a User (a higher priority trustable type than a Trust Tag), their effective trust level is "Build Trust," not "Manage Trust."
+
+### Owner allowed permissions
+The owner has access to all permissions in their claim, regardless of their trust level.
+You can remove certain permissions from the owner by editing the `allowed_owner_operations` section in the `trust_levels.yml` file.
+This could be useful for removing the ability for the owner to pvp in their claim, for example.
