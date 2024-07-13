@@ -20,6 +20,7 @@
 package net.william278.huskclaims.config;
 
 import com.google.common.collect.Lists;
+import de.exlll.configlib.Comment;
 import de.exlll.configlib.Configuration;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -29,6 +30,7 @@ import net.william278.huskclaims.trust.TrustLevel;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Set;
 
 @SuppressWarnings("FieldMayBeFinal")
 @Getter
@@ -147,6 +149,29 @@ public class TrustLevels {
                             OperationType.ENDER_PEARL_TELEPORT
                     ))
                     .build()
+    );
+
+    @Comment("The operation types that the claim owner can perform in their own claim")
+    private Set<OperationType> allowedOwnerOperations = Set.of(
+            OperationType.BLOCK_BREAK,
+            OperationType.BLOCK_PLACE,
+            OperationType.BLOCK_INTERACT,
+            OperationType.REDSTONE_INTERACT,
+            OperationType.ENTITY_INTERACT,
+            OperationType.CONTAINER_OPEN,
+            OperationType.FARM_BLOCK_BREAK,
+            OperationType.FARM_BLOCK_PLACE,
+            OperationType.FARM_BLOCK_INTERACT,
+            OperationType.PLACE_HANGING_ENTITY,
+            OperationType.BREAK_HANGING_ENTITY,
+            OperationType.PLAYER_DAMAGE_PLAYER,
+            OperationType.PLAYER_DAMAGE_PERSISTENT_ENTITY,
+            OperationType.PLAYER_DAMAGE_MONSTER,
+            OperationType.PLAYER_DAMAGE_ENTITY,
+            OperationType.FILL_BUCKET,
+            OperationType.EMPTY_BUCKET,
+            OperationType.USE_SPAWN_EGG,
+            OperationType.ENDER_PEARL_TELEPORT
     );
 
     @NotNull
