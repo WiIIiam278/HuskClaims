@@ -114,6 +114,7 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     @Setter
     @Nullable
     private Server serverName;
+    private Queue<Runnable> claimActionQueue;
 
     @Override
     public void onLoad() {
