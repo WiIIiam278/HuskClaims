@@ -95,11 +95,11 @@ public class ClaimCommand extends OnlineUserCommand {
             return;
         }
         switch (mode) {
-            case CLAIMS -> plugin.getClaimActionQueue().offer(() ->
+            case CLAIMS -> plugin.claimActionQueue.offer(() ->
                     plugin.userCreateClaim(user, world, Region.around(user.getPosition(), radius)));
-            case ADMIN_CLAIMS -> plugin.getClaimActionQueue().offer(() ->
+            case ADMIN_CLAIMS -> plugin.claimActionQueue.offer(() ->
                     plugin.userCreateAdminClaim(user, world, Region.around(user.getPosition(), radius)));
-            case CHILD_CLAIMS -> plugin.getClaimActionQueue().offer(() ->
+            case CHILD_CLAIMS -> plugin.claimActionQueue.offer(() ->
                     plugin.userCreateChildClaim(user, world, Region.around(user.getPosition(), radius)));
         }
     }

@@ -33,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
 /**
@@ -45,8 +46,7 @@ public interface ClaimEditor {
     @NotNull
     ConcurrentMap<UUID, ClaimSelection> getClaimSelections();
 
-    @NotNull
-    Queue<Runnable> getClaimActionQueue();
+    Queue<Runnable> claimActionQueue = new ConcurrentLinkedQueue<>();
 
     default Optional<ClaimSelection> getClaimSelection(@NotNull User user) {
         return Optional.ofNullable(getClaimSelections().get(user.getUuid()));
@@ -84,11 +84,11 @@ public interface ClaimEditor {
 
         // Otherwise, create a new claim
         switch (mode) {
-            case CLAIMS -> getClaimActionQueue().offer(() ->
+            case CLAIMS -> claimActionQueue.offer(() ->
                     userCreateClaim(user, world, Region.from(select.getSelectedPosition(), clicked)));
-            case ADMIN_CLAIMS -> getClaimActionQueue().offer(() ->
+            case ADMIN_CLAIMS -> claimActionQueue.offer(() ->
                     userCreateAdminClaim(user, world, Region.from(select.getSelectedPosition(), clicked)));
-            case CHILD_CLAIMS -> getClaimActionQueue().offer(() ->
+            case CHILD_CLAIMS -> claimActionQueue.offer(() ->
                     userCreateChildClaim(user, world, Region.from(select.getSelectedPosition(), clicked)));
         }
         clearClaimSelection(user);
@@ -127,7 +127,7 @@ public interface ClaimEditor {
 
         // Get the resized claim
         final Region resized = claim.getRegion().getResized(corner, Region.Point.wrap(clickedBlock));
-        getClaimActionQueue().offer(() -> userResizeClaim(user, world, claim, resized));
+        claimActionQueue.offer(() -> userResizeClaim(user, world, claim, resized));
     }
 
     default void userResizeClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world,
@@ -391,7 +391,7 @@ public interface ClaimEditor {
             return;
         }
         final Region resized = claim.getRegion().getResized(corner, Region.Point.wrap(clickedBlock));
-        getClaimActionQueue().offer(() -> userResizeChildClaim(user, world, claim, resized));
+        claimActionQueue.offer(() -> userResizeChildClaim(user, world, claim, resized));
     }
 
     default void userResizeChildClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world,
