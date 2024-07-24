@@ -35,3 +35,26 @@ jobs:
         if: success() || failure() # Continue on failure
         with:
           report_paths: '**/build/test-results/test/TEST-*.xml'
+      - name: 'Fetch Version Name 📝'
+        run: |
+          echo "::set-output name=VERSION_NAME::$(${{github.workspace}}/gradlew properties --no-daemon --console=plain -q | grep "^version:" | awk '{printf $2}')"
+        id: fetch-version
+          - name: Get Version
+            run: |
+              echo "version_name=${{steps.fetch-version.outputs.VERSION_NAME}}" >> $GITHUB_ENV
+      - name: 'Publish to William278.net 🚀'
+        uses: WiIIiam278/bones-publish-action@v1
+        with:
+          api-key: ${{ secrets.BONES_API_KEY }}
+          project: 'huskclaims'
+          channel: 'alpha'
+          version: ${{ env.version_name }}
+          changelog: ${{ github.event.head_commit.message }}
+          distro-names: |
+            paper
+          distro-groups: |
+            paper
+          distro-descriptions: |
+            Paper
+          files: |
+            target/HuskClaims-Paper-${{ env.version_name }}.jar
