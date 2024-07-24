@@ -21,6 +21,7 @@ package net.william278.huskclaims;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -94,6 +95,8 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     private final ConcurrentMap<UUID, SavedUser> userCache = Maps.newConcurrentMap();
     private final List<Command> commands = Lists.newArrayList();
     private final HashMap<String, ClaimWorld> claimWorlds = Maps.newHashMap();
+    private final Queue<Runnable> claimActionQueue = Queues.newConcurrentLinkedQueue();
+
     @Setter
     private Map<UUID, Set<UserGroup>> userGroups = Maps.newConcurrentMap();
     @Setter
