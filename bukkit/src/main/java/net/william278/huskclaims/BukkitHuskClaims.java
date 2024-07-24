@@ -307,9 +307,13 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     @Override
     public void startQueuePoller() {
         getRepeatingTask(()->{
-            Runnable task = claimBlocksEditQueue.poll();
-            if (task != null) {
-                task.run();
+            Runnable claimBlocksTask = claimBlocksEditQueue.poll();
+            if (claimBlocksTask != null) {
+                claimBlocksTask.run();
+            }
+            Runnable claimActionTask = claimActionQueue.poll();
+            if (claimActionTask != null) {
+                claimActionTask.run();
             }
         }, Duration.of(100, ChronoUnit.MILLIS), Duration.of(100, ChronoUnit.MILLIS)).run();
     }

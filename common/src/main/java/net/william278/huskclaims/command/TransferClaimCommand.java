@@ -79,6 +79,6 @@ public class TransferClaimCommand extends InClaimOwnerCommand implements UserLis
             return;
         }
 
-        plugin.userTransferClaim(executor, claim, world, user.get().getUser());
+        plugin.claimActionQueue.offer(() -> plugin.userTransferClaim(executor, claim, world, user.get().getUser()));
     }
 }

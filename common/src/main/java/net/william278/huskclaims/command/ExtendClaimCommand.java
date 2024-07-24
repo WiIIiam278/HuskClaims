@@ -95,11 +95,11 @@ public class ExtendClaimCommand extends InClaimOwnerCommand {
         // Extend the region, resize the claim
         final Region extendedRegion = getExtendedRegion(claim.getRegion(), direction, distance.get());
         if (parent != null) {
-            plugin.userResizeChildClaim(executor, world, claim, extendedRegion);
+            plugin.claimActionQueue.offer(() -> plugin.userResizeChildClaim(executor, world, claim, extendedRegion));
             return;
         }
 
-        plugin.userResizeClaim(executor, world, claim, extendedRegion);
+        plugin.claimActionQueue.offer(() -> plugin.userResizeClaim(executor, world, claim, extendedRegion));
     }
 
     // Calculates the number of blocks to extend in each direction and returns a resized region
