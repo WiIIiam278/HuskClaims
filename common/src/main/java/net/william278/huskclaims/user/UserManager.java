@@ -92,6 +92,7 @@ public interface UserManager extends ClaimBlocksManager {
         final SavedUser savedUser = getPlugin().getDatabase()
                 .getUser(user.getUuid()).map(saved -> {
                     saved.setLastLogin(OffsetDateTime.now());
+                    saved.getUser().setName(user.getName());
                     return saved;
                 })
                 .orElse(SavedUser.createNew(user, getPlugin()));

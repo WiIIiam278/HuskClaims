@@ -23,6 +23,7 @@ import com.google.gson.annotations.Expose;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.trust.Trustable;
@@ -36,6 +37,7 @@ import java.util.UUID;
 public class User implements Trustable, Comparable<User> {
 
     @Expose
+    @Setter
     @NotNull
     private String name;
     @Expose
