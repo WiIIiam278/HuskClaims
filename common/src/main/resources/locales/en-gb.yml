@@ -22,6 +22,7 @@ locales:
   error_no_admin_claims_made: '[Error:](#ff3300) [No admin claims have been created.](#ff7e5e)'
   error_restrict_not_child: '[Error:](#ff3300) [You are not standing in a child claim.](#ff7e5e)\n[Stand in one and use](gray) [/restrictclaim](gray italic show_text=&7Click to suggest suggest_command=/restrictclaim) [to restrict trust access inheritance from that child''s parent claim.](gray)'
   error_parent_claim_deleted: '[Error:](#ff3300) [The parent of the child claim you were resizing has been deleted.](#ff7e5e)'
+  error_claim_deleted: '[Error:](#ff3300) [The claim you were resizing has been deleted.](#ff7e5e)'
   error_delete_all_children: '[Error:](#ff3300) [You are in child claiming mode. To delete all your claims, switch to regular claiming mode with](#ff7e5e) [/claim](#ff7e5e italic show_text=&7Click to suggest suggest_command=/claim)'
   error_transfer_same_owner: '[Error:](#ff3300) [Nothing changed. %1% is already the owner of the claim.](#ff7e5e)'
   error_admin_claim_transfer: '[Error:](#ff3300) [You cannot transfer ownership of an admin claim.](#ff7e5e)'

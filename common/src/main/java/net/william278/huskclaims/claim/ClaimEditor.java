@@ -132,6 +132,13 @@ public interface ClaimEditor {
 
     default void userResizeClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world,
                                  @NotNull Claim claim, @NotNull Region resized) {
+        // Check that the claim is still present in the claim world
+        if (!world.contains(claim)) {
+            getPlugin().getLocales().getLocale("error_claim_deleted")
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+
         // Check the area doesn't overlap with another claim, excluding the original claim
         final List<Claim> overlapsWith = world.getParentClaimsOverlapping(resized, claim.getRegion());
         if (!overlapsWith.isEmpty()) {
@@ -396,21 +403,27 @@ public interface ClaimEditor {
 
     default void userResizeChildClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world,
                                       @NotNull Claim child, @NotNull Region resized) {
+        // Check both the parent and child claim being resized still exist
         final Optional<Claim> optionalParent = child.getParent();
-        if (optionalParent.isEmpty()) {
+        if (optionalParent.isEmpty() || !world.contains(optionalParent.get())) {
             getPlugin().getLocales().getLocale("error_parent_claim_deleted")
                     .ifPresent(user::sendMessage);
             return;
         }
-
         final Claim parent = optionalParent.get();
+        if (!parent.containsChild(child)) {
+            getPlugin().getLocales().getLocale("error_claim_deleted")
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+
+        // Ensure the resized region is valid
         if (!parent.getRegion().fullyEncloses(resized) || parent.getRegion().equals(resized)) {
             getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), parent, true);
             getPlugin().getLocales().getLocale("selection_child_not_enclosing_parent")
                     .ifPresent(user::sendMessage);
             return;
         }
-
         final List<Claim> overlapsWith = parent.getChildClaimsWithin(resized, child.getRegion());
         if (!overlapsWith.isEmpty()) {
             getPlugin().getLocales().getLocale("land_selection_overlaps_child",

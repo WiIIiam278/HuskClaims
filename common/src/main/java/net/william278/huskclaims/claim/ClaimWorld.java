@@ -415,6 +415,17 @@ public class ClaimWorld {
     }
 
     /**
+     * Return if a claim is contained in this world
+     *
+     * @param claim The claim to check
+     * @return {@code true} if this world contains the claim; {@code false} otherwise
+     * @since 1.3.4
+     */
+    public boolean contains(@NotNull Claim claim) {
+        return getClaims().contains(claim);
+    }
+
+    /**
      * Get if a region is claimed by a specific user
      *
      * @param operation The operation to check

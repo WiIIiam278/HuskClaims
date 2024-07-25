@@ -22,6 +22,7 @@ locales:
   error_no_admin_claims_made: '[错误:](#ff3300) [尚未创建管理员领地](#ff7e5e)'
   error_restrict_not_child: '[错误:](#ff3300) [您不在子领地中](#ff7e5e)\n[站在其中并使用](gray) [/restrictclaim](gray italic show_text=&7点击建议的命令 suggest_command=/restrictclaim) [以限制从该子领地的父领地继承的信任访问权限](gray)'
   error_parent_claim_deleted: '[错误:](#ff3300) [您正在调整大小的子领地的父领地已被删除](#ff7e5e)'
+  error_claim_deleted: '[Error:](#ff3300) [The claim you were resizing has been deleted.](#ff7e5e)'
   error_delete_all_children: '[错误:](#ff3300) [您处于子领地声明模式.要删除所有领地,请切换到常规声明模式使用](#ff7e5e) [/claim](#ff7e5e italic show_text=&7点击建议的命令 suggest_command=/claim)'
   error_transfer_same_owner: '[错误:](#ff3300) [未做任何更改.%1%已经是领地的所有者](#ff7e5e)'
   error_admin_claim_transfer: '[错误:](#ff3300) [您不能转让管理员领地的所有权](#ff7e5e)'

@@ -22,6 +22,7 @@ locales:
   error_no_admin_claims_made: '[Ошибка:](#ff3300) [Не найдено никаких регинов администрации.](#ff7e5e)'
   error_restrict_not_child: '[Ошибка:](#ff3300) [Вы не находитесь в каком-либо потомственном регионе.](#ff7e5e)\n[Встаньте в один из них и используйте команду](gray) [/restrictclaim](gray italic show_text=&7Нажмите для просмотра suggest_command=/restrictclaim) [чтобы ограничить наследование прав доверия его родительского региона.](gray)'
   error_parent_claim_deleted: '[Ошибка:](#ff3300) [Родитель региона, который вы пытаетесь редактировать, был удалён.](#ff7e5e)'
+  error_claim_deleted: '[Error:](#ff3300) [The claim you were resizing has been deleted.](#ff7e5e)'
   error_delete_all_children: '[Ошибка:](#ff3300) [Вы в режиме привата потомственных регионов. Чтобы удалить все регионы, перейдите в обычный режим привата командой](#ff7e5e) [/claim](#ff7e5e italic show_text=&7Нажмите для просмотра suggest_command=/claim)'
   error_transfer_same_owner: '[Ошибка:](#ff3300) [Ничего не изменилось. Игрок %1% уже является создателем данного региона.](#ff7e5e)'
   error_admin_claim_transfer: '[Ошибка:](#ff3300) [Вы не можете передать права владения региона администрации.](#ff7e5e)'

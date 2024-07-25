@@ -565,6 +565,10 @@ public class Claim implements Highlightable {
         return getChildren().stream().filter(claim -> claim.getRegion().overlaps(region)).toList();
     }
 
+    public boolean containsChild(@NotNull Claim child) {
+        return children.contains(child);
+    }
+
     /**
      * Get the child claims a region overlaps with, except for certain claims
      *
