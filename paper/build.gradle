@@ -49,10 +49,7 @@ tasks {
     runServer {
         minecraftVersion('1.21')
         downloadPlugins {
-            url("https://ci.lucko.me/job/LuckPerms/lastBuild/artifact/bukkit/loader/build/libs/LuckPerms-Bukkit-5.4.134.jar")
-            url("https://ci.lucko.me/job/spark/lastBuild/artifact/spark-bukkit/build/libs/spark-1.10.73-bukkit.jar")
-            url("https://ci.enginehub.org/repository/download/bt11/24401:id/worldguard-bukkit-7.0.11-SNAPSHOT-dist.jar?branch=feat/mc-1.21&guest=1")
-            url("https://ci.enginehub.org/repository/download/bt10/24386:id/worldedit-bukkit-7.4.0-SNAPSHOT-dist.jar?branch=master&guest=1")
+            url("https://ci.lucko.me/job/LuckPerms/lastBuild/artifact/bukkit/loader/build/libs/LuckPerms-Bukkit-5.4.137.jar")
             hangar("Plan-Player-Analytics", "5.6+build.2883")
             modrinth("huskhomes", "4.7")
 
