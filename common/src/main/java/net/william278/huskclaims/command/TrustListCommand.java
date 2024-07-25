@@ -29,6 +29,7 @@ import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
@@ -66,19 +67,22 @@ public class TrustListCommand extends InClaimCommand {
     @NotNull
     private String getClaimHeaderDetails(@NotNull Claim claim, @NotNull ClaimWorld world) {
         final String ownerName = claim.getOwnerName(world, plugin);
+        final String na = plugin.getLocales().getNotApplicable();
         return plugin.getLocales().getRawLocale("trust_list_claim",
                 Locales.escapeText(ownerName),
                 Long.toString(claim.getRegion().getSurfaceArea()),
                 Integer.toString(claim.getRegion().getLongestEdge()),
                 Integer.toString(claim.getRegion().getShortestEdge()),
                 Integer.toString(claim.getChildren().size()),
-                Integer.toString(claim.getTrustedUsers().keySet().size())
+                Integer.toString(claim.getTrustedUsers().keySet().size()),
+                claim.getCreationTime().map(t -> t.format(DateTimeFormatter.ISO_LOCAL_DATE)).orElse(na)
         ).orElse(ownerName);
     }
 
     @NotNull
     private String getChildClaimHeaderDetails(@NotNull Claim claim, @NotNull ClaimWorld world) {
         final String ownerName = claim.getOwnerName(world, plugin);
+        final String na = plugin.getLocales().getNotApplicable();
         return plugin.getLocales().getRawLocale("trust_list_child_claim",
                 Locales.escapeText(ownerName),
                 Long.toString(claim.getRegion().getSurfaceArea()),
@@ -86,7 +90,8 @@ public class TrustListCommand extends InClaimCommand {
                 Integer.toString(claim.getRegion().getShortestEdge()),
                 Integer.toString(claim.getTrustedUsers().keySet().size()),
                 plugin.getLocales().getRawLocale(String.format("child_claims_inherit_%srestricted",
-                        claim.isInheritParent() ? "un" : "")).orElse(Boolean.toString(claim.isInheritParent()))
+                        claim.isInheritParent() ? "un" : "")).orElse(Boolean.toString(claim.isInheritParent())),
+                claim.getCreationTime().map(t -> t.format(DateTimeFormatter.ISO_LOCAL_DATE)).orElse(na)
         ).orElse(ownerName);
     }
 

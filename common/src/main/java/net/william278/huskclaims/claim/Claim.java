@@ -43,6 +43,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 
@@ -139,6 +140,14 @@ public class Claim implements Highlightable {
     @SerializedName("inherit_parent")
     private boolean inheritParent;
 
+    /**
+     * The time the claim was created (as a stringified {@link OffsetDateTime})
+     */
+    @Expose
+    @Nullable
+    @SerializedName("creation_time")
+    private String creationTime;
+
     protected Claim(@Nullable UUID owner, @NotNull Region region, @NotNull ConcurrentMap<UUID, String> users,
                     @NotNull ConcurrentMap<String, String> groups, @NotNull ConcurrentMap<String, String> tags,
                     @NotNull ConcurrentMap<UUID, UUID> bannedUsers, @NotNull Set<Claim> children, boolean inheritParent,
@@ -152,6 +161,7 @@ public class Claim implements Highlightable {
         this.children = children;
         this.defaultFlags = defaultFlags;
         this.inheritParent = inheritParent;
+        this.creationTime = OffsetDateTime.now().toString();
         children.forEach(child -> child.setParent(this));
     }
 
@@ -538,6 +548,11 @@ public class Claim implements Highlightable {
 
     public boolean isAdminClaim() {
         return owner == null;
+    }
+
+    @NotNull
+    public Optional<OffsetDateTime> getCreationTime() {
+        return Optional.ofNullable(creationTime).map(OffsetDateTime::parse);
     }
 
     @NotNull
