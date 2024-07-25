@@ -70,8 +70,9 @@ public class ClaimBanCommand extends InClaimCommand implements UserListTabComple
                     .ifPresent(executor::sendMessage);
 
             // Teleport the user out of the claim
-            plugin.getOnlineUsers().stream().filter(u -> u.equals(user)).findFirst()
-                    .ifPresent(o -> {
+            plugin.getOnlineUsers().stream().filter(u -> u.equals(user))
+                    .filter(u -> plugin.getClaimAt(u.getPosition()).map(c -> c.equals(claim)).orElse(false))
+                    .findFirst().ifPresent(o -> {
                         plugin.teleportOutOfClaim(o);
                         plugin.getLocales().getLocale("user_banned_you", claim.getOwnerName(world, plugin))
                                 .ifPresent(o::sendMessage);
