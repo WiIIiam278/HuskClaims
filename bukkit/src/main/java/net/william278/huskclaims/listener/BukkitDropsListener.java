@@ -34,6 +34,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public interface BukkitDropsListener extends Listener {
@@ -65,11 +66,16 @@ public interface BukkitDropsListener extends Listener {
             this.dropLocation = dropLocation;
         }
 
+        public double distance(@NotNull BukkitDroppedItem other) {
+            return Objects.equals(dropLocation.getWorld(), other.dropLocation.getWorld())
+                    ? dropLocation.distance(other.getDropLocation()) : Double.MAX_VALUE;
+        }
+
         @Override
         public boolean equals(Object obj) {
             return obj instanceof BukkitDroppedItem item
-                    && item.getDropLocation().distance(getDropLocation()) <= DEATH_DROPS_EQUAL_RANGE
-                    && item.getStack() != null && item.getStack().equals(getStack());
+                   && dropLocation.getWorld() != null && this.distance(item) <= DEATH_DROPS_EQUAL_RANGE
+                   && item.getStack() != null && item.getStack().equals(getStack());
         }
 
     }
