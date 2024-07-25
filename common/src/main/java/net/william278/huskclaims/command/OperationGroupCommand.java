@@ -44,7 +44,7 @@ public class OperationGroupCommand extends InClaimCommand implements ToggleTabCo
     @Override
     public void execute(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
                         @NotNull Claim claim, @NotNull String[] args) {
-        boolean disableGroup = !parseBooleanArg(args, 0).orElse(isOperationGroupSet(claim));
+        boolean disableGroup = !parseBooleanArg(args, 0).orElse(!isOperationGroupSet(claim));
         if (disableGroup) {
             group.getAllowedOperations().forEach(claim.getDefaultFlags()::remove);
             plugin.getLocales().getLocale("disabled_operation_group", group.getName())

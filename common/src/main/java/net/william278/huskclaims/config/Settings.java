@@ -36,6 +36,7 @@ import net.william278.huskclaims.util.BlockProvider;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -311,7 +312,7 @@ public final class Settings {
             OperationGroup.builder()
                     .name("Claim Explosions")
                     .description("Toggle whether explosions can damage terrain in claims")
-                    .allowedOperations(List.of(
+                    .allowedOperations(Set.of(
                             OperationType.EXPLOSION_DAMAGE_TERRAIN,
                             OperationType.MONSTER_DAMAGE_TERRAIN
                     ))
@@ -328,7 +329,7 @@ public final class Settings {
         private String name;
         private String description;
         private List<String> toggleCommandAliases;
-        private List<OperationType> allowedOperations;
+        private Set<OperationType> allowedOperations;
     }
 
     @Comment("Settings for user groups, letting users quickly manage trust for groups of multiple players at once")
