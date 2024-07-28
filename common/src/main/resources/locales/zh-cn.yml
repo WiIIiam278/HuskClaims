@@ -60,7 +60,7 @@ locales:
   claim_selection_resize_child: '[调整子领地大小中](#00fb9a) [右键点击设置新的角落位置](gray)'
   claim_selection_cancelled: '[取消领地选择](#00fb9a)'
   claim_created: '[成功创建领地,使用■ %1%领地方块](#00fb9a)'
-  claim_created_trust_prompt: '[使用](gray) [/%1%](gray italic show_text=&7点击建议的命令 suggest_comm和=/%1%) [向领地中的用户授予](gray) [● %2% 信任](%3% 信任 show_text=&%3%&%2%\n&7%4% suggest_comm和=/%1%) [](gray)'
+  claim_created_trust_prompt: '[使用](gray) [/%1%](gray italic show_text=&7点击建议的命令 suggest_command=/%1%) [向领地中的用户授予](gray) [● %2% 信任](%3% 信任 show_text=&%3%&%2%\n&7%4% suggest_command=/%1%) [](gray)'
   created_child_claim: '[成功创建子领地](#00fb9a)'
   created_admin_claim: '[成功创建管理员领地](#00fb9a)'
   claim_resized_spent_blocks: '[成功调整领地大小 (花费 ■ %1%领地方块)](#00fb9a)'
