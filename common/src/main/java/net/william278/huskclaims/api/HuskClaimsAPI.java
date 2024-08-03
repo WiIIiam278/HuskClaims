@@ -171,7 +171,7 @@ public class HuskClaimsAPI {
      * @since 1.0
      */
     public void editClaimBlocks(@NotNull User user, @NotNull Function<Long, Long> editor) {
-        plugin.runAsync(() -> plugin.editClaimBlocks(user, ClaimBlocksManager.ClaimBlockSource.API, editor));
+        plugin.editClaimBlocks(user, ClaimBlocksManager.ClaimBlockSource.API, editor);
     }
 
     /**
@@ -186,7 +186,7 @@ public class HuskClaimsAPI {
      */
     public void editClaimBlocks(@NotNull User user, @NotNull Function<Long, Long> editor,
                                 @NotNull Consumer<Long> callback) {
-        plugin.runAsync(() -> plugin.editClaimBlocks(user, ClaimBlocksManager.ClaimBlockSource.API, editor, callback));
+        plugin.editClaimBlocks(user, ClaimBlocksManager.ClaimBlockSource.API, editor, callback);
     }
 
     /**
@@ -244,7 +244,7 @@ public class HuskClaimsAPI {
             }));
             return;
         }
-        plugin.runAsync(() -> plugin.editSavedUser(userUuid, editor));
+        plugin.runQueued(() -> plugin.editSavedUser(userUuid, editor));
     }
 
     /**
@@ -354,7 +354,7 @@ public class HuskClaimsAPI {
      */
     public void editClaimWorld(@NotNull World world, @NotNull Consumer<ClaimWorld> editor,
                                @NotNull Runnable notPresent) {
-        plugin.runAsync(() -> getClaimWorld(world).ifPresentOrElse(
+        plugin.runQueued(() -> getClaimWorld(world).ifPresentOrElse(
                 (claimWorld) -> {
                     editor.accept(claimWorld);
                     plugin.getDatabase().updateClaimWorld(claimWorld);
@@ -790,7 +790,7 @@ public class HuskClaimsAPI {
      * @since 1.0
      */
     public void deleteClaim(@NotNull ClaimWorld world, @NotNull Claim claim) {
-        plugin.runAsync(() -> plugin.deleteClaim(world, claim));
+        plugin.runQueued(() -> plugin.deleteClaim(world, claim));
     }
 
     /**
@@ -804,7 +804,7 @@ public class HuskClaimsAPI {
         final Claim parent = claim.getParent().orElseThrow(
                 () -> new IllegalArgumentException("Claim is not a child claim or parent could not be found")
         );
-        plugin.runAsync(() -> plugin.deleteChildClaim(world, parent, claim));
+        plugin.runQueued(() -> plugin.deleteChildClaim(world, parent, claim));
     }
 
     /**

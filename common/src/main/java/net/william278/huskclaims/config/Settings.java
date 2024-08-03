@@ -35,11 +35,7 @@ import net.william278.huskclaims.position.World;
 import net.william278.huskclaims.util.BlockProvider;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-import java.util.Set;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TreeMap;
+import java.util.*;
 
 @SuppressWarnings("FieldMayBeFinal")
 @Getter

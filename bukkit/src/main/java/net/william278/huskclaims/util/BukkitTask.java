@@ -148,7 +148,10 @@ public interface BukkitTask extends Task {
 
         @Override
         default void cancelTasks() {
-            ((BukkitHuskClaims) getPlugin()).getMorePaperLib().scheduling().cancelGlobalTasks();
+            final BukkitHuskClaims plugin = (BukkitHuskClaims) getPlugin();
+            getTaskQueue().forEach(Runnable::run);
+            getTaskQueue().clear();
+            plugin.getMorePaperLib().scheduling().cancelGlobalTasks();
         }
 
     }

@@ -55,10 +55,7 @@ import net.william278.huskclaims.trust.TrustLevel;
 import net.william278.huskclaims.trust.TrustTag;
 import net.william278.huskclaims.trust.UserGroup;
 import net.william278.huskclaims.user.*;
-import net.william278.huskclaims.util.BlockProvider;
-import net.william278.huskclaims.util.BukkitBlockProvider;
-import net.william278.huskclaims.util.BukkitSafeTeleportProvider;
-import net.william278.huskclaims.util.BukkitTask;
+import net.william278.huskclaims.util.*;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
@@ -73,8 +70,6 @@ import org.jetbrains.annotations.Nullable;
 import space.arim.morepaperlib.MorePaperLib;
 
 import java.nio.file.Path;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -95,7 +90,7 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     private final ConcurrentMap<UUID, SavedUser> userCache = Maps.newConcurrentMap();
     private final List<Command> commands = Lists.newArrayList();
     private final HashMap<String, ClaimWorld> claimWorlds = Maps.newHashMap();
-    private final Queue<Runnable> claimActionQueue = Queues.newConcurrentLinkedQueue();
+    private final Queue<Task.Async> taskQueue = Queues.newConcurrentLinkedQueue();
 
     @Setter
     private Map<UUID, Set<UserGroup>> userGroups = Maps.newConcurrentMap();
@@ -305,20 +300,6 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
                         "Invalid material: " + materialBlock.getMaterialKey()
                 ).createBlockData()
         ));
-    }
-
-    @Override
-    public void startQueuePoller() {
-        getRepeatingTask(()->{
-            Runnable claimBlocksTask = claimBlocksEditQueue.poll();
-            if (claimBlocksTask != null) {
-                claimBlocksTask.run();
-            }
-            Runnable claimActionTask = claimActionQueue.poll();
-            if (claimActionTask != null) {
-                claimActionTask.run();
-            }
-        }, Duration.of(100, ChronoUnit.MILLIS), Duration.of(100, ChronoUnit.MILLIS)).run();
     }
 
     @Override

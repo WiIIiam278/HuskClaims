@@ -45,7 +45,7 @@ public interface ClaimsToolHandler {
                     .ifPresent(user::sendMessage);
             return;
         }
-        getPlugin().runAsync(() -> getPlugin().handleSelection(user, optionalWorld.get(), position));
+        getPlugin().runQueued(() -> getPlugin().handleSelection(user, optionalWorld.get(), position));
     }
 
     @NotNull

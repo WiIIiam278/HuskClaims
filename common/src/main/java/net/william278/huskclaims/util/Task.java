@@ -23,6 +23,8 @@ import net.william278.huskclaims.HuskClaims;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -91,6 +93,9 @@ public interface Task extends Runnable {
     @SuppressWarnings("UnusedReturnValue")
     interface Supplier {
 
+        // Poll the async task queue 10 times per second
+        Duration TASK_POLL_RATE = Duration.of(80, ChronoUnit.MILLIS);
+
         @NotNull
         Task.Sync getSyncTask(@NotNull Runnable runnable, @NotNull Duration initialDelay);
 
@@ -120,6 +125,13 @@ public interface Task extends Runnable {
             return task;
         }
 
+        @NotNull
+        default Task.Async runQueued(@NotNull Runnable runnable) {
+            final Task.Async task = getAsyncTask(runnable);
+            getTaskQueue().offer(task);
+            return task;
+        }
+
         default <T> CompletableFuture<T> supplyAsync(@NotNull java.util.function.Supplier<T> supplier) {
             final CompletableFuture<T> future = new CompletableFuture<>();
             runAsync(() -> {
@@ -131,6 +143,18 @@ public interface Task extends Runnable {
             });
             return future;
         }
+
+        default void startQueuePoller() {
+            getRepeatingTask(() -> {
+                final Async task = getTaskQueue().poll();
+                if (task != null && !task.cancelled) {
+                    task.run();
+                }
+            }, TASK_POLL_RATE, TASK_POLL_RATE).run();
+        }
+
+        @NotNull
+        Queue<Task.Async> getTaskQueue();
 
         void cancelTasks();
 

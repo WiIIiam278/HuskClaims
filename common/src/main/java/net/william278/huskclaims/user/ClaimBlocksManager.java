@@ -29,7 +29,6 @@ import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -37,12 +36,11 @@ public interface ClaimBlocksManager {
 
     // How many times per hour to run the claim block update task for all users
     int HOURLY_BLOCKS_UPDATES = 5;
+
     // Permission to grant hourly claim blocks
     String HOURLY_BLOCKS_PERMISSION = "huskclaims.hourly_blocks.";
 
     Optional<SavedUser> getSavedUser(@NotNull UUID uuid);
-
-    ConcurrentLinkedQueue<Runnable> claimBlocksEditQueue = new ConcurrentLinkedQueue<>();
 
     @Blocking
     void editSavedUser(@NotNull UUID uuid, @NotNull Consumer<SavedUser> consumer);
@@ -60,8 +58,7 @@ public interface ClaimBlocksManager {
 
     default void editClaimBlocks(@NotNull User user, @NotNull UserManager.ClaimBlockSource source,
                                  @NotNull Function<Long, Long> consumer, @Nullable Consumer<Long> callback) {
-        // Create a runnable to queue
-        Runnable task = () -> {
+        getPlugin().runQueued(() -> {
             // Calculate block balance
             final long originalBlocks = getClaimBlocks(user);
             final long newBlocks = consumer.apply(originalBlocks);
@@ -82,13 +79,8 @@ public interface ClaimBlocksManager {
                         }
                     })
             );
-        };
-
-        // Add task to queue
-        claimBlocksEditQueue.offer(task);
+        });
     }
-
-    void startQueuePoller();
 
     default void editClaimBlocks(@NotNull User user, @NotNull UserManager.ClaimBlockSource source,
                                  @NotNull Function<Long, Long> consumer) {
@@ -98,7 +90,7 @@ public interface ClaimBlocksManager {
     @Blocking
     default void grantHourlyClaimBlocks(@NotNull OnlineUser user) {
         final long hourlyBlocks = user.getNumericalPermission(HOURLY_BLOCKS_PERMISSION)
-                .orElse(getPlugin().getSettings().getClaims().getHourlyClaimBlocks()) / HOURLY_BLOCKS_UPDATES;
+                                          .orElse(getPlugin().getSettings().getClaims().getHourlyClaimBlocks()) / HOURLY_BLOCKS_UPDATES;
         if (hourlyBlocks <= 0) {
             return;
         }
@@ -119,7 +111,7 @@ public interface ClaimBlocksManager {
                 OffsetDateTime.now(),
                 OffsetDateTime.now()
                         .plusMinutes(60 / HOURLY_BLOCKS_UPDATES -
-                                OffsetDateTime.now().getMinute() % (60 / HOURLY_BLOCKS_UPDATES))
+                                     OffsetDateTime.now().getMinute() % (60 / HOURLY_BLOCKS_UPDATES))
                         .withSecond(0)
                         .withNano(0)
         );

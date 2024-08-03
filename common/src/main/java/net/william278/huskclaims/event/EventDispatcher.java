@@ -54,7 +54,7 @@ public interface EventDispatcher extends EventProvider {
     default <T extends Event> void fireEvent(@NotNull T event, @Nullable Consumer<T> callback) {
         getPlugin().runSync(() -> {
             if (!fireIsCancelled(event) && callback != null) {
-                getPlugin().runAsync(() -> callback.accept(event));
+                getPlugin().runQueued(() -> callback.accept(event));
             }
         });
     }

@@ -32,7 +32,10 @@ import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
 
 /**
@@ -44,9 +47,6 @@ public interface ClaimEditor {
 
     @NotNull
     ConcurrentMap<UUID, ClaimSelection> getClaimSelections();
-    
-    @NotNull
-    Queue<Runnable> getClaimActionQueue();
 
     default Optional<ClaimSelection> getClaimSelection(@NotNull User user) {
         return Optional.ofNullable(getClaimSelections().get(user.getUuid()));
@@ -84,12 +84,9 @@ public interface ClaimEditor {
 
         // Otherwise, create a new claim
         switch (mode) {
-            case CLAIMS -> getClaimActionQueue().offer(() ->
-                    userCreateClaim(user, world, Region.from(select.getSelectedPosition(), clicked)));
-            case ADMIN_CLAIMS -> getClaimActionQueue().offer(() ->
-                    userCreateAdminClaim(user, world, Region.from(select.getSelectedPosition(), clicked)));
-            case CHILD_CLAIMS -> getClaimActionQueue().offer(() ->
-                    userCreateChildClaim(user, world, Region.from(select.getSelectedPosition(), clicked)));
+            case CLAIMS -> userCreateClaim(user, world, Region.from(select.getSelectedPosition(), clicked));
+            case ADMIN_CLAIMS -> userCreateAdminClaim(user, world, Region.from(select.getSelectedPosition(), clicked));
+            case CHILD_CLAIMS -> userCreateChildClaim(user, world, Region.from(select.getSelectedPosition(), clicked));
         }
         clearClaimSelection(user);
     }
@@ -127,7 +124,7 @@ public interface ClaimEditor {
 
         // Get the resized claim
         final Region resized = claim.getRegion().getResized(corner, Region.Point.wrap(clickedBlock));
-        getClaimActionQueue().offer(() -> userResizeClaim(user, world, claim, resized));
+        userResizeClaim(user, world, claim, resized);
     }
 
     default void userResizeClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world,
@@ -398,7 +395,7 @@ public interface ClaimEditor {
             return;
         }
         final Region resized = claim.getRegion().getResized(corner, Region.Point.wrap(clickedBlock));
-        getClaimActionQueue().offer(() -> userResizeChildClaim(user, world, claim, resized));
+        userResizeChildClaim(user, world, claim, resized);
     }
 
     default void userResizeChildClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world,
@@ -566,7 +563,8 @@ public interface ClaimEditor {
          * @deprecated Use the inverse of {@link #cannotResize(OnlineUser, HuskClaims)} instead
          */
         @Deprecated(since = "1.3.2")
-        public boolean canResize(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull HuskClaims plugin) {
+        public boolean canResize(@NotNull OnlineUser user, @SuppressWarnings("unused") @NotNull ClaimWorld world,
+                                 @NotNull HuskClaims plugin) {
             return !cannotResize(user, plugin);
         }
 
