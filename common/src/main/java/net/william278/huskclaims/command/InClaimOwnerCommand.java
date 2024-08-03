@@ -56,7 +56,7 @@ public abstract class InClaimOwnerCommand extends InClaimCommand {
                         .ifPresent(executor::sendMessage);
                 return;
             }
-            executeChild(executor, world, claim, parent.get(), args);
+            plugin.runQueued(() -> executeChild(executor, world, claim, parent.get(), args));
             return;
         }
 
@@ -67,7 +67,7 @@ public abstract class InClaimOwnerCommand extends InClaimCommand {
                     .ifPresent(executor::sendMessage);
             return;
         }
-        executeParent(executor, world, claim, args);
+        plugin.runQueued(() -> executeParent(executor, world, claim, args));
     }
 
     public abstract void executeChild(@NotNull OnlineUser executor, @NotNull ClaimWorld world,

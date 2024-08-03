@@ -57,7 +57,7 @@ public class UnClaimCommand extends InClaimOwnerCommand {
         }
 
         // Delete the claim
-        plugin.getClaimActionQueue().offer(() -> plugin.userDeleteClaim(executor, world, claim));
+        plugin.userDeleteClaim(executor, world, claim);
     }
 
 }

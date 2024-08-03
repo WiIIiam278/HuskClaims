@@ -59,7 +59,11 @@ public class ClaimCommand extends OnlineUserCommand {
     public void execute(@NotNull OnlineUser executor, @NotNull String[] args) {
         final Optional<Integer> claimRadius = parseIntArg(args, 0).map(s -> Math.max(1, s));
         if (claimRadius.isPresent()) {
-            createClaim(executor, plugin.getClaimWorld(executor.getWorld()).orElse(null), claimRadius.get());
+            plugin.runQueued(() -> createClaim(
+                    executor,
+                    plugin.getClaimWorld(executor.getWorld()).orElse(null),
+                    claimRadius.get()
+            ));
             return;
         }
 
@@ -95,12 +99,9 @@ public class ClaimCommand extends OnlineUserCommand {
             return;
         }
         switch (mode) {
-            case CLAIMS -> plugin.getClaimActionQueue().offer(() ->
-                    plugin.userCreateClaim(user, world, Region.around(user.getPosition(), radius)));
-            case ADMIN_CLAIMS -> plugin.getClaimActionQueue().offer(() ->
-                    plugin.userCreateAdminClaim(user, world, Region.around(user.getPosition(), radius)));
-            case CHILD_CLAIMS -> plugin.getClaimActionQueue().offer(() ->
-                    plugin.userCreateChildClaim(user, world, Region.around(user.getPosition(), radius)));
+            case CLAIMS -> plugin.userCreateClaim(user, world, Region.around(user.getPosition(), radius));
+            case ADMIN_CLAIMS -> plugin.userCreateAdminClaim(user, world, Region.around(user.getPosition(), radius));
+            case CHILD_CLAIMS -> plugin.userCreateChildClaim(user, world, Region.around(user.getPosition(), radius));
         }
     }
 
