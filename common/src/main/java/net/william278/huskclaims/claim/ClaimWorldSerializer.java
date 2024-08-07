@@ -83,8 +83,8 @@ public class ClaimWorldSerializer implements JsonSerializer<ClaimWorld>, JsonDes
     }
 
     @NotNull
-    protected static Claim getUpgradableClaim(@NotNull JsonObject claimObject, @NotNull Gson gson) {
-        final JsonObject regionObject = claimObject.getAsJsonObject("region");
+    protected static Claim getUpgradableClaim(@NotNull JsonObject co, @NotNull Gson gson) {
+        final JsonObject regionObject = co.getAsJsonObject("region");
         final JsonObject nearCornerObject = regionObject.getAsJsonObject("near_corner");
         final JsonObject farCornerObject = regionObject.getAsJsonObject("far_corner");
         final int x1 = nearCornerObject.get("x").getAsInt();
@@ -94,21 +94,21 @@ public class ClaimWorldSerializer implements JsonSerializer<ClaimWorld>, JsonDes
         final Region.Point nearCorner = Region.Point.at(x1, z1);
         final Region.Point farCorner = Region.Point.at(x2, z2);
         final Region region = Region.from(nearCorner, farCorner);
-        final UUID owner = UUID.fromString(claimObject.get("owner").getAsString());
-        final ConcurrentMap<UUID, String> trustedUsers = claimObject.has("trusted_users") ?
-                gson.fromJson(claimObject.getAsJsonObject("trusted_users"), GsonProvider.UUID_STRING_MAP_TOKEN) :
+        final UUID owner = co.has("owner") ? UUID.fromString(co.get("owner").getAsString()) : null;
+        final ConcurrentMap<UUID, String> trustedUsers = co.has("trusted_users") ?
+                gson.fromJson(co.getAsJsonObject("trusted_users"), GsonProvider.UUID_STRING_MAP_TOKEN) :
                 Maps.newConcurrentMap();
-        final ConcurrentMap<String, String> trustedGroups = claimObject.has("trusted_groups") ?
-                gson.fromJson(claimObject.getAsJsonObject("trusted_groups"), GsonProvider.STRING_STRING_MAP_TOKEN) :
+        final ConcurrentMap<String, String> trustedGroups = co.has("trusted_groups") ?
+                gson.fromJson(co.getAsJsonObject("trusted_groups"), GsonProvider.STRING_STRING_MAP_TOKEN) :
                 Maps.newConcurrentMap();
-        final ConcurrentMap<String, String> trustedTags = claimObject.has("trusted_tags") ?
-                gson.fromJson(claimObject.getAsJsonObject("trusted_tags"), GsonProvider.STRING_STRING_MAP_TOKEN) :
+        final ConcurrentMap<String, String> trustedTags = co.has("trusted_tags") ?
+                gson.fromJson(co.getAsJsonObject("trusted_tags"), GsonProvider.STRING_STRING_MAP_TOKEN) :
                 Maps.newConcurrentMap();
-        final JsonArray childrenArray = claimObject.getAsJsonArray("children");
+        final JsonArray childrenArray = co.getAsJsonArray("children");
         final Set<Claim> children = Sets.newConcurrentHashSet();
         childrenArray.forEach(c -> children.add(getUpgradableClaim(c.getAsJsonObject(), gson)));
-        final Set<OperationType> defaultFlags = gson.fromJson(claimObject.getAsJsonArray("default_flags"), GsonProvider.OPERATION_TYPE_SET_TOKEN);
-        final boolean inheritParent = claimObject.get("inherit_parent").getAsBoolean();
+        final Set<OperationType> defaultFlags = gson.fromJson(co.getAsJsonArray("default_flags"), GsonProvider.OPERATION_TYPE_SET_TOKEN);
+        final boolean inheritParent = co.get("inherit_parent").getAsBoolean();
         return new Claim(owner, region, trustedUsers, trustedGroups, trustedTags, Maps.newConcurrentMap(), children, inheritParent, defaultFlags);
     }
 
@@ -124,8 +124,7 @@ public class ClaimWorldSerializer implements JsonSerializer<ClaimWorld>, JsonDes
         final Set<Claim> claims = new HashSet<>();
         final JsonArray claimsArray = jsonObject.getAsJsonArray("claims");
         claimsArray.forEach(c -> {
-            final JsonObject claimObject = c.getAsJsonObject();
-            final Claim claim = ClaimWorldSerializer.getUpgradableClaim(claimObject, gson);
+            final Claim claim = ClaimWorldSerializer.getUpgradableClaim(c.getAsJsonObject(), gson);
             claims.add(claim);
         });
 
