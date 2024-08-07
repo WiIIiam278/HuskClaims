@@ -20,6 +20,7 @@ locales:
   error_no_claiming_permission: '[Eroare:](#ff3300) [Nu ai permisiunea să creezi sau să editezi revendicări.](#ff7e5e)'
   error_no_claims_made: '[Eroare:](#ff3300) [%1% nu a creat nicio revendicare.](#ff7e5e)'
   error_no_admin_claims_made: '[Eroare:](#ff3300) [Nu au fost creați admini pentru revendicare.](#ff7e5e)'
+  error_over_claim_blocks: '[Eroare:](#ff3300) [Nu puteți cumpăra prea multe blocuri de revendicări.](#ff7e5e)'
   error_restrict_not_child: '[Eroare:](#ff3300) [Nu staționezi într-o revendicare tip fiu.](#ff7e5e)\n[Staționează într-una și folosește use](gray) [/restrictclaim](gray italic show_text=&7Click pentru a sugera suggest_command=/restrictclaim) [pentru a restricționa moștenirea accesului de încredere din revendicarea fiului părintelui.](gray)'
   error_parent_claim_deleted: '[Eroare:](#ff3300) [Părintele revendicării fiu pe care o editai a fost ștearsă.](#ff7e5e)'
   error_claim_deleted: '[Error:](#ff3300) [The claim you were resizing has been deleted.](#ff7e5e)'

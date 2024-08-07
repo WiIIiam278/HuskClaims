@@ -20,9 +20,11 @@
 package net.william278.huskclaims.command;
 
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.config.Settings;
 import net.william278.huskclaims.hook.EconomyHook;
 import net.william278.huskclaims.user.ClaimBlocksManager;
 import net.william278.huskclaims.user.OnlineUser;
+import net.william278.huskclaims.user.SavedUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -53,6 +55,8 @@ public class BuyClaimBlocksCommand extends OnlineUserCommand {
                     .ifPresent(executor::sendMessage);
             return;
         }
+
+
         buyClaimBlocks(executor, amount.get(), hook.get());
     }
 
@@ -63,14 +67,23 @@ public class BuyClaimBlocksCommand extends OnlineUserCommand {
                     .ifPresent(executor::sendMessage);
             return;
         }
-        plugin.editClaimBlocks(
-                executor,
-                ClaimBlocksManager.ClaimBlockSource.PURCHASE,
-                (blocks) -> blocks + amount,
-                (newBalance) -> plugin.getLocales().getLocale("claim_blocks_purchased",
-                                Long.toString(amount), hook.format(cost), Long.toString(newBalance))
-                        .ifPresent(executor::sendMessage)
-        );
+        plugin.getDatabase().getUser(executor.getUuid()).ifPresent(savedUser -> {
+            final long userBought = savedUser.getBoughtClaimBlocks() + amount;
+            final long limit = plugin.getSettings().getHooks().getEconomy().getBlockLimit();
+            if(userBought > limit) {
+                plugin.getLocales().getLocale("error_over_claim_blocks")
+                        .ifPresent(executor::sendMessage);
+            } else {
+                plugin.editClaimBlocks(
+                        executor,
+                        ClaimBlocksManager.ClaimBlockSource.PURCHASE,
+                        (blocks) -> blocks + amount,
+                        (newBalance) -> plugin.getLocales().getLocale("claim_blocks_purchased",
+                                        Long.toString(amount), hook.format(cost), Long.toString(newBalance))
+                                .ifPresent(executor::sendMessage)
+                );
+            }
+        });
     }
 
     private double getBlockPrice(long amount) {

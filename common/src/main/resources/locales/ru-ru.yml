@@ -20,6 +20,7 @@ locales:
   error_no_claiming_permission: '[Ошибка:](#ff3300) [У вас нет прав на создание или редактирование регионов.](#ff7e5e)'
   error_no_claims_made: '[Ошибка:](#ff3300) [Игрок %1% не создал ни одного региона.](#ff7e5e)'
   error_no_admin_claims_made: '[Ошибка:](#ff3300) [Не найдено никаких регинов администрации.](#ff7e5e)'
+  error_over_claim_blocks: '[Ошибка:](#ff3300) [Вы не можете купить слишком много блоков требований.](#ff7e5e)'
   error_restrict_not_child: '[Ошибка:](#ff3300) [Вы не находитесь в каком-либо потомственном регионе.](#ff7e5e)\n[Встаньте в один из них и используйте команду](gray) [/restrictclaim](gray italic show_text=&7Нажмите для просмотра suggest_command=/restrictclaim) [чтобы ограничить наследование прав доверия его родительского региона.](gray)'
   error_parent_claim_deleted: '[Ошибка:](#ff3300) [Родитель региона, который вы пытаетесь редактировать, был удалён.](#ff7e5e)'
   error_claim_deleted: '[Error:](#ff3300) [The claim you were resizing has been deleted.](#ff7e5e)'

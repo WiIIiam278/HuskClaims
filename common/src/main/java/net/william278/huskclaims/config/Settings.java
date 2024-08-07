@@ -584,6 +584,9 @@ public final class Settings {
 
             @Comment("The cost of buying 1 claim block")
             private double costPerBlock = 1.0;
+
+            @Comment("Limit on the number of claim cubes a player can purchase (-1 means no limit)")
+            private int blockLimit = -1;
         }
 
         private PlaceholderSettings placeholders = new PlaceholderSettings();
