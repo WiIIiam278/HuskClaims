@@ -1,6 +1,12 @@
 name: CI Tests & Publish
 
-on: push
+on:
+  push:
+    branches: [ 'master' ]
+    paths-ignore:
+      - 'docs/**'
+      - 'workflows/**'
+      - 'README.md'
 
 permissions:
   contents: read
@@ -17,13 +23,38 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: make gradle wrapper executable
-        run: chmod +x ./gradlew
-      - name: Build
-        run: ./gradlew build
-      - name: capture build artifacts
-        uses: actions/upload-artifact@v3
+      - name: 'Build with Gradle 🏗️'
+        uses: gradle/gradle-build-action@v3
         with:
-          name: Artifacts
-          path: .
-      
+          arguments: build test publish
+        env:
+          SNAPSHOTS_MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+          SNAPSHOTS_MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+      - name: 'Publish Test Report 📊'
+        uses: mikepenz/action-junit-report@v4
+        if: success() || failure() # Continue on failure
+        with:
+          report_paths: '**/build/test-results/test/TEST-*.xml'
+      - name: 'Fetch Version Name 📝'
+        run: |
+          echo "::set-output name=VERSION_NAME::$(${{github.workspace}}/gradlew properties --no-daemon --console=plain -q | grep "^version:" | awk '{printf $2}')"
+        id: fetch-version
+      - name: Get Version
+        run: |
+          echo "version_name=${{steps.fetch-version.outputs.VERSION_NAME}}" >> $GITHUB_ENV
+      - name: 'Publish to William278.net 🚀'
+        uses: WiIIiam278/bones-publish-action@v1
+        with:
+          api-key: ${{ secrets.BONES_API_KEY }}
+          project: 'huskclaims'
+          channel: 'alpha'
+          version: ${{ env.version_name }}
+          changelog: ${{ github.event.head_commit.message }}
+          distro-names: |
+            paper
+          distro-groups: |
+            paper
+          distro-descriptions: |
+            Paper
+          files: |
+            target/HuskClaims-Paper-${{ env.version_name }}.jar
