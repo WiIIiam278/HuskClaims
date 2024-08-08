@@ -98,6 +98,7 @@ public interface ClaimBlocksManager {
             // Calculate block balance
             final long originalBlocks = getClaimBlocks(user);
             final long newBlocks = originalBlocks + consumer;
+            final long newBoughtBlocks = getBoughtClaimBlocks(user) + consumer;
             if (newBlocks < 0) {
                 throw new IllegalArgumentException("Claim blocks cannot be negative (" + newBlocks + ")");
             }
@@ -110,7 +111,7 @@ public interface ClaimBlocksManager {
                             savedUser.getPreferences().log(source, newBlocks);
                         }
                         savedUser.setClaimBlocks(newBlocks);
-                        savedUser.setBoughtClaimBlocks(consumer);
+                        savedUser.setBoughtClaimBlocks(newBoughtBlocks);
                         if (callback != null) {
                             callback.accept(newBlocks);
                         }
