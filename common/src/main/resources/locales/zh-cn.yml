@@ -20,7 +20,7 @@ locales:
   error_no_claiming_permission: '[错误:](#ff3300) [您没有创建或编辑领地的权限](#ff7e5e)'
   error_no_claims_made: '[错误:](#ff3300) [%1%还没有创建任何领地](#ff7e5e)'
   error_no_admin_claims_made: '[错误:](#ff3300) [尚未创建管理员领地](#ff7e5e)'
-  error_over_claim_blocks: '[错误:](#ff3300) [你不能购买那么多领地方块](#ff7e5e)'
+  error_over_claim_blocks: '[错误:](#ff3300) [您不能购买那么多领地方块](#ff7e5e)'
   error_restrict_not_child: '[错误:](#ff3300) [您不在子领地中](#ff7e5e)\n[站在其中并使用](gray) [/restrictclaim](gray italic show_text=&7点击建议的命令 suggest_command=/restrictclaim) [以限制从该子领地的父领地继承的信任访问权限](gray)'
   error_parent_claim_deleted: '[错误:](#ff3300) [您正在调整大小的子领地的父领地已被删除](#ff7e5e)'
   error_claim_deleted: '[错误:](#ff3300) [您正在调整大小的领地已被删除](#ff7e5e)'

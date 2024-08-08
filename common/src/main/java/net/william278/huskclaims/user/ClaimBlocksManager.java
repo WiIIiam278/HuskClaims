@@ -55,6 +55,16 @@ public interface ClaimBlocksManager {
         return getClaimBlocks(user.getUuid());
     }
 
+    @Blocking
+    default long getBoughtClaimBlocks(@NotNull UUID uuid) {
+        return getSavedUser(uuid).map(SavedUser::getBoughtClaimBlocks)
+                .orElseThrow(() -> new IllegalArgumentException("Could not find bought claim blocks for UUID: " + uuid));
+    }
+
+    default long getBoughtClaimBlocks(@NotNull User user) {
+        return getBoughtClaimBlocks(user.getUuid());
+    }
+
 
     default void editClaimBlocks(@NotNull User user, @NotNull UserManager.ClaimBlockSource source,
                                  @NotNull Function<Long, Long> consumer, @Nullable Consumer<Long> callback) {
@@ -74,6 +84,33 @@ public interface ClaimBlocksManager {
                             savedUser.getPreferences().log(source, newBlocks);
                         }
                         savedUser.setClaimBlocks(newBlocks);
+                        if (callback != null) {
+                            callback.accept(newBlocks);
+                        }
+                    })
+            );
+        });
+    }
+
+    default void editClaimBlocks(@NotNull User user, @NotNull UserManager.ClaimBlockSource source,
+                                 @NotNull Long consumer, @Nullable Consumer<Long> callback) {
+        getPlugin().runQueued(() -> {
+            // Calculate block balance
+            final long originalBlocks = getClaimBlocks(user);
+            final long newBlocks = originalBlocks + consumer;
+            if (newBlocks < 0) {
+                throw new IllegalArgumentException("Claim blocks cannot be negative (" + newBlocks + ")");
+            }
+
+            // Fire the event, update the blocks, trigger callback
+            getPlugin().fireClaimBlocksChangeEvent(
+                    user, originalBlocks, newBlocks, source,
+                    (event) -> editSavedUser(user.getUuid(), (savedUser) -> {
+                        if (source != ClaimBlockSource.HOURLY_BLOCKS) {
+                            savedUser.getPreferences().log(source, newBlocks);
+                        }
+                        savedUser.setClaimBlocks(newBlocks);
+                        savedUser.setBoughtClaimBlocks(consumer);
                         if (callback != null) {
                             callback.accept(newBlocks);
                         }

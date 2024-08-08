@@ -67,23 +67,21 @@ public class BuyClaimBlocksCommand extends OnlineUserCommand {
                     .ifPresent(executor::sendMessage);
             return;
         }
-        plugin.getDatabase().getUser(executor.getUuid()).ifPresent(savedUser -> {
-            final long userBought = savedUser.getBoughtClaimBlocks() + amount;
-            final long limit = plugin.getSettings().getHooks().getEconomy().getBlockLimit();
-            if(userBought > limit) {
-                plugin.getLocales().getLocale("error_over_claim_blocks")
-                        .ifPresent(executor::sendMessage);
-            } else {
-                plugin.editClaimBlocks(
-                        executor,
-                        ClaimBlocksManager.ClaimBlockSource.PURCHASE,
-                        (blocks) -> blocks + amount,
-                        (newBalance) -> plugin.getLocales().getLocale("claim_blocks_purchased",
-                                        Long.toString(amount), hook.format(cost), Long.toString(newBalance))
-                                .ifPresent(executor::sendMessage)
-                );
-            }
-        });
+        final long userBought = plugin.getBoughtClaimBlocks(executor)+ amount;
+        final long limit = plugin.getSettings().getHooks().getEconomy().getBlockLimit();
+        if(userBought > limit) {
+            plugin.getLocales().getLocale("error_over_claim_blocks")
+                    .ifPresent(executor::sendMessage);
+        } else {
+            plugin.editClaimBlocks(
+                    executor,
+                    ClaimBlocksManager.ClaimBlockSource.PURCHASE,
+                    amount,
+                    (newBalance) -> plugin.getLocales().getLocale("claim_blocks_purchased",
+                                    Long.toString(amount), hook.format(cost), Long.toString(newBalance))
+                            .ifPresent(executor::sendMessage)
+            );
+        }
     }
 
     private double getBlockPrice(long amount) {
