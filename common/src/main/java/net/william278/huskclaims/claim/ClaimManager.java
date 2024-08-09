@@ -371,6 +371,25 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor, ClaimPruner {
     }
 
     /**
+     * Load a single claim world from the database
+     *
+     * @since 1.3.5
+     */
+    @Blocking
+    default void loadClaimWorld(@NotNull World serverWorld) {
+        if (getPlugin().getSettings().getClaims().isWorldUnclaimable(serverWorld)) {
+            return;
+        }
+
+        final Map<World, ClaimWorld> worlds = getDatabase().getClaimWorlds(getPlugin().getServerName());
+        if (worlds.keySet().stream().map(World::getName).noneMatch(uuid -> uuid.equals(serverWorld.getName()))) {
+            getPlugin().log(Level.INFO, String.format("Creating new claim world for %s...", serverWorld.getName()));
+            getClaimWorlds().put(serverWorld.getName(), getDatabase().createClaimWorld(serverWorld));
+        }
+        pruneClaims();
+    }
+
+    /**
      * Load the claim highlighter
      *
      * @since 1.0
