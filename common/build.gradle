@@ -22,7 +22,7 @@ dependencies {
     compileOnly 'net.kyori:adventure-api:4.17.0'
     compileOnly 'net.kyori:adventure-platform-api:4.3.4'
     compileOnly 'org.jetbrains:annotations:24.1.0'
-    compileOnly 'com.google.guava:guava:33.2.1-jre'
+    compileOnly 'com.google.guava:guava:33.3.0-jre'
     compileOnly 'org.projectlombok:lombok:1.18.34'
 
     compileOnly 'net.luckperms:api:5.4'
@@ -33,7 +33,7 @@ dependencies {
     compileOnly 'com.sk89q.worldguard:worldguard-core:7.1.0-SNAPSHOT'
 
     testImplementation 'com.github.plan-player-analytics:Plan:5.6.2883'
-    testImplementation 'com.google.guava:guava:33.2.1-jre'
+    testImplementation 'com.google.guava:guava:33.3.0-jre'
     testImplementation 'it.unimi.dsi:fastutil:8.5.14'
     testCompileOnly 'org.projectlombok:lombok:1.18.34'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.34'
