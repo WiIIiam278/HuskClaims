@@ -39,6 +39,7 @@ public class ClaimPrivateCommand extends InClaimCommand {
             @NotNull String[] args) {
 
         claim.setPrivateClaim(!claim.isPrivateClaim());
+        plugin.getDatabase().updateClaimWorld(world);
 
         if (claim.isPrivateClaim()) {
             plugin.getLocales().getLocale("claim_private_enabled")
