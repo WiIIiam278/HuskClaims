@@ -462,7 +462,7 @@ public class ClaimWorld {
 
     // Check if a claim is private for user
     @ApiStatus.Internal
-    public boolean canAccessPrivateClaim(@NotNull OnlineUser user, @NotNull Claim claim, @NotNull HuskClaims plugin) {
+    public boolean isBlockedFromPrivateClaim(@NotNull OnlineUser user, @NotNull Claim claim, @NotNull HuskClaims plugin) {
         if (!plugin.getSettings().getClaims().getBans().isPrivateClaims()) {
             return true;
         }
@@ -471,20 +471,12 @@ public class ClaimWorld {
             return false;
         }
         
-        Optional<UUID> owner = claim.getOwner();
-        if (owner.isPresent() && owner.get().equals(user.getUuid())) {
+        final Optional<UUID> owner = claim.getOwner();
+        if (owner.isPresent() && owner.get().equals(user.getUuid()) || isIgnoringClaims(user, plugin)) {
             return false;
         }
 
-        if (isIgnoringClaims(user, plugin)) {
-            return false;
-        }
-        
-        if (claim.getTrustLevel(user, plugin).isPresent()) {
-            return false;
-        }
-
-        return true;
+        return claim.getTrustLevel(user, plugin).isEmpty();
     }
 
     // Load claims (caching all of them)

@@ -82,7 +82,8 @@ public class TrustLevels {
                             TrustLevel.Privilege.MANAGE_TRUSTEES,
                             TrustLevel.Privilege.MANAGE_CHILD_CLAIMS,
                             TrustLevel.Privilege.MANAGE_OPERATION_GROUPS,
-                            TrustLevel.Privilege.MANAGE_BANS
+                            TrustLevel.Privilege.MANAGE_BANS,
+                            TrustLevel.Privilege.MAKE_PRIVATE
                     ))
                     .build(),
 

@@ -31,7 +31,7 @@ import java.util.*;
 public class ClaimPrivateCommand extends InClaimCommand {
 
     protected ClaimPrivateCommand(@NotNull HuskClaims plugin) {
-        super(List.of("claimprivate"), "", TrustLevel.Privilege.MANAGE_BANS, plugin);
+        super(List.of("claimprivate"), "", TrustLevel.Privilege.MAKE_PRIVATE, plugin);
     }
 
     @Override
