@@ -82,6 +82,7 @@ locales:
   user_banned_you: '[You have been banned from %1%''s claim.](#ff7e5e)'
   claim_private_enabled: '[Claim is set to private.](#00fb9a)'
   claim_private_disabled: '[Claim is set to public.](#00fb9a)'
+  claim_private_move_player: "[The claim you're in was set to private.](#00fb9a)"
   no_inspecting_permission: '[У вас нет доступа на просмотр регионов.](#ff7e5e)'
   no_claiming_permission: '[У вас нет прав на создание или редактирование регионов.](#ff7e5e)'
   no_claiming_child_permission: '[У вас нет прав на создание или редактирование потомственных регионов.](#ff7e5e)'

@@ -43,6 +43,16 @@ public class ClaimPrivateCommand extends InClaimCommand {
         if (claim.isPrivateClaim()) {
             plugin.getLocales().getLocale("claim_private_enabled")
                     .ifPresent(user::sendMessage);
+
+            // teleport all untrusted players outside the claim
+            plugin.getOnlineUsers().stream()
+                    .filter(u -> plugin.getClaimAt(u.getPosition()).map(c -> c.equals(claim)).orElse(false))
+                    .filter(u -> world.isBlockedFromPrivateClaim(u, claim, plugin))
+                    .forEach(o -> {
+                        plugin.teleportOutOfClaim(o);
+                        plugin.getLocales().getLocale("claim_private_move_player")
+                                .ifPresent(o::sendMessage);
+                    });
         } else {
             plugin.getLocales().getLocale("claim_private_disabled")
                     .ifPresent(user::sendMessage);

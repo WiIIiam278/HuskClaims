@@ -82,6 +82,7 @@ locales:
   user_banned_you: '[You have been banned from %1%''s claim.](#ff7e5e)'
   claim_private_enabled: '[Claim is set to private.](#00fb9a)'
   claim_private_disabled: '[Claim is set to public.](#00fb9a)'
+  claim_private_move_player: "[The claim you're in was set to private.](#00fb9a)"
   no_inspecting_permission: '[You do not have permission to inspect claims.](#ff7e5e)'
   no_claiming_permission: '[You do not have permission to create or edit claims.](#ff7e5e)'
   no_claiming_child_permission: '[You do not have permission to create or edit child claims.](#ff7e5e)'
