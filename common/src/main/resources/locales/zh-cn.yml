@@ -220,3 +220,5 @@ locales:
   unclaimall_command_description: '删除您的所有已声明的领地'
   transferpet_command_description: '转让您已驯服的动物的所有权'
   claimban_command_description: '禁止玩家进入领地'
+  claim_private_enabled: 'Claim is set to private.'
+  claim_private_disabled: 'Claim is set to public.'

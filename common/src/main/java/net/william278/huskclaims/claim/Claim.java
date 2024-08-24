@@ -141,6 +141,17 @@ public class Claim implements Highlightable {
     private boolean inheritParent;
 
     /**
+     * If this is a child claim, whether to inherit member trust levels from the parent.
+     * <p>
+     * If set to false, this child claim will be restricted.
+     */
+    @Expose
+    @Getter
+    @Setter
+    @SerializedName("private_claim")
+    private boolean privateClaim;
+
+    /**
      * The time the claim was created (as a stringified {@link OffsetDateTime})
      */
     @Expose
@@ -151,7 +162,7 @@ public class Claim implements Highlightable {
     protected Claim(@Nullable UUID owner, @NotNull Region region, @NotNull ConcurrentMap<UUID, String> users,
                     @NotNull ConcurrentMap<String, String> groups, @NotNull ConcurrentMap<String, String> tags,
                     @NotNull ConcurrentMap<UUID, UUID> bannedUsers, @NotNull Set<Claim> children, boolean inheritParent,
-                    @NotNull Set<OperationType> defaultFlags) {
+                    @NotNull Set<OperationType> defaultFlags, boolean privateClaim) {
         this.owner = owner;
         this.region = region;
         this.trustedUsers = users;
@@ -162,6 +173,7 @@ public class Claim implements Highlightable {
         this.defaultFlags = defaultFlags;
         this.inheritParent = inheritParent;
         this.creationTime = OffsetDateTime.now().toString();
+        this.privateClaim = privateClaim;
         children.forEach(child -> child.setParent(this));
     }
 
@@ -172,7 +184,8 @@ public class Claim implements Highlightable {
                 Maps.newConcurrentMap(), Sets.newConcurrentHashSet(), true,
                 Sets.newConcurrentHashSet(owner != null
                         ? plugin.getSettings().getClaims().getDefaultFlags()
-                        : plugin.getSettings().getClaims().getAdminFlags())
+                        : plugin.getSettings().getClaims().getAdminFlags()), 
+                        false
         );
     }
 
