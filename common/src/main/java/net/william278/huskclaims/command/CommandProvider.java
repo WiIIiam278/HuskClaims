@@ -130,7 +130,7 @@ public interface CommandProvider {
             commands.add(new ClaimBanCommand(getPlugin()));
         }
 
-        if (getPlugin().getSettings().getClaims().getBans().isPrivate_claims()) {
+        if (getPlugin().getSettings().getClaims().getBans().isPrivateClaims()) {
             commands.add(new ClaimPrivateCommand(getPlugin()));
         }
 

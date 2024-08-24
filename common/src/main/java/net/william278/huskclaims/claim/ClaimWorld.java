@@ -462,7 +462,11 @@ public class ClaimWorld {
 
     // Check if a claim is private for user
     @ApiStatus.Internal
-    public boolean CheckIfClaimIsPrivate(@NotNull OnlineUser user, @NotNull Claim claim, @NotNull HuskClaims plugin) {
+    public boolean canAccessPrivateClaim(@NotNull OnlineUser user, @NotNull Claim claim, @NotNull HuskClaims plugin) {
+        if (!plugin.getSettings().getClaims().getBans().isPrivateClaims()) {
+            return true;
+        }
+
         if (!claim.isPrivateClaim()) {
             return false;
         }

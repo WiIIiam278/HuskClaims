@@ -109,8 +109,7 @@ public class ClaimWorldSerializer implements JsonSerializer<ClaimWorld>, JsonDes
         childrenArray.forEach(c -> children.add(getUpgradableClaim(c.getAsJsonObject(), gson)));
         final Set<OperationType> defaultFlags = gson.fromJson(co.getAsJsonArray("default_flags"), GsonProvider.OPERATION_TYPE_SET_TOKEN);
         final boolean inheritParent = co.get("inherit_parent").getAsBoolean();
-        final boolean privateClaim = co.get("private_claim").getAsBoolean(); 
-        return new Claim(owner, region, trustedUsers, trustedGroups, trustedTags, Maps.newConcurrentMap(), children, inheritParent, defaultFlags, privateClaim);
+        return new Claim(owner, region, trustedUsers, trustedGroups, trustedTags, Maps.newConcurrentMap(), children, inheritParent, defaultFlags, false);
     }
 
     @ApiStatus.Internal

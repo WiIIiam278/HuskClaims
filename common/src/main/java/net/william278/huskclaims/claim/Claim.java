@@ -141,9 +141,9 @@ public class Claim implements Highlightable {
     private boolean inheritParent;
 
     /**
-     * If this is a child claim, whether to inherit member trust levels from the parent.
+     * If the claim is private for other players
      * <p>
-     * If set to false, this child claim will be restricted.
+     * If set to true, the claim can only be entered by trusted players.
      */
     @Expose
     @Getter
