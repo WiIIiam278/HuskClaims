@@ -582,7 +582,7 @@ public interface ClaimEditor {
             // Check claim resize privileges
             return claimBeingResized.getOwner()
                     .map(uuid -> !(uuid.equals(user.getUuid()) && ClaimingMode.CLAIMS.canUse(user)))
-                    .orElseGet(() -> ClaimingMode.ADMIN_CLAIMS.canUse(user));
+                    .orElse(!ClaimingMode.ADMIN_CLAIMS.canUse(user));
         }
 
         @Override
