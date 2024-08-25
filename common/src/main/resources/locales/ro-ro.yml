@@ -82,7 +82,7 @@ locales:
   user_banned_you: '[You have been banned from %1%''s claim.](#ff7e5e)'
   claim_private_enabled: '[Successfully made this claim private.](#00fb9a)'
   claim_private_disabled: '[Successfully made this claim traversable to the public.](#00fb9a)'
-  claim_private_move_player: '[You have been removed from the claim you were in as it has been made private.](#ff7e5e)'
+  claim_enter_is_private: '[You cannot enter %1%''s claim as it has been made private.](#ff7e5e)'
   no_inspecting_permission: '[Nu ai permisiunea de a inspecta revendicări.](#ff7e5e)'
   no_claiming_permission: '[Nu ai permisiunea de a crea sau edita revendicări.](#ff7e5e)'
   no_claiming_child_permission: '[Nu ai permisiunea de a to crea sau edita revendicări fiu.](#ff7e5e)'

@@ -33,6 +33,7 @@ public interface UserListener {
             if (getPlugin().getUserPreferences(user.getUuid()).map(Preferences::isIgnoringClaims).orElse(false)) {
                 getPlugin().getLocales().getLocale("ignoring_claims_reminder")
                         .ifPresent(user::sendMessage);
+                return;
             }
 
             final Settings.ClaimSettings settings = getPlugin().getSettings().getClaims();
@@ -63,10 +64,10 @@ public interface UserListener {
         }
     }
 
-    // Check a user is able to enter a claim on join
+    // Check a user is able to enter a claim on join (that they are not banned / the claim has been made private)
     private void checkClaimEnterOnLogin(@NotNull OnlineUser u) {
         getPlugin().getClaimWorld(u.getWorld()).ifPresent(w -> w.getClaimAt(u.getPosition()).ifPresent(c -> {
-            if (w.isBannedFromClaim(u, c, getPlugin()) || w.isBlockedFromPrivateClaim(u, c, getPlugin())) {
+            if (w.isBannedFromClaim(u, c, getPlugin()) || w.cannotNavigatePrivateClaim(u, c, getPlugin())) {
                 getPlugin().teleportOutOfClaim(u);
             }
         }));

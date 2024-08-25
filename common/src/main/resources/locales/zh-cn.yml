@@ -82,7 +82,7 @@ locales:
   user_banned_you: '[您已被禁止进入 %1% 的领地](#ff7e5e)'
   claim_private_enabled: '[Successfully made this claim private.](#00fb9a)'
   claim_private_disabled: '[Successfully made this claim traversable to the public.](#00fb9a)'
-  claim_private_move_player: '[You have been removed from the claim you were in as it has been made private.](#ff7e5e)'
+  claim_enter_is_private: '[You cannot enter %1%''s claim as it has been made private.](#ff7e5e)'
   no_inspecting_permission: '[您没有权限查看领地](#ff7e5e)'
   no_claiming_permission: '[您没有创建或编辑领地的权限](#ff7e5e)'
   no_claiming_child_permission: '[您没有创建或编辑子领地的权限](#ff7e5e)'
