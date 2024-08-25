@@ -464,7 +464,7 @@ public class ClaimWorld {
     @ApiStatus.Internal
     public boolean isBlockedFromPrivateClaim(@NotNull OnlineUser user, @NotNull Claim claim, @NotNull HuskClaims plugin) {
         if (!plugin.getSettings().getClaims().getBans().isPrivateClaims()) {
-            return true;
+            return false;
         }
 
         if (!claim.isPrivateClaim()) {

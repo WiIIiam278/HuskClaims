@@ -80,9 +80,9 @@ locales:
   user_banned: '[🔨 %1% has been banned from this claim.](#00fb9a)'
   user_unbanned: '[🔨 %1% has been unbanned from this claim.](#00fb9a)'
   user_banned_you: '[You have been banned from %1%''s claim.](#ff7e5e)'
-  claim_private_enabled: '[Claim is set to private.](#00fb9a)'
-  claim_private_disabled: '[Claim is set to public.](#00fb9a)'
-  claim_private_move_player: "[The claim you're in was set to private.](#00fb9a)"
+  claim_private_enabled: '[Successfully made this claim private.](#00fb9a)'
+  claim_private_disabled: '[Successfully made this claim traversable to the public.](#00fb9a)'
+  claim_private_move_player: '[You have been removed from the claim you were in as it has been made private.](#ff7e5e)'
   no_inspecting_permission: '[You do not have permission to inspect claims.](#ff7e5e)'
   no_claiming_permission: '[You do not have permission to create or edit claims.](#ff7e5e)'
   no_claiming_child_permission: '[You do not have permission to create or edit child claims.](#ff7e5e)'

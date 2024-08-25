@@ -35,9 +35,8 @@ public class ClaimPrivateCommand extends InClaimCommand {
     }
 
     @Override
-    public void execute(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Claim claim,
-            @NotNull String[] args) {
-
+    public void execute(@NotNull OnlineUser user, @NotNull ClaimWorld world,
+                        @NotNull Claim claim, @NotNull String[] args) {
         claim.setPrivateClaim(!claim.isPrivateClaim());
         plugin.getDatabase().updateClaimWorld(world);
 
@@ -54,11 +53,10 @@ public class ClaimPrivateCommand extends InClaimCommand {
                         plugin.getLocales().getLocale("claim_private_move_player")
                                 .ifPresent(o::sendMessage);
                     });
-        } else {
-            plugin.getLocales().getLocale("claim_private_disabled")
-                    .ifPresent(user::sendMessage);
+            return;
         }
-
+        plugin.getLocales().getLocale("claim_private_disabled")
+                .ifPresent(user::sendMessage);
     }
 
 }

@@ -34,11 +34,10 @@ public interface UserListener {
                 getPlugin().getLocales().getLocale("ignoring_claims_reminder")
                         .ifPresent(user::sendMessage);
             }
-            if (getPlugin().getSettings().getClaims().getBans().isEnabled()) {
-                checkClaimLoginBan(user);
-            }
-            if (getPlugin().getSettings().getClaims().getBans().isPrivateClaims()) {
-                checkClaimLoginPrivateClaim(user);
+
+            final Settings.ClaimSettings settings = getPlugin().getSettings().getClaims();
+            if (settings.getBans().isEnabled() || settings.getBans().isPrivateClaims()) {
+                checkClaimEnterOnLogin(user);
             }
         });
     }
@@ -65,18 +64,9 @@ public interface UserListener {
     }
 
     // Check a user is able to enter a claim on join
-    private void checkClaimLoginBan(@NotNull OnlineUser u) {
+    private void checkClaimEnterOnLogin(@NotNull OnlineUser u) {
         getPlugin().getClaimWorld(u.getWorld()).ifPresent(w -> w.getClaimAt(u.getPosition()).ifPresent(c -> {
-            if (w.isBannedFromClaim(u, c, getPlugin())) {
-                getPlugin().teleportOutOfClaim(u);
-            }
-        }));
-    }
-
-    // Check a user is able to enter a private claim on join
-    private void checkClaimLoginPrivateClaim(@NotNull OnlineUser u) {
-        getPlugin().getClaimWorld(u.getWorld()).ifPresent(w -> w.getClaimAt(u.getPosition()).ifPresent(c -> {
-            if (w.isBlockedFromPrivateClaim(u, c, getPlugin())) {
+            if (w.isBannedFromClaim(u, c, getPlugin()) || w.isBlockedFromPrivateClaim(u, c, getPlugin())) {
                 getPlugin().teleportOutOfClaim(u);
             }
         }));
