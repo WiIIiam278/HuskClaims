@@ -37,6 +37,9 @@ public interface UserListener {
             if (getPlugin().getSettings().getClaims().getBans().isEnabled()) {
                 checkClaimLoginBan(user);
             }
+            if (getPlugin().getSettings().getClaims().getBans().isPrivateClaims()) {
+                checkClaimLoginPrivateClaim(user);
+            }
         });
     }
 
@@ -65,6 +68,15 @@ public interface UserListener {
     private void checkClaimLoginBan(@NotNull OnlineUser u) {
         getPlugin().getClaimWorld(u.getWorld()).ifPresent(w -> w.getClaimAt(u.getPosition()).ifPresent(c -> {
             if (w.isBannedFromClaim(u, c, getPlugin())) {
+                getPlugin().teleportOutOfClaim(u);
+            }
+        }));
+    }
+
+    // Check a user is able to enter a private claim on join
+    private void checkClaimLoginPrivateClaim(@NotNull OnlineUser u) {
+        getPlugin().getClaimWorld(u.getWorld()).ifPresent(w -> w.getClaimAt(u.getPosition()).ifPresent(c -> {
+            if (w.isBlockedFromPrivateClaim(u, c, getPlugin())) {
                 getPlugin().teleportOutOfClaim(u);
             }
         }));

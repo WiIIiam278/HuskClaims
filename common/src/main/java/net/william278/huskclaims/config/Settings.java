@@ -281,6 +281,10 @@ public final class Settings {
                     "Also requires the MANAGE_BANS privilege (by default, restricted to those with 'manage' trust)"})
             private boolean enabled = false;
 
+            @Comment({"Whether to let users set their claim claims to private (prevent others from entering) using /claimprivate",
+                    "Also requires the MANAGE_BANS privilege (by default, restricted to those with 'manage' trust)"})
+            private boolean privateClaims = false;
+
         }
 
         public boolean isWorldUnclaimable(@NotNull World world) {

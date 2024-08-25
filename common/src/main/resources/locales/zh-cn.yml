@@ -80,6 +80,9 @@ locales:
   user_banned: '[🔨 %1% 已被禁止进入该领地](#00fb9a)'
   user_unbanned: '[🔨 %1% 已被解除禁止进入此领地](#00fb9a)'
   user_banned_you: '[您已被禁止进入 %1% 的领地](#ff7e5e)'
+  claim_private_enabled: '[Claim is set to private.](#00fb9a)'
+  claim_private_disabled: '[Claim is set to public.](#00fb9a)'
+  claim_private_move_player: "[The claim you're in was set to private.](#00fb9a)"
   no_inspecting_permission: '[您没有权限查看领地](#ff7e5e)'
   no_claiming_permission: '[您没有创建或编辑领地的权限](#ff7e5e)'
   no_claiming_child_permission: '[您没有创建或编辑子领地的权限](#ff7e5e)'
