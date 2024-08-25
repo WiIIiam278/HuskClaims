@@ -85,9 +85,11 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
                 .credits("Author",
                         AboutMenu.Credit.of("William278").description("Click to visit website").url("https://william278.net"))
                 .credits("Contributors",
-                        AboutMenu.Credit.of("AlexDev_").description("Code"))
+                        AboutMenu.Credit.of("AlexDev_").description("Code"),
+                        AboutMenu.Credit.of("djoey123").description("Code"))
                 .credits("Translators",
                         AboutMenu.Credit.of("jhqwqmc").description("Simplified Chinese (zh-cn)"),
+                        AboutMenu.Credit.of("yichifauzi").description("Traditional Chinese (zh-tw)"),
                         AboutMenu.Credit.of("Artem4ikBaik").description("Russian (ru-ru)"),
                         AboutMenu.Credit.of("Edward205").description("Romanian (ro-ro)"),
                         AboutMenu.Credit.of("iRazvan2745").description("Romanian (ro-ro)")
