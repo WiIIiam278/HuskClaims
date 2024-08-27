@@ -588,6 +588,9 @@ public final class Settings {
 
             @Comment("The cost of buying 1 claim block")
             private double costPerBlock = 1.0;
+
+            @Comment("Allow gifting claim blocks to other users")
+            private boolean claimblockGifting = true;
         }
 
         private PlaceholderSettings placeholders = new PlaceholderSettings();
