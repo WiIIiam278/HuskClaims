@@ -114,6 +114,8 @@ locales:
   days_since_last_login: '[Văzut ultima oară acum %1% (de) zile.](gray)'
   today_last_login: '[Last seen online earlier today.](gray)'
   claim_blocks_updated: '[S-a setat soldul de revendicare a blocurilor al lui %1% la %2%](#00fb9a)'
+  claim_blocks_gifted: '[Gifted %1%, %2% claim blocks.](#00fb9a)'
+  claim_blocks_gift_received: '[Received %2% claim blocks from %1%.](#00fb9a)'
   claim_blocks_purchased: '[S-au achiziționat cu succes ■ %1% (de) blocuri de revendicare pentru %2%. (Sold nou: ■ %3%)](#00fb9a)'
   claim_block_balance_header: '[%1%''s claim block expenditure:](#00fb9a)\n'
   claim_block_balance_started: '[+ %1% starter claim blocks](#80ff80 show_text=&7Number of claim blocks you started with.)'

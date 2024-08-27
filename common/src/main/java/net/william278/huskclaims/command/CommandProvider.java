@@ -125,6 +125,11 @@ public interface CommandProvider {
             commands.add(new BuyClaimBlocksCommand(getPlugin()));
         }
 
+        // Register claim block gifting
+        if (getPlugin().getSettings().getHooks().getEconomy().isClaimblockGifting()) {
+            commands.add(new ClaimBlocksPlayerGiveCommand(getPlugin()));
+        }
+
         // Register claim banning
         if (getPlugin().getSettings().getClaims().getBans().isEnabled()) {
             commands.add(new ClaimBanCommand(getPlugin()));
