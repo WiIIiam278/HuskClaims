@@ -476,7 +476,11 @@ public class ClaimWorld {
         }
 
         final Optional<UUID> owner = claim.getOwner();
-        if ((owner.isPresent() && !owner.get().equals(user.getUuid())) || claim.getTrustLevel(user, plugin).isEmpty()) {
+        if (owner.isPresent() && owner.get().equals(user.getUuid())) {
+            return false;
+        }
+
+        if (claim.getTrustLevel(user, plugin).isEmpty()) {
             plugin.getLocales().getLocale("claim_enter_is_private", claim.getOwnerName(this, plugin))
                     .ifPresent(user::sendMessage);
             return true;
