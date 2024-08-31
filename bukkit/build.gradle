@@ -9,7 +9,7 @@ dependencies {
     implementation 'io.papermc:paperlib:1.0.8'
     implementation 'space.arim.morepaperlib:morepaperlib:0.4.4'
     implementation 'net.william278.cloplib:cloplib-bukkit:1.0.6'
-    implementation 'org.bstats:bstats-bukkit:3.0.2'
+    implementation 'org.bstats:bstats-bukkit:3.0.3'
     implementation 'de.exlll:configlib-yaml:4.5.0'
 
     compileOnly 'org.spigotmc:spigot-api:1.17.1-R0.1-SNAPSHOT'
