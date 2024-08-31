@@ -26,7 +26,7 @@ import net.william278.huskclaims.trust.TrustLevel;
 import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.List;
 
 public class ClaimPrivateCommand extends InClaimCommand {
 

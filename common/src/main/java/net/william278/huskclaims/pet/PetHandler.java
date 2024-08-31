@@ -26,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface PetHandler {
 
-    void userTransferPet(@NotNull OnlineUser user, @NotNull User newOwner, boolean mustBeOwner);
+    void userTransferPet(@NotNull OnlineUser user, @NotNull User newOwner, boolean forceTransfer);
 
     default boolean cancelPetOperation(@NotNull OnlineUser user, @NotNull User owner) {
         if (user.equals(owner)) {

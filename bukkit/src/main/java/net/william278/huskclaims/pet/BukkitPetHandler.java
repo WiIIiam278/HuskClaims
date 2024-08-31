@@ -40,7 +40,7 @@ public interface BukkitPetHandler extends PetHandler {
     float TRANSFER_ENTITY_DOT = 0.975f;
 
     @Override
-    default void userTransferPet(@NotNull OnlineUser user, @NotNull User newOwner, boolean mustBeOwner) {
+    default void userTransferPet(@NotNull OnlineUser user, @NotNull User newOwner, boolean forceTransfer) {
         getPlugin().runSync(() -> {
             // Get the entity the player is looking at to transfer
             final Player player = ((BukkitUser) user).getBukkitPlayer();
@@ -53,7 +53,7 @@ public interface BukkitPetHandler extends PetHandler {
             }
 
             // Transfer the pet if the user is allowed to
-            if (!mustBeOwner || !cancelPetOperation(user, owner.get())) {
+            if (forceTransfer || !cancelPetOperation(user, owner.get())) {
                 this.transferPet(lookingAt.get(), user, newOwner);
             }
         });
