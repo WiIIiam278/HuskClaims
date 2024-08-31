@@ -30,12 +30,14 @@ operation_groups:
 
 Whether an Operation Group is the default in a claim depends on whether the `allowed_operations` of the group are also present in the `default_flags` list in the config.
 
-## Fine-Grained Admin Flag Management
-> **Note:** This is a powerful command, only intended for use by admins. Create operation group commands to let users manage flags in a user-friendly way within claims.
+## Fine-Grained Flag Management
+> **Note:** This is a powerful command, only accessible to operators by default. Be careful granting player access to this command!
 
-The `/huskclaims flags` admin command exposes a way for admins to fine-tune the allowed operation group settings within a claim. Run the command to bring up a list of enabled operation types in the claim you are standing in.
+The `/claimflags` command allows you to fine-tune the allowed operation group settings within a claim. This is a powerful command, and can cause users confusion if they accidentally mess with the wrong flags. We therefore recommend creating operation group commands for end-user needs, and restricting this command for moderator actions.
 
-To modify a flag while standing in a claim, use `/huskclaims flags [operation_type] <true/false>`, or click the operation type in the list to toggle it.
+Use `/claimflags list` to bring up a list of enabled operation types in the claim you are standing in. This command requires the user to have the `MANAGE_OPERATION_GROUPS` privilege in the claim they are stood in, or the `huskclaims.command.claimflags.other` bypass permission.
+
+Click on the listed flags to toggle their allow-state on or off, or use `/claimflags set [operation_type] <true/false>`.
 
 ### Adjusting the flags outside of claims
-You can also can adjust the value of flags outside of claims (the "Wilderness") by using `/huskclaims flags` while standing outside a claim.
+You can also can adjust the value of flags outside of claims (the "Wilderness") by using `/claimflags` while standing outside a claim. This requires the `huskclaims.command.claimflags.world` permission.

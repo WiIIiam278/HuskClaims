@@ -232,6 +232,24 @@ This is a table of HuskClaims commands, how to use them, their required permissi
             <td><code>huskclaims.command.transferclaim.other</code></td>
             <td align="center">❌</td>
         </tr>
+        <!-- /claimflags command -->
+        <tr>
+            <td rowspan="3"><code>/claimflags</code></td>
+            <td rowspan="3"><code>/claimflags &lt;list|set&gt;</code></td>
+            <td>Manage the flags of the claim you are in</td>
+            <td><code>huskclaims.command.claimflags</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <tr>
+            <td>Manage the flags of someone else's claim</td>
+            <td><code>huskclaims.command.claimflags.other</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <tr>
+            <td>Manage the flags of the claim world you are in</td>
+            <td><code>huskclaims.command.claimflags.world</code></td>
+            <td align="center">❌</td>
+        </tr>
         <!-- /claimexplosions command -->
         <tr><th colspan="5">Operation group commands</th></tr>
         <tr><td colspan="5" align="center">Lets users toggle groups of operation type flags. Only one is configured by default:</td></tr>
@@ -358,7 +376,7 @@ This is a table of HuskClaims commands, how to use them, their required permissi
             <td align="center">❌</td>
         </tr>
         <tr>
-            <td rowspan="10"><code>/huskclaims</code></td>
+            <td rowspan="9"><code>/huskclaims</code></td>
             <td><code>/huskclaims</code></td>
             <td>Use plugin management commands</td>
             <td><code>huskclaims.command.huskclaims</code></td>
@@ -398,12 +416,6 @@ This is a table of HuskClaims commands, how to use them, their required permissi
             <td><code>/huskclaims teleport [coordinates]</code></td>
             <td>Teleport to a claim at a position. Requires the HuskHomes hook to use.</td>
             <td><code>huskclaims.command.huskclaims.teleport</code></td>
-            <td align="center">❌</td>
-        </tr>
-        <tr>
-            <td><code>/huskclaims flags [flag] [true/false]</code></td>
-            <td>Set the value of a flag in a claim, or the world's wilderness.</td>
-            <td><code>huskclaims.command.huskclaims.flags</code></td>
             <td align="center">❌</td>
         </tr>
         <tr>

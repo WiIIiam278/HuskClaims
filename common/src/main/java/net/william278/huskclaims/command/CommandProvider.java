@@ -92,6 +92,7 @@ public interface CommandProvider {
 
         // Register built-in commands
         commands.add(new HuskClaimsCommand(getPlugin()));
+        commands.add(new ClaimFlagsCommand(getPlugin()));
         commands.add(new TrustListCommand(getPlugin()));
         commands.add(new UnTrustCommand(getPlugin()));
         commands.add(new TransferClaimCommand(getPlugin()));
