@@ -191,7 +191,7 @@ public final class Settings {
         );
 
         @Comment({"Default flags for the wilderness (outside claims)",
-                "To modify existing worlds, use /huskclaims flag <flag> <true/false> while standing outside a claim."})
+                "To modify existing worlds, use /claimflags set <flag> <true/false> while standing outside a claim."})
         private List<OperationType> wildernessRules = List.of(
                 OperationType.values() // Allow all operation types
         );

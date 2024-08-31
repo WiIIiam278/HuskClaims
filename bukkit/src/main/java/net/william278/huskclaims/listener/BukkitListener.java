@@ -27,7 +27,6 @@ import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.moderation.SignListener;
 import net.william278.huskclaims.position.World;
 import net.william278.huskclaims.user.BukkitUser;
-import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.User;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -42,7 +41,6 @@ import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.spigotmc.event.entity.EntityDismountEvent;
 
 import java.util.Optional;
 
@@ -103,21 +101,6 @@ public class BukkitListener extends BukkitOperationListener implements BukkitPet
                 BukkitHuskClaims.Adapter.adapt(e.getTo())
         )) {
             e.setCancelled(true);
-        }
-    }
-
-    @EventHandler(ignoreCancelled = true)
-    public void onUserDismount(@NotNull EntityDismountEvent e) {
-        if (!(e.getEntity() instanceof Player player)) {
-            return;
-        }
-        final OnlineUser user = BukkitUser.adapt(player, getPlugin());
-        if (getPlugin().cancelMovement(
-                user,
-                BukkitHuskClaims.Adapter.adapt(e.getDismounted().getLocation()),
-                BukkitHuskClaims.Adapter.adapt(e.getEntity().getLocation())
-        )) {
-            plugin.teleportOutOfClaim(user);
         }
     }
 
