@@ -114,6 +114,8 @@ locales:
   days_since_last_login: '[Последний раз был в сети %1% дней назад.](gray)'
   today_last_login: '[Last seen online earlier today.](gray)'
   claim_blocks_updated: '[Б аланс блоков привата игрока %1% установлен на %2%](#00fb9a)'
+  claim_blocks_gifted: '[Gifted %1%, %2% claim blocks.](#00fb9a)'
+  claim_blocks_gift_received: '[Received %2% claim blocks from %1%.](#00fb9a)'
   claim_blocks_purchased: '[Успешно куплено ■ %1% блоков привата за %2%. (Новый баланс: ■ %3%)](#00fb9a)'
   claim_block_balance_header: '[%1%''s claim block expenditure:](#00fb9a)\n'
   claim_block_balance_started: '[+ %1% starter claim blocks](#80ff80 show_text=&7Number of claim blocks you started with.)'

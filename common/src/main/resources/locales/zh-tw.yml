@@ -114,6 +114,8 @@ locales:
   days_since_last_login: '[上次上線時間為 %1% 天前。](gray)'
   today_last_login: '[今天早些時候上線。](gray)'
   claim_blocks_updated: '[已將 %1% 的領地方塊餘額設定為 %2%](#00fb9a)'
+  claim_blocks_gifted: '[Gifted %1%, %2% claim blocks.](#00fb9a)'
+  claim_blocks_gift_received: '[Received %2% claim blocks from %1%.](#00fb9a)'
   claim_blocks_purchased: '[已成功以 %2% 購買了 ■ %1% 個領地方塊。（新餘額：■ %3%）](#00fb9a)'
   claim_block_balance_header: '[%1% 的領地方塊支出：](#00fb9a)\n'
   claim_block_balance_started: '[+ %1% 個初始領地方塊](#80ff80 show_text=&7您開始時擁有的領地方塊數量。)'
