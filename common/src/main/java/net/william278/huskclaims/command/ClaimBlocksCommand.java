@@ -46,6 +46,7 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
         );
         addAdditionalPermissions(Map.of(
                 "other", true,
+                "gift", true,
                 "edit", true
         ));
     }
