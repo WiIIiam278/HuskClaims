@@ -129,7 +129,10 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
     }
 
     private void changeClaimBlocksPlayerGift(@NotNull CommandUser executor, @NotNull User user, long changeBy) {
-        OnlineUser onlineExecuter = (OnlineUser) executor;
+        if (!(executor instanceof OnlineUser onlineExecuter)) {
+            getPlugin().getLocales().getLocale("error_command_in_game_only").ifPresent(executor::sendMessage);
+            return;
+        }
 
         // can't gift to yourself (Needed else you dupe claimblocks because of race condition on claimblocks change event)
         if (onlineExecuter.getUuid().equals(user.getUuid())) {
@@ -146,20 +149,20 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
         plugin.editClaimBlocks(
                 onlineExecuter,
                 ClaimBlocksManager.ClaimBlockSource.USER_GIFTED,
-                (blocks) -> Math.max(0,blocks - changeBy),
+                (blocks) -> Math.max(0, blocks - changeBy),
                 (newBalance) -> plugin.getLocales().getLocale("claim_blocks_gifted", user.getName(),
                         Long.toString(changeBy)).ifPresent(executor::sendMessage));
 
-        final OnlineUser gifted_player = plugin.getOnlineUsers().stream().filter(online_player -> online_player.getUuid().equals(user.getUuid())).findFirst().orElse(null);
+        final OnlineUser giftedPlayer = plugin.getOnlineUsers().stream().filter(online_player -> online_player.getUuid().equals(user.getUuid())).findFirst().orElse(null);
 
         plugin.editClaimBlocks(
                 user,
                 ClaimBlocksManager.ClaimBlockSource.USER_GIFTED,
                 (blocks) -> Math.max(0, blocks + changeBy),
                 (newBalance) -> {
-                    if (gifted_player != null) {
+                    if (giftedPlayer != null) {
                         plugin.getLocales().getLocale("claim_blocks_gift_received", onlineExecuter.getName(),
-                        Long.toString(changeBy)).ifPresent(gifted_player::sendMessage);
+                        Long.toString(changeBy)).ifPresent(giftedPlayer::sendMessage);
                     }
                 });
     }
