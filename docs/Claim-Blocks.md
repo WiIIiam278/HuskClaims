@@ -38,3 +38,6 @@ economy:
 Admins can adjust a player's claim block balance with the `/claimblocks (player) add|remove|set (amount)` command. This command can additionally be executed through the server automation to facilitate automation.
 
 Furthermore, admins can view a transaction log of a user's claim block balance with the `/huskclaims logs (player)` command. See the [[Commands]] reference for details on necessary permissions.
+
+## Gifting Claim Blocks
+Players can gift others claim blocks from their balances using `/claimblocks (player) gift (amount)`. This command is only accessible to operators by default, and can be allowed for users with the `huskclaims.command.claimblocks.gift` permission.
