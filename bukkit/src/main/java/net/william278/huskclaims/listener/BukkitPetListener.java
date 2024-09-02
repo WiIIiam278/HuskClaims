@@ -36,13 +36,11 @@ public interface BukkitPetListener extends Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     default void onPlayerTamedInteract(@NotNull PlayerInteractEntityEvent e) {
-        getPlugin().log(Level.INFO, "tamed interact");
         this.onUserTamedEntityAction(e, e.getPlayer(), e.getRightClicked());
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     default void onPlayerDamageTamed(@NotNull EntityDamageByEntityEvent e) {
-        getPlugin().log(Level.INFO, "tamed dmg");
         this.onUserTamedEntityAction(e, e.getDamager(), e.getEntity());
     }
 
