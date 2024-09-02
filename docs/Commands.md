@@ -303,7 +303,7 @@ This is a table of HuskClaims commands, how to use them, their required permissi
         <tr><th colspan="5">Claim blocks commands</th></tr>
         <tr><td colspan="5" align="center">Lets users/administrators buy, view, and manage claim blocks.</td></tr>
         <tr>
-            <td rowspan="3"><code>/claimblocks</code></td>
+            <td rowspan="4"><code>/claimblocks</code></td>
             <td><code>/claimblocks</code></td>
             <td>View your claim block balance</td>
             <td><code>huskclaims.command.claimblocks</code></td>
@@ -313,6 +313,12 @@ This is a table of HuskClaims commands, how to use them, their required permissi
             <td><code>/claimblocks &lt;username&gt; [show]</code></td>
             <td>View another user''s claim block balance</td>
             <td><code>huskclaims.command.claimblocks.other</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <tr>
+            <td><code>/claimblocks &lt;username&gt; gift &lt;amount&gt;</code></td>
+            <td>Gift (send) a user an amount of your claim blocks.</td>
+            <td><code>huskclaims.command.claimblocks.gift</code></td>
             <td align="center">❌</td>
         </tr>
         <tr>

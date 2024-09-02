@@ -114,6 +114,8 @@ locales:
   days_since_last_login: '[上次在线 %1% 天前](gray)'
   today_last_login: '[在今天早些时候在线过](gray)'
   claim_blocks_updated: '[将 %1% 的领地方块余额设置为 %2%](#00fb9a)'
+  claim_blocks_gifted: '[Gifted %1%, %2% claim blocks.](#00fb9a)'
+  claim_blocks_gift_received: '[Received %2% claim blocks from %1%.](#00fb9a)'
   claim_blocks_purchased: '[成功购买 ■ %1% 个领地方块,花费 %2% (新余额: ■ %3%)](#00fb9a)'
   claim_block_balance_header: '[%1% 声明方块的支出:](#00fb9a)\n'
   claim_block_balance_started: '[+ 初始 %1% 个声明方块](#80ff80 show_text=&7您最开始时拥有的声明方块数量)'
