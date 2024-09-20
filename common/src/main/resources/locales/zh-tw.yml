@@ -135,7 +135,7 @@ locales:
   not_applicable: '不適用'
   none: '[(無)](gray italic)'
   land_not_claimed: '[這塊土地尚未被領地。](#ff7e5e)'
-  land_claimed_by: '[這塊土地已被 %1% 領地。](#00fb9a)'
+  land_claimed_by: '[這塊土地已被 %1% 領地。at %2%](#00fb9a)'
   nearby_claims: '[正在顯示 %2% 個方塊內的 %1% 個領地。](#00fb9a)'
   no_nearby_claims: '[在 %1% 個方塊內沒有任何領地。](#ff7e5e)'
   user_claim_list_title: '%1% [%2% 的領地清單（%3%）：](#00fb9a) %4%\n'

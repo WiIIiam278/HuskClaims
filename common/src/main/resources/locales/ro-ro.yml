@@ -135,7 +135,7 @@ locales:
   not_applicable: 'N/A'
   none: '[(niciunul)](gray italic)'
   land_not_claimed: '[Acest câmp nu a fost revendicat.](#ff7e5e)'
-  land_claimed_by: '[Acest câmp a fost revendicat de către %1%.](#00fb9a)'
+  land_claimed_by: '[Acest câmp a fost revendicat de către %1% at %2%.](#00fb9a)'
   nearby_claims: '[Se afișează %1% revendicări într-o arie de %2% (de) blocuri.](#00fb9a)'
   no_nearby_claims: '[Nu există revendicări într-o arie de %1% (de) blocuri.](#ff7e5e)'
   user_claim_list_title: '%1% [Lista revendicărilor lui %2% (%3%):](#00fb9a) %4%\n'

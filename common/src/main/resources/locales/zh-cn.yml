@@ -135,7 +135,7 @@ locales:
   not_applicable: 'N/A'
   none: '[(无)](gray italic)'
   land_not_claimed: '[此区域尚未被声明](#ff7e5e)'
-  land_claimed_by: '[此区域已被%1%声明](#00fb9a)'
+  land_claimed_by: '[此区域已被%1%声明 at %2%](#00fb9a)'
   nearby_claims: '[在 %2% 方块内显示 %1% 个领地](#00fb9a)'
   no_nearby_claims: '[在 %1% 方块内没有领地](#ff7e5e)'
   user_claim_list_title: '%1% [玩家 %2% 的领地列表 (%3%):](#00fb9a) %4%\n'

@@ -135,7 +135,7 @@ locales:
   not_applicable: 'N/A'
   none: '[(пусто)](gray italic)'
   land_not_claimed: '[Эта территория не занята.](#ff7e5e)'
-  land_claimed_by: '[Эта территория занята игроком %1%.](#00fb9a)'
+  land_claimed_by: '[Эта территория занята игроком %1% at %2%.](#00fb9a)'
   nearby_claims: '[Отображаются %1% регионов в пределах %2% блоков.](#00fb9a)'
   no_nearby_claims: '[Не найдено регионов в пределах %1% блоков.](#ff7e5e)'
   user_claim_list_title: '%1% [Список регионов игрока %2% (%3%):](#00fb9a) %4%\n'

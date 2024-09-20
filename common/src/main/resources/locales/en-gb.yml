@@ -135,7 +135,7 @@ locales:
   not_applicable: 'N/A'
   none: '[(none)](gray italic)'
   land_not_claimed: '[This land has not been claimed.](#ff7e5e)'
-  land_claimed_by: '[This land has been claimed by %1%.](#00fb9a)'
+  land_claimed_by: '[This land has been claimed by %1% at %2%.](#00fb9a)'
   nearby_claims: '[Displaying %1% claims within %2% blocks.](#00fb9a)'
   no_nearby_claims: '[There are no claims within %1% blocks.](#ff7e5e)'
   user_claim_list_title: '%1% [List of %2%''s claims (%3%):](#00fb9a) %4%\n'

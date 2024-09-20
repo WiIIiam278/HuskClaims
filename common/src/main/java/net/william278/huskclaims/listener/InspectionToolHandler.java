@@ -32,6 +32,7 @@ import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.SavedUser;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -95,9 +96,10 @@ public interface InspectionToolHandler {
     // Highlight the claim for the user and send a message
     private void highlightClaim(@NotNull OnlineUser user, @NotNull Claim claim, @NotNull ClaimWorld world) {
         final List<Claim> claims = Lists.newArrayList(claim);
+        final String na = getPlugin().getLocales().getNotApplicable();
         claims.addAll(claim.getChildren());
         getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claims);
-        getPlugin().getLocales().getLocale("land_claimed_by", claim.getOwnerName(world, getPlugin()))
+        getPlugin().getLocales().getLocale("land_claimed_by", claim.getOwnerName(world, getPlugin()), claim.getCreationTime().map(t -> t.format(DateTimeFormatter.ISO_LOCAL_DATE)).orElse(na))
                 .ifPresent(user::sendMessage);
 
         // Send "last seen..." message if the user has permission
