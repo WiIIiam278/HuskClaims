@@ -20,6 +20,7 @@
 package net.william278.huskclaims.listener;
 
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.command.IgnoreClaimsCommand;
 import net.william278.huskclaims.config.Settings;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.Preferences;
@@ -31,9 +32,7 @@ public interface UserListener {
         getPlugin().runAsync(() -> {
             getPlugin().loadUserData(user);
             if (getPlugin().getUserPreferences(user.getUuid()).map(Preferences::isIgnoringClaims).orElse(false)) {
-                getPlugin().getLocales().getLocale("ignoring_claims_reminder")
-                        .ifPresent(user::sendMessage);
-                return;
+                checkIgnoringClaimsOnLogin(user);
             }
 
             final Settings.ClaimSettings settings = getPlugin().getSettings().getClaims();
@@ -53,7 +52,7 @@ public interface UserListener {
     default void onUserSwitchHeldItem(@NotNull OnlineUser user, @NotNull String mainHand, @NotNull String offHand) {
         final Settings.ClaimSettings claims = getPlugin().getSettings().getClaims();
         if (mainHand.equals(claims.getClaimTool()) || mainHand.equals(claims.getInspectionTool())
-                || offHand.equals(claims.getClaimTool()) || offHand.equals(claims.getInspectionTool())) {
+            || offHand.equals(claims.getClaimTool()) || offHand.equals(claims.getInspectionTool())) {
             return;
         }
 
@@ -62,6 +61,18 @@ public interface UserListener {
             getPlugin().getLocales().getLocale("claim_selection_cancelled")
                     .ifPresent(user::sendMessage);
         }
+    }
+
+    // Check if a user is ignoring claims on join and if they can't do so anymore, toggle
+    private void checkIgnoringClaimsOnLogin(@NotNull OnlineUser u) {
+        if (getPlugin().canUseCommand(IgnoreClaimsCommand.class, u)) {
+            getPlugin().getLocales().getLocale("ignoring_claims_reminder")
+                    .ifPresent(u::sendMessage);
+            return;
+        }
+        getPlugin().editUserPreferences(u, (preferences) -> preferences.setIgnoringClaims(false));
+        getPlugin().getLocales().getLocale("respecting_claims")
+                .ifPresent(u::sendMessage);
     }
 
     // Check a user is able to enter a claim on join (that they are not banned / the claim has been made private)
