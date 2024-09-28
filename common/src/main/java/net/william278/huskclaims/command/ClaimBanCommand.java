@@ -72,8 +72,8 @@ public class ClaimBanCommand extends InClaimCommand implements UserListTabComple
             // Teleport the user out of the claim
             plugin.getOnlineUsers().stream().filter(u -> u.equals(user))
                     .filter(u -> plugin.getClaimAt(u.getPosition()).map(c -> c.equals(claim)).orElse(false))
-                    .filter(u -> world.isBannedFromClaim(u, claim, plugin))
-                    .findFirst().ifPresent(plugin::teleportOutOfClaim);
+                    .filter(u -> world.isBannedFromClaim(u, claim, plugin)).findFirst()
+                    .ifPresent(u -> plugin.teleportOutOfClaim(u, true));
         });
     }
 

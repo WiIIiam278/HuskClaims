@@ -126,11 +126,15 @@ public interface CommandProvider {
             commands.add(new BuyClaimBlocksCommand(getPlugin()));
         }
 
-        // Register claim banning
+        // Register trapped command
+        if (getPlugin().getSettings().getClaims().isTrappedCommand()) {
+            commands.add(new TrappedCommand(getPlugin()));
+        }
+
+        // Register claim banning/making claims private
         if (getPlugin().getSettings().getClaims().getBans().isEnabled()) {
             commands.add(new ClaimBanCommand(getPlugin()));
         }
-
         if (getPlugin().getSettings().getClaims().getBans().isPrivateClaims()) {
             commands.add(new ClaimPrivateCommand(getPlugin()));
         }

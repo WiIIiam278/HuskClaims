@@ -19,40 +19,43 @@
 
 package net.william278.huskclaims.command;
 
+import net.william278.cloplib.operation.Operation;
+import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ClaimWorld;
-import net.william278.huskclaims.trust.TrustLevel;
 import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class ClaimPrivateCommand extends InClaimCommand {
+public class TrappedCommand extends InClaimCommand {
 
-    protected ClaimPrivateCommand(@NotNull HuskClaims plugin) {
-        super(List.of("claimprivate"), "", TrustLevel.Privilege.MAKE_PRIVATE, plugin);
+    protected TrappedCommand(@NotNull HuskClaims plugin) {
+        super(
+                List.of("trapped"),
+                "",
+                plugin
+        );
     }
 
     @Override
-    public void execute(@NotNull OnlineUser user, @NotNull ClaimWorld world,
+    public void execute(@NotNull OnlineUser executor, @NotNull ClaimWorld world,
                         @NotNull Claim claim, @NotNull String[] args) {
-        claim.setPrivateClaim(!claim.isPrivateClaim());
-        plugin.getDatabase().updateClaimWorld(world);
-
-        if (claim.isPrivateClaim()) {
-            plugin.getLocales().getLocale("claim_private_enabled")
-                    .ifPresent(user::sendMessage);
-
-            // teleport all untrusted players outside the claim
-            plugin.getOnlineUsers().stream()
-                    .filter(u -> plugin.getClaimAt(u.getPosition()).map(c -> c.equals(claim)).orElse(false))
-                    .filter(u -> world.cannotNavigatePrivateClaim(u, claim, plugin))
-                    .forEach(u -> plugin.teleportOutOfClaim(u, true));
+        if (canBuild(claim, executor)) {
+            plugin.getLocales().getLocale("error_not_trapped")
+                    .ifPresent(executor::sendMessage);
             return;
         }
-        plugin.getLocales().getLocale("claim_private_disabled")
-                .ifPresent(user::sendMessage);
+
+        plugin.getLocales().getLocale("trapped_teleporting")
+                .ifPresent(executor::sendMessage);
+        plugin.teleportOutOfClaim(executor, false);
+    }
+
+    private boolean canBuild(@NotNull Claim claim, @NotNull OnlineUser user) {
+        return claim.isOperationAllowed(Operation.of(user, OperationType.BLOCK_PLACE, user.getPosition()), plugin)
+               && claim.isOperationAllowed(Operation.of(user, OperationType.BLOCK_BREAK, user.getPosition()), plugin);
     }
 
 }

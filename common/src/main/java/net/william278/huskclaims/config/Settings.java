@@ -247,6 +247,9 @@ public final class Settings {
         @Comment("Whether to send a message when a player exits a claim")
         private boolean sendExitMessage = false;
 
+        @Comment("Whether to enable the /trapped command. Install HuskHomes to require a warmup before teleporting.")
+        private boolean trappedCommand = true;
+
         @Comment("Settings for automatically removing claims made by now-inactive users")
         private InactivityPruningSettings inactivityPruning = new InactivityPruningSettings();
 

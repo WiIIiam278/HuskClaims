@@ -68,7 +68,7 @@ public interface UserListener {
     private void checkClaimEnterOnLogin(@NotNull OnlineUser u) {
         getPlugin().getClaimWorld(u.getWorld()).ifPresent(w -> w.getClaimAt(u.getPosition()).ifPresent(c -> {
             if (w.isBannedFromClaim(u, c, getPlugin()) || w.cannotNavigatePrivateClaim(u, c, getPlugin())) {
-                getPlugin().teleportOutOfClaim(u);
+                getPlugin().teleportOutOfClaim(u, true);
             }
         }));
     }
