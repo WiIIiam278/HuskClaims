@@ -101,6 +101,14 @@ public interface EventProvider {
                                        @NotNull User bannedUser);
 
     @NotNull
+    ClaimMakePrivateEvent getClaimMakePrivateEvent(@NotNull OnlineUser user, @NotNull Claim claim,
+                                                   @NotNull ClaimWorld claimWorld);
+
+    @NotNull
+    ClaimMakePublicEvent getClaimMakePublicEvent(@NotNull OnlineUser user, @NotNull Claim claim,
+                                                 @NotNull ClaimWorld claimWorld);
+
+    @NotNull
     ClaimWorldPruneEvent getClaimWorldPruneEvent(@NotNull ClaimWorld claimWorld, @NotNull Map<User, Long> userMap);
 
 }

@@ -21,3 +21,5 @@ HuskClaims provides several API events your plugin can listen to when players do
 | `BukkitClaimWorldPruneEvent`   |  1.3  |      ✅      | When a claim world is pruned of its claims (on startup)              |
 | `BukkitClaimBanEvent`          |  1.3  |      ✅      | When a player bans someone from a claim                              |
 | `BukkitClaimUnBanEvent`        |  1.3  |      ✅      | When a player unbans someone from a claim                            |
+| `BukkitClaimMakePrivateEvent`  | 1.4.1 |      ✅      | When a player makes a claim private (cant be entered without trust)  |
+| `BukkitClaimMakePublicEvent`   | 1.4.1 |      ✅      | When a player makes a claim public                                   |

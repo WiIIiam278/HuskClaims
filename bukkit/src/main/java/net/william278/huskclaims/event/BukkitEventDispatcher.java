@@ -156,6 +156,20 @@ public interface BukkitEventDispatcher extends EventDispatcher {
 
     @Override
     @NotNull
+    default ClaimMakePrivateEvent getClaimMakePrivateEvent(@NotNull OnlineUser user, @NotNull Claim claim,
+                                                           @NotNull ClaimWorld claimWorld) {
+        return new BukkitClaimMakePrivateEvent(user, claim, claimWorld, getPlugin());
+    }
+
+    @Override
+    @NotNull
+    default ClaimMakePublicEvent getClaimMakePublicEvent(@NotNull OnlineUser user, @NotNull Claim claim,
+                                                         @NotNull ClaimWorld claimWorld) {
+        return new BukkitClaimMakePublicEvent(user, claim, claimWorld, getPlugin());
+    }
+
+    @Override
+    @NotNull
     default ClaimWorldPruneEvent getClaimWorldPruneEvent(@NotNull ClaimWorld claimWorld,
                                                          @NotNull Map<User, Long> userMap) {
         return new BukkitClaimWorldPruneEvent(claimWorld, userMap, getPlugin());

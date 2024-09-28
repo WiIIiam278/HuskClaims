@@ -28,16 +28,37 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class ClaimPrivateCommand extends InClaimCommand {
+public class ClaimPrivateCommand extends InClaimCommand implements ToggleTabCompletable {
 
     protected ClaimPrivateCommand(@NotNull HuskClaims plugin) {
-        super(List.of("claimprivate"), "", TrustLevel.Privilege.MAKE_PRIVATE, plugin);
+        super(
+                List.of("claimprivate"),
+                "[on|off]",
+                TrustLevel.Privilege.MAKE_PRIVATE,
+                plugin
+        );
     }
 
     @Override
     public void execute(@NotNull OnlineUser user, @NotNull ClaimWorld world,
                         @NotNull Claim claim, @NotNull String[] args) {
-        claim.setPrivateClaim(!claim.isPrivateClaim());
+        boolean value = !parseBooleanArg(args, 0).orElse(!claim.isPrivateClaim());
+        if (value) {
+            plugin.fireClaimMakePrivateEvent(
+                    user, claim, world,
+                    (event) -> setClaimPrivacy(user, claim, world, true)
+            );
+            return;
+        }
+        plugin.fireClaimMakePublicEvent(
+                user, claim, world,
+                (event) -> setClaimPrivacy(user, claim, world, false)
+        );
+    }
+
+    private void setClaimPrivacy(@NotNull OnlineUser user, @NotNull Claim claim,
+                                 @NotNull ClaimWorld world, boolean value) {
+        claim.setPrivateClaim(value);
         plugin.getDatabase().updateClaimWorld(world);
 
         if (claim.isPrivateClaim()) {

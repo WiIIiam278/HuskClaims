@@ -30,8 +30,6 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.logging.Level;
-
 public interface BukkitPetListener extends Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
