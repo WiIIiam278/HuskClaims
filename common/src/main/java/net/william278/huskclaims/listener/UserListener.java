@@ -20,6 +20,7 @@
 package net.william278.huskclaims.listener;
 
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.claim.ClaimingMode;
 import net.william278.huskclaims.command.IgnoreClaimsCommand;
 import net.william278.huskclaims.config.Settings;
 import net.william278.huskclaims.user.OnlineUser;
@@ -31,11 +32,20 @@ public interface UserListener {
     default void onUserJoin(@NotNull OnlineUser user) {
         getPlugin().runAsync(() -> {
             getPlugin().loadUserData(user);
-            if (getPlugin().getUserPreferences(user.getUuid()).map(Preferences::isIgnoringClaims).orElse(false)) {
+            final Preferences prefs = getPlugin().getUserPreferences(user.getUuid()).orElse(Preferences.DEFAULTS);
+            final Settings.ClaimSettings settings = getPlugin().getSettings().getClaims();
+
+            // Check if user is ignoring claims, remind/toggle as needed
+            if (prefs.isIgnoringClaims()) {
                 checkIgnoringClaimsOnLogin(user);
             }
 
-            final Settings.ClaimSettings settings = getPlugin().getSettings().getClaims();
+            // Check the user's claim mode, toggle as needed
+            if (prefs.getClaimingMode() != ClaimingMode.CLAIMS) {
+                checkClaimModeOnLogin(user, prefs.getClaimingMode());
+            }
+
+            // Check the user is allowed to be where they are logging in to
             if (settings.getBans().isEnabled() || settings.getBans().isPrivateClaims()) {
                 checkClaimEnterOnLogin(user);
             }
@@ -73,6 +83,19 @@ public interface UserListener {
         getPlugin().editUserPreferences(u, (preferences) -> preferences.setIgnoringClaims(false));
         getPlugin().getLocales().getLocale("respecting_claims")
                 .ifPresent(u::sendMessage);
+    }
+
+    // Check if the user is allowed to make claims in their current claim mode, and if they can't do so anymore, toggle
+    private void checkClaimModeOnLogin(@NotNull OnlineUser u, @NotNull ClaimingMode mode) {
+        if (mode.canUse(u)) {
+            return;
+        }
+        getPlugin().editUserPreferences(u, (preferences) -> {
+            preferences.setClaimingMode(ClaimingMode.CLAIMS);
+            getPlugin().getLocales().getLocale("switched_claiming_mode",
+                            ClaimingMode.CLAIMS.getDisplayName(getPlugin().getLocales()))
+                    .ifPresent(u::sendMessage);
+        });
     }
 
     // Check a user is able to enter a claim on join (that they are not banned / the claim has been made private)
