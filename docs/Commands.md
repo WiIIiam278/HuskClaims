@@ -365,6 +365,15 @@ This is a table of HuskClaims commands, how to use them, their required permissi
             <td><code>huskclaims.command.unlockdrops.other</code></td>
             <td align="center">❌</td>
         </tr>
+        <!-- /trapped command -->
+        <tr><th colspan="5">Trapped in a claim command</th></tr>
+        <tr><td colspan="5" align="center">Let users teleport outside claims they dont have build trust in.</td></tr>
+        <tr>
+            <td colspan="2"><code>/trapped</code></td>
+            <td>Teleports you outside a claim you can't build in.</td>
+            <td><code>huskclaims.command.trapped</code></td>
+            <td align="center">✅</td>
+        </tr>
         <tr><th colspan="5">Other administrator commands</th></tr>
         <tr><td colspan="5" align="center">Moderation and plugin management utilities.</td></tr>
         <tr>
