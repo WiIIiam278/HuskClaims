@@ -226,3 +226,4 @@ locales:
   unclaimall_command_description: '刪除您所有的領地。'
   transferpet_command_description: '轉讓馴服動物的所有權。'
   claimban_command_description: '禁止玩家進入領地。'
+  trapped_player_teleported: 'You are teleported outside the claim.'
