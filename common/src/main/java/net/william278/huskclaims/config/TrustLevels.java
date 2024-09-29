@@ -76,7 +76,8 @@ public class TrustLevels {
                             OperationType.FILL_BUCKET,
                             OperationType.EMPTY_BUCKET,
                             OperationType.USE_SPAWN_EGG,
-                            OperationType.ENDER_PEARL_TELEPORT
+                            OperationType.ENDER_PEARL_TELEPORT,
+                            OperationType.START_RAID
                     ))
                     .privileges(List.of(
                             TrustLevel.Privilege.MANAGE_TRUSTEES,
@@ -114,7 +115,8 @@ public class TrustLevels {
                             OperationType.FILL_BUCKET,
                             OperationType.EMPTY_BUCKET,
                             OperationType.USE_SPAWN_EGG,
-                            OperationType.ENDER_PEARL_TELEPORT
+                            OperationType.ENDER_PEARL_TELEPORT,
+                            OperationType.START_RAID
                     ))
                     .build(),
 
@@ -131,7 +133,8 @@ public class TrustLevels {
                             OperationType.ENTITY_INTERACT,
                             OperationType.CONTAINER_OPEN,
                             OperationType.REDSTONE_INTERACT,
-                            OperationType.ENDER_PEARL_TELEPORT
+                            OperationType.ENDER_PEARL_TELEPORT,
+                            OperationType.START_RAID
                     ))
                     .build(),
 
@@ -147,7 +150,8 @@ public class TrustLevels {
                             OperationType.BLOCK_INTERACT,
                             OperationType.ENTITY_INTERACT,
                             OperationType.REDSTONE_INTERACT,
-                            OperationType.ENDER_PEARL_TELEPORT
+                            OperationType.ENDER_PEARL_TELEPORT,
+                            OperationType.START_RAID
                     ))
                     .build()
     );
@@ -172,7 +176,8 @@ public class TrustLevels {
             OperationType.FILL_BUCKET,
             OperationType.EMPTY_BUCKET,
             OperationType.USE_SPAWN_EGG,
-            OperationType.ENDER_PEARL_TELEPORT
+            OperationType.ENDER_PEARL_TELEPORT,
+            OperationType.START_RAID
     );
 
     @NotNull
