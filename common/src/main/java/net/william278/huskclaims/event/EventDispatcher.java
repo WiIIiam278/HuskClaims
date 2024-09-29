@@ -172,7 +172,7 @@ public interface EventDispatcher extends EventProvider {
     default Optional<ClaimWorldPruneEvent> fireIsCancelledClaimWorldPruneEvent(@NotNull ClaimWorld world,
                                                                                @NotNull Map<User, Long> userMap) {
         final ClaimWorldPruneEvent event = getClaimWorldPruneEvent(world, userMap);
-        return fireIsCancelled(event) ? Optional.of(event) : Optional.empty();
+        return !fireIsCancelled(event) ? Optional.of(event) : Optional.empty();
     }
 
     @NotNull
