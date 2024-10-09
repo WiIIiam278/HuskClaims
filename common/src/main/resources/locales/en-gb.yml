@@ -20,6 +20,7 @@ locales:
   error_no_claiming_permission: '[Error:](#ff3300) [You do not have permission to create or edit claims.](#ff7e5e)'
   error_no_claims_made: '[Error:](#ff3300) [%1% has not created any claims.](#ff7e5e)'
   error_no_admin_claims_made: '[Error:](#ff3300) [No admin claims have been created.](#ff7e5e)'
+  error_over_claim_blocks: '[Error:](#ff3300) [You cannot buy too many claim blocks.](#ff7e5e)'
   error_restrict_not_child: '[Error:](#ff3300) [You are not standing in a child claim.](#ff7e5e)\n[Stand in one and use](gray) [/restrictclaim](gray italic show_text=&7Click to suggest suggest_command=/restrictclaim) [to restrict trust access inheritance from that child''s parent claim.](gray)'
   error_parent_claim_deleted: '[Error:](#ff3300) [The parent of the child claim you were resizing has been deleted.](#ff7e5e)'
   error_claim_deleted: '[Error:](#ff3300) [The claim you were resizing has been deleted.](#ff7e5e)'

@@ -48,6 +48,9 @@ public class SavedUser {
     private long claimBlocks;
     @Setter
     private int hoursPlayed;
+    @Setter
+    @Range(from = 0, to = MAX_CLAIM_BLOCKS)
+    private long boughtClaimBlocks;
 
     public long getDaysSinceLastLogin() {
         return lastLogin.until(OffsetDateTime.now(), java.time.temporal.ChronoUnit.DAYS);
@@ -68,6 +71,7 @@ public class SavedUser {
                 Preferences.DEFAULTS,
                 OffsetDateTime.now(),
                 plugin.getSettings().getClaims().getStartingClaimBlocks(),
+                0,
                 0
         );
     }
@@ -88,6 +92,7 @@ public class SavedUser {
                 Preferences.IMPORTED,
                 lastLogin,
                 claimBlocks,
+                0,
                 0
         );
     }
