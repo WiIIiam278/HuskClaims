@@ -42,7 +42,7 @@ public class ClaimPrivateCommand extends InClaimCommand implements ToggleTabComp
     @Override
     public void execute(@NotNull OnlineUser user, @NotNull ClaimWorld world,
                         @NotNull Claim claim, @NotNull String[] args) {
-        boolean value = !parseBooleanArg(args, 0).orElse(!claim.isPrivateClaim());
+        boolean value = parseBooleanArg(args, 0).orElse(!claim.isPrivateClaim());
         if (value) {
             plugin.fireClaimMakePrivateEvent(
                     user, claim, world,
