@@ -143,6 +143,8 @@ claims:
   allow_nearby_claim_inspection: true
   # Whether to require confirmation when deleting claims that have children
   confirm_deleting_parent_claims: true
+  # Whether to enable the /trapped command. Install HuskHomes to require a warmup before teleporting.
+  trapped_command: true
   # Settings for automatically removing claims made by now-inactive users
   inactivity_pruning:
     # Whether to delete all claims made by users marked as inactive. (Warning: Dangerous!)

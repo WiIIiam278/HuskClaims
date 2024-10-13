@@ -36,16 +36,17 @@ import java.util.logging.Level;
 
 public interface SafeTeleportProvider {
 
-    default void teleportOutOfClaim(@NotNull OnlineUser user) {
+    default void teleportOutOfClaim(@NotNull OnlineUser user, boolean instant) {
         final Optional<Region> region = getPlugin().getClaimAt(user.getPosition()).map(Claim::getRegion);
         if (region.isEmpty()) {
             return;
         }
         final List<Position> positions = this.getPotentialPositions(user.getPosition(), region.get());
-        this.teleportOutOfClaim(user, positions, positions.size());
+        this.teleportOutOfClaim(user, positions, positions.size(), true);
     }
 
-    private void teleportOutOfClaim(@NotNull OnlineUser user, @NotNull List<Position> positions, int tries) {
+    private void teleportOutOfClaim(@NotNull OnlineUser user, @NotNull List<Position> positions,
+                                    int tries, boolean instant) {
         final Position position = this.getPerimeterPosition(positions, tries);
         if (tries <= 0) {
             getPlugin().log(Level.WARNING, "Failed to safely teleport %s after %s attempts"
@@ -53,8 +54,8 @@ public interface SafeTeleportProvider {
             return;
         }
         findSafePosition(position).thenAccept(found -> found.ifPresentOrElse(
-                (safe) -> getPlugin().runSync(() -> user.teleport(safe)),
-                () -> teleportOutOfClaim(user, positions, tries - 1)
+                (safe) -> getPlugin().runSync(() -> user.teleport(safe,  instant)),
+                () -> teleportOutOfClaim(user, positions, tries - 1, instant)
         ));
     }
 

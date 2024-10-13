@@ -51,6 +51,8 @@ Trust Levels are defined in the `trust_levels.yml` config file and the default s
                     <li>MANAGE_TRUSTEES</li>
                     <li>MANAGE_CHILD_CLAIMS</li>
                     <li>MANAGE_OPERATION_GROUPS</li>
+                    <li>MANAGE_BANS</li>
+                    <li>MAKE_PRIVATE</li>
                 </ul>
                 </details>
             </td>
@@ -186,6 +188,8 @@ trust_levels:
   - MANAGE_TRUSTEES
   - MANAGE_CHILD_CLAIMS
   - MANAGE_OPERATION_GROUPS
+  - MANAGE_BANS
+  - MAKE_PRIVATE
   weight: 400
 - id: build
   display_name: Build

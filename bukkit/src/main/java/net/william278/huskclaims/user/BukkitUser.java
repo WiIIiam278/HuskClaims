@@ -24,6 +24,7 @@ import lombok.Getter;
 import net.william278.cloplib.listener.InspectorCallbackProvider;
 import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.hook.HuskHomesHook;
 import net.william278.huskclaims.position.Position;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -81,8 +82,8 @@ public class BukkitUser extends OnlineUser {
         return toCheck.stream().anyMatch(
                 item -> item != null && item.getType().getKey().getKey().equals(tool.material()) && (
                         !tool.useCustomModelData() || item.hasItemMeta()
-                                && item.getItemMeta() != null && item.getItemMeta().hasCustomModelData()
-                                && item.getItemMeta().getCustomModelData() == tool.customModelData()
+                                                      && item.getItemMeta() != null && item.getItemMeta().hasCustomModelData()
+                                                      && item.getItemMeta().getCustomModelData() == tool.customModelData()
                 )
         );
     }
@@ -109,7 +110,19 @@ public class BukkitUser extends OnlineUser {
     }
 
     @Override
-    public void teleport(@NotNull Position position) {
+    public void teleport(@NotNull Position position, boolean instant) {
+        if (instant) {
+            teleportInstant(position);
+            return;
+        }
+        plugin.getHook(HuskHomesHook.class).ifPresentOrElse(
+                homes -> homes.teleport(this, position, plugin.getServerName()),
+                () -> teleportInstant(position)
+        );
+    }
+
+    private void teleportInstant(@NotNull Position position) {
         PaperLib.teleportAsync(bukkitPlayer, BukkitHuskClaims.Adapter.adapt(position));
     }
+
 }

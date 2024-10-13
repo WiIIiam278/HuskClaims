@@ -17,27 +17,8 @@
  *  limitations under the License.
  */
 
-package net.william278.huskclaims.pet;
+package net.william278.huskclaims.event;
 
-import net.william278.huskclaims.HuskClaims;
-import net.william278.huskclaims.user.OnlineUser;
-import net.william278.huskclaims.user.User;
-import org.jetbrains.annotations.NotNull;
-
-public interface PetHandler {
-
-    void userTransferPet(@NotNull OnlineUser user, @NotNull User newOwner, boolean forceTransfer);
-
-    default boolean cancelPetOperation(@NotNull OnlineUser user, @NotNull User owner) {
-        if (user.equals(owner)) {
-            return false;
-        }
-        getPlugin().getLocales().getLocale("pet_owned_by", owner.getName())
-                .ifPresent(user::sendMessage);
-        return true;
-    }
-
-    @NotNull
-    HuskClaims getPlugin();
+public interface ClaimMakePrivateEvent extends ClaimEvent, CancellableEvent {
 
 }

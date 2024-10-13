@@ -41,11 +41,12 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
     protected ClaimBlocksCommand(@NotNull HuskClaims plugin) {
         super(
                 List.of("claimblocks", "adjustclaimblocks"),
-                "[user] [<set|add|remove> <amount>]",
+                "[user] [<set|add|remove|gift> <amount>]",
                 plugin
         );
         addAdditionalPermissions(Map.of(
                 "other", true,
+                "gift", true,
                 "edit", true
         ));
     }
@@ -78,6 +79,7 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
             case ADD -> changeClaimBlocks(executor, user, amount, false);
             case REMOVE -> changeClaimBlocks(executor, user, -amount, false);
             case SET -> changeClaimBlocks(executor, user, amount, true);
+            case GIFT -> changeClaimBlocksPlayerGift(executor, user, amount);
         }
     }
 
@@ -127,6 +129,45 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
         );
     }
 
+    private void changeClaimBlocksPlayerGift(@NotNull CommandUser executor, @NotNull User user, long changeBy) {
+        if (!(executor instanceof OnlineUser onlineExecuter)) {
+            getPlugin().getLocales().getLocale("error_command_in_game_only").ifPresent(executor::sendMessage);
+            return;
+        }
+
+        // can't gift to yourself (Needed else you dupe claimblocks because of race condition on claimblocks change event)
+        if (onlineExecuter.getUuid().equals(user.getUuid())) {
+            return;
+        }
+
+        final long ownedClaimBLocks = getPlugin().getClaimBlocks(onlineExecuter);
+        if (ownedClaimBLocks < changeBy) {
+            getPlugin().getLocales().getLocale("error_not_enough_claim_blocks",
+                    Long.toString(changeBy - ownedClaimBLocks)).ifPresent(executor::sendMessage);
+            return;
+        }
+
+        plugin.editClaimBlocks(
+                onlineExecuter,
+                ClaimBlocksManager.ClaimBlockSource.USER_GIFTED,
+                (blocks) -> Math.max(0, blocks - changeBy),
+                (newBalance) -> plugin.getLocales().getLocale("claim_blocks_gifted", user.getName(),
+                        Long.toString(changeBy)).ifPresent(executor::sendMessage));
+
+        final OnlineUser giftedPlayer = plugin.getOnlineUsers().stream().filter(online_player -> online_player.getUuid().equals(user.getUuid())).findFirst().orElse(null);
+
+        plugin.editClaimBlocks(
+                user,
+                ClaimBlocksManager.ClaimBlockSource.USER_GIFTED,
+                (blocks) -> Math.max(0, blocks + changeBy),
+                (newBalance) -> {
+                    if (giftedPlayer != null) {
+                        plugin.getLocales().getLocale("claim_blocks_gift_received", onlineExecuter.getName(),
+                        Long.toString(changeBy)).ifPresent(giftedPlayer::sendMessage);
+                    }
+                });
+    }
+
     private Optional<ClaimBlockOption> parseClaimBlockOption(@NotNull String[] args) {
         return parseStringArg(args, 1).flatMap(ClaimBlockOption::matchClaimBlockOption);
     }
@@ -135,6 +176,7 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
         SHOW,
         SET,
         ADD,
+        GIFT,
         REMOVE;
 
         public static Optional<ClaimBlockOption> matchClaimBlockOption(@NotNull String text) {
@@ -152,6 +194,7 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
             return switch (this) {
                 case SHOW -> command.hasPermission(user);
                 case SET, ADD, REMOVE -> command.hasPermission(user, "edit");
+                case GIFT -> command.hasPermission(user, "gift");
             };
         }
 

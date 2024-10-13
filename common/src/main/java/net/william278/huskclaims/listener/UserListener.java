@@ -20,6 +20,8 @@
 package net.william278.huskclaims.listener;
 
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.claim.ClaimingMode;
+import net.william278.huskclaims.command.IgnoreClaimsCommand;
 import net.william278.huskclaims.config.Settings;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.Preferences;
@@ -30,12 +32,22 @@ public interface UserListener {
     default void onUserJoin(@NotNull OnlineUser user) {
         getPlugin().runAsync(() -> {
             getPlugin().loadUserData(user);
-            if (getPlugin().getUserPreferences(user.getUuid()).map(Preferences::isIgnoringClaims).orElse(false)) {
-                getPlugin().getLocales().getLocale("ignoring_claims_reminder")
-                        .ifPresent(user::sendMessage);
+            final Preferences prefs = getPlugin().getUserPreferences(user.getUuid()).orElse(Preferences.DEFAULTS);
+            final Settings.ClaimSettings settings = getPlugin().getSettings().getClaims();
+
+            // Check if user is ignoring claims, remind/toggle as needed
+            if (prefs.isIgnoringClaims()) {
+                checkIgnoringClaimsOnLogin(user);
             }
-            if (getPlugin().getSettings().getClaims().getBans().isEnabled()) {
-                checkClaimLoginBan(user);
+
+            // Check the user's claim mode, toggle as needed
+            if (prefs.getClaimingMode() != ClaimingMode.CLAIMS) {
+                checkClaimModeOnLogin(user, prefs.getClaimingMode());
+            }
+
+            // Check the user is allowed to be where they are logging in to
+            if (settings.getBans().isEnabled() || settings.getBans().isPrivateClaims()) {
+                checkClaimEnterOnLogin(user);
             }
         });
     }
@@ -50,7 +62,7 @@ public interface UserListener {
     default void onUserSwitchHeldItem(@NotNull OnlineUser user, @NotNull String mainHand, @NotNull String offHand) {
         final Settings.ClaimSettings claims = getPlugin().getSettings().getClaims();
         if (mainHand.equals(claims.getClaimTool()) || mainHand.equals(claims.getInspectionTool())
-                || offHand.equals(claims.getClaimTool()) || offHand.equals(claims.getInspectionTool())) {
+            || offHand.equals(claims.getClaimTool()) || offHand.equals(claims.getInspectionTool())) {
             return;
         }
 
@@ -61,11 +73,36 @@ public interface UserListener {
         }
     }
 
-    // Check a user is able to enter a claim on join
-    private void checkClaimLoginBan(@NotNull OnlineUser u) {
+    // Check if a user is ignoring claims on join and if they can't do so anymore, toggle
+    private void checkIgnoringClaimsOnLogin(@NotNull OnlineUser u) {
+        if (getPlugin().canUseCommand(IgnoreClaimsCommand.class, u)) {
+            getPlugin().getLocales().getLocale("ignoring_claims_reminder")
+                    .ifPresent(u::sendMessage);
+            return;
+        }
+        getPlugin().editUserPreferences(u, (preferences) -> preferences.setIgnoringClaims(false));
+        getPlugin().getLocales().getLocale("respecting_claims")
+                .ifPresent(u::sendMessage);
+    }
+
+    // Check if the user is allowed to make claims in their current claim mode, and if they can't do so anymore, toggle
+    private void checkClaimModeOnLogin(@NotNull OnlineUser u, @NotNull ClaimingMode mode) {
+        if (mode.canUse(u)) {
+            return;
+        }
+        getPlugin().editUserPreferences(u, (preferences) -> {
+            preferences.setClaimingMode(ClaimingMode.CLAIMS);
+            getPlugin().getLocales().getLocale("switched_claiming_mode",
+                            ClaimingMode.CLAIMS.getDisplayName(getPlugin().getLocales()))
+                    .ifPresent(u::sendMessage);
+        });
+    }
+
+    // Check a user is able to enter a claim on join (that they are not banned / the claim has been made private)
+    private void checkClaimEnterOnLogin(@NotNull OnlineUser u) {
         getPlugin().getClaimWorld(u.getWorld()).ifPresent(w -> w.getClaimAt(u.getPosition()).ifPresent(c -> {
-            if (w.isBannedFromClaim(u, c, getPlugin())) {
-                getPlugin().teleportOutOfClaim(u);
+            if (w.isBannedFromClaim(u, c, getPlugin()) || w.cannotNavigatePrivateClaim(u, c, getPlugin())) {
+                getPlugin().teleportOutOfClaim(u, true);
             }
         }));
     }

@@ -167,6 +167,7 @@ public interface ClaimBlocksManager {
         CLAIM_TRANSFER_AWAY,
         CLAIM_DELETED,
         CLAIMS_DELETED_PRUNED,
+        USER_GIFTED,
         API;
 
         @NotNull

@@ -452,8 +452,36 @@ public class ClaimWorld {
     // Check if a user is banned from a claim
     @ApiStatus.Internal
     public boolean isBannedFromClaim(@NotNull OnlineUser user, @NotNull Claim claim, @NotNull HuskClaims plugin) {
-        if (claim.isUserBanned(user) && !isIgnoringClaims(user, plugin)) {
+        if (!plugin.getSettings().getClaims().getBans().isEnabled() || isIgnoringClaims(user, plugin)) {
+            return false;
+        }
+
+        if (claim.isUserBanned(user)) {
             plugin.getLocales().getLocale("user_banned_you", claim.getOwnerName(this, plugin))
+                    .ifPresent(user::sendMessage);
+            return true;
+        }
+        return false;
+    }
+
+    // Check if a claim is private and cannot be navigated by a user
+    @ApiStatus.Internal
+    public boolean cannotNavigatePrivateClaim(@NotNull OnlineUser user, @NotNull Claim claim,
+                                              @NotNull HuskClaims plugin) {
+        if (!plugin.getSettings().getClaims().getBans().isPrivateClaims() || isIgnoringClaims(user, plugin)) {
+            return false;
+        }
+        if (!claim.isPrivateClaim()) {
+            return false;
+        }
+
+        final Optional<UUID> owner = claim.getOwner();
+        if (owner.isPresent() && owner.get().equals(user.getUuid())) {
+            return false;
+        }
+
+        if (claim.getTrustLevel(user, plugin).isEmpty()) {
+            plugin.getLocales().getLocale("claim_enter_is_private", claim.getOwnerName(this, plugin))
                     .ifPresent(user::sendMessage);
             return true;
         }

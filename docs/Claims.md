@@ -53,7 +53,13 @@ Admin claims are special claims that are not owned by any player, and are not su
 
 Unlike regular claims, all administrators with the `huskclaims.admin_claim` permission have full management privileges in every admin claim, allowing them to trust themselves and create child claims without being explicitly trusted.
 
-## Claim Bans
-If you have claim bans enabled (see the `bans` subsection under `claims` in the [[config]]), you can ban and unban players from your claim using the `/claimban <ban|unban|list> [username]` command.
+## Preventing public navigation
+By enabling the claim bans and/or private claims features, you can choose to ban people from a claim and make it private to prevent people from being able to walk into it.
+
+### Claim bans
+If you have claim bans enabled (see the `bans` subsection under `claims` in the [[config]]), you can ban and unban players from a claim or child claim using the `/claimban <ban|unban|list> [username]` command. This requires the `MANAGE_BANS` claim privilege.
 
 This will prevent the banned player from entering the claim/child claim. Banned players cannot be trusted in the claim, and will be unable to interact with blocks within the claim.
+
+### Private claims
+If you have private claims enabled (the option for which is located in the `bans` subsection under `claims` in the [[config]]), users with the `MAKE_PRIVATE` claim privilege can make a claim or child claim private using the `/claimprivate (on|off)` toggle command. Only users with a [trust level](trust-levels) in the claim will be able to enter it.

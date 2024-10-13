@@ -17,27 +17,30 @@
  *  limitations under the License.
  */
 
-package net.william278.huskclaims.pet;
+package net.william278.huskclaims.event;
 
+import lombok.Getter;
+import lombok.Setter;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.claim.Claim;
+import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.user.OnlineUser;
-import net.william278.huskclaims.user.User;
+import org.bukkit.event.Cancellable;
 import org.jetbrains.annotations.NotNull;
 
-public interface PetHandler {
+@Getter
+public class BukkitClaimMakePrivateEvent extends BukkitPlayerEvent implements ClaimMakePrivateEvent, Cancellable {
 
-    void userTransferPet(@NotNull OnlineUser user, @NotNull User newOwner, boolean forceTransfer);
+    private final Claim claim;
+    private final ClaimWorld claimWorld;
+    @Setter
+    private boolean cancelled;
 
-    default boolean cancelPetOperation(@NotNull OnlineUser user, @NotNull User owner) {
-        if (user.equals(owner)) {
-            return false;
-        }
-        getPlugin().getLocales().getLocale("pet_owned_by", owner.getName())
-                .ifPresent(user::sendMessage);
-        return true;
+    protected BukkitClaimMakePrivateEvent(@NotNull OnlineUser user, @NotNull Claim claim,
+                                          @NotNull ClaimWorld claimWorld, @NotNull HuskClaims plugin) {
+        super(user, plugin);
+        this.claim = claim;
+        this.claimWorld = claimWorld;
     }
-
-    @NotNull
-    HuskClaims getPlugin();
 
 }

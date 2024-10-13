@@ -191,7 +191,7 @@ public final class Settings {
         );
 
         @Comment({"Default flags for the wilderness (outside claims)",
-                "To modify existing worlds, use /huskclaims flag <flag> <true/false> while standing outside a claim."})
+                "To modify existing worlds, use /claimflags set <flag> <true/false> while standing outside a claim."})
         private List<OperationType> wildernessRules = List.of(
                 OperationType.values() // Allow all operation types
         );
@@ -247,6 +247,9 @@ public final class Settings {
         @Comment("Whether to send a message when a player exits a claim")
         private boolean sendExitMessage = false;
 
+        @Comment("Whether to enable the /trapped command. Install HuskHomes to require a warmup before teleporting.")
+        private boolean trappedCommand = true;
+
         @Comment("Settings for automatically removing claims made by now-inactive users")
         private InactivityPruningSettings inactivityPruning = new InactivityPruningSettings();
 
@@ -280,6 +283,10 @@ public final class Settings {
             @Comment({"Whether to let users ban others from their claims (prevent them from entering) using /claimban",
                     "Also requires the MANAGE_BANS privilege (by default, restricted to those with 'manage' trust)"})
             private boolean enabled = false;
+
+            @Comment({"Whether to let users set their claim claims to private (prevent others from entering) using /claimprivate",
+                    "Also requires the MANAGE_BANS privilege (by default, restricted to those with 'manage' trust)"})
+            private boolean privateClaims = false;
 
         }
 

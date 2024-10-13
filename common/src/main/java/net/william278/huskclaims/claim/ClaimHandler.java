@@ -73,6 +73,7 @@ public interface ClaimHandler extends Handler {
             final Claim tc = toClaim.get();
             if (getPlugin().fireIsCancelledExitClaimEvent(online, fc, world, fromPos, toPos)
                     || world.isBannedFromClaim(online, tc, getPlugin()) // Check if the user is banned before firing enter event
+                    || world.cannotNavigatePrivateClaim(online, tc, getPlugin())
                     || getPlugin().fireIsCancelledEnterClaimEvent(online, tc, world, fromPos, toPos)) {
                 return true;
             }
@@ -88,6 +89,7 @@ public interface ClaimHandler extends Handler {
             // Handle wilderness -> claim movement
             final Claim tc = toClaim.get();
             if (world.isBannedFromClaim(online, tc, getPlugin())
+                    || world.cannotNavigatePrivateClaim(online, tc, getPlugin())
                     || getPlugin().fireIsCancelledEnterClaimEvent(online, tc, world, fromPos, toPos)) {
                 return true;
             }

@@ -157,10 +157,22 @@ public interface EventDispatcher extends EventProvider {
         fireEvent(getClaimUnBanEvent(user, claim, claimWorld, bannedUser), callback);
     }
 
+    default void fireClaimMakePrivateEvent(@NotNull OnlineUser user, @NotNull Claim claim, 
+                                           @NotNull ClaimWorld claimWorld, 
+                                           @NotNull Consumer<ClaimMakePrivateEvent> callback) {
+        fireEvent(getClaimMakePrivateEvent(user, claim, claimWorld), callback);
+    }
+
+    default void fireClaimMakePublicEvent(@NotNull OnlineUser user, @NotNull Claim claim,
+                                           @NotNull ClaimWorld claimWorld,
+                                           @NotNull Consumer<ClaimMakePublicEvent> callback) {
+        fireEvent(getClaimMakePublicEvent(user, claim, claimWorld), callback);
+    }
+
     default Optional<ClaimWorldPruneEvent> fireIsCancelledClaimWorldPruneEvent(@NotNull ClaimWorld world,
                                                                                @NotNull Map<User, Long> userMap) {
         final ClaimWorldPruneEvent event = getClaimWorldPruneEvent(world, userMap);
-        return fireIsCancelled(event) ? Optional.of(event) : Optional.empty();
+        return !fireIsCancelled(event) ? Optional.of(event) : Optional.empty();
     }
 
     @NotNull

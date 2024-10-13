@@ -25,6 +25,7 @@ import net.william278.cloplib.operation.OperationPosition;
 import net.william278.cloplib.operation.OperationUser;
 import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.moderation.SignListener;
+import net.william278.huskclaims.position.World;
 import net.william278.huskclaims.user.BukkitUser;
 import net.william278.huskclaims.user.User;
 import org.bukkit.Location;
@@ -36,6 +37,7 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.*;
+import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -100,6 +102,17 @@ public class BukkitListener extends BukkitOperationListener implements BukkitPet
         )) {
             e.setCancelled(true);
         }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onWorldLoad(@NotNull WorldLoadEvent e) {
+        plugin.runAsync(() -> {
+            final World world = BukkitHuskClaims.Adapter.adapt(e.getWorld());
+            plugin.loadClaimWorld(world);
+            plugin.getClaimWorld(world).ifPresent(loaded -> plugin.getMapHooks().forEach(
+                    hook -> hook.markClaims(loaded.getClaims(), loaded))
+            );
+        });
     }
 
     @Override

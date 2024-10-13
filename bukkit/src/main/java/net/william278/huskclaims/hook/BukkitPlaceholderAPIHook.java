@@ -87,7 +87,13 @@ public class BukkitPlaceholderAPIHook extends Hook {
             if (player == null) {
                 return null;
             }
-            return Placeholder.format(plugin, BukkitUser.adapt(player, plugin), identifier);
+
+            // Format placeholders, handle exceptions (placeholder formatting is non-critical)
+            try {
+                return Placeholder.format(plugin, BukkitUser.adapt(player, plugin), identifier);
+            } catch (IllegalArgumentException | IllegalStateException | NullPointerException e) {
+                return plugin.getLocales().getNotApplicable();
+            }
         }
 
         @AllArgsConstructor

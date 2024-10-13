@@ -232,6 +232,24 @@ This is a table of HuskClaims commands, how to use them, their required permissi
             <td><code>huskclaims.command.transferclaim.other</code></td>
             <td align="center">❌</td>
         </tr>
+        <!-- /claimflags command -->
+        <tr>
+            <td rowspan="3"><code>/claimflags</code></td>
+            <td rowspan="3"><code>/claimflags &lt;list|set&gt;</code></td>
+            <td>Manage the flags of the claim you are in</td>
+            <td><code>huskclaims.command.claimflags</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <tr>
+            <td>Manage the flags of someone else's claim</td>
+            <td><code>huskclaims.command.claimflags.other</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <tr>
+            <td>Manage the flags of the claim world you are in</td>
+            <td><code>huskclaims.command.claimflags.world</code></td>
+            <td align="center">❌</td>
+        </tr>
         <!-- /claimexplosions command -->
         <tr><th colspan="5">Operation group commands</th></tr>
         <tr><td colspan="5" align="center">Lets users toggle groups of operation type flags. Only one is configured by default:</td></tr>
@@ -285,7 +303,7 @@ This is a table of HuskClaims commands, how to use them, their required permissi
         <tr><th colspan="5">Claim blocks commands</th></tr>
         <tr><td colspan="5" align="center">Lets users/administrators buy, view, and manage claim blocks.</td></tr>
         <tr>
-            <td rowspan="3"><code>/claimblocks</code></td>
+            <td rowspan="4"><code>/claimblocks</code></td>
             <td><code>/claimblocks</code></td>
             <td>View your claim block balance</td>
             <td><code>huskclaims.command.claimblocks</code></td>
@@ -295,6 +313,12 @@ This is a table of HuskClaims commands, how to use them, their required permissi
             <td><code>/claimblocks &lt;username&gt; [show]</code></td>
             <td>View another user''s claim block balance</td>
             <td><code>huskclaims.command.claimblocks.other</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <tr>
+            <td><code>/claimblocks &lt;username&gt; gift &lt;amount&gt;</code></td>
+            <td>Gift (send) a user an amount of your claim blocks.</td>
+            <td><code>huskclaims.command.claimblocks.gift</code></td>
             <td align="center">❌</td>
         </tr>
         <tr>
@@ -341,6 +365,15 @@ This is a table of HuskClaims commands, how to use them, their required permissi
             <td><code>huskclaims.command.unlockdrops.other</code></td>
             <td align="center">❌</td>
         </tr>
+        <!-- /trapped command -->
+        <tr><th colspan="5">Trapped in a claim command</th></tr>
+        <tr><td colspan="5" align="center">Let users teleport outside claims they dont have build trust in.</td></tr>
+        <tr>
+            <td colspan="2"><code>/trapped</code></td>
+            <td>Teleports you outside a claim you can't build in.</td>
+            <td><code>huskclaims.command.trapped</code></td>
+            <td align="center">✅</td>
+        </tr>
         <tr><th colspan="5">Other administrator commands</th></tr>
         <tr><td colspan="5" align="center">Moderation and plugin management utilities.</td></tr>
         <tr>
@@ -358,7 +391,7 @@ This is a table of HuskClaims commands, how to use them, their required permissi
             <td align="center">❌</td>
         </tr>
         <tr>
-            <td rowspan="10"><code>/huskclaims</code></td>
+            <td rowspan="9"><code>/huskclaims</code></td>
             <td><code>/huskclaims</code></td>
             <td>Use plugin management commands</td>
             <td><code>huskclaims.command.huskclaims</code></td>
@@ -398,12 +431,6 @@ This is a table of HuskClaims commands, how to use them, their required permissi
             <td><code>/huskclaims teleport [coordinates]</code></td>
             <td>Teleport to a claim at a position. Requires the HuskHomes hook to use.</td>
             <td><code>huskclaims.command.huskclaims.teleport</code></td>
-            <td align="center">❌</td>
-        </tr>
-        <tr>
-            <td><code>/huskclaims flags [flag] [true/false]</code></td>
-            <td>Set the value of a flag in a claim, or the world's wilderness.</td>
-            <td><code>huskclaims.command.huskclaims.flags</code></td>
             <td align="center">❌</td>
         </tr>
         <tr>
