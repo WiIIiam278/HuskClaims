@@ -21,7 +21,7 @@ dependencies {
     compileOnly 'it.unimi.dsi:fastutil:8.5.14'
     compileOnly 'net.kyori:adventure-api:4.17.0'
     compileOnly 'net.kyori:adventure-platform-api:4.3.4'
-    compileOnly 'org.jetbrains:annotations:25.0.0'
+    compileOnly 'org.jetbrains:annotations:26.0.0'
     compileOnly 'com.google.guava:guava:33.3.1-jre'
     compileOnly 'org.projectlombok:lombok:1.18.34'
 
