@@ -216,7 +216,7 @@ public class MySqlDatabase extends Database {
     public Optional<SavedUser> getUser(@NotNull UUID uuid) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
-                    SELECT `uuid`, `username`, `last_login`, `claim_blocks`, `hours_played`, `preferences`
+                    SELECT `uuid`, `username`, `last_login`, `claim_blocks`, `hours_played`, `preferences`, `bought_claim_blocks`
                     FROM `%user_data%`
                     WHERE uuid = ?"""))) {
                 statement.setString(1, uuid.toString());
@@ -230,7 +230,8 @@ public class MySqlDatabase extends Database {
                             resultSet.getTimestamp("last_login").toLocalDateTime()
                                     .atOffset(OffsetDateTime.now().getOffset()),
                             resultSet.getLong("claim_blocks"),
-                            resultSet.getInt("hours_played")
+                            resultSet.getInt("hours_played"),
+                            resultSet.getLong("bought_claim_blocks")
                     ));
                 }
             }
@@ -244,7 +245,7 @@ public class MySqlDatabase extends Database {
     public Optional<SavedUser> getUser(@NotNull String username) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
-                    SELECT `uuid`, `username`, `last_login`, `claim_blocks`, `hours_played`, `preferences`
+                    SELECT `uuid`, `username`, `last_login`, `claim_blocks`, `hours_played`, `preferences`, `bought_claim_blocks`
                     FROM `%user_data%`
                     WHERE `username` = ?"""))) {
                 statement.setString(1, username);
@@ -259,7 +260,8 @@ public class MySqlDatabase extends Database {
                             resultSet.getTimestamp("last_login").toLocalDateTime()
                                     .atOffset(OffsetDateTime.now().getOffset()),
                             resultSet.getLong("claim_blocks"),
-                            resultSet.getInt("hours_played")
+                            resultSet.getInt("hours_played"),
+                            resultSet.getLong("bought_claim_blocks")
                     ));
                 }
             }
@@ -274,7 +276,7 @@ public class MySqlDatabase extends Database {
         final List<SavedUser> inactiveUsers = Lists.newArrayList();
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
-                    SELECT `uuid`, `username`, `last_login`, `preferences`, `claim_blocks`, `hours_played`
+                    SELECT `uuid`, `username`, `last_login`, `preferences`, `claim_blocks`, `hours_played`, `bought_claim_blocks`
                     FROM `%user_data%`
                     WHERE `last_login` < DATE_SUB(NOW(), INTERVAL ? DAY);"""))) {
                 statement.setLong(1, daysInactive);
@@ -289,7 +291,8 @@ public class MySqlDatabase extends Database {
                             resultSet.getTimestamp("last_login").toLocalDateTime()
                                     .atOffset(OffsetDateTime.now().getOffset()),
                             resultSet.getLong("claim_blocks"),
-                            resultSet.getInt("hours_played")
+                            resultSet.getInt("hours_played"),
+                            resultSet.getLong("bought_claim_blocks")
                     ));
                 }
             }
@@ -304,7 +307,7 @@ public class MySqlDatabase extends Database {
     public void createUser(@NotNull SavedUser saved) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
-                    INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`, `hours_played`, `preferences`)
+                    INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`, `hours_played`, `preferences`, `bought_claim_blocks`)
                     VALUES (?, ?, ?, ?, ?, ?)"""))) {
                 statement.setString(1, saved.getUser().getUuid().toString());
                 statement.setString(2, saved.getUser().getName());
@@ -313,6 +316,7 @@ public class MySqlDatabase extends Database {
                 statement.setInt(5, saved.getHoursPlayed());
                 statement.setBytes(6, plugin.getGson().toJson(saved.getPreferences())
                         .getBytes(StandardCharsets.UTF_8));
+                statement.setLong(7, saved.getBoughtClaimBlocks());
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
@@ -325,13 +329,14 @@ public class MySqlDatabase extends Database {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
                     UPDATE `%user_data%`
-                    SET `claim_blocks` = ?, `hours_played` = ?, `preferences` = ?
+                    SET `claim_blocks` = ?, `hours_played` = ?, `preferences` = ?, `bought_claim_blocks` = ?
                     WHERE `uuid` = ?"""))) {
                 statement.setLong(1, user.getClaimBlocks());
                 statement.setInt(2, user.getHoursPlayed());
                 statement.setBytes(3, plugin.getGson().toJson(user.getPreferences())
                         .getBytes(StandardCharsets.UTF_8));
-                statement.setString(4, user.getUser().getUuid().toString());
+                statement.setLong(4, user.getBoughtClaimBlocks());
+                statement.setString(5, user.getUser().getUuid().toString());
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
@@ -343,19 +348,21 @@ public class MySqlDatabase extends Database {
     public void createOrUpdateUser(@NotNull SavedUser data) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
-                    INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`, `preferences`)
-                    VALUES (?, ?, ?, ?, ?)
-                    ON DUPLICATE KEY UPDATE `username` = ?, `last_login` = ?, `claim_blocks` = ?, `preferences` = ?;"""))) {
+                    INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`, `preferences`, `bought_claim_blocks`)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    ON DUPLICATE KEY UPDATE `username` = ?, `last_login` = ?, `claim_blocks` = ?, `preferences` = ?, `bought_claim_blocks` = ?;"""))) {
                 final byte[] prefs = plugin.getGson().toJson(data.getPreferences()).getBytes(StandardCharsets.UTF_8);
                 statement.setString(1, data.getUser().getUuid().toString());
                 statement.setString(2, data.getUser().getName());
                 statement.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
                 statement.setLong(4, data.getClaimBlocks());
                 statement.setBytes(5, prefs);
-                statement.setString(6, data.getUser().getName());
-                statement.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
-                statement.setLong(8, data.getClaimBlocks());
-                statement.setBytes(9, prefs);
+                statement.setLong(6, data.getBoughtClaimBlocks());
+                statement.setString(7, data.getUser().getName());
+                statement.setTimestamp(8, Timestamp.valueOf(LocalDateTime.now()));
+                statement.setLong(9, data.getClaimBlocks());
+                statement.setBytes(10, prefs);
+                statement.setLong(11, data.getBoughtClaimBlocks());
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
