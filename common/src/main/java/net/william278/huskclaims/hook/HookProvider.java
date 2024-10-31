@@ -67,8 +67,10 @@ public interface HookProvider extends MapHookProvider {
 
     void setHooks(@NotNull Set<Hook> hooks);
 
-    default void loadHooks() {
-        setHooks(Sets.newHashSet(getAvailableHooks()));
+    default void loadHooks(@NotNull PluginHook.Register... register) {
+        final Set<PluginHook.Register> registers = Arrays.stream(register).collect(Collectors.toSet());
+        final List<Hook> load = getAvailableHooks().stream().filter(h -> registers.contains(h.getRegister())).toList();
+        setHooks(Sets.newHashSet(load));
     }
 
     default void registerHooks(@NotNull PluginHook.Register... register) {
@@ -89,8 +91,12 @@ public interface HookProvider extends MapHookProvider {
                 .map(h -> h.name().toLowerCase(Locale.ENGLISH)).collect(Collectors.joining(" & "))));
     }
 
-    default void unloadHooks() {
+    default void unloadHooks(@NotNull PluginHook.Register... register) {
+        final Set<PluginHook.Register> registers = Arrays.stream(register).collect(Collectors.toSet());
         getHooks().removeIf(hook -> {
+            if (!registers.contains(hook.getRegister())) {
+                return false;
+            }
             try {
                 hook.unload();
             } catch (Throwable e) {

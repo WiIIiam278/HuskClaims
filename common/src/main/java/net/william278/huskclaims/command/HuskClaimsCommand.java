@@ -123,12 +123,12 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
             case "import" -> handleImportCommand(executor, removeFirstArg(args));
             case "reload" -> plugin.runSync(() -> {
                 try {
-                    plugin.unloadHooks();
+                    plugin.unloadHooks(PluginHook.Register.ON_ENABLE);
                     plugin.loadLocales();
                     plugin.loadSettings();
-                    plugin.loadHooks();
                     plugin.loadTrustLevels();
-                    plugin.registerHooks(PluginHook.Register.values());
+                    plugin.loadHooks(PluginHook.Register.ON_ENABLE);
+                    plugin.registerHooks(PluginHook.Register.ON_ENABLE);
                     plugin.getLocales().getLocale("reload_complete").ifPresent(executor::sendMessage);
                 } catch (Throwable e) {
                     executor.sendMessage(new MineDown(

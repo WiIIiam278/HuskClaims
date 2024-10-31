@@ -64,7 +64,7 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, UserProvider,
             loadServer();
             loadTrustLevels();
             loadLocales();
-            loadHooks();
+            loadHooks(PluginHook.Register.values());
             registerHooks(PluginHook.Register.ON_LOAD);
         } catch (Throwable e) {
             log(Level.SEVERE, "An error occurred whilst loading HuskClaims", e);
@@ -111,7 +111,7 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, UserProvider,
     default void shutdown() {
         log(Level.INFO, String.format("Disabling HuskClaims v%s...", getPluginVersion()));
         try {
-            unloadHooks();
+            unloadHooks(PluginHook.Register.values());
             closeBroker();
             closeDatabase();
             cancelTasks();
