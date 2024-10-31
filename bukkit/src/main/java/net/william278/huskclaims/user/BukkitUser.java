@@ -31,6 +31,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -48,6 +49,7 @@ public class BukkitUser extends OnlineUser {
     }
 
     @NotNull
+    @ApiStatus.Internal
     public static BukkitUser adapt(@NotNull Player player, @NotNull HuskClaims plugin) {
         return new BukkitUser(player, plugin);
     }

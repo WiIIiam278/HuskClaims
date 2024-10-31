@@ -48,7 +48,7 @@ public interface AuditLogger {
         );
     }
 
-    default void log(@NotNull UserManager.ClaimBlockSource blockSource, long newBalance) {
+    default void log(@NotNull SavedUserProvider.ClaimBlockSource blockSource, long newBalance) {
         log(
                 null, Action.CLAIM_BLOCKS,
                 "%s (%s)".formatted(blockSource.getFormattedName(), newBalance)

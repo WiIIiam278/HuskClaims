@@ -31,12 +31,12 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 
-public interface UserManager extends ClaimBlocksManager {
+public interface SavedUserProvider extends ClaimBlocksManager {
 
     @NotNull
     ConcurrentMap<UUID, SavedUser> getUserCache();
 
-    default void invalidateUserCache(@NotNull UUID uuid) {
+    default void invalidateSavedUserCache(@NotNull UUID uuid) {
         getUserCache().remove(uuid);
     }
 
@@ -87,7 +87,7 @@ public interface UserManager extends ClaimBlocksManager {
     }
 
     @Blocking
-    default void loadUserData(@NotNull User user) {
+    default void cacheSavedUser(@NotNull User user) {
         // Get the user object, or create a new one if they don't exist
         final SavedUser savedUser = getPlugin().getDatabase()
                 .getUser(user.getUuid()).map(saved -> {
@@ -98,7 +98,7 @@ public interface UserManager extends ClaimBlocksManager {
                 .orElse(SavedUser.createNew(user, getPlugin()));
 
         // Update the cache and database (creating them if they don't exist)
-        invalidateUserCache(user.getUuid());
+        invalidateSavedUserCache(user.getUuid());
         getPlugin().getDatabase().createOrUpdateUser(savedUser);
         getUserCache().put(user.getUuid(), savedUser);
     }

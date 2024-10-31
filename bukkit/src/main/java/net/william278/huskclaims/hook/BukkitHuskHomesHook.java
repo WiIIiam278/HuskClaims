@@ -87,9 +87,7 @@ public class BukkitHuskHomesHook extends HuskHomesHook {
             if (!(event.getCreator() instanceof net.william278.huskhomes.user.BukkitUser player)) {
                 return;
             }
-            if (hook.cancelHomeAt(
-                    BukkitUser.adapt(player.getPlayer(), hook.getPlugin()), Adapter.adapt(event.getPosition())
-            )) {
+            if (hook.cancelHomeAt(getPlugin().getOnlineUser(player.getPlayer()), Adapter.adapt(event.getPosition()))) {
                 event.setCancelled(true);
             }
         }
@@ -100,9 +98,7 @@ public class BukkitHuskHomesHook extends HuskHomesHook {
                     || !hasMoved(event.getOriginalHome(), event.getHome())) {
                 return;
             }
-            if (hook.cancelHomeAt(
-                    BukkitUser.adapt(player.getPlayer(), hook.getPlugin()), Adapter.adapt(event.getHome())
-            )) {
+            if (hook.cancelHomeAt(getPlugin().getOnlineUser(player.getPlayer()), Adapter.adapt(event.getHome()))) {
                 event.setCancelled(true);
             }
         }
@@ -114,6 +110,11 @@ public class BukkitHuskHomesHook extends HuskHomesHook {
                     || position1.getZ() != position2.getZ()
                     || position1.getYaw() != position2.getYaw()
                     || position1.getPitch() != position2.getPitch();
+        }
+
+        @NotNull
+        private BukkitHuskClaims getPlugin() {
+            return (BukkitHuskClaims) hook.getPlugin();
         }
     }
 

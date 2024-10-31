@@ -22,7 +22,6 @@ package net.william278.huskclaims.listener;
 import net.kyori.adventure.text.Component;
 import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.moderation.SignWrite;
-import net.william278.huskclaims.user.BukkitUser;
 import org.bukkit.block.sign.Side;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.SignChangeEvent;
@@ -46,7 +45,7 @@ public class PaperListener extends BukkitListener {
     public void onSignEdit(@NotNull SignChangeEvent e) {
         filterSign(
                 handleSignEdit(SignWrite.create(
-                        BukkitUser.adapt(e.getPlayer(), plugin),
+                        getPlugin().getOnlineUser(e.getPlayer()),
                         BukkitHuskClaims.Adapter.adapt(e.getBlock().getLocation()),
                         e.getSide() == Side.FRONT ? SignWrite.Type.SIGN_EDIT_FRONT : SignWrite.Type.SIGN_EDIT_BACK,
                         e.lines(),

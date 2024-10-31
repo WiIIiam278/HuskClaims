@@ -123,7 +123,7 @@ public class BukkitHuskClaimsAPI extends HuskClaimsAPI {
      */
     @NotNull
     public OnlineUser getOnlineUser(@NotNull org.bukkit.entity.Player player) {
-        return BukkitUser.adapt(player, plugin);
+        return ((BukkitHuskClaims) plugin).getOnlineUser(player);
     }
 
     /**

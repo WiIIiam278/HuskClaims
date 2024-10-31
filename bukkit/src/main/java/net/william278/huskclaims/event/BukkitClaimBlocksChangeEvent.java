@@ -22,8 +22,8 @@ package net.william278.huskclaims.event;
 import lombok.Getter;
 import lombok.Setter;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.user.SavedUserProvider;
 import net.william278.huskclaims.user.User;
-import net.william278.huskclaims.user.UserManager;
 import org.bukkit.event.Cancellable;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,13 +35,13 @@ public class BukkitClaimBlocksChangeEvent extends BukkitEvent implements ClaimBl
 
     private final long newBlocks;
 
-    private final UserManager.ClaimBlockSource reason;
+    private final SavedUserProvider.ClaimBlockSource reason;
 
     @Setter
     private boolean cancelled;
 
     protected BukkitClaimBlocksChangeEvent(@NotNull User user, long oldBlocks, long newBlocks,
-                                           @NotNull UserManager.ClaimBlockSource reason, @NotNull HuskClaims plugin) {
+                                           @NotNull SavedUserProvider.ClaimBlockSource reason, @NotNull HuskClaims plugin) {
         super(plugin);
         this.user = user;
         this.oldBlocks = oldBlocks;

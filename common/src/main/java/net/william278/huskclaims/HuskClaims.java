@@ -35,13 +35,12 @@ import net.william278.huskclaims.network.BrokerProvider;
 import net.william278.huskclaims.pet.PetHandler;
 import net.william278.huskclaims.trust.GroupManager;
 import net.william278.huskclaims.trust.TrustTagManager;
-import net.william278.huskclaims.user.OnlineUser;
-import net.william278.huskclaims.user.UserManager;
+import net.william278.huskclaims.user.SavedUserProvider;
+import net.william278.huskclaims.user.UserProvider;
 import net.william278.huskclaims.util.*;
 import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
 import java.util.logging.Level;
 
 /**
@@ -49,10 +48,10 @@ import java.util.logging.Level;
  *
  * @since 1.0
  */
-public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvider, GsonProvider, UserManager,
-        SignNotifier, ClaimManager, GroupManager, TrustTagManager, ListenerProvider, UserListProvider,
-        CommandProvider, PetHandler, DropsHandler, BrokerProvider, TextValidator, AudiencesProvider, BlockProvider,
-        SafeTeleportProvider, MetaProvider, EventDispatcher, HookProvider {
+public interface HuskClaims extends Task.Supplier, ConfigProvider, UserProvider, SavedUserProvider, DatabaseProvider,
+        GsonProvider, SignNotifier, ClaimManager, GroupManager, TrustTagManager, ListenerProvider, CommandProvider,
+        PetHandler, DropsHandler, BrokerProvider, TextValidator, AudiencesProvider, BlockProvider, SafeTeleportProvider,
+        MetaProvider, EventDispatcher, HookProvider {
 
     /**
      * Load plugin systems
@@ -152,14 +151,6 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, DatabaseProvi
      * @since 1.0
      */
     void disablePlugin();
-
-    /**
-     * Get a list of all {@link OnlineUser online users} on this server
-     *
-     * @return A list of {@link OnlineUser}s
-     * @since 1.0
-     */
-    List<? extends OnlineUser> getOnlineUsers();
 
     /**
      * Log a message to the console.

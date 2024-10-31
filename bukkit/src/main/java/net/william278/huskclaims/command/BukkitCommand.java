@@ -20,7 +20,6 @@
 package net.william278.huskclaims.command;
 
 import net.william278.huskclaims.BukkitHuskClaims;
-import net.william278.huskclaims.user.BukkitUser;
 import net.william278.huskclaims.user.CommandUser;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -45,7 +44,7 @@ public class BukkitCommand extends org.bukkit.command.Command {
 
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
-        this.command.onExecuted(sender instanceof Player p ? BukkitUser.adapt(p, plugin) : plugin.getConsole(), args);
+        this.command.onExecuted(sender instanceof Player p ? plugin.getOnlineUser(p) : plugin.getConsole(), args);
         return true;
     }
 
@@ -56,7 +55,7 @@ public class BukkitCommand extends org.bukkit.command.Command {
         if (!(this.command instanceof TabCompletable completable)) {
             return List.of();
         }
-        final CommandUser user = sender instanceof Player p ? BukkitUser.adapt(p, plugin) : plugin.getConsole();
+        final CommandUser user = sender instanceof Player p ? plugin.getOnlineUser(p) : plugin.getConsole();
         return completable.getSuggestions(user, args);
     }
 
@@ -91,8 +90,6 @@ public class BukkitCommand extends org.bukkit.command.Command {
                     childNodes.toArray(new Permission[0])
             );
         }
-
-        //todo commodore TAB completion
     }
 
     @Nullable

@@ -26,7 +26,6 @@ import net.william278.cloplib.operation.OperationUser;
 import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.moderation.SignListener;
 import net.william278.huskclaims.position.World;
-import net.william278.huskclaims.user.BukkitUser;
 import net.william278.huskclaims.user.User;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -63,12 +62,12 @@ public class BukkitListener extends BukkitOperationListener implements BukkitPet
 
     @EventHandler
     public void onPlayerJoin(@NotNull PlayerJoinEvent e) {
-        this.onUserJoin(BukkitUser.adapt(e.getPlayer(), plugin));
+        this.onUserJoin(plugin.getOnlineUser(e.getPlayer()));
     }
 
     @EventHandler
     public void onPlayerQuit(@NotNull PlayerQuitEvent e) {
-        this.onUserQuit(BukkitUser.adapt(e.getPlayer(), plugin));
+        this.onUserQuit(plugin.getOnlineUser(e.getPlayer()));
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
@@ -76,7 +75,7 @@ public class BukkitListener extends BukkitOperationListener implements BukkitPet
         final ItemStack mainHand = e.getPlayer().getInventory().getItem(e.getNewSlot());
         final ItemStack offHand = e.getPlayer().getInventory().getItemInOffHand();
         this.onUserSwitchHeldItem(
-                BukkitUser.adapt(e.getPlayer(), plugin),
+                plugin.getOnlineUser(e.getPlayer()),
                 (mainHand != null ? mainHand.getType() : Material.AIR).getKey().toString(),
                 offHand.getType().getKey().toString()
         );
@@ -87,7 +86,7 @@ public class BukkitListener extends BukkitOperationListener implements BukkitPet
         final ItemStack mainHand = e.getMainHandItem();
         final ItemStack offHand = e.getOffHandItem();
         this.onUserSwitchHeldItem(
-                BukkitUser.adapt(e.getPlayer(), plugin),
+                plugin.getOnlineUser(e.getPlayer()),
                 (mainHand != null ? mainHand.getType() : Material.AIR).getKey().toString(),
                 (offHand != null ? offHand.getType() : Material.AIR).getKey().toString()
         );
@@ -96,7 +95,7 @@ public class BukkitListener extends BukkitOperationListener implements BukkitPet
     @EventHandler(ignoreCancelled = true)
     public void onUserTeleport(@NotNull PlayerTeleportEvent e) {
         if (e.getTo() != null && getPlugin().cancelMovement(
-                BukkitUser.adapt(e.getPlayer(), getPlugin()),
+                plugin.getOnlineUser(e.getPlayer()),
                 BukkitHuskClaims.Adapter.adapt(e.getFrom()),
                 BukkitHuskClaims.Adapter.adapt(e.getTo())
         )) {
@@ -130,7 +129,7 @@ public class BukkitListener extends BukkitOperationListener implements BukkitPet
         }
 
         // Don't cancel the event if there's no mismatch
-        if (getPlugin().cancelPetOperation(BukkitUser.adapt(source.get(), getPlugin()), owner.get())) {
+        if (getPlugin().cancelPetOperation(plugin.getOnlineUser(source.get()), owner.get())) {
             event.setCancelled(true);
         }
     }
@@ -144,7 +143,7 @@ public class BukkitListener extends BukkitOperationListener implements BukkitPet
     @Override
     @NotNull
     public OperationUser getUser(@NotNull Player player) {
-        return BukkitUser.adapt(player, plugin);
+        return plugin.getOnlineUser(player);
     }
 
     @Override

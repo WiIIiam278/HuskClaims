@@ -20,9 +20,8 @@
 package net.william278.huskclaims.listener;
 
 import lombok.Getter;
-import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.moderation.DropsHandler;
-import net.william278.huskclaims.user.BukkitUser;
 import org.bukkit.Location;
 import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
@@ -42,7 +41,7 @@ public interface BukkitDropsListener extends Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     default void onPlayerDeath(@NotNull PlayerDeathEvent e) {
         getPlugin().markItemsForLocking(
-                BukkitUser.adapt(e.getEntity(), getPlugin()),
+                getPlugin().getOnlineUser(e.getEntity()),
                 e.getDrops().stream().map(item -> new BukkitDroppedItem(item, e.getEntity().getLocation())).toList()
         );
     }
@@ -53,7 +52,7 @@ public interface BukkitDropsListener extends Listener {
     }
 
     @NotNull
-    HuskClaims getPlugin();
+    BukkitHuskClaims getPlugin();
 
     @Getter
     class BukkitDroppedItem implements DropsHandler.DroppedItem {

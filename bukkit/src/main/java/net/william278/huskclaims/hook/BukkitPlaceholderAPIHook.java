@@ -27,9 +27,9 @@ import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.william278.cloplib.operation.Operation;
 import net.william278.cloplib.operation.OperationType;
+import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.trust.TrustLevel;
-import net.william278.huskclaims.user.BukkitUser;
 import net.william278.huskclaims.user.OnlineUser;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -90,7 +90,7 @@ public class BukkitPlaceholderAPIHook extends Hook {
 
             // Format placeholders, handle exceptions (placeholder formatting is non-critical)
             try {
-                return Placeholder.format(plugin, BukkitUser.adapt(player, plugin), identifier);
+                return Placeholder.format(plugin, ((BukkitHuskClaims) plugin).getOnlineUser(player), identifier);
             } catch (IllegalArgumentException | IllegalStateException | NullPointerException e) {
                 return plugin.getLocales().getNotApplicable();
             }

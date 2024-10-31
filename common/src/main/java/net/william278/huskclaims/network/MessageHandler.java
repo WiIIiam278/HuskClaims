@@ -55,7 +55,7 @@ public interface MessageHandler {
                     getPlugin().getSavedUser(uuid).ifPresent((saved) -> getPlugin().getClaimWorlds()
                             .forEach((key, value) -> value.removeClaimsBy(saved.getUser())));
                     getPlugin().removeAllMappedClaims(uuid);
-                    getPlugin().invalidateUserCache(uuid);
+                    getPlugin().invalidateSavedUserCache(uuid);
                 },
                 // Delete all admin claims
                 () -> {
@@ -75,7 +75,7 @@ public interface MessageHandler {
     // Handle inbound user cache invalidation
     default void handleInvalidateUserCache(@NotNull Message message) {
         message.getPayload().getUuid().ifPresent(
-                (uuid) -> getPlugin().invalidateUserCache(uuid)
+                (uuid) -> getPlugin().invalidateSavedUserCache(uuid)
         );
     }
 

@@ -31,7 +31,7 @@ public interface UserListener {
 
     default void onUserJoin(@NotNull OnlineUser user) {
         getPlugin().runAsync(() -> {
-            getPlugin().loadUserData(user);
+            getPlugin().cacheSavedUser(user);
             final Preferences prefs = getPlugin().getUserPreferences(user.getUuid()).orElse(Preferences.DEFAULTS);
             final Settings.ClaimSettings settings = getPlugin().getSettings().getClaims();
 
@@ -53,10 +53,11 @@ public interface UserListener {
     }
 
     default void onUserQuit(@NotNull OnlineUser user) {
-        getPlugin().invalidateUserCache(user.getUuid());
+        getPlugin().invalidateSavedUserCache(user.getUuid());
         if (!getPlugin().getSettings().getCrossServer().isEnabled()) {
             getPlugin().unlockDrops(user);
         }
+        getPlugin().getOnlineUserMap().remove(user.getUuid());
     }
 
     default void onUserSwitchHeldItem(@NotNull OnlineUser user, @NotNull String mainHand, @NotNull String offHand) {

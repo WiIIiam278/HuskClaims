@@ -56,7 +56,7 @@ public interface ClaimBlocksManager {
     }
 
 
-    default void editClaimBlocks(@NotNull User user, @NotNull UserManager.ClaimBlockSource source,
+    default void editClaimBlocks(@NotNull User user, @NotNull SavedUserProvider.ClaimBlockSource source,
                                  @NotNull Function<Long, Long> consumer, @Nullable Consumer<Long> callback) {
         getPlugin().runQueued(() -> {
             // Calculate block balance
@@ -82,7 +82,7 @@ public interface ClaimBlocksManager {
         });
     }
 
-    default void editClaimBlocks(@NotNull User user, @NotNull UserManager.ClaimBlockSource source,
+    default void editClaimBlocks(@NotNull User user, @NotNull SavedUserProvider.ClaimBlockSource source,
                                  @NotNull Function<Long, Long> consumer) {
         editClaimBlocks(user, source, consumer, null);
     }

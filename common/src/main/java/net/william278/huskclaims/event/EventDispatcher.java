@@ -28,8 +28,8 @@ import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.trust.TrustLevel;
 import net.william278.huskclaims.trust.Trustable;
 import net.william278.huskclaims.user.OnlineUser;
+import net.william278.huskclaims.user.SavedUserProvider;
 import net.william278.huskclaims.user.User;
-import net.william278.huskclaims.user.UserManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -70,7 +70,7 @@ public interface EventDispatcher extends EventProvider {
     <T extends Event> boolean fireIsCancelled(@NotNull T event);
 
     default void fireClaimBlocksChangeEvent(@NotNull User user, long oldClaimBlocks, long newClaimBlocks,
-                                            @NotNull UserManager.ClaimBlockSource reason,
+                                            @NotNull SavedUserProvider.ClaimBlockSource reason,
                                             @NotNull Consumer<ClaimBlocksChangeEvent> callback) {
         fireEvent(getClaimBlocksChangeEvent(user, oldClaimBlocks, newClaimBlocks, reason), callback);
     }

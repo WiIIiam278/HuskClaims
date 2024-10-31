@@ -28,8 +28,8 @@ import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.trust.TrustLevel;
 import net.william278.huskclaims.trust.Trustable;
 import net.william278.huskclaims.user.OnlineUser;
+import net.william278.huskclaims.user.SavedUserProvider;
 import net.william278.huskclaims.user.User;
-import net.william278.huskclaims.user.UserManager;
 import org.bukkit.event.Cancellable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -48,7 +48,7 @@ public interface BukkitEventDispatcher extends EventDispatcher {
     @Override
     @NotNull
     default ClaimBlocksChangeEvent getClaimBlocksChangeEvent(@NotNull User user, long oldBlocks, long newBlocks,
-                                                             @NotNull UserManager.ClaimBlockSource reason) {
+                                                             @NotNull SavedUserProvider.ClaimBlockSource reason) {
         return new BukkitClaimBlocksChangeEvent(user, oldBlocks, newBlocks, reason, getPlugin());
     }
 

@@ -77,8 +77,9 @@ import java.util.logging.Level;
 
 @NoArgsConstructor
 @Getter
-public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTask.Supplier, BukkitBlockProvider,
-        BukkitSafeTeleportProvider, BukkitPetHandler, BukkitEventDispatcher, BukkitHookProvider, PluginMessageListener {
+public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTask.Supplier, BukkitUserProvider,
+        BukkitBlockProvider, BukkitSafeTeleportProvider, BukkitPetHandler, BukkitEventDispatcher, BukkitHookProvider,
+        PluginMessageListener {
 
     private MorePaperLib morePaperLib;
     private AudienceProvider audiences;
@@ -87,6 +88,7 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     private final Map<UUID, Set<GroundStack>> trackedItems = Maps.newHashMap();
     private final ConcurrentMap<String, List<User>> globalUserList = Maps.newConcurrentMap();
     private final ConcurrentMap<UUID, ClaimSelection> claimSelections = Maps.newConcurrentMap();
+    private final ConcurrentMap<UUID, OnlineUser> onlineUserMap = Maps.newConcurrentMap();
     private final ConcurrentMap<UUID, SavedUser> userCache = Maps.newConcurrentMap();
     private final List<Command> commands = Lists.newArrayList();
     private final HashMap<String, ClaimWorld> claimWorlds = Maps.newHashMap();
@@ -186,13 +188,6 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
         return Version.fromString(getServer().getBukkitVersion());
     }
 
-    @Override
-    public List<? extends OnlineUser> getOnlineUsers() {
-        return getServer().getOnlinePlayers().stream()
-                .map(player -> BukkitUser.adapt(player, this))
-                .toList();
-    }
-
     @NotNull
     @Override
     public List<World> getWorlds() {
@@ -269,7 +264,7 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
         if (broker != null && broker instanceof PluginMessageBroker pluginMessenger
                 && getSettings().getCrossServer().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
-            pluginMessenger.onReceive(channel, BukkitUser.adapt(player, this), message);
+            pluginMessenger.onReceive(channel, this.getOnlineUser(player), message);
         }
     }
 

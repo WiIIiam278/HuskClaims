@@ -19,8 +19,8 @@
 
 package net.william278.huskclaims.event;
 
+import net.william278.huskclaims.user.SavedUserProvider;
 import net.william278.huskclaims.user.User;
-import net.william278.huskclaims.user.UserManager;
 import org.jetbrains.annotations.NotNull;
 
 public interface ClaimBlocksChangeEvent extends CancellableEvent {
@@ -33,7 +33,7 @@ public interface ClaimBlocksChangeEvent extends CancellableEvent {
     long getNewBlocks();
 
     @NotNull
-    UserManager.ClaimBlockSource getReason();
+    SavedUserProvider.ClaimBlockSource getReason();
 
     default long getClaimBlocksChange() {
         return getNewBlocks() - getOldBlocks();

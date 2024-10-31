@@ -17,15 +17,16 @@
  *  limitations under the License.
  */
 
-package net.william278.huskclaims.util;
+package net.william278.huskclaims.user;
 
 import net.william278.huskclaims.HuskClaims;
-import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 /**
@@ -33,10 +34,22 @@ import java.util.stream.Stream;
  *
  * @since 1.0
  */
-public interface UserListProvider {
+public interface UserProvider {
+
+    @NotNull
+    Map<UUID, OnlineUser> getOnlineUserMap();
+
+    @NotNull
+    OnlineUser getOnlineUser(@NotNull UUID uuid);
 
     @NotNull
     Map<String, List<User>> getGlobalUserList();
+
+    @NotNull
+    @Unmodifiable
+    default Collection<OnlineUser> getOnlineUsers() {
+        return getOnlineUserMap().values();
+    }
 
     @NotNull
     default List<User> getUserList() {
