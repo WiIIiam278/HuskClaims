@@ -18,6 +18,7 @@ softdepend:
   - 'Plan'
   - 'PlaceholderAPI'
   - 'WorldGuard'
+  - 'Geyser'
   - 'Pl3xMap'
   - 'BlueMap'
   - 'dynmap'

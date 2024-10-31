@@ -36,6 +36,10 @@ dependencies:
       load: BEFORE
       required: false
       join-classpath: true
+    Geyser:
+      load: BEFORE
+      required: false
+      join-classpath: true
     Pl3xMap:
       load: BEFORE
       required: false
