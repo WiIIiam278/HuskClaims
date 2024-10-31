@@ -32,7 +32,7 @@ import java.util.List;
  *
  * @since 1.0
  */
-public interface Highlighter {
+public interface Highlighter extends Comparable<Highlighter> {
 
     /**
      * Highlight something for a user
@@ -93,4 +93,36 @@ public interface Highlighter {
                                    @NotNull Highlightable highlightable) {
         startHighlighting(user, world, highlightable, false);
     }
+
+    /**
+     * Returns {@code true} if this highlighter can be used. Override this to return {@code false} in cases where the
+     * highlighter is not compatible with this user (e.g. Highlighters that won't work for Bedrock players on Geyser)
+     *
+     * @param user {@link OnlineUser} to check
+     * @return {@code true} if this highlighter can be used with a {@link OnlineUser user}; {@code false} otherwise.
+     * @since 1.4.3
+     */
+    default boolean canUse(@NotNull OnlineUser user) {
+        return true;
+    }
+
+    /**
+     * Returns the priority {@code short} of this highlighter used for determining which highlighter will be used.
+     * <p>
+     * Higher values mean that highlighter takes priority, unless that highlighter
+     * {@link #canUse(OnlineUser) cannot be used} by that player.
+     *
+     * @return a {@code short} value from {@code -32768} to {@code 32767}.
+     * @since 1.4.3
+     */
+    default short getPriority() {
+        return 10;
+    }
+
+    // Compare highlighters based on priority
+    @Override
+    default int compareTo(@NotNull Highlighter other) {
+        return other.getPriority() - this.getPriority();
+    }
+
 }

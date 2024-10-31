@@ -50,13 +50,12 @@ public class PaperHuskClaims extends BukkitHuskClaims {
     }
 
     @Override
-    public void loadClaimHighlighter() {
-        // Use the default highlighter if block displays are disabled
-        if (!getSettings().getHighlighter().isBlockDisplays()) {
-            super.loadClaimHighlighter();
-            return;
+    public void loadHighlighters() {
+        super.loadHighlighters();
+
+        if (getSettings().getHighlighter().isBlockDisplays()) {
+            registerHighlighter(new BlockDisplayHighlighter(this));
         }
-        setHighlighter(new BlockDisplayHighlighter(this));
     }
 
     @NotNull

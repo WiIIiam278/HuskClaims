@@ -31,12 +31,15 @@ import java.util.Collection;
  */
 public class BlockUpdateHighlighter extends BlockHighlighter<BlockUpdateHighlighter.UpdateHighlightBlock> {
 
+    private static final int PRIORITY = 0;
+
     public BlockUpdateHighlighter(@NotNull HuskClaims plugin) {
         super(plugin);
     }
 
     @Override
-    public void cacheBlock(@NotNull OnlineUser user, @NotNull HighlightBlock origin, @NotNull UpdateHighlightBlock block) {
+    public void cacheBlock(@NotNull OnlineUser user, @NotNull HighlightBlock origin,
+                           @NotNull UpdateHighlightBlock block) {
         replacedBlocks.put(user.getUuid(), origin);
     }
 
@@ -59,6 +62,11 @@ public class BlockUpdateHighlighter extends BlockHighlighter<BlockUpdateHighligh
 
     private void sendBlockUpdates(@NotNull OnlineUser user, @NotNull Collection<? extends HighlightBlock> blocks) {
         plugin.sendBlockUpdates(user, HighlightBlock.getMap(blocks));
+    }
+
+    @Override
+    public short getPriority() {
+        return PRIORITY;
     }
 
     public static class UpdateHighlightBlock extends HighlightBlock {

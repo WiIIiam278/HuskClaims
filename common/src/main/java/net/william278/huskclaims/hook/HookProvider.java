@@ -118,6 +118,9 @@ public interface HookProvider extends MapHookProvider {
         if (isDependencyAvailable("Plan") && settings.getPlan().isEnabled()) {
             hooks.add(new PlanHook(getPlugin()));
         }
+        if (isDependencyAvailable("Geyser") && settings.getPlan().isEnabled()) {
+            hooks.add(new GeyserHook(getPlugin()));
+        }
 
         // Add map hooks
         if (settings.getMap().isEnabled()) {

@@ -104,7 +104,7 @@ public class UnClaimAllCommand extends OnlineUserCommand implements UserListTabC
             plugin.deleteAllAdminClaims(executor);
             plugin.getLocales().getLocale("delete_all_admin_claims", Integer.toString(claims.size()))
                     .ifPresent(executor::sendMessage);
-            plugin.getHighlighter().stopHighlighting(executor);
+            plugin.getHighlighter(executor).stopHighlighting(executor);
         });
     }
 
@@ -132,7 +132,7 @@ public class UnClaimAllCommand extends OnlineUserCommand implements UserListTabC
             plugin.editClaimBlocks(user, ClaimBlocksManager.ClaimBlockSource.CLAIM_DELETED, (blocks) -> blocks + reclaimedBlocks);
             plugin.getLocales().getLocale("delete_all_claims", user.getName(), Integer.toString(claims.size()),
                     Long.toString(reclaimedBlocks)).ifPresent(executor::sendMessage);
-            plugin.getHighlighter().stopHighlighting(executor);
+            plugin.getHighlighter(executor).stopHighlighting(executor);
             plugin.invalidateClaimListCache(user.getUuid());
         });
     }

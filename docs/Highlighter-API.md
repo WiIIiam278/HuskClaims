@@ -1,4 +1,4 @@
-HuskClaims provides the `Highlighter` interface which you can implement to create your own highlighter for displaying claims to players, which you can then provide via the `HuskClaimsAPI#setHighlighter(Highlighter)` method.
+HuskClaims provides the `Highlighter` interface which you can implement to create your own highlighter for displaying claims to players, which you can then provide via the `HuskClaimsAPI#registerHighlighter(Highlighter)` method.
 
 ## Table of contents
 * [1. The Highlighter interface](#1-the-highlighter-interface)
@@ -17,6 +17,10 @@ HuskClaims provides the `Highlighter` interface which you can implement to creat
   * `showOverlap` &mdash; A flag for whether this highlight is for showing to the user that their claim selection would overlap other claims
 * `#stopHighlighting(OnlineUser user)`
   * `user` &mdash; The `OnlineUser` to stop highlighting for
+* `#getPriority()` (optional)
+  * Returns the priority of this highlighter as a short. The highest priority highlighter will be used. Default: `10`
+* `#canUse(OnlineUser user)` (optional)
+  * Returns whether `user` can use this highlighter. Return `false` here if the user can't for some reason - e.g. if they are missing a client mod. Default: `true`
 
 ## 2. Highlightable points
 A `Highlightable` is an interface for any world object that can be highlighted; a `Claim` or a `ClaimSelection`. `Highlightable`s contain "points" that the highlighter may choose to get and highlight. Highlighters can choose to do whatever they want with these points, or not use this API at all; you might want to do an `instanceof` check to see if a `Highlightable` is in fact a `Region` and call `#getCorners()` for example.
@@ -46,14 +50,25 @@ public class MyHighlighter implements Highlighter {
     public void stopHighlighting(OnlineUser user) {
         // Stop highlighting for the supplied user
     }
+    
+    @Override
+    public short getPriority() {
+        return 10; // OPTIONAL - Specify the priority of this highlighter. Higher priorities take precedence.
+    }
+    
+    @Override
+    public boolean canUse(OnlineUser user) {
+        return true; // OPTIONAL - Return whether this highlighter can work for this user.
+    }
+    
 }
 ```
 
 ## 4. Registering your highlighter
-You can register your highlighter by calling `HuskClaimsAPI#setHighlighter(Highlighter)` with your created highlighter instance.
+You can register your highlighter by calling `HuskClaimsAPI#registerHighlighter(Highlighter)` with your created highlighter instance.
 
 ```java
 void onEnable() {
-    huskClaims.setHighlighter(new MyHighlighter());
+    huskClaims.registerHighlighter(new MyHighlighter());
 }
 ```

@@ -271,6 +271,12 @@ hooks:
   placeholders:
     # Whether to hook into PlaceholderAPI to provide a HuskClaims placeholder expansion
     enabled: true
+  worldguard:
+    # Whether to hook into WorldGuard to provide a flag to deny claiming in WorldGuard regions
+    enabled: true
+  geyser:
+    # Whether to hook into Geyser to ensure Bedrock users can see claim highlights
+    enabled: true
   map:
     # Whether to hook into Dynmap, BlueMap, or Pl3xMap to show claims on the map
     enabled: true

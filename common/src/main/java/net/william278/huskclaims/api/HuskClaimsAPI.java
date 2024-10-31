@@ -1087,10 +1087,36 @@ public class HuskClaimsAPI {
      *
      * @return the highlighter
      * @since 1.0
+     * @deprecated Use
      */
     @NotNull
+    @Deprecated(since = "1.4.3")
     public Highlighter getHighlighter() {
-        return plugin.getHighlighter();
+        return plugin.getHighlighters().stream().findFirst()
+                .orElseThrow(() -> new IllegalStateException("No Highlighter found"));
+    }
+
+    /**
+     * Get the {@link Highlighter} for a user, used for highlighting claims to that user.
+     *
+     * @param user the user
+     * @return the highlighter
+     * @since 1.4.3
+     */
+    @NotNull
+    public Highlighter getHighlighterFor(@NotNull OnlineUser user) {
+        return plugin.getHighlighter(user);
+    }
+
+    /**
+     * Set the highlighter, used for highlighting claims to users. This method can be used to customize what a user
+     * sees when they inspect or create claim(s).
+     * <p>
+     *
+     * @param highlighter the {@link Highlighter} to register
+     */
+    public void registerHighlighter(@NotNull Highlighter highlighter) {
+        plugin.registerHighlighter(highlighter);
     }
 
     /**
@@ -1101,7 +1127,7 @@ public class HuskClaimsAPI {
      * @since 1.0
      */
     public void setHighlighter(@NotNull Highlighter highlighter) {
-        plugin.setHighlighter(highlighter);
+        this.registerHighlighter(highlighter);
     }
 
     /**

@@ -96,7 +96,7 @@ public interface InspectionToolHandler {
     private void highlightClaim(@NotNull OnlineUser user, @NotNull Claim claim, @NotNull ClaimWorld world) {
         final List<Claim> claims = Lists.newArrayList(claim);
         claims.addAll(claim.getChildren());
-        getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claims);
+        getPlugin().getHighlighter(user).startHighlighting(user, user.getWorld(), claims);
         getPlugin().getLocales().getLocale("land_claimed_by", claim.getOwnerName(world, getPlugin()))
                 .ifPresent(user::sendMessage);
 
@@ -115,7 +115,7 @@ public interface InspectionToolHandler {
 
     // Highlight multiple claims
     private void highlightClaims(@NotNull OnlineUser user, @NotNull List<Claim> claims, int distance) {
-        getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claims);
+        getPlugin().getHighlighter(user).startHighlighting(user, user.getWorld(), claims);
         getPlugin().getLocales().getLocale("nearby_claims", Integer.toString(claims.size()),
                 Integer.toString(distance)).ifPresent(user::sendMessage);
     }

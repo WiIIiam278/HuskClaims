@@ -22,6 +22,7 @@ package net.william278.huskclaims.highlighter;
 import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.PaperHuskClaims;
+import net.william278.huskclaims.hook.GeyserHook;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.user.BukkitUser;
 import net.william278.huskclaims.user.OnlineUser;
@@ -43,6 +44,7 @@ import java.util.Collection;
  */
 public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighlighter.DisplayHighlightBlock> {
 
+    private static final int PRIORITY = 1;
 
     public BlockDisplayHighlighter(@NotNull HuskClaims plugin) {
         super(plugin);
@@ -75,6 +77,16 @@ public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighli
                 display.remove();
             }
         }));
+    }
+
+    @Override
+    public boolean canUse(@NotNull OnlineUser user) {
+        return plugin.getHook(GeyserHook.class).map(g -> !g.isBedrockPlayer(user.getUuid())).orElse(true);
+    }
+
+    @Override
+    public short getPriority() {
+        return PRIORITY;
     }
 
     public static final class DisplayHighlightBlock extends HighlightBlock {

@@ -21,8 +21,6 @@ package net.william278.huskclaims.claim;
 
 import com.google.common.collect.Maps;
 import net.william278.huskclaims.database.Database;
-import net.william278.huskclaims.highlighter.BlockUpdateHighlighter;
-import net.william278.huskclaims.highlighter.Highlighter;
 import net.william278.huskclaims.network.Message;
 import net.william278.huskclaims.network.Payload;
 import net.william278.huskclaims.position.Position;
@@ -390,24 +388,6 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor, ClaimPruner {
     }
 
     /**
-     * Load the claim highlighter
-     *
-     * @since 1.0
-     */
-    default void loadClaimHighlighter() {
-        setHighlighter(new BlockUpdateHighlighter(getPlugin()));
-    }
-
-    /**
-     * Get the claim highlighter
-     *
-     * @return the claim highlighter
-     * @since 1.0
-     */
-    @NotNull
-    Highlighter getHighlighter();
-
-    /**
      * Highlight a claim at a position for a user
      *
      * @param user     The user to highlight the claim for
@@ -416,17 +396,9 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor, ClaimPruner {
      */
     @SuppressWarnings("unused")
     default void highlightClaimAt(@NotNull OnlineUser user, @NotNull Position position) {
-        getClaimWorld(position.getWorld()).flatMap(world -> world.getClaimAt(position))
-                .ifPresent(claim -> getHighlighter().startHighlighting(user, position.getWorld(), claim));
+        getClaimWorld(position.getWorld()).flatMap(world -> world.getClaimAt(position)).ifPresent(
+                claim -> getPlugin().getHighlighter(user).startHighlighting(user, position.getWorld(), claim));
     }
-
-    /**
-     * Set the highlighter to use for highlighting claims
-     *
-     * @param highlighter The claim highlighter to set
-     * @since 1.0
-     */
-    void setHighlighter(@NotNull Highlighter highlighter);
 
     @NotNull
     Database getDatabase();

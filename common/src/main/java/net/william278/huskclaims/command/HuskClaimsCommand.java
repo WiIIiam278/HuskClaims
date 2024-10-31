@@ -287,6 +287,11 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
                 JoinConfiguration.commas(true),
                 plugin.getTrustTags().stream().map(tag -> Component.text(tag.getName())).toList()
         )),
+        REGISTERED_HIGHLIGHTERS(plugin -> Component.join(
+                JoinConfiguration.commas(true),
+                plugin.getHighlighters().stream().map(hook -> Component.text(hook.getClass().getSimpleName())
+                        .hoverEvent(Component.text("Priority: %s".formatted(hook.getPriority())))).toList()
+        )),
         LOADED_HOOKS(plugin -> Component.join(
                 JoinConfiguration.commas(true),
                 plugin.getHooks().stream().filter(hook -> !(hook instanceof Importer))

@@ -613,6 +613,17 @@ public final class Settings {
             private boolean enabled = true;
         }
 
+        private GeyserSettings geyser = new GeyserSettings();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class GeyserSettings {
+            @Comment("Whether to hook into Geyser to ensure Bedrock users can see claim highlights")
+            private boolean enabled = true;
+        }
+
+
         private MapHookSettings map = new MapHookSettings();
 
         @Getter

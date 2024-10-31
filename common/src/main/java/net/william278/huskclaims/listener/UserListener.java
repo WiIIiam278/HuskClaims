@@ -58,6 +58,7 @@ public interface UserListener {
             getPlugin().unlockDrops(user);
         }
         getPlugin().getOnlineUserMap().remove(user.getUuid());
+        getPlugin().getHighlighterCache().remove(user.getUuid());
     }
 
     default void onUserSwitchHeldItem(@NotNull OnlineUser user, @NotNull String mainHand, @NotNull String offHand) {
@@ -67,7 +68,7 @@ public interface UserListener {
             return;
         }
 
-        getPlugin().getHighlighter().stopHighlighting(user);
+        getPlugin().getHighlighter(user).stopHighlighting(user);
         if (getPlugin().clearClaimSelection(user)) {
             getPlugin().getLocales().getLocale("claim_selection_cancelled")
                     .ifPresent(user::sendMessage);

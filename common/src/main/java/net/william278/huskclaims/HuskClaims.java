@@ -26,6 +26,7 @@ import net.william278.huskclaims.command.CommandProvider;
 import net.william278.huskclaims.config.ConfigProvider;
 import net.william278.huskclaims.database.DatabaseProvider;
 import net.william278.huskclaims.event.EventDispatcher;
+import net.william278.huskclaims.highlighter.HighlighterProvider;
 import net.william278.huskclaims.hook.HookProvider;
 import net.william278.huskclaims.hook.PluginHook;
 import net.william278.huskclaims.listener.ListenerProvider;
@@ -51,7 +52,7 @@ import java.util.logging.Level;
 public interface HuskClaims extends Task.Supplier, ConfigProvider, UserProvider, SavedUserProvider, DatabaseProvider,
         GsonProvider, SignNotifier, ClaimManager, GroupManager, TrustTagManager, ListenerProvider, CommandProvider,
         PetHandler, DropsHandler, BrokerProvider, TextValidator, AudiencesProvider, BlockProvider, SafeTeleportProvider,
-        MetaProvider, EventDispatcher, HookProvider {
+        MetaProvider, EventDispatcher, HookProvider, HighlighterProvider {
 
     /**
      * Load plugin systems
@@ -83,7 +84,7 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, UserProvider,
         try {
             loadDatabase();
             loadClaimWorlds();
-            loadClaimHighlighter();
+            loadHighlighters();
             loadUserGroups();
             loadTrustTags();
             loadBroker();

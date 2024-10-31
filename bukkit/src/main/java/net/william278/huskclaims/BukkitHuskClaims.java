@@ -40,7 +40,6 @@ import net.william278.huskclaims.config.Settings;
 import net.william278.huskclaims.config.TrustLevels;
 import net.william278.huskclaims.database.Database;
 import net.william278.huskclaims.event.BukkitEventDispatcher;
-import net.william278.huskclaims.highlighter.BlockUpdateHighlighter;
 import net.william278.huskclaims.highlighter.Highlighter;
 import net.william278.huskclaims.hook.BukkitHookProvider;
 import net.william278.huskclaims.hook.Hook;
@@ -90,7 +89,9 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     private final ConcurrentMap<UUID, ClaimSelection> claimSelections = Maps.newConcurrentMap();
     private final ConcurrentMap<UUID, OnlineUser> onlineUserMap = Maps.newConcurrentMap();
     private final ConcurrentMap<UUID, SavedUser> userCache = Maps.newConcurrentMap();
+    private final ConcurrentMap<UUID, Highlighter> highlighterCache = Maps.newConcurrentMap();
     private final List<Command> commands = Lists.newArrayList();
+    private final List<Highlighter> highlighters = Lists.newArrayList();
     private final HashMap<String, ClaimWorld> claimWorlds = Maps.newHashMap();
     private final Queue<Task.Async> taskQueue = Queues.newConcurrentLinkedQueue();
 
@@ -98,8 +99,6 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     private Map<UUID, Set<UserGroup>> userGroups = Maps.newConcurrentMap();
     @Setter
     private Set<Hook> hooks = Sets.newHashSet();
-    @Setter
-    private Highlighter highlighter;
     @Setter
     private Database database;
     @Setter
@@ -154,7 +153,7 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
                     () -> settings.getDatabase().getType().getDisplayName())
             );
             metrics.addCustomChart(new SimplePie("highlighter_type",
-                    () -> getHighlighter() instanceof BlockUpdateHighlighter ? "Block Updates" : "Display Entities")
+                    () -> settings.getHighlighter().isBlockDisplays() ? "Display Entities" : "Block Updates")
             );
             getBroker().ifPresent(broker -> metrics.addCustomChart(new SimplePie("broker_type",
                     () -> settings.getCrossServer().getBrokerType().getDisplayName()
@@ -263,7 +262,7 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
         if (broker != null && broker instanceof PluginMessageBroker pluginMessenger
-                && getSettings().getCrossServer().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
+            && getSettings().getCrossServer().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
             pluginMessenger.onReceive(channel, this.getOnlineUser(player), message);
         }
     }

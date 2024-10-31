@@ -96,7 +96,7 @@ public interface ClaimEditor {
                                         @NotNull Position clickedBlock, boolean isAdmin) {
         createClaimSelection(user, world, clickedBlock, isAdmin).ifPresent(select -> {
             getClaimSelections().put(user.getUuid(), select);
-            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), select);
+            getPlugin().getHighlighter(user).startHighlighting(user, user.getWorld(), select);
 
             if (select.isResizeSelection()) {
                 getPlugin().getLocales().getLocale("claim_selection_resize")
@@ -141,7 +141,7 @@ public interface ClaimEditor {
         if (!overlapsWith.isEmpty()) {
             getPlugin().getLocales().getLocale("land_selection_overlaps", Integer.toString(overlapsWith.size()))
                     .ifPresent(user::sendMessage);
-            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), overlapsWith, true);
+            getPlugin().getHighlighter(user).startHighlighting(user, user.getWorld(), overlapsWith, true);
             return;
         }
 
@@ -181,7 +181,7 @@ public interface ClaimEditor {
         // Resize the claim
         getPlugin().fireResizeClaimEvent(user, claim, resized, world, (event) -> {
             getPlugin().resizeClaim(world, claim, resized);
-            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claim);
+            getPlugin().getHighlighter(user).startHighlighting(user, user.getWorld(), claim);
 
             // Send the correct message
             if (claim.getOwner().isEmpty()) {
@@ -223,7 +223,7 @@ public interface ClaimEditor {
         getPlugin().fireCreateClaimEvent(user, user, region, world, (event) -> {
             world.cacheUser(user);
             final Claim claim = getPlugin().createClaimAt(world, region, user);
-            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claim);
+            getPlugin().getHighlighter(user).startHighlighting(user, user.getWorld(), claim);
 
             // Indicate that the claim has been created, suggest a trust level command
             getPlugin().getLocales().getLocale("claim_created", Long.toString(surfaceArea))
@@ -258,7 +258,7 @@ public interface ClaimEditor {
             claim.setOwner(newOwner.getUuid());
             getPlugin().getDatabase().updateClaimWorld(claimWorld);
             getPlugin().addMappedClaim(claim, claimWorld);
-            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claim);
+            getPlugin().getHighlighter(user).startHighlighting(user, user.getWorld(), claim);
             getPlugin().invalidateClaimListCache(newOwner.getUuid());
         });
     }
@@ -278,7 +278,7 @@ public interface ClaimEditor {
             claim.setTrustLevel(user, getPlugin().getHighestTrustLevel());
 
             // Highlight the claim
-            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claim);
+            getPlugin().getHighlighter(user).startHighlighting(user, user.getWorld(), claim);
             getPlugin().getLocales().getLocale("created_admin_claim")
                     .ifPresent(user::sendMessage);
         });
@@ -289,7 +289,7 @@ public interface ClaimEditor {
                                  @NotNull Claim claim) {
         getPlugin().fireDeleteClaimEvent(executor, claim, world, (event) -> {
             getPlugin().deleteClaim(world, claim);
-            getPlugin().getHighlighter().stopHighlighting(executor);
+            getPlugin().getHighlighter(executor).stopHighlighting(executor);
 
             // Send the correct deletion message
             if (claim.getOwner().isPresent()) {
@@ -309,7 +309,7 @@ public interface ClaimEditor {
         if (!overlapsWith.isEmpty()) {
             getPlugin().getLocales().getLocale("land_selection_overlaps", Integer.toString(overlapsWith.size()))
                     .ifPresent(user::sendMessage);
-            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), overlapsWith, true);
+            getPlugin().getHighlighter(user).startHighlighting(user, user.getWorld(), overlapsWith, true);
             return true;
         }
 
@@ -361,7 +361,7 @@ public interface ClaimEditor {
         // Otherwise, the user clicked some other part of the claim
         getPlugin().getLocales().getLocale("land_already_claimed", claim.getOwnerName(world, getPlugin()))
                 .ifPresent(user::sendMessage);
-        getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claim, true);
+        getPlugin().getHighlighter(user).startHighlighting(user, user.getWorld(), claim, true);
         return Optional.empty();
     }
 
@@ -369,7 +369,7 @@ public interface ClaimEditor {
                                              @NotNull Position clickedBlock) {
         createChildClaimSelection(user, world, clickedBlock).ifPresent(selection -> {
             getClaimSelections().put(user.getUuid(), selection);
-            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), selection);
+            getPlugin().getHighlighter(user).startHighlighting(user, user.getWorld(), selection);
 
             if (selection.isResizeSelection()) {
                 getPlugin().getLocales().getLocale("claim_selection_resize_child")
@@ -416,7 +416,7 @@ public interface ClaimEditor {
 
         // Ensure the resized region is valid
         if (!parent.getRegion().fullyEncloses(resized) || parent.getRegion().equals(resized)) {
-            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), parent, true);
+            getPlugin().getHighlighter(user).startHighlighting(user, user.getWorld(), parent, true);
             getPlugin().getLocales().getLocale("selection_child_not_enclosing_parent")
                     .ifPresent(user::sendMessage);
             return;
@@ -425,14 +425,14 @@ public interface ClaimEditor {
         if (!overlapsWith.isEmpty()) {
             getPlugin().getLocales().getLocale("land_selection_overlaps_child",
                     Integer.toString(overlapsWith.size())).ifPresent(user::sendMessage);
-            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), overlapsWith, true);
+            getPlugin().getHighlighter(user).startHighlighting(user, user.getWorld(), overlapsWith, true);
             return;
         }
 
         // Resize the child claim
         getPlugin().fireResizeChildClaimEvent(user, parent, child, resized, world, (event) -> {
             getPlugin().resizeChildClaim(world, child, resized);
-            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), child);
+            getPlugin().getHighlighter(user).startHighlighting(user, user.getWorld(), child);
             getPlugin().getLocales().getLocale("child_claim_resized")
                     .ifPresent(user::sendMessage);
         });
@@ -448,7 +448,7 @@ public interface ClaimEditor {
 
         final Claim parent = optionalParent.get();
         if (!parent.getRegion().fullyEncloses(region) || parent.getRegion().equals(region)) {
-            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), parent, true);
+            getPlugin().getHighlighter(user).startHighlighting(user, user.getWorld(), parent, true);
             getPlugin().getLocales().getLocale("selection_child_not_enclosing_parent")
                     .ifPresent(user::sendMessage);
             return;
@@ -458,14 +458,14 @@ public interface ClaimEditor {
         if (!overlapsWith.isEmpty()) {
             getPlugin().getLocales().getLocale("land_selection_overlaps_child",
                     Integer.toString(overlapsWith.size())).ifPresent(user::sendMessage);
-            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), overlapsWith, true);
+            getPlugin().getHighlighter(user).startHighlighting(user, user.getWorld(), overlapsWith, true);
             return;
         }
 
         // Create the child claim
         getPlugin().fireCreateChildClaimEvent(user, parent, region, world, (event) -> {
             final Claim child = getPlugin().createChildClaimAt(world, region);
-            getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), List.of(parent, child));
+            getPlugin().getHighlighter(user).startHighlighting(user, user.getWorld(), List.of(parent, child));
             getPlugin().getLocales().getLocale("created_child_claim")
                     .ifPresent(user::sendMessage);
         });
@@ -482,7 +482,7 @@ public interface ClaimEditor {
 
         getPlugin().fireDeleteChildClaimEvent(executor, parent, claim, world, (event) -> {
             getPlugin().deleteChildClaim(world, parent, claim);
-            getPlugin().getHighlighter().startHighlighting(executor, executor.getWorld(), parent);
+            getPlugin().getHighlighter(executor).startHighlighting(executor, executor.getWorld(), parent);
             getPlugin().getLocales().getLocale("child_claim_deleted")
                     .ifPresent(executor::sendMessage);
         });
@@ -523,7 +523,7 @@ public interface ClaimEditor {
 
         getPlugin().getLocales().getLocale("land_already_child_claim")
                 .ifPresent(user::sendMessage);
-        getPlugin().getHighlighter().startHighlighting(user, user.getWorld(), claim, true);
+        getPlugin().getHighlighter(user).startHighlighting(user, user.getWorld(), claim, true);
         return Optional.empty();
     }
 
