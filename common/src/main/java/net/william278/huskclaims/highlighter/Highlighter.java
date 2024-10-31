@@ -32,7 +32,7 @@ import java.util.List;
  *
  * @since 1.0
  */
-public interface Highlighter extends Comparable<Highlighter> {
+public interface Highlighter {
 
     /**
      * Highlight something for a user
@@ -117,12 +117,6 @@ public interface Highlighter extends Comparable<Highlighter> {
      */
     default short getPriority() {
         return 10;
-    }
-
-    // Compare highlighters based on priority
-    @Override
-    default int compareTo(@NotNull Highlighter other) {
-        return other.getPriority() - this.getPriority();
     }
 
 }

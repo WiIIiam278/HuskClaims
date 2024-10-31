@@ -23,10 +23,7 @@ import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public interface HighlighterProvider {
 
@@ -72,7 +69,7 @@ public interface HighlighterProvider {
      */
     default void registerHighlighter(@NotNull Highlighter highlighter) {
         getHighlighters().add(highlighter);
-        Collections.sort(getHighlighters());
+        getHighlighters().sort(Comparator.comparingInt(Highlighter::getPriority));
         getHighlighterCache().clear();
     }
 
