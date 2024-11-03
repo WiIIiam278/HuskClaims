@@ -69,7 +69,7 @@ public interface HighlighterProvider {
      */
     default void registerHighlighter(@NotNull Highlighter highlighter) {
         getHighlighters().add(highlighter);
-        getHighlighters().sort(Comparator.comparingInt(Highlighter::getPriority));
+        getHighlighters().sort(Comparator.comparingInt(Highlighter::getPriority).reversed());
         getHighlighterCache().clear();
     }
 
