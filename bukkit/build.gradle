@@ -19,7 +19,7 @@ dependencies {
     compileOnly 'it.unimi.dsi:fastutil:8.5.15'
 
     compileOnly 'net.william278.huskhomes:huskhomes-bukkit:4.7'
-    compileOnly 'net.william278.husktowns:husktowns-bukkit:3.0.4'
+    compileOnly 'net.william278.husktowns:husktowns-bukkit:3.0.7-5f6554e'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
     compileOnly 'me.clip:placeholderapi:2.11.6'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.9-SNAPSHOT'
