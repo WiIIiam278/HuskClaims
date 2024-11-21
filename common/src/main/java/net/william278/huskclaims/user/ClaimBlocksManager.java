@@ -40,6 +40,7 @@ public interface ClaimBlocksManager {
     // Permission to grant hourly claim blocks
     String HOURLY_BLOCKS_PERMISSION = "huskclaims.hourly_blocks.";
 
+    @Blocking
     Optional<SavedUser> getSavedUser(@NotNull UUID uuid);
 
     @Blocking
