@@ -22,6 +22,7 @@ package net.william278.huskclaims.claim;
 import lombok.Builder;
 import lombok.Getter;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.config.Settings;
 import net.william278.huskclaims.highlighter.Highlightable;
 import net.william278.huskclaims.position.BlockPosition;
 import net.william278.huskclaims.position.Position;
@@ -129,6 +130,12 @@ public interface ClaimEditor {
 
     default void userResizeClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world,
                                  @NotNull Claim claim, @NotNull Region resized) {
+        // Check the action isn't too big
+        final long neededBlocks = resized.getSurfaceArea() - claim.getRegion().getSurfaceArea();
+        if (isActionTooBig(user, neededBlocks)) {
+            return;
+        }
+
         // Check that the claim is still present in the claim world
         if (!world.contains(claim)) {
             getPlugin().getLocales().getLocale("error_claim_deleted")
@@ -160,12 +167,12 @@ public interface ClaimEditor {
         }
 
         // Checks for non-admin claims
-        long neededBlocks = resized.getSurfaceArea() - claim.getRegion().getSurfaceArea();
         if (claim.getOwner().isPresent()) {
             // Check minimum claim size
-            if (resized.getShortestEdge() < getPlugin().getSettings().getClaims().getMinimumClaimSize()) {
+            final Settings.ClaimSettings settings = getPlugin().getSettings().getClaims();
+            if (resized.getShortestEdge() < settings.getMinimumClaimSize()) {
                 getPlugin().getLocales().getLocale("error_claim_too_small",
-                                Integer.toString(getPlugin().getSettings().getClaims().getMinimumClaimSize()))
+                                Integer.toString(settings.getMinimumClaimSize()))
                         .ifPresent(user::sendMessage);
                 return;
             }
@@ -197,13 +204,13 @@ public interface ClaimEditor {
     }
 
     default void userCreateClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {
-        // Validate that the region is not already occupied
-        if (doesClaimOverlap(user, world, region)) {
+        // Validate the action is permitted
+        final long surfaceArea = region.getSurfaceArea();
+        if (isActionTooBig(user, surfaceArea)) {
             return;
         }
 
         // Validate they have enough claim blocks
-        final long surfaceArea = region.getSurfaceArea();
         final long userBlocks = getPlugin().getClaimBlocks(user);
         if (userBlocks < surfaceArea) {
             getPlugin().getLocales().getLocale("error_not_enough_claim_blocks",
@@ -212,9 +219,16 @@ public interface ClaimEditor {
             return;
         }
 
-        if (region.getShortestEdge() < getPlugin().getSettings().getClaims().getMinimumClaimSize()) {
+        // Validate that the region is not already occupied
+        if (doesClaimOverlap(user, world, region)) {
+            return;
+        }
+
+        // Verify the claim is big enough along one edge
+        final Settings.ClaimSettings settings = getPlugin().getSettings().getClaims();
+        if (region.getShortestEdge() < settings.getMinimumClaimSize()) {
             getPlugin().getLocales().getLocale("error_claim_too_small",
-                            Integer.toString(getPlugin().getSettings().getClaims().getMinimumClaimSize()))
+                            Integer.toString(settings.getMinimumClaimSize()))
                     .ifPresent(user::sendMessage);
             return;
         }
@@ -264,8 +278,8 @@ public interface ClaimEditor {
     }
 
     default void userCreateAdminClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {
-        // Validate that the region is not already occupied
-        if (doesClaimOverlap(user, world, region)) {
+        // Check the action isn't too big and validate that the region is not already occupied
+        if (isActionTooBig(user, region.getSurfaceArea()) || doesClaimOverlap(user, world, region)) {
             return;
         }
 
@@ -301,6 +315,18 @@ public interface ClaimEditor {
             getPlugin().getLocales().getLocale("admin_claim_deleted")
                     .ifPresent(executor::sendMessage);
         });
+    }
+
+    private boolean isActionTooBig(@NotNull OnlineUser user, long actionSize) {
+        // Validate the action isn't too big
+        final Settings.ClaimSettings settings = getPlugin().getSettings().getClaims();
+        if (actionSize > 0 && actionSize > settings.getMaximumClaimActionSize()) {
+            getPlugin().getLocales().getLocale("error_claim_action_too_big",
+                            Long.toString(settings.getMaximumClaimActionSize()), Long.toString(actionSize))
+                    .ifPresent(user::sendMessage);
+            return true;
+        }
+        return false;
     }
 
     private boolean doesClaimOverlap(@NotNull OnlineUser user, @NotNull ClaimWorld world, @NotNull Region region) {
@@ -400,6 +426,12 @@ public interface ClaimEditor {
 
     default void userResizeChildClaim(@NotNull OnlineUser user, @NotNull ClaimWorld world,
                                       @NotNull Claim child, @NotNull Region resized) {
+        // Check the action isn't too big
+        final long neededBlocks = resized.getSurfaceArea() - child.getRegion().getSurfaceArea();
+        if (isActionTooBig(user, neededBlocks)) {
+            return;
+        }
+
         // Check both the parent and child claim being resized still exist
         final Optional<Claim> optionalParent = child.getParent();
         if (optionalParent.isEmpty() || !world.contains(optionalParent.get())) {
@@ -576,7 +608,7 @@ public interface ClaimEditor {
             // Check child claim resize privileges
             if (claimBeingResized.isChildClaim()) {
                 return !(claimBeingResized.isPrivilegeAllowed(TrustLevel.Privilege.MANAGE_CHILD_CLAIMS, user, plugin)
-                         && ClaimingMode.CHILD_CLAIMS.canUse(user));
+                        && ClaimingMode.CHILD_CLAIMS.canUse(user));
             }
 
             // Check claim resize privileges

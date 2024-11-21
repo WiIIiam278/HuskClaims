@@ -11,7 +11,7 @@ locales:
   error_invalid_group_name: '[Eroare:](#ff3300) [%1% nu este un nume de grup valid.](#ff7e5e)'
   error_not_enough_claim_blocks: '[Eroare:](#ff3300) [Nu ai destule blocuri de revendicare! (Mai ai nevoie de încă ■ %1%)](#ff7e5e)'
   error_claim_too_small: '[Eroare:](#ff3300) [Revendici o zonă prea mică! (Dimensiunea minimă de revendicare: %1%x%1%)](#ff7e5e)'
-  error_extendclaim_too_large: '[Error:](#ff3300) [You can only extend claims by %1% blocks at a time!](#ff7e5e)'
+  error_claim_action_too_big: '[Error:](#ff3300) [You can only create/extend claims by %1% claim blocks at a time (this action would have affected: ■ %2%). Try again with a smaller selection.](#ff7e5e)'
   error_not_in_claim: '[Eroare:](#ff3300) [Nu stai într-o zonă revenficată.](#ff7e5e)'
   error_trust_level_rank: '[Eroare:](#ff3300) [Nu poți seta nivelul de încredere al lui %1% deoarece îți depășește nivelul.](#ff7e5e)'
   error_not_trusted: '[Eroare:](#ff3300) [%1% nu a primit încredere în această revendicare.](#ff7e5e)'

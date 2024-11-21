@@ -11,7 +11,7 @@ locales:
   error_invalid_group_name: '[Errore:](#ff3300) [%1% non è un nome valido per un gruppo.](#ff7e5e)'
   error_not_enough_claim_blocks: '[Errore:](#ff3300) [Non hai abbastanza blocchi di rivendicazione! (Necessari altri ■ %1%)](#ff7e5e)'
   error_claim_too_small: '[Errore:](#ff3300) [Questa rivendicazione è troppo piccola! (Dimensione minima: %1%x%1%)](#ff7e5e)'
-  error_extendclaim_too_large: '[Errore:](#ff3300) [Puoi estendere le rivendicazioni di massimo %1% blocchi alla volta!](#ff7e5e)'
+  error_claim_action_too_big: '[Error:](#ff3300) [You can only create/extend claims by %1% claim blocks at a time (this action would have affected: ■ %2%). Try again with a smaller selection.](#ff7e5e)'
   error_not_in_claim: '[Errore:](#ff3300) [Non ti trovi in una rivendicazione.](#ff7e5e)'
   error_trust_level_rank: '[Errore:](#ff3300) [Non puoi impostare il livello di fiducia di %1% poiché ha un rango superiore al tuo.](#ff7e5e)'
   error_not_trusted: '[Errore:](#ff3300) [%1% non è stato autorizzato in questa rivendicazione.](#ff7e5e)'

@@ -23,7 +23,10 @@ import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public interface HighlighterProvider {
 

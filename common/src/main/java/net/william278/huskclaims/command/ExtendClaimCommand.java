@@ -72,14 +72,6 @@ public class ExtendClaimCommand extends InClaimOwnerCommand {
             return;
         }
 
-        // Protect against extending claims to a size that is too large (can cause extreme lag)
-        final int extendDistance = plugin.getSettings().getClaims().getInspectionDistance() * 2;
-        if (distance.get() > extendDistance) {
-            plugin.getLocales().getLocale("error_extendclaim_too_large", Integer.toString(extendDistance))
-                    .ifPresent(executor::sendMessage);
-            return;
-        }
-
         // Protect against extending claims outside the world limits
         final ExtendDirection direction = ExtendDirection.getFrom(executor.getPosition().getYaw());
         if (Region.Point.isOutOfRange(

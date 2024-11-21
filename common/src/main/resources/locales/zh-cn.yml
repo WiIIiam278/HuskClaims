@@ -11,7 +11,7 @@ locales:
   error_invalid_group_name: '[错误:](#ff3300) [%1% 不是有效的组名称.](#ff7e5e)'
   error_not_enough_claim_blocks: '[错误:](#ff3300) [你没有足够的占地方块! (仍需 ■ %1% 块)](#ff7e5e)'
   error_claim_too_small: '[错误:](#ff3300) [占据的领地过小! (接受的最小面积: %1%x%1%)](#ff7e5e)'
-  error_extendclaim_too_large: '[错误:](#ff3300) [你一次只能拓宽领地 %1% 格!](#ff7e5e)'
+  error_claim_action_too_big: '[Error:](#ff3300) [You can only create/extend claims by %1% claim blocks at a time (this action would have affected: ■ %2%). Try again with a smaller selection.](#ff7e5e)'
   error_not_in_claim: '[错误:](#ff3300) [你没有站在领地内.](#ff7e5e)'
   error_trust_level_rank: '[错误:](#ff3300) [你不能对地位高于你的玩家 %1% 设置信任等级.](#ff7e5e)'
   error_not_trusted: '[错误:](#ff3300) [%1% 尚未受到此领地信任.](#ff7e5e)'

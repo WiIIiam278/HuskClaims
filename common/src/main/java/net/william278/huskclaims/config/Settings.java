@@ -206,6 +206,10 @@ public final class Settings {
                 "Override with the \"huskclaims.hourly_blocks.(amount)\" permission"})
         private long hourlyClaimBlocks = 100;
 
+        @Comment({"The maximum amount of land, in claim blocks, that can be affected at once by /claim, /extendclaim,",
+                "or the claim tool. Increasing this can affect performance when users claim lots of land at once. "})
+        private long maximumClaimActionSize = 45000;
+
         @Comment("Claim inspection tool (right click with this to inspect claims)")
         private String inspectionTool = "minecraft:stick";
 
@@ -229,7 +233,7 @@ public final class Settings {
         @Comment("Require players to hold the claim tool to use claim commands (e.g. /claim <radius>, /extendclaim)")
         private boolean requireToolForCommands = true;
 
-        @Comment("Minimum size of claims. This does not affect child or admin claims.")
+        @Comment("Minimum size of claims along one edge. This does not affect child or admin claims.")
         private int minimumClaimSize = 5;
 
         @Comment("Max range of inspector tools")
@@ -488,7 +492,7 @@ public final class Settings {
         @NoArgsConstructor(access = AccessLevel.PRIVATE)
         public static class SignSettings {
             @Comment("Whether to notify users with /signspy on when signs are placed.edited. Requires Minecraft 1.19.4+"
-                     + "Requires Minecraft 1.19.4+")
+                    + "Requires Minecraft 1.19.4+")
             private boolean notifyModerators = true;
 
             @Comment("Whether to filter messages")
