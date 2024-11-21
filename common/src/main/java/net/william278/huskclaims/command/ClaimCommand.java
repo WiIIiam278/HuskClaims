@@ -59,11 +59,7 @@ public class ClaimCommand extends OnlineUserCommand {
     public void execute(@NotNull OnlineUser executor, @NotNull String[] args) {
         final Optional<Integer> claimRadius = parseIntArg(args, 0).map(s -> Math.max(1, s));
         if (claimRadius.isPresent()) {
-            plugin.runQueued(() -> createClaim(
-                    executor,
-                    plugin.getClaimWorld(executor.getWorld()).orElse(null),
-                    claimRadius.get()
-            ));
+            this.createClaim(executor, plugin.getClaimWorld(executor.getWorld()).orElse(null), claimRadius.get());
             return;
         }
 

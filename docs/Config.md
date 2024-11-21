@@ -24,6 +24,8 @@ This page contains the configuration structure for HuskClaims.
 language: en-gb
 # Whether to automatically check for plugin updates on startup
 check_for_updates: true
+# How many seconds players must wait between executing HuskClaims commands (floating point number)
+command_cooldown_seconds: 0.5
 # Database settings
 database:
   # Type of database to use (SQLITE, MYSQL or MARIADB)

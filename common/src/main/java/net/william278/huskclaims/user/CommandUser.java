@@ -26,6 +26,8 @@ import org.jetbrains.annotations.NotNull;
 
 public interface CommandUser {
 
+    boolean isOnCooldown(float cooldownTime);
+
     @NotNull
     Audience getAudience();
 

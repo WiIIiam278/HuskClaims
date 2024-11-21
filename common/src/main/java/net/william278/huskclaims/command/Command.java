@@ -45,6 +45,11 @@ public abstract class Command extends Node {
                     .ifPresent(executor::sendMessage);
             return;
         }
+        if (executor.isOnCooldown(plugin.getSettings().getCommandCooldownSeconds())) {
+            plugin.getLocales().getLocale("error_on_cooldown")
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
         plugin.runAsync(() -> this.execute(executor, args));
     }
 

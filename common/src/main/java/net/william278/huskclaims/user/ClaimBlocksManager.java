@@ -59,34 +59,32 @@ public interface ClaimBlocksManager {
 
     default void editClaimBlocks(@NotNull User user, @NotNull SavedUserProvider.ClaimBlockSource source,
                                  @NotNull Function<Long, Long> consumer, @Nullable Consumer<Long> callback) {
-        getPlugin().runQueued(() -> {
-            // Determine max claim blocks
-            long maxClaimBlocks = getPlugin().getSettings().getClaims().getMaximumClaimBlocks();
-            if (maxClaimBlocks < 0) {
-                maxClaimBlocks = Long.MAX_VALUE;
-            }
+        // Determine max claim blocks
+        long maxClaimBlocks = getPlugin().getSettings().getClaims().getMaximumClaimBlocks();
+        if (maxClaimBlocks < 0) {
+            maxClaimBlocks = Long.MAX_VALUE;
+        }
 
-            // Calculate block balance
-            final long originalBlocks = getClaimBlocks(user);
-            final long newBlocks = Math.min(consumer.apply(originalBlocks), maxClaimBlocks);
-            if (newBlocks < 0) {
-                throw new IllegalArgumentException("Claim blocks cannot be negative (" + newBlocks + ")");
-            }
+        // Calculate block balance
+        final long originalBlocks = getClaimBlocks(user);
+        final long newBlocks = Math.min(consumer.apply(originalBlocks), maxClaimBlocks);
+        if (newBlocks < 0) {
+            throw new IllegalArgumentException("Claim blocks cannot be negative (" + newBlocks + ")");
+        }
 
-            // Fire the event, update the blocks, trigger callback
-            getPlugin().fireClaimBlocksChangeEvent(
-                    user, originalBlocks, newBlocks, source,
-                    (event) -> editSavedUser(user.getUuid(), (savedUser) -> {
-                        if (source != ClaimBlockSource.HOURLY_BLOCKS) {
-                            savedUser.getPreferences().log(source, newBlocks);
-                        }
-                        savedUser.setClaimBlocks(newBlocks);
-                        if (callback != null) {
-                            callback.accept(newBlocks);
-                        }
-                    })
-            );
-        });
+        // Fire the event, update the blocks, trigger callback
+        getPlugin().fireClaimBlocksChangeEvent(
+                user, originalBlocks, newBlocks, source,
+                (event) -> editSavedUser(user.getUuid(), (savedUser) -> {
+                    if (source != ClaimBlockSource.HOURLY_BLOCKS) {
+                        savedUser.getPreferences().log(source, newBlocks);
+                    }
+                    savedUser.setClaimBlocks(newBlocks);
+                    if (callback != null) {
+                        callback.accept(newBlocks);
+                    }
+                })
+        );
     }
 
     default void editClaimBlocks(@NotNull User user, @NotNull SavedUserProvider.ClaimBlockSource source,

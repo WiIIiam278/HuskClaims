@@ -37,6 +37,11 @@ public class ConsoleUser implements CommandUser {
     }
 
     @Override
+    public boolean isOnCooldown(float cooldownTime) {
+        return false;
+    }
+
+    @Override
     public boolean hasPermission(@NotNull String permission, boolean isDefault) {
         return true;
     }

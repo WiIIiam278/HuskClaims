@@ -29,6 +29,7 @@ import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.position.World;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -37,11 +38,20 @@ import java.util.UUID;
  */
 public abstract class OnlineUser extends User implements OperationUser, CommandUser {
 
+    private long lastCommandExecutionTime = -1;
     protected final HuskClaims plugin;
 
     protected OnlineUser(@NotNull String username, @NotNull UUID uuid, @NotNull HuskClaims plugin) {
         super(username, uuid);
         this.plugin = plugin;
+    }
+
+    @Override
+    public boolean isOnCooldown(float cooldownTime) {
+        final long time = Instant.now().toEpochMilli();
+        boolean cooldown = lastCommandExecutionTime > -1 && (time - lastCommandExecutionTime) <= (cooldownTime * 1000);
+        lastCommandExecutionTime = cooldown ? lastCommandExecutionTime : time;
+        return cooldown;
     }
 
     @NotNull

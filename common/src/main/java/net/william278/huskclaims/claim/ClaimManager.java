@@ -106,7 +106,6 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor, ClaimPruner {
      * @throws IllegalArgumentException if the region is already claimed, or if no claim world is present for the world
      * @since 1.0
      */
-    @Blocking
     @NotNull
     default Claim createClaimAt(@NotNull ClaimWorld world, @NotNull Region region, @Nullable User owner) {
         // Validate region is not yet claimed or too small
@@ -125,7 +124,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor, ClaimPruner {
                 ? Claim.create(owner, region, getPlugin())
                 : Claim.createAdminClaim(region, getPlugin());
         world.addClaim(claim);
-        getDatabase().updateClaimWorld(world);
+        getPlugin().runQueued(() -> getPlugin().getDatabase().updateClaimWorld(world));
         getPlugin().addMappedClaim(claim, world);
 
         // Adjust the owner's claim block count
@@ -189,7 +188,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor, ClaimPruner {
         // Update the claim, resizing it in the claim world context
         getPlugin().removeMappedClaim(claim, world);
         world.resizeClaim(claim, newRegion);
-        getDatabase().updateClaimWorld(world);
+        getPlugin().runQueued(() -> getPlugin().getDatabase().updateClaimWorld(world));
         getPlugin().addMappedClaim(claim, world);
         getPlugin().invalidateClaimListCache(claim.getOwner().orElse(null));
 
@@ -208,7 +207,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor, ClaimPruner {
         // Delete the claim
         final long surfaceArea = claim.getRegion().getSurfaceArea();
         claimWorld.removeClaim(claim);
-        getDatabase().updateClaimWorld(claimWorld);
+        getPlugin().runQueued(() -> getPlugin().getDatabase().updateClaimWorld(claimWorld));
 
         // Adjust the owner's claim block count
         claim.getOwner().flatMap(claimWorld::getUser).ifPresent(user -> getPlugin().editClaimBlocks(
@@ -226,14 +225,14 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor, ClaimPruner {
      * @since 1.0
      */
     default void deleteAllClaims(@NotNull OnlineUser executor, @NotNull User user) {
-        getPlugin().getDatabase().getAllClaimWorlds().entrySet().stream()
+        getPlugin().runQueued(() -> getPlugin().getDatabase().getAllClaimWorlds().entrySet().stream()
                 .filter((world) -> world.getValue().removeClaimsBy(user))
                 .forEach((world) -> {
                     if (getPlugin().getClaimWorld(world.getKey().world()).isPresent()) {
                         getPlugin().getClaimWorlds().put(world.getKey().world().getName(), world.getValue());
                     }
                     getDatabase().updateClaimWorld(world.getValue());
-                });
+                }));
         getPlugin().getBroker().ifPresent(broker -> Message.builder()
                 .type(Message.MessageType.DELETE_ALL_CLAIMS)
                 .payload(Payload.uuid(user.getUuid()))
@@ -250,14 +249,16 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor, ClaimPruner {
      * @since 1.0
      */
     default void deleteAllAdminClaims(@NotNull OnlineUser executor) {
-        getPlugin().getDatabase().getAllClaimWorlds().entrySet().stream()
+        // Perform database update
+        getPlugin().runQueued(() -> getPlugin().getDatabase().getAllClaimWorlds().entrySet().stream()
                 .filter((world) -> world.getValue().removeAdminClaims())
                 .forEach((world) -> {
                     if (getPlugin().getClaimWorld(world.getKey().world()).isPresent()) {
                         getPlugin().getClaimWorlds().put(world.getKey().world().getName(), world.getValue());
                     }
                     getDatabase().updateClaimWorld(world.getValue());
-                });
+                }));
+
         getPlugin().getBroker().ifPresent(broker -> Message.builder()
                 .type(Message.MessageType.DELETE_ALL_CLAIMS)
                 .target(Message.TARGET_ALL, Message.TargetType.SERVER).build()
@@ -274,7 +275,6 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor, ClaimPruner {
      * @throws IllegalArgumentException if the region is already claimed, or if no claim world is present for the world
      * @since 1.0
      */
-    @Blocking
     @NotNull
     default Claim createChildClaimAt(@NotNull ClaimWorld world, @NotNull Region region) {
         // Create claim
@@ -286,23 +286,21 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor, ClaimPruner {
 
         // Create and add child claim
         final Claim child = parent.createAndAddChild(region, getPlugin());
-        getDatabase().updateClaimWorld(world);
+        getPlugin().runQueued(() -> getDatabase().updateClaimWorld(world));
         getPlugin().addMappedClaim(child, world);
         getPlugin().invalidateClaimListCache(parent.getOwner().orElse(null));
         return child;
     }
 
-    @Blocking
     default void deleteChildClaim(@NotNull ClaimWorld world, @NotNull Claim parent, @NotNull Claim child) {
         if (!parent.getChildren().remove(child)) {
             throw new IllegalArgumentException("Parent does not contain child");
         }
         getPlugin().removeMappedClaim(child, world);
-        getDatabase().updateClaimWorld(world);
+        getPlugin().runQueued(() -> getDatabase().updateClaimWorld(world));
         getPlugin().invalidateClaimListCache(parent.getOwner().orElse(null));
     }
 
-    @Blocking
     default void resizeChildClaim(@NotNull ClaimWorld world, @NotNull Claim claim, @NotNull Region newRegion) {
         // Ensure this is a child claim
         final Optional<Claim> optionalParent = claim.getParent();
@@ -327,7 +325,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor, ClaimPruner {
         // Update the claim
         getPlugin().removeMappedClaim(claim, world);
         claim.setRegion(newRegion);
-        getDatabase().updateClaimWorld(world);
+        getPlugin().runQueued(() -> getDatabase().updateClaimWorld(world));
         getPlugin().addMappedClaim(claim, world);
     }
 

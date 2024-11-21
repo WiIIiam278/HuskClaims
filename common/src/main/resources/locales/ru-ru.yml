@@ -1,5 +1,6 @@
 locales:
-  error_no_permission: '[Ошибка:](#ff3300) [Недостаточно прав.](#ff7e5e)'
+  error_no_permission: '[Ошибка:](#ff3300) [Недостаточно прав.](#ff7e5e)'  
+  error_on_cooldown: '[Error:](#ff3300) [Please wait a moment and try again.](#ff7e5e)'
   error_no_permission_tag: '[Ошибка:](#ff3300) [У вас нет доступа к флагу доверия %1%.](#ff7e5e)'
   error_command_in_game_only: '[Ошибка:](#ff3300) [Эту команду можно использовать только в игре.](#ff7e5e)'
   error_insufficient_funds: '[Ошибка:](#ff3300) [У вас недостаточно денег для совершения данной операции.](#ff7e5e)'

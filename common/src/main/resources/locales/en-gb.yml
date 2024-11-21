@@ -1,5 +1,6 @@
 locales:
-  error_no_permission: '[Error:](#ff3300) [You do not have permission to use this command.](#ff7e5e)'
+  error_no_permission: '[Error:](#ff3300) [You do not have permission to use this command.](#ff7e5e)'  
+  error_on_cooldown: '[Error:](#ff3300) [Please wait a moment and try again.](#ff7e5e)'
   error_no_permission_tag: '[Error:](#ff3300) [You do not have permission to use the %1% trust tag.](#ff7e5e)'
   error_command_in_game_only: '[Error:](#ff3300) [This command can only be used in-game.](#ff7e5e)'
   error_insufficient_funds: '[Error:](#ff3300) [You do not have enough money to do that.](#ff7e5e)'

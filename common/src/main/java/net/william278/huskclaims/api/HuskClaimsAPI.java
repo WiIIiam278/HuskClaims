@@ -244,7 +244,7 @@ public class HuskClaimsAPI {
             }));
             return;
         }
-        plugin.runQueued(() -> plugin.editSavedUser(userUuid, editor));
+        plugin.editSavedUser(userUuid, editor);
     }
 
     /**
@@ -354,13 +354,13 @@ public class HuskClaimsAPI {
      */
     public void editClaimWorld(@NotNull World world, @NotNull Consumer<ClaimWorld> editor,
                                @NotNull Runnable notPresent) {
-        plugin.runQueued(() -> getClaimWorld(world).ifPresentOrElse(
+        getClaimWorld(world).ifPresentOrElse(
                 (claimWorld) -> {
                     editor.accept(claimWorld);
-                    plugin.getDatabase().updateClaimWorld(claimWorld);
+                    plugin.runQueued(() -> plugin.getDatabase().updateClaimWorld(claimWorld));
                 },
                 notPresent
-        ));
+        );
     }
 
     /**
@@ -790,7 +790,7 @@ public class HuskClaimsAPI {
      * @since 1.0
      */
     public void deleteClaim(@NotNull ClaimWorld world, @NotNull Claim claim) {
-        plugin.runQueued(() -> plugin.deleteClaim(world, claim));
+        plugin.deleteClaim(world, claim);
     }
 
     /**
@@ -804,7 +804,7 @@ public class HuskClaimsAPI {
         final Claim parent = claim.getParent().orElseThrow(
                 () -> new IllegalArgumentException("Claim is not a child claim or parent could not be found")
         );
-        plugin.runQueued(() -> plugin.deleteChildClaim(world, parent, claim));
+        plugin.deleteChildClaim(world, parent, claim);
     }
 
     /**

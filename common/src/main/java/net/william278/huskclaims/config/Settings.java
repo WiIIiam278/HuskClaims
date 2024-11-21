@@ -58,6 +58,9 @@ public final class Settings {
     @Comment("Whether to automatically check for plugin updates on startup")
     private boolean checkForUpdates = true;
 
+    @Comment("How many seconds players must wait between executing HuskClaims commands (floating point number)")
+    private float commandCooldownSeconds = 0.5f;
+
     @Comment("Database settings")
     private DatabaseSettings database = new DatabaseSettings();
 

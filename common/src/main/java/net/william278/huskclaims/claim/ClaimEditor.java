@@ -270,7 +270,7 @@ public interface ClaimEditor {
             getPlugin().removeMappedClaim(claim, claimWorld);
             claim.unBanUser(newOwner);
             claim.setOwner(newOwner.getUuid());
-            getPlugin().getDatabase().updateClaimWorld(claimWorld);
+            getPlugin().runQueued(() -> getPlugin().getDatabase().updateClaimWorld(claimWorld));
             getPlugin().addMappedClaim(claim, claimWorld);
             getPlugin().getHighlighter(user).startHighlighting(user, user.getWorld(), claim);
             getPlugin().invalidateClaimListCache(newOwner.getUuid());

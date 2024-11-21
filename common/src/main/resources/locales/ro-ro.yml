@@ -1,5 +1,6 @@
 locales:
-  error_no_permission: '[Eroare:](#ff3300) [Nu ai acces la aceasta comanda.](#ff7e5e)'
+  error_no_permission: '[Eroare:](#ff3300) [Nu ai acces la aceasta comanda.](#ff7e5e)'  
+  error_on_cooldown: '[Error:](#ff3300) [Please wait a moment and try again.](#ff7e5e)'
   error_no_permission_tag: '[Eroare:](#ff3300) [Nu ai acces sa folosesti tag-ul de încredere %1%.](#ff7e5e)'
   error_command_in_game_only: '[Eroare:](#ff3300) [Această comanda poate fi folosita doar in joc.](#ff7e5e)'
   error_insufficient_funds: '[Eroare:](#ff3300) [Nu ai destui bani pentru asta.](#ff7e5e)'

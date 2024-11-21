@@ -1,5 +1,6 @@
 locales:
-  error_no_permission: '[錯誤：](#ff3300) [您沒有權限使用此指令。](#ff7e5e)'
+  error_no_permission: '[錯誤：](#ff3300) [您沒有權限使用此指令。](#ff7e5e)'  
+  error_on_cooldown: '[Error:](#ff3300) [Please wait a moment and try again.](#ff7e5e)'
   error_no_permission_tag: '[錯誤：](#ff3300) [您沒有權限使用 %1% 信任標籤。](#ff7e5e)'
   error_command_in_game_only: '[錯誤：](#ff3300) [此指令只能在遊戲中使用。](#ff7e5e)'
   error_insufficient_funds: '[錯誤：](#ff3300) [您的資金不足，無法執行該操作。](#ff7e5e)'

@@ -56,7 +56,6 @@ public interface SavedUserProvider extends ClaimBlocksManager {
         getSavedUser(uuid).ifPresentOrElse(user -> editSavedUser(user, consumer), ifEmpty);
     }
 
-    @Blocking
     default void editSavedUser(@NotNull UUID uuid, @NotNull Consumer<SavedUser> consumer) {
         final Optional<SavedUser> saved = getSavedUser(uuid);
         if (saved.isEmpty()) {
@@ -65,19 +64,20 @@ public interface SavedUserProvider extends ClaimBlocksManager {
         editSavedUser(saved.get(), consumer);
     }
 
-    @Blocking
     private void editSavedUser(@NotNull SavedUser user, @NotNull Consumer<SavedUser> consumer) {
         final UUID uuid = user.getUser().getUuid();
         consumer.accept(user);
         getUserCache().put(uuid, user);
-        getPlugin().getDatabase().updateUser(user);
-        getPlugin().getBroker().ifPresent(broker -> getPlugin().getOnlineUsers().stream().findAny().ifPresent(
-                sender -> Message.builder()
-                        .type(Message.MessageType.INVALIDATE_USER_CACHE)
-                        .payload(Payload.uuid(uuid))
-                        .target(Message.TARGET_ALL, Message.TargetType.SERVER).build()
-                        .send(broker, sender))
-        );
+        getPlugin().runQueued(() -> {
+            getPlugin().getDatabase().updateUser(user);
+            getPlugin().getBroker().ifPresent(broker -> getPlugin().getOnlineUsers().stream().findAny().ifPresent(
+                    sender -> Message.builder()
+                            .type(Message.MessageType.INVALIDATE_USER_CACHE)
+                            .payload(Payload.uuid(uuid))
+                            .target(Message.TARGET_ALL, Message.TargetType.SERVER).build()
+                            .send(broker, sender))
+            );
+        });
     }
 
     @Blocking
