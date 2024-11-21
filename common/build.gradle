@@ -23,7 +23,7 @@ dependencies {
     compileOnly 'net.kyori:adventure-platform-api:4.3.4'
     compileOnly 'org.jetbrains:annotations:26.0.1'
     compileOnly 'com.google.guava:guava:33.3.1-jre'
-    compileOnly 'org.projectlombok:lombok:1.18.34'
+    compileOnly 'org.projectlombok:lombok:1.18.36'
 
     compileOnly 'net.luckperms:api:5.4'
     compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:2.7.0'
@@ -38,13 +38,13 @@ dependencies {
     testImplementation 'com.github.plan-player-analytics:Plan:5.6.2883'
     testImplementation 'com.google.guava:guava:33.3.1-jre'
     testImplementation 'it.unimi.dsi:fastutil:8.5.15'
-    testCompileOnly 'org.projectlombok:lombok:1.18.34'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.34'
+    testCompileOnly 'org.projectlombok:lombok:1.18.36'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
 
     compileOnly "org.xerial:sqlite-jdbc:$sqlite_driver_version"
     compileOnly "com.mysql:mysql-connector-j:$mysql_driver_version"
     compileOnly "org.mariadb.jdbc:mariadb-java-client:$mariadb_driver_version"
     compileOnly "redis.clients:jedis:$jedis_version"
 
-    annotationProcessor 'org.projectlombok:lombok:1.18.34'
+    annotationProcessor 'org.projectlombok:lombok:1.18.36'
 }
