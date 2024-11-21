@@ -20,7 +20,7 @@
 package net.william278.huskclaims.hook;
 
 import net.william278.huskclaims.HuskClaims;
-import org.geysermc.geyser.api.GeyserApi;
+import org.geysermc.floodgate.api.FloodgateApi;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -31,7 +31,7 @@ import java.util.UUID;
 )
 public class GeyserHook extends Hook {
 
-    private GeyserApi api;
+    private FloodgateApi api;
 
     protected GeyserHook(@NotNull HuskClaims plugin) {
         super(plugin);
@@ -39,7 +39,7 @@ public class GeyserHook extends Hook {
 
     @Override
     public void load() {
-        this.api = GeyserApi.api();
+        this.api = FloodgateApi.getInstance();
     }
 
     @Override
@@ -48,7 +48,7 @@ public class GeyserHook extends Hook {
     }
 
     public boolean isBedrockPlayer(@NotNull UUID uuid) {
-        return this.api.isBedrockPlayer(uuid);
+        return this.api.isFloodgatePlayer(uuid);
     }
 
 }

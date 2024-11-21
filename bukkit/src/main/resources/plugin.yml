@@ -18,7 +18,7 @@ softdepend:
   - 'Plan'
   - 'PlaceholderAPI'
   - 'WorldGuard'
-  - 'Geyser'
+  - 'floodgate'
   - 'Pl3xMap'
   - 'BlueMap'
   - 'dynmap'

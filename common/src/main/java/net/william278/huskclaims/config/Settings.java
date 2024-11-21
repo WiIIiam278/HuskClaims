@@ -623,7 +623,7 @@ public final class Settings {
         @Configuration
         @NoArgsConstructor(access = AccessLevel.PRIVATE)
         public static class GeyserSettings {
-            @Comment("Whether to hook into Geyser to ensure Bedrock users can see claim highlights")
+            @Comment("Whether to hook into Geyser to let Bedrock users highlight claims. Requires Floodgate installed.")
             private boolean enabled = true;
         }
 

@@ -278,7 +278,7 @@ hooks:
     # Whether to hook into WorldGuard to provide a flag to deny claiming in WorldGuard regions
     enabled: true
   geyser:
-    # Whether to hook into Geyser to ensure Bedrock users can see claim highlights
+    # Whether to hook into Geyser to let Bedrock users highlight claims. Requires Floodgate installed.
     enabled: true
   map:
     # Whether to hook into Dynmap, BlueMap, or Pl3xMap to show claims on the map

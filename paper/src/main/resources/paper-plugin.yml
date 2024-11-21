@@ -36,7 +36,7 @@ dependencies:
       load: BEFORE
       required: false
       join-classpath: true
-    Geyser:
+    floodgate:
       load: BEFORE
       required: false
       join-classpath: true
