@@ -37,14 +37,13 @@ public interface SavedUserProvider extends ClaimBlocksManager {
     ConcurrentMap<UUID, SavedUser> getUserCache();
 
     default void invalidateSavedUserCache(@NotNull UUID uuid) {
-        getUserCache().remove(uuid);
+        getPlugin().runAsync(() -> getPlugin().getDatabase().getUser(uuid)
+                .ifPresent(saved -> getUserCache().put(uuid, saved)));
     }
 
     @Blocking
     default Optional<SavedUser> getSavedUser(@NotNull UUID uuid) {
-        return Optional.ofNullable(getUserCache().getOrDefault(
-                uuid, getPlugin().getDatabase().getUser(uuid).orElse(null)
-        ));
+        return Optional.ofNullable(getUserCache().get(uuid));
     }
 
     @Blocking
@@ -98,7 +97,7 @@ public interface SavedUserProvider extends ClaimBlocksManager {
                 .orElse(SavedUser.createNew(user, getPlugin()));
 
         // Update the cache and database (creating them if they don't exist)
-        invalidateSavedUserCache(user.getUuid());
+        getUserCache().remove(user.getUuid());
         getPlugin().getDatabase().createOrUpdateUser(savedUser);
         getUserCache().put(user.getUuid(), savedUser);
     }
