@@ -60,9 +60,15 @@ public interface ClaimBlocksManager {
     default void editClaimBlocks(@NotNull User user, @NotNull SavedUserProvider.ClaimBlockSource source,
                                  @NotNull Function<Long, Long> consumer, @Nullable Consumer<Long> callback) {
         getPlugin().runQueued(() -> {
+            // Determine max claim blocks
+            long maxClaimBlocks = getPlugin().getSettings().getClaims().getMaximumClaimBlocks();
+            if (maxClaimBlocks < 0) {
+                maxClaimBlocks = Long.MAX_VALUE;
+            }
+
             // Calculate block balance
             final long originalBlocks = getClaimBlocks(user);
-            final long newBlocks = consumer.apply(originalBlocks);
+            final long newBlocks = Math.min(consumer.apply(originalBlocks), maxClaimBlocks);
             if (newBlocks < 0) {
                 throw new IllegalArgumentException("Claim blocks cannot be negative (" + newBlocks + ")");
             }
@@ -91,7 +97,7 @@ public interface ClaimBlocksManager {
     @Blocking
     default void grantHourlyClaimBlocks(@NotNull OnlineUser user) {
         final long hourlyBlocks = user.getNumericalPermission(HOURLY_BLOCKS_PERMISSION)
-                                          .orElse(getPlugin().getSettings().getClaims().getHourlyClaimBlocks()) / HOURLY_BLOCKS_UPDATES;
+                .orElse(getPlugin().getSettings().getClaims().getHourlyClaimBlocks()) / HOURLY_BLOCKS_UPDATES;
         if (hourlyBlocks <= 0) {
             return;
         }
@@ -112,7 +118,7 @@ public interface ClaimBlocksManager {
                 OffsetDateTime.now(),
                 OffsetDateTime.now()
                         .plusMinutes(60 / HOURLY_BLOCKS_UPDATES -
-                                     OffsetDateTime.now().getMinute() % (60 / HOURLY_BLOCKS_UPDATES))
+                                OffsetDateTime.now().getMinute() % (60 / HOURLY_BLOCKS_UPDATES))
                         .withSecond(0)
                         .withNano(0)
         );

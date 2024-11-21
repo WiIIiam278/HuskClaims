@@ -129,6 +129,8 @@ claims:
   # The number of claim blocks a user gets hourly.
   # Override with the "huskclaims.hourly_blocks.(amount)" permission
   hourly_claim_blocks: 100
+  # The maximum number of claim blocks a user can have.
+  maximum_claim_blocks: 9999999
   # The maximum amount of land, in claim blocks, that can be affected at once by /claim, /extendclaim,
   # or the claim tool. Increasing this can affect performance when users claim lots of land at once.
   maximum_claim_action_size: 45000
