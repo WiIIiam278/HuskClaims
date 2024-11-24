@@ -55,7 +55,7 @@ public class OperationGroupCommand extends InClaimCommand implements ToggleTabCo
                     .ifPresent(executor::sendMessage);
         }
 
-        plugin.getDatabase().updateClaimWorld(world);
+        plugin.runQueued(() -> plugin.getDatabase().updateClaimWorld(world));
     }
 
     private boolean isOperationGroupSet(@NotNull Claim claim) {

@@ -86,7 +86,7 @@ public class UnTrustCommand extends InClaimCommand implements TabCompletable {
             claim.removeTrustLevel(toUntrust, world);
             plugin.getLocales().getLocale("trust_level_removed", identifier)
                     .ifPresent(executor::sendMessage);
-            plugin.getDatabase().updateClaimWorld(world);
+            plugin.runQueued(() -> plugin.getDatabase().updateClaimWorld(world));
             plugin.invalidateClaimListCache(claim.getOwner().orElse(null));
         });
     }
