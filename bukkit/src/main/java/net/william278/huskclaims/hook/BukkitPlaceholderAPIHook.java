@@ -98,7 +98,7 @@ public class BukkitPlaceholderAPIHook extends Hook {
 
         @AllArgsConstructor
         private enum Placeholder {
-            CLAIM_BLOCKS((plugin, user) -> Long.toString(plugin.getClaimBlocks(user))),
+            CLAIM_BLOCKS((plugin, user) -> Long.toString(plugin.getCachedClaimBlocks(user))),
             CURRENT_IS_CLAIMED((plugin, user) -> formatBoolean(plugin.getClaimAt(user.getPosition()).isPresent())),
             CURRENT_CLAIM_OWNER((plugin, user) -> plugin.getClaimWorld(user.getPosition().getWorld())
                     .flatMap(world -> world.getClaimAt(user.getPosition())

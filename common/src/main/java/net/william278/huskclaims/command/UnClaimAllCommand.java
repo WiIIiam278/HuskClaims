@@ -47,7 +47,7 @@ public class UnClaimAllCommand extends OnlineUserCommand implements UserListTabC
 
     @Override
     public void execute(@NotNull OnlineUser executor, @NotNull String[] args) {
-        final ClaimingMode mode = plugin.getUserPreferences(executor.getUuid())
+        final ClaimingMode mode = plugin.getCachedUserPreferences(executor.getUuid())
                 .map(Preferences::getClaimingMode).orElse(ClaimingMode.CLAIMS);
         final boolean confirm = parseConfirmArg(args);
 

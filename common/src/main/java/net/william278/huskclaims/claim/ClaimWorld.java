@@ -558,7 +558,7 @@ public class ClaimWorld {
 
     // Checks if a user is ignoring claims, ensuring they also have permission to ignore claims
     private boolean isIgnoringClaims(@NotNull OnlineUser u, @NotNull HuskClaims plugin) {
-        boolean toggled = plugin.getUserPreferences(u.getUuid()).map(Preferences::isIgnoringClaims).orElse(false);
+        boolean toggled = plugin.getCachedUserPreferences(u.getUuid()).map(Preferences::isIgnoringClaims).orElse(false);
         if (toggled && !plugin.canUseCommand(IgnoreClaimsCommand.class, u)) {
             plugin.runAsync(() -> {
                 plugin.editUserPreferences(u, (preferences) -> preferences.setIgnoringClaims(false));

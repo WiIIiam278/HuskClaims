@@ -115,7 +115,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor, ClaimPruner {
         if (owner != null && region.getShortestEdge() < getPlugin().getSettings().getClaims().getMinimumClaimSize()) {
             throw new IllegalArgumentException("Region is too small");
         }
-        if (owner != null && getPlugin().getClaimBlocks(owner) < region.getSurfaceArea()) {
+        if (owner != null && getPlugin().getClaimBlocks(owner.getUuid()) < region.getSurfaceArea()) {
             throw new IllegalArgumentException("Owner does not have enough claim blocks");
         }
 

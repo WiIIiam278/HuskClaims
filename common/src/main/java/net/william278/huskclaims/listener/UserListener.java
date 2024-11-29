@@ -32,7 +32,7 @@ public interface UserListener {
     default void onUserJoin(@NotNull OnlineUser user) {
         getPlugin().runAsync(() -> {
             getPlugin().cacheSavedUser(user);
-            final Preferences prefs = getPlugin().getUserPreferences(user.getUuid()).orElse(Preferences.DEFAULTS);
+            final Preferences prefs = getPlugin().getCachedUserPreferences(user.getUuid()).orElse(Preferences.DEFAULTS);
             final Settings.ClaimSettings settings = getPlugin().getSettings().getClaims();
 
             // Check if user is ignoring claims, remind/toggle as needed

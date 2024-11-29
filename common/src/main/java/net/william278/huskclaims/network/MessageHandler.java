@@ -52,7 +52,7 @@ public interface MessageHandler {
         message.getPayload().getUuid().ifPresentOrElse(
                 // Delete all claims by a UUID-given user
                 (uuid) -> {
-                    getPlugin().getSavedUser(uuid).ifPresent((saved) -> getPlugin().getClaimWorlds()
+                    getPlugin().getCachedSavedUser(uuid).ifPresent((saved) -> getPlugin().getClaimWorlds()
                             .forEach((key, value) -> value.removeClaimsBy(saved.getUser())));
                     getPlugin().removeAllMappedClaims(uuid);
                     getPlugin().invalidateSavedUserCache(uuid);

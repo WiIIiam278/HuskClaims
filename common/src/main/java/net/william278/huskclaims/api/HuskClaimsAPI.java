@@ -29,6 +29,7 @@ import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.claim.Region;
 import net.william278.huskclaims.claim.ServerWorldClaim;
+import net.william278.huskclaims.event.ClaimBlocksChangeEvent;
 import net.william278.huskclaims.highlighter.Highlighter;
 import net.william278.huskclaims.hook.EconomyHook;
 import net.william278.huskclaims.position.BlockPosition;
@@ -80,7 +81,7 @@ public class HuskClaimsAPI {
      * @since 1.0
      */
     public CompletableFuture<Optional<SavedUser>> getUser(@NotNull UUID uuid) {
-        return plugin.supplyAsync(() -> plugin.getDatabase().getUser(uuid));
+        return plugin.supplyAsync(() -> plugin.getSavedUser(uuid));
     }
 
     /**
@@ -106,7 +107,7 @@ public class HuskClaimsAPI {
      * @since 1.0
      */
     public CompletableFuture<Long> getClaimBlocks(@NotNull User user) {
-        return plugin.supplyAsync(() -> plugin.getClaimBlocks(user));
+        return plugin.supplyAsync(() -> plugin.getClaimBlocks(user.getUuid()));
     }
 
     /**
@@ -147,7 +148,7 @@ public class HuskClaimsAPI {
      * @since 1.0
      */
     public long getClaimBlocks(@NotNull OnlineUser user) {
-        return plugin.getClaimBlocks(user);
+        return plugin.getCachedClaimBlocks(user);
     }
 
     /**
@@ -164,34 +165,34 @@ public class HuskClaimsAPI {
 
     /**
      * Edit a user's claim blocks. This will occur asynchronously and the outcome may be affected by the
-     * cancellable {@link net.william278.huskclaims.event.ClaimBlocksChangeEvent} event.
+     * cancellable {@link ClaimBlocksChangeEvent} event.
      *
      * @param user   the user
      * @param editor the editor
      * @since 1.0
      */
     public void editClaimBlocks(@NotNull User user, @NotNull Function<Long, Long> editor) {
-        plugin.editClaimBlocks(user, ClaimBlocksManager.ClaimBlockSource.API, editor);
+        plugin.runAsync(() -> plugin.editClaimBlocks(user, ClaimBlocksManager.ClaimBlockSource.API, editor));
     }
 
     /**
      * Edit a user's claim blocks. This will occur asynchronously and the outcome may be affected by the
-     * cancellable {@link net.william278.huskclaims.event.ClaimBlocksChangeEvent} event.
+     * cancellable {@link ClaimBlocksChangeEvent} event.
      *
      * @param user     the user
      * @param editor   the editor
      * @param callback a callback to run after the claim blocks have been edited. This will not be run if the
-     *                 {@link net.william278.huskclaims.event.ClaimBlocksChangeEvent} event is cancelled.
+     *                 {@link ClaimBlocksChangeEvent} event is cancelled.
      * @since 1.0
      */
     public void editClaimBlocks(@NotNull User user, @NotNull Function<Long, Long> editor,
                                 @NotNull Consumer<Long> callback) {
-        plugin.editClaimBlocks(user, ClaimBlocksManager.ClaimBlockSource.API, editor, callback);
+        plugin.runAsync(() -> plugin.editClaimBlocks(user, ClaimBlocksManager.ClaimBlockSource.API, editor, callback));
     }
 
     /**
      * Deduct claim blocks from a user. This will occur asynchronously and the outcome may be affected by the
-     * cancellable {@link net.william278.huskclaims.event.ClaimBlocksChangeEvent} event.
+     * cancellable {@link ClaimBlocksChangeEvent} event.
      *
      * @param user   the user
      * @param amount the amount of claim blocks to give (positive integer)
@@ -207,7 +208,7 @@ public class HuskClaimsAPI {
 
     /**
      * Take claim blocks from a user. This will occur asynchronously and the outcome may be affected by the
-     * cancellable {@link net.william278.huskclaims.event.ClaimBlocksChangeEvent} event.
+     * cancellable {@link ClaimBlocksChangeEvent} event.
      *
      * @param user   the user
      * @param amount the amount of claim blocks to take (positive integer)
@@ -237,14 +238,7 @@ public class HuskClaimsAPI {
      * @since 1.0
      */
     public void editSavedUser(@NotNull UUID userUuid, @NotNull Consumer<SavedUser> editor) {
-        if (plugin.getSavedUser(userUuid).isEmpty()) {
-            getUser(userUuid).thenAccept(optional -> optional.ifPresent((saved) -> {
-                editor.accept(saved);
-                plugin.getDatabase().updateUser(saved);
-            }));
-            return;
-        }
-        plugin.editSavedUser(userUuid, editor);
+        plugin.runAsync(() -> plugin.editSavedUser(userUuid, editor));
     }
 
     /**

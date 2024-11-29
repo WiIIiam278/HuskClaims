@@ -178,7 +178,7 @@ public interface ClaimEditor {
             }
 
             // Check claim blocks
-            if (getPlugin().getClaimBlocks(user) < neededBlocks) {
+            if (getPlugin().getCachedClaimBlocks(user) < neededBlocks) {
                 getPlugin().getLocales().getLocale("error_not_enough_claim_blocks",
                         Long.toString(neededBlocks)).ifPresent(user::sendMessage);
                 return;
@@ -211,7 +211,7 @@ public interface ClaimEditor {
         }
 
         // Validate they have enough claim blocks
-        final long userBlocks = getPlugin().getClaimBlocks(user);
+        final long userBlocks = getPlugin().getCachedClaimBlocks(user);
         if (userBlocks < surfaceArea) {
             getPlugin().getLocales().getLocale("error_not_enough_claim_blocks",
                             Long.toString(surfaceArea - userBlocks))
@@ -561,7 +561,7 @@ public interface ClaimEditor {
 
     @NotNull
     private ClaimingMode getClaimingMode(@NotNull User user) {
-        return getPlugin().getUserPreferences(user.getUuid())
+        return getPlugin().getCachedUserPreferences(user.getUuid())
                 .map(Preferences::getClaimingMode)
                 .orElse(ClaimingMode.CLAIMS);
     }

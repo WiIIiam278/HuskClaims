@@ -90,7 +90,7 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
 
         // Calculate the user's claim block totals
         long started = settings.getStartingClaimBlocks();
-        long available = Math.max(0, plugin.getClaimBlocks(user));
+        long available = Math.max(0, plugin.getClaimBlocks(user.getUuid()));
         long spent = Math.max(0, claims.stream().map(ServerWorldClaim::getSurfaceArea).reduce(0L, Long::sum));
         long earned = (available + spent) - started;
         long accrued = started + earned;
@@ -140,7 +140,7 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
             return;
         }
 
-        final long ownedClaimBLocks = getPlugin().getClaimBlocks(onlineExecuter);
+        final long ownedClaimBLocks = getPlugin().getCachedClaimBlocks(onlineExecuter);
         if (ownedClaimBLocks < changeBy) {
             getPlugin().getLocales().getLocale("error_not_enough_claim_blocks",
                     Long.toString(changeBy - ownedClaimBLocks)).ifPresent(executor::sendMessage);

@@ -41,27 +41,17 @@ public interface SavedUserProvider extends ClaimBlocksManager {
                 .ifPresent(saved -> getUserCache().put(uuid, saved)));
     }
 
-    @Blocking
-    default Optional<SavedUser> getSavedUser(@NotNull UUID uuid) {
+    default Optional<SavedUser> getCachedSavedUser(@NotNull UUID uuid) {
         return Optional.ofNullable(getUserCache().get(uuid));
     }
 
     @Blocking
-    default Optional<Preferences> getUserPreferences(@NotNull UUID uuid) {
-        return getSavedUser(uuid).map(SavedUser::getPreferences);
-    }
-
-    @Blocking
-    default void editSavedUser(@NotNull UUID uuid, @NotNull Consumer<SavedUser> consumer, @NotNull Runnable ifEmpty) {
-        getSavedUser(uuid).ifPresentOrElse(user -> editSavedUser(user, consumer), ifEmpty);
-    }
-
-    default void editSavedUser(@NotNull UUID uuid, @NotNull Consumer<SavedUser> consumer) {
-        final Optional<SavedUser> saved = getSavedUser(uuid);
-        if (saved.isEmpty()) {
-            throw new IllegalArgumentException("Failed to find user by UUID %s in cache or database!".formatted(uuid));
-        }
-        editSavedUser(saved.get(), consumer);
+    default Optional<SavedUser> getSavedUser(@NotNull UUID uuid) {
+        return getCachedSavedUser(uuid).or(() -> {
+            final Optional<SavedUser> savedUser = getPlugin().getDatabase().getUser(uuid);
+            savedUser.ifPresent(saved -> getUserCache().put(uuid, saved));
+            return savedUser;
+        });
     }
 
     private void editSavedUser(@NotNull SavedUser user, @NotNull Consumer<SavedUser> consumer) {
@@ -78,6 +68,15 @@ public interface SavedUserProvider extends ClaimBlocksManager {
                             .send(broker, sender))
             );
         });
+    }
+
+    @Blocking
+    default void editSavedUser(@NotNull UUID uuid, @NotNull Consumer<SavedUser> consumer) {
+        this.getSavedUser(uuid).ifPresent(user -> editSavedUser(user, consumer));
+    }
+
+    default Optional<Preferences> getCachedUserPreferences(@NotNull UUID uuid) {
+        return getCachedSavedUser(uuid).map(SavedUser::getPreferences);
     }
 
     @Blocking

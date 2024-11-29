@@ -89,7 +89,7 @@ public interface SignNotifier {
     }
 
     private boolean isSignSpying(@NotNull OnlineUser user) {
-        boolean toggled = getPlugin().getUserPreferences(user.getUuid())
+        boolean toggled = getPlugin().getCachedUserPreferences(user.getUuid())
                 .map(Preferences::isSignNotifications).orElse(false);
         if (toggled && !getPlugin().canUseCommand(SignSpyCommand.class, user)) {
             getPlugin().runAsync(() -> {

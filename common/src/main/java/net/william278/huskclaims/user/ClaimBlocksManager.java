@@ -35,10 +35,12 @@ import java.util.function.Function;
 public interface ClaimBlocksManager {
 
     // How many times per hour to run the claim block update task for all users
-    int HOURLY_BLOCKS_UPDATES = 5;
+    int HOURLY_BLOCKS_UPDATES = 4;
 
     // Permission to grant hourly claim blocks
     String HOURLY_BLOCKS_PERMISSION = "huskclaims.hourly_blocks.";
+
+    Optional<SavedUser> getCachedSavedUser(@NotNull UUID uuid);
 
     @Blocking
     Optional<SavedUser> getSavedUser(@NotNull UUID uuid);
@@ -46,17 +48,22 @@ public interface ClaimBlocksManager {
     @Blocking
     void editSavedUser(@NotNull UUID uuid, @NotNull Consumer<SavedUser> consumer);
 
+    private long getCachedClaimBlocks(@NotNull UUID uuid) {
+        return getCachedSavedUser(uuid).map(SavedUser::getClaimBlocks)
+                .orElseThrow(() -> new IllegalArgumentException("Couldn't get cached claim blocks for: " + uuid));
+    }
+
+    default long getCachedClaimBlocks(@NotNull OnlineUser user) {
+        return getCachedClaimBlocks(user.getUuid());
+    }
+
     @Blocking
     default long getClaimBlocks(@NotNull UUID uuid) {
         return getSavedUser(uuid).map(SavedUser::getClaimBlocks)
-                .orElseThrow(() -> new IllegalArgumentException("Could not find claim blocks for UUID: " + uuid));
+                .orElseThrow(() -> new IllegalArgumentException("Couldn't get cached/saved claim blocks for: " + uuid));
     }
 
-    default long getClaimBlocks(@NotNull User user) {
-        return getClaimBlocks(user.getUuid());
-    }
-
-
+    @Blocking
     default void editClaimBlocks(@NotNull User user, @NotNull SavedUserProvider.ClaimBlockSource source,
                                  @NotNull Function<Long, Long> consumer, @Nullable Consumer<Long> callback) {
         // Determine max claim blocks
@@ -66,10 +73,10 @@ public interface ClaimBlocksManager {
         }
 
         // Calculate block balance
-        final long originalBlocks = getClaimBlocks(user);
+        final long originalBlocks = getClaimBlocks(user.getUuid());
         final long newBlocks = Math.min(consumer.apply(originalBlocks), maxClaimBlocks);
         if (newBlocks < 0) {
-            throw new IllegalArgumentException("Claim blocks cannot be negative (" + newBlocks + ")");
+            throw new IllegalArgumentException("Claim blocks cannot be negative (%s)".formatted(newBlocks));
         }
 
         // Fire the event, update the blocks, trigger callback
@@ -87,6 +94,7 @@ public interface ClaimBlocksManager {
         );
     }
 
+    @Blocking
     default void editClaimBlocks(@NotNull User user, @NotNull SavedUserProvider.ClaimBlockSource source,
                                  @NotNull Function<Long, Long> consumer) {
         editClaimBlocks(user, source, consumer, null);
