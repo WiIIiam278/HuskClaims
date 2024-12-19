@@ -92,9 +92,7 @@ public class PreferencesSerializer extends TypeAdapter<Preferences> {
                     prefs.setClaimingMode(ClaimingMode.valueOf(in.nextString()));
                     break;
                 case "audit_log":
-                    in.beginObject();
                     prefs.setLogEntries(readAuditLog(in));
-                    in.endObject();
                     break;
             }
         }

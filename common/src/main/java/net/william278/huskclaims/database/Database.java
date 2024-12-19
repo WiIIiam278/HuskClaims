@@ -378,6 +378,10 @@ public abstract class Database {
         REMOVE_HOURS_PLAYED_COLUMN(
                 1, "remove_hours_played_column",
                 Type.MYSQL, Type.MARIADB, Type.SQLITE
+        ),
+        CONVERT_TO_JSONB(
+                2, "convert_to_jsonb",
+                Type.SQLITE
         );
 
         private final int version;

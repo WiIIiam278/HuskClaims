@@ -11,7 +11,6 @@ CREATE TABLE IF NOT EXISTS `%user_data%`
     `username`     varchar(16) NOT NULL,
     `last_login`   timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `claim_blocks` bigint      NOT NULL DEFAULT 0,
-    `hours_played` bigint      NOT NULL DEFAULT 0,
     `preferences`  longblob    NOT NULL,
 
     PRIMARY KEY (`uuid`)

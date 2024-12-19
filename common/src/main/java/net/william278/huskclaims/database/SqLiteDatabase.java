@@ -206,7 +206,7 @@ public class SqLiteDatabase extends Database {
     @Override
     public Optional<SavedUser> getUser(@NotNull UUID uuid) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `uuid`, `username`, `last_login`, `claim_blocks`, `preferences`
+                SELECT `uuid`, `username`, `last_login`, `claim_blocks`, json(`preferences`) AS preferences
                 FROM `%user_data%`
                 WHERE uuid = ?"""))) {
             statement.setString(1, uuid.toString());
@@ -231,7 +231,7 @@ public class SqLiteDatabase extends Database {
     @Override
     public Optional<SavedUser> getUser(@NotNull String username) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `uuid`, `username`, `last_login`, `claim_blocks`, `preferences`
+                SELECT `uuid`, `username`, `last_login`, `claim_blocks`, json(`preferences`) AS preferences
                 FROM `%user_data%`
                 WHERE `username` = ?"""))) {
             statement.setString(1, username);
@@ -258,7 +258,7 @@ public class SqLiteDatabase extends Database {
     public List<SavedUser> getInactiveUsers(long daysInactive) {
         final List<SavedUser> inactiveUsers = Lists.newArrayList();
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `uuid`, `username`, `last_login`, `preferences`, `claim_blocks`
+                SELECT `uuid`, `username`, `last_login`, `claim_blocks`, json(`preferences`) AS preferences
                 FROM `%user_data%`
                 WHERE datetime(`last_login` / 1000, 'unixepoch') < datetime('now', ?);"""))) {
             statement.setString(1, String.format("-%d days", daysInactive));
@@ -286,7 +286,7 @@ public class SqLiteDatabase extends Database {
     public void createUser(@NotNull SavedUser saved) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                     INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`, `preferences`)
-                    VALUES (?, ?, ?, ?, ?)"""))) {
+                    VALUES (?, ?, ?, ?, jsonb(?))"""))) {
             statement.setString(1, saved.getUser().getUuid().toString());
             statement.setString(2, saved.getUser().getName());
             statement.setTimestamp(3, Timestamp.valueOf(saved.getLastLogin().toLocalDateTime()));
@@ -303,7 +303,7 @@ public class SqLiteDatabase extends Database {
     public void updateUser(@NotNull SavedUser user) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 UPDATE `%user_data%`
-                SET `claim_blocks` = ?, `preferences` = ?
+                SET `claim_blocks` = ?, `preferences` = jsonb(?)
                 WHERE `uuid` = ?"""))) {
             statement.setLong(1, user.getClaimBlocks());
             statement.setBytes(2, plugin.getGson().toJson(user.getPreferences())
@@ -319,8 +319,8 @@ public class SqLiteDatabase extends Database {
     public void createOrUpdateUser(@NotNull SavedUser saved) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`, `preferences`)
-                VALUES (?, ?, ?, ?, ?)
-                ON CONFLICT(`uuid`) DO UPDATE SET `username` = ?, `last_login` = ?, `claim_blocks` = ?, `preferences` = ?;"""))) {
+                VALUES (?, ?, ?, ?, jsonb(?))
+                ON CONFLICT(`uuid`) DO UPDATE SET `username` = ?, `last_login` = ?, `claim_blocks` = ?, `preferences` = jsonb(?);"""))) {
             final byte[] prefs = plugin.getGson().toJson(saved.getPreferences()).getBytes(StandardCharsets.UTF_8);
             statement.setString(1, saved.getUser().getUuid().toString());
             statement.setString(2, saved.getUser().getName());
@@ -341,7 +341,7 @@ public class SqLiteDatabase extends Database {
     @Override
     public Set<UserGroup> getUserGroups(@NotNull UUID uuid) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `name`, `members`
+                SELECT `name`, json(`members`) AS members
                 FROM `%user_group_data%`
                 WHERE `uuid` = ?"""))) {
             statement.setString(1, uuid.toString());
@@ -367,7 +367,7 @@ public class SqLiteDatabase extends Database {
     @Override
     public Map<UUID, Set<UserGroup>> getAllUserGroups() {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `uuid`, `name`, `members`
+                SELECT `uuid`, `name`, json(`members`) AS members
                 FROM `%user_group_data%`"""))) {
             final ResultSet resultSet = statement.executeQuery();
             final Map<UUID, Set<UserGroup>> userGroups = Maps.newHashMap();
@@ -398,7 +398,7 @@ public class SqLiteDatabase extends Database {
     public void addUserGroup(@NotNull UserGroup group) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 INSERT INTO `%user_group_data%` (`uuid`, `name`, `members`)
-                VALUES (?, ?, ?)"""))) {
+                VALUES (?, ?, jsonb(?))"""))) {
             statement.setString(1, group.groupOwner().toString());
             statement.setString(2, group.name());
             statement.setBytes(3, plugin.getGson().toJson(group.members()).getBytes(StandardCharsets.UTF_8));
@@ -412,7 +412,7 @@ public class SqLiteDatabase extends Database {
     public void updateUserGroup(@NotNull UUID owner, @NotNull String name, @NotNull UserGroup newGroup) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 UPDATE `%user_group_data%`
-                SET `name` = ?, `members` = ?
+                SET `name` = ?, `members` = jsonb(?)
                 WHERE `uuid` = ? AND `name` = ?"""))) {
             statement.setString(1, newGroup.name());
             statement.setBytes(2, plugin.getGson().toJson(newGroup.members()).getBytes(StandardCharsets.UTF_8));
@@ -442,7 +442,7 @@ public class SqLiteDatabase extends Database {
     public Map<World, ClaimWorld> getClaimWorlds(@NotNull String server) throws IllegalStateException {
         final Map<World, ClaimWorld> worlds = Maps.newHashMap();
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `id`, `world_uuid`, `world_name`, `world_environment`, `data`
+                SELECT `id`, `world_uuid`, `world_name`, `world_environment`, json(`data`) AS data
                 FROM `%claim_data%`
                 WHERE `server_name` = ?"""))) {
             statement.setString(1, server);
@@ -473,7 +473,7 @@ public class SqLiteDatabase extends Database {
     public Map<ServerWorld, ClaimWorld> getAllClaimWorlds() throws IllegalStateException {
         final Map<ServerWorld, ClaimWorld> worlds = Maps.newHashMap();
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `id`, `server_name`, `world_uuid`, `world_name`, `world_environment`, `data`
+                SELECT `id`, `server_name`, `world_uuid`, `world_name`, `world_environment`, json(`data`) AS data
                 FROM `%claim_data%`"""))) {
             final ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
@@ -502,7 +502,7 @@ public class SqLiteDatabase extends Database {
         final ClaimWorld claimWorld = ClaimWorld.create(plugin);
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 INSERT INTO `%claim_data%` (`world_uuid`, `world_name`, `world_environment`, `server_name`, `data`)
-                VALUES (?, ?, ?, ?, ?)"""))) {
+                VALUES (?, ?, ?, ?, jsonb(?))"""))) {
             statement.setString(1, world.getUuid().toString());
             statement.setString(2, world.getName());
             statement.setString(3, world.getEnvironment());
@@ -519,7 +519,7 @@ public class SqLiteDatabase extends Database {
     public void updateClaimWorld(@NotNull ClaimWorld claimWorld) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 UPDATE `%claim_data%`
-                SET `data` = ?
+                SET `data` = jsonb(?)
                 WHERE `id` = ?"""))) {
             statement.setBytes(1, plugin.getGson().toJson(claimWorld).getBytes(StandardCharsets.UTF_8));
             statement.setInt(2, claimWorld.getId());
