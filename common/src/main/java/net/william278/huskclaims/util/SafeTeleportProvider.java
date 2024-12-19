@@ -42,7 +42,7 @@ public interface SafeTeleportProvider {
             return;
         }
         final List<Position> positions = this.getPotentialPositions(user.getPosition(), region.get());
-        this.teleportOutOfClaim(user, positions, positions.size(), true);
+        this.teleportOutOfClaim(user, positions, positions.size(), instant);
     }
 
     private void teleportOutOfClaim(@NotNull OnlineUser user, @NotNull List<Position> positions,
