@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
+import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -82,6 +83,7 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
 
     private MorePaperLib morePaperLib;
     private AudienceProvider audiences;
+    private final Gson gson = getGsonBuilder().create();
     private final Set<TrustTag> trustTags = ConcurrentHashMap.newKeySet();
     private final Map<UUID, List<DroppedItem>> markedDrops = Maps.newHashMap();
     private final Map<UUID, Set<GroundStack>> trackedItems = Maps.newHashMap();

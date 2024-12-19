@@ -32,7 +32,9 @@ import net.william278.huskclaims.claim.Region;
 import net.william278.huskclaims.claim.RegionSerializer;
 import net.william278.huskclaims.network.Message;
 import net.william278.huskclaims.user.Preferences;
+import net.william278.huskclaims.user.PreferencesSerializer;
 import net.william278.huskclaims.user.User;
+import net.william278.huskclaims.user.UserSerializer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -47,6 +49,9 @@ import java.util.concurrent.ConcurrentMap;
  */
 public interface GsonProvider {
 
+    // Maximum number of audit log entries to persist
+    int MAX_PERSISTED_LOG_ENTRIES = 50;
+
     TypeToken<List<User>> USER_LIST_TOKEN = new TypeToken<>() {
     };
     TypeToken<ConcurrentMap<UUID, String>> UUID_STRING_MAP_TOKEN = new TypeToken<>() {
@@ -58,17 +63,18 @@ public interface GsonProvider {
 
     @NotNull
     default GsonBuilder getGsonBuilder() {
+        final UserSerializer users = new UserSerializer();
         return Converters.registerOffsetDateTime(new GsonBuilder()
                 .excludeFieldsWithoutExposeAnnotation()
+                .registerTypeAdapter(User.class, users)
+                .registerTypeAdapter(Preferences.class, new PreferencesSerializer(MAX_PERSISTED_LOG_ENTRIES, users))
                 .registerTypeAdapter(ClaimWorld.class, new ClaimWorldSerializer(getPlugin()))
                 .registerTypeAdapter(Region.class, new RegionSerializer(getPlugin()))
         );
     }
 
     @NotNull
-    default Gson getGson() {
-        return getGsonBuilder().create();
-    }
+    Gson getGson();
 
     @NotNull
     default ClaimWorld getClaimWorldFromJson(int id, @NotNull String json) throws JsonSyntaxException {

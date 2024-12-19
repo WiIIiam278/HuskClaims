@@ -374,6 +374,10 @@ public abstract class Database {
         ADD_METADATA_TABLE(
                 0, "add_metadata_table",
                 Type.MYSQL, Type.MARIADB, Type.SQLITE
+        ),
+        REMOVE_HOURS_PLAYED_COLUMN(
+                1, "remove_hours_played_column",
+                Type.MYSQL, Type.MARIADB, Type.SQLITE
         );
 
         private final int version;

@@ -19,7 +19,6 @@
 
 package net.william278.huskclaims.user;
 
-import com.google.gson.annotations.Expose;
 import lombok.*;
 import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
@@ -59,18 +58,16 @@ public interface AuditLogger {
         log(null, action, null);
     }
 
+    @Setter
     @Builder
     @Getter
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @NoArgsConstructor(access = AccessLevel.PACKAGE)
     final class Entry {
-        @Expose
         private Action action;
         @Nullable
-        @Expose
         private User user;
         @Nullable
-        @Expose
         private String message;
     }
 

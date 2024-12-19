@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class User implements Trustable, Comparable<User> {
 
@@ -37,6 +37,7 @@ public class User implements Trustable, Comparable<User> {
     @NotNull
     private String name;
     @Expose
+    @Setter(AccessLevel.PACKAGE)
     @NotNull
     private UUID uuid;
 

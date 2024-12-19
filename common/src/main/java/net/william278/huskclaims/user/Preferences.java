@@ -26,12 +26,13 @@ import lombok.*;
 import net.william278.huskclaims.claim.ClaimingMode;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.TreeMap;
+import java.util.Map;
 
 
+@Setter
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class Preferences implements AuditLogger {
 
     /**
@@ -46,21 +47,18 @@ public class Preferences implements AuditLogger {
     @NotNull
     public static Preferences IMPORTED = new Preferences(Action.USER_IMPORTED);
 
-    @Setter
     @Expose
     @SerializedName("ignoring_claims")
     private boolean isIgnoringClaims = false;
 
-    @Setter
     @Expose
     @SerializedName("sign_notifications")
     private boolean signNotifications = false;
 
     @Expose
     @SerializedName("audit_log")
-    private TreeMap<String, Entry> logEntries = Maps.newTreeMap();
+    private Map<String, Entry> logEntries = Maps.newHashMap();
 
-    @Setter
     @Expose
     @SerializedName("claiming_mode")
     private ClaimingMode claimingMode = ClaimingMode.CLAIMS;

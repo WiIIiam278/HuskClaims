@@ -216,7 +216,7 @@ public class MySqlDatabase extends Database {
     public Optional<SavedUser> getUser(@NotNull UUID uuid) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
-                    SELECT `uuid`, `username`, `last_login`, `claim_blocks`, `hours_played`, `preferences`
+                    SELECT `uuid`, `username`, `last_login`, `claim_blocks`, `preferences`
                     FROM `%user_data%`
                     WHERE uuid = ?"""))) {
                 statement.setString(1, uuid.toString());
@@ -229,8 +229,7 @@ public class MySqlDatabase extends Database {
                             plugin.getPreferencesFromJson(preferences),
                             resultSet.getTimestamp("last_login").toLocalDateTime()
                                     .atOffset(OffsetDateTime.now().getOffset()),
-                            resultSet.getLong("claim_blocks"),
-                            resultSet.getInt("hours_played")
+                            resultSet.getLong("claim_blocks")
                     ));
                 }
             }
@@ -244,7 +243,7 @@ public class MySqlDatabase extends Database {
     public Optional<SavedUser> getUser(@NotNull String username) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
-                    SELECT `uuid`, `username`, `last_login`, `claim_blocks`, `hours_played`, `preferences`
+                    SELECT `uuid`, `username`, `last_login`, `claim_blocks`, `preferences`
                     FROM `%user_data%`
                     WHERE `username` = ?"""))) {
                 statement.setString(1, username);
@@ -258,8 +257,7 @@ public class MySqlDatabase extends Database {
                             plugin.getPreferencesFromJson(preferences),
                             resultSet.getTimestamp("last_login").toLocalDateTime()
                                     .atOffset(OffsetDateTime.now().getOffset()),
-                            resultSet.getLong("claim_blocks"),
-                            resultSet.getInt("hours_played")
+                            resultSet.getLong("claim_blocks")
                     ));
                 }
             }
@@ -274,7 +272,7 @@ public class MySqlDatabase extends Database {
         final List<SavedUser> inactiveUsers = Lists.newArrayList();
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
-                    SELECT `uuid`, `username`, `last_login`, `preferences`, `claim_blocks`, `hours_played`
+                    SELECT `uuid`, `username`, `last_login`, `preferences`, `claim_blocks`
                     FROM `%user_data%`
                     WHERE `last_login` < DATE_SUB(NOW(), INTERVAL ? DAY);"""))) {
                 statement.setLong(1, daysInactive);
@@ -288,8 +286,7 @@ public class MySqlDatabase extends Database {
                             plugin.getPreferencesFromJson(preferences),
                             resultSet.getTimestamp("last_login").toLocalDateTime()
                                     .atOffset(OffsetDateTime.now().getOffset()),
-                            resultSet.getLong("claim_blocks"),
-                            resultSet.getInt("hours_played")
+                            resultSet.getLong("claim_blocks")
                     ));
                 }
             }
@@ -304,14 +301,13 @@ public class MySqlDatabase extends Database {
     public void createUser(@NotNull SavedUser saved) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
-                    INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`, `hours_played`, `preferences`)
-                    VALUES (?, ?, ?, ?, ?, ?)"""))) {
+                    INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`, `preferences`)
+                    VALUES (?, ?, ?, ?, ?)"""))) {
                 statement.setString(1, saved.getUser().getUuid().toString());
                 statement.setString(2, saved.getUser().getName());
                 statement.setTimestamp(3, Timestamp.valueOf(saved.getLastLogin().toLocalDateTime()));
                 statement.setLong(4, saved.getClaimBlocks());
-                statement.setInt(5, saved.getHoursPlayed());
-                statement.setBytes(6, plugin.getGson().toJson(saved.getPreferences())
+                statement.setBytes(5, plugin.getGson().toJson(saved.getPreferences())
                         .getBytes(StandardCharsets.UTF_8));
                 statement.executeUpdate();
             }
@@ -325,13 +321,12 @@ public class MySqlDatabase extends Database {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
                     UPDATE `%user_data%`
-                    SET `claim_blocks` = ?, `hours_played` = ?, `preferences` = ?
+                    SET `claim_blocks` = ?, `preferences` = ?
                     WHERE `uuid` = ?"""))) {
                 statement.setLong(1, user.getClaimBlocks());
-                statement.setInt(2, user.getHoursPlayed());
-                statement.setBytes(3, plugin.getGson().toJson(user.getPreferences())
+                statement.setBytes(2, plugin.getGson().toJson(user.getPreferences())
                         .getBytes(StandardCharsets.UTF_8));
-                statement.setString(4, user.getUser().getUuid().toString());
+                statement.setString(3, user.getUser().getUuid().toString());
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
