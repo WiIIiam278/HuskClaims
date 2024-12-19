@@ -62,4 +62,4 @@ If you have claim bans enabled (see the `bans` subsection under `claims` in the 
 This will prevent the banned player from entering the claim/child claim. Banned players cannot be trusted in the claim, and will be unable to interact with blocks within the claim.
 
 ### Private claims
-If you have private claims enabled (the option for which is located in the `bans` subsection under `claims` in the [[config]]), users with the `MAKE_PRIVATE` claim privilege can make a claim or child claim private using the `/claimprivate (on|off)` toggle command. Only users with a [trust level](trust-levels) in the claim will be able to enter it.
+If you have private claims enabled (the option for which is located in the `bans` subsection under `claims` in the [[config]]), users with the `MAKE_PRIVATE` claim privilege can make a claim or child claim private using the `/claimprivate (on|off)` toggle command. Only users with a [trust level](trust#trust-levels) in the claim will be able to enter it.

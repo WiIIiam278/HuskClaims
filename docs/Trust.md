@@ -22,25 +22,28 @@ Trust Levels are defined in the `trust_levels.yml` config file and the default s
                 <details>
                 <summary>View list</summary>
                 <ul>
-                    <li>BLOCK_BREAK</li>
-                    <li>BLOCK_PLACE</li>
-                    <li>BLOCK_INTERACT</li>
-                    <li>REDSTONE_INTERACT</li>
-                    <li>ENTITY_INTERACT</li>
-                    <li>CONTAINER_OPEN</li>
-                    <li>FARM_BLOCK_BREAK</li>
-                    <li>FARM_BLOCK_PLACE</li>
-                    <li>FARM_BLOCK_INTERACT</li>
-                    <li>PLACE_HANGING_ENTITY</li>
-                    <li>BREAK_HANGING_ENTITY</li>
-                    <li>PLAYER_DAMAGE_PLAYER</li>
-                    <li>PLAYER_DAMAGE_PERSISTENT_ENTITY</li>
-                    <li>PLAYER_DAMAGE_MONSTER</li>
-                    <li>PLAYER_DAMAGE_ENTITY</li>
-                    <li>FILL_BUCKET</li>
-                    <li>EMPTY_BUCKET</li>
-                    <li>USE_SPAWN_EGG</li>
-                    <li>ENDER_PEARL_TELEPORT</li>
+                    <li style="opacity: 66%">BLOCK_INTERACT</li>
+                    <li style="opacity: 66%">ENTITY_INTERACT</li>
+                    <li style="opacity: 66%">REDSTONE_INTERACT</li>
+                    <li style="opacity: 66%">BREAK_VEHICLE</li>
+                    <li style="opacity: 66%">PLACE_VEHICLE</li>
+                    <li style="opacity: 66%">ENDER_PEARL_TELEPORT</li>
+                    <li style="opacity: 66%">START_RAID</li>
+                    <li style="opacity: 66%">CONTAINER_OPEN</li>
+                    <li style="opacity: 66%">BLOCK_BREAK</li>
+                    <li style="opacity: 66%">BLOCK_PLACE</li>
+                    <li style="opacity: 66%">FARM_BLOCK_BREAK</li>
+                    <li style="opacity: 66%">FARM_BLOCK_PLACE</li>
+                    <li style="opacity: 66%">FARM_BLOCK_INTERACT</li>
+                    <li style="opacity: 66%">PLACE_HANGING_ENTITY</li>
+                    <li style="opacity: 66%">BREAK_HANGING_ENTITY</li>
+                    <li style="opacity: 66%">PLAYER_DAMAGE_PLAYER</li>
+                    <li style="opacity: 66%">PLAYER_DAMAGE_PERSISTENT_ENTITY</li>
+                    <li style="opacity: 66%">PLAYER_DAMAGE_MONSTER</li>
+                    <li style="opacity: 66%">PLAYER_DAMAGE_ENTITY</li>
+                    <li style="opacity: 66%">FILL_BUCKET</li>
+                    <li style="opacity: 66%">EMPTY_BUCKET</li>
+                    <li style="opacity: 66%">USE_SPAWN_EGG</li>
                 </ul>
                 </details>
             </td>
@@ -65,12 +68,16 @@ Trust Levels are defined in the `trust_levels.yml` config file and the default s
                 <details>
                 <summary>View list</summary>
                 <ul>
+                    <li style="opacity: 66%">BLOCK_INTERACT</li>
+                    <li style="opacity: 66%">ENTITY_INTERACT</li>
+                    <li style="opacity: 66%">REDSTONE_INTERACT</li>
+                    <li style="opacity: 66%">BREAK_VEHICLE</li>
+                    <li style="opacity: 66%">PLACE_VEHICLE</li>
+                    <li style="opacity: 66%">ENDER_PEARL_TELEPORT</li>
+                    <li style="opacity: 66%">START_RAID</li>
+                    <li style="opacity: 66%">CONTAINER_OPEN</li>
                     <li>BLOCK_BREAK</li>
                     <li>BLOCK_PLACE</li>
-                    <li>BLOCK_INTERACT</li>
-                    <li>REDSTONE_INTERACT</li>
-                    <li>ENTITY_INTERACT</li>
-                    <li>CONTAINER_OPEN</li>
                     <li>FARM_BLOCK_BREAK</li>
                     <li>FARM_BLOCK_PLACE</li>
                     <li>FARM_BLOCK_INTERACT</li>
@@ -83,7 +90,6 @@ Trust Levels are defined in the `trust_levels.yml` config file and the default s
                     <li>FILL_BUCKET</li>
                     <li>EMPTY_BUCKET</li>
                     <li>USE_SPAWN_EGG</li>
-                    <li>ENDER_PEARL_TELEPORT</li>
                 </ul>
                 </details>
             </td>
@@ -99,11 +105,14 @@ Trust Levels are defined in the `trust_levels.yml` config file and the default s
                 <details>
                 <summary>View list</summary>
                 <ul>
-                    <li>BLOCK_INTERACT</li>
-                    <li>ENTITY_INTERACT</li>
+                    <li style="opacity: 66%">BLOCK_INTERACT</li>
+                    <li style="opacity: 66%">ENTITY_INTERACT</li>
+                    <li style="opacity: 66%">REDSTONE_INTERACT</li>
+                    <li style="opacity: 66%">BREAK_VEHICLE</li>
+                    <li style="opacity: 66%">PLACE_VEHICLE</li>
+                    <li style="opacity: 66%">ENDER_PEARL_TELEPORT</li>
+                    <li style="opacity: 66%">START_RAID</li>
                     <li>CONTAINER_OPEN</li>
-                    <li>REDSTONE_INTERACT</li>
-                    <li>ENDER_PEARL_TELEPORT</li>
                 </ul>
                 </details>
             </td>
@@ -122,7 +131,10 @@ Trust Levels are defined in the `trust_levels.yml` config file and the default s
                     <li>BLOCK_INTERACT</li>
                     <li>ENTITY_INTERACT</li>
                     <li>REDSTONE_INTERACT</li>
+                    <li>BREAK_VEHICLE</li>
+                    <li>PLACE_VEHICLE</li>
                     <li>ENDER_PEARL_TELEPORT</li>
+                    <li>START_RAID</li>
                 </ul>
                 </details>
             </td>
@@ -153,100 +165,136 @@ The default trust levels are defined below:
 # ┃    Developed by William278   ┃
 # ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 # ┣╸ List of trust levels users & groups can be assigned to in claims
-# ┣╸ Config Help: https://william278.net/docs/huskclaims/trust-levels/
+# ┣╸ Config Help: https://william278.net/docs/huskclaims/trust/
 # ┗╸ Documentation: https://william278.net/docs/huskclaims/
 
 trust_levels:
-- id: manage
-  display_name: Manage
-  description: Allows users to manage trustees & make child claims
-  color: '#fc4e03'
-  command_aliases:
-  - managetrust
-  - permissiontrust
-  flags:
+  - id: manage
+    display_name: Manage
+    description: Allows users to manage trustees & make child claims
+    color: '#fc4e03'
+    command_aliases:
+      - permissiontrust
+      - managetrust
+    flags:
+      - BLOCK_INTERACT
+      - ENTITY_INTERACT
+      - REDSTONE_INTERACT
+      - PLACE_VEHICLE
+      - BREAK_VEHICLE
+      - ENDER_PEARL_TELEPORT
+      - START_RAID
+      - CONTAINER_OPEN
+      - BLOCK_BREAK
+      - BLOCK_PLACE
+      - FARM_BLOCK_BREAK
+      - FARM_BLOCK_PLACE
+      - FARM_BLOCK_INTERACT
+      - PLACE_HANGING_ENTITY
+      - BREAK_HANGING_ENTITY
+      - PLAYER_DAMAGE_PLAYER
+      - PLAYER_DAMAGE_PERSISTENT_ENTITY
+      - PLAYER_DAMAGE_MONSTER
+      - PLAYER_DAMAGE_ENTITY
+      - FILL_BUCKET
+      - EMPTY_BUCKET
+      - USE_SPAWN_EGG
+    privileges:
+      - MANAGE_TRUSTEES
+      - MANAGE_CHILD_CLAIMS
+      - MANAGE_OPERATION_GROUPS
+      - MANAGE_BANS
+      - MAKE_PRIVATE
+    weight: 400
+  - id: build
+    display_name: Build
+    description: Allows users to build in the claim
+    color: '#fcd303'
+    command_aliases:
+      - trust
+      - buildtrust
+    flags:
+      - BLOCK_INTERACT
+      - ENTITY_INTERACT
+      - REDSTONE_INTERACT
+      - PLACE_VEHICLE
+      - BREAK_VEHICLE
+      - ENDER_PEARL_TELEPORT
+      - START_RAID
+      - CONTAINER_OPEN
+      - BLOCK_BREAK
+      - BLOCK_PLACE
+      - FARM_BLOCK_BREAK
+      - FARM_BLOCK_PLACE
+      - FARM_BLOCK_INTERACT
+      - PLACE_HANGING_ENTITY
+      - BREAK_HANGING_ENTITY
+      - PLAYER_DAMAGE_PLAYER
+      - PLAYER_DAMAGE_PERSISTENT_ENTITY
+      - PLAYER_DAMAGE_MONSTER
+      - PLAYER_DAMAGE_ENTITY
+      - FILL_BUCKET
+      - EMPTY_BUCKET
+      - USE_SPAWN_EGG
+    privileges: []
+    weight: 300
+  - id: container
+    display_name: Container
+    description: Allows users to open chests & other containers
+    color: '#5efc03'
+    command_aliases:
+      - containertrust
+    flags:
+      - BLOCK_INTERACT
+      - ENTITY_INTERACT
+      - REDSTONE_INTERACT
+      - PLACE_VEHICLE
+      - BREAK_VEHICLE
+      - ENDER_PEARL_TELEPORT
+      - START_RAID
+      - CONTAINER_OPEN
+    privileges: []
+    weight: 200
+  - id: access
+    display_name: Access
+    description: Allows users to use doors, buttons, levers, etc.
+    color: '#36e4ff'
+    command_aliases:
+      - accesstrust
+    flags:
+      - BLOCK_INTERACT
+      - ENTITY_INTERACT
+      - REDSTONE_INTERACT
+      - PLACE_VEHICLE
+      - BREAK_VEHICLE
+      - ENDER_PEARL_TELEPORT
+      - START_RAID
+    privileges: []
+    weight: 100
+# The operation types that the claim owner can perform in their own claim
+allowed_owner_operations:
+  - FARM_BLOCK_PLACE
+  - USE_SPAWN_EGG
+  - ENTITY_INTERACT
+  - PLACE_HANGING_ENTITY
+  - PLAYER_DAMAGE_PERSISTENT_ENTITY
+  - FARM_BLOCK_INTERACT
+  - PLAYER_DAMAGE_MONSTER
+  - BREAK_VEHICLE
+  - REDSTONE_INTERACT
   - BLOCK_BREAK
   - BLOCK_PLACE
-  - BLOCK_INTERACT
-  - REDSTONE_INTERACT
-  - ENTITY_INTERACT
-  - CONTAINER_OPEN
-  - FARM_BLOCK_BREAK
-  - FARM_BLOCK_PLACE
-  - FARM_BLOCK_INTERACT
-  - PLACE_HANGING_ENTITY
-  - BREAK_HANGING_ENTITY
   - PLAYER_DAMAGE_PLAYER
-  - PLAYER_DAMAGE_PERSISTENT_ENTITY
-  - PLAYER_DAMAGE_MONSTER
+  - FARM_BLOCK_BREAK
+  - START_RAID
+  - ENDER_PEARL_TELEPORT
   - PLAYER_DAMAGE_ENTITY
   - FILL_BUCKET
-  - EMPTY_BUCKET
-  - USE_SPAWN_EGG
-  - ENDER_PEARL_TELEPORT
-  privileges:
-  - MANAGE_TRUSTEES
-  - MANAGE_CHILD_CLAIMS
-  - MANAGE_OPERATION_GROUPS
-  - MANAGE_BANS
-  - MAKE_PRIVATE
-  weight: 400
-- id: build
-  display_name: Build
-  description: Allows users to build in the claim
-  color: '#fcd303'
-  command_aliases:
-  - trust
-  - buildtrust
-  flags:
-  - BLOCK_BREAK
-  - BLOCK_PLACE
   - BLOCK_INTERACT
-  - REDSTONE_INTERACT
-  - ENTITY_INTERACT
   - CONTAINER_OPEN
-  - FARM_BLOCK_BREAK
-  - FARM_BLOCK_PLACE
-  - FARM_BLOCK_INTERACT
-  - PLACE_HANGING_ENTITY
   - BREAK_HANGING_ENTITY
-  - PLAYER_DAMAGE_PLAYER
-  - PLAYER_DAMAGE_PERSISTENT_ENTITY
-  - PLAYER_DAMAGE_MONSTER
-  - PLAYER_DAMAGE_ENTITY
-  - FILL_BUCKET
   - EMPTY_BUCKET
-  - USE_SPAWN_EGG
-  - ENDER_PEARL_TELEPORT
-  privileges: []
-  weight: 300
-- id: container
-  display_name: Container
-  description: Allows users to open chests & other containers
-  color: '#5efc03'
-  command_aliases:
-  - containertrust
-  flags:
-  - BLOCK_INTERACT
-  - ENTITY_INTERACT
-  - CONTAINER_OPEN
-  - REDSTONE_INTERACT
-  - ENDER_PEARL_TELEPORT
-  privileges: []
-  weight: 200
-- id: access
-  display_name: Access
-  description: Allows users to use doors, buttons, levers, etc.
-  color: '#36e4ff'
-  command_aliases:
-  - accesstrust
-  flags:
-  - BLOCK_INTERACT
-  - ENTITY_INTERACT
-  - REDSTONE_INTERACT
-  - ENDER_PEARL_TELEPORT
-  privileges: []
-  weight: 100
+  - PLACE_VEHICLE
 ```
 </details>
 

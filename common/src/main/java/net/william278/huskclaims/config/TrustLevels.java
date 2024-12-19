@@ -58,12 +58,16 @@ public class TrustLevels {
                     .description("Allows users to manage trustees & make child claims")
                     .commandAliases(List.of("permissiontrust", "managetrust"))
                     .flags(List.of(
+                            OperationType.BLOCK_INTERACT,
+                            OperationType.ENTITY_INTERACT,
+                            OperationType.REDSTONE_INTERACT,
+                            OperationType.PLACE_VEHICLE,
+                            OperationType.BREAK_VEHICLE,
+                            OperationType.ENDER_PEARL_TELEPORT,
+                            OperationType.START_RAID,
+                            OperationType.CONTAINER_OPEN,
                             OperationType.BLOCK_BREAK,
                             OperationType.BLOCK_PLACE,
-                            OperationType.BLOCK_INTERACT,
-                            OperationType.REDSTONE_INTERACT,
-                            OperationType.ENTITY_INTERACT,
-                            OperationType.CONTAINER_OPEN,
                             OperationType.FARM_BLOCK_BREAK,
                             OperationType.FARM_BLOCK_PLACE,
                             OperationType.FARM_BLOCK_INTERACT,
@@ -75,9 +79,7 @@ public class TrustLevels {
                             OperationType.PLAYER_DAMAGE_ENTITY,
                             OperationType.FILL_BUCKET,
                             OperationType.EMPTY_BUCKET,
-                            OperationType.USE_SPAWN_EGG,
-                            OperationType.ENDER_PEARL_TELEPORT,
-                            OperationType.START_RAID
+                            OperationType.USE_SPAWN_EGG
                     ))
                     .privileges(List.of(
                             TrustLevel.Privilege.MANAGE_TRUSTEES,
@@ -97,12 +99,16 @@ public class TrustLevels {
                     .description("Allows users to build in the claim")
                     .commandAliases(List.of("trust", "buildtrust"))
                     .flags(List.of(
+                            OperationType.BLOCK_INTERACT,
+                            OperationType.ENTITY_INTERACT,
+                            OperationType.REDSTONE_INTERACT,
+                            OperationType.PLACE_VEHICLE,
+                            OperationType.BREAK_VEHICLE,
+                            OperationType.ENDER_PEARL_TELEPORT,
+                            OperationType.START_RAID,
+                            OperationType.CONTAINER_OPEN,
                             OperationType.BLOCK_BREAK,
                             OperationType.BLOCK_PLACE,
-                            OperationType.BLOCK_INTERACT,
-                            OperationType.REDSTONE_INTERACT,
-                            OperationType.ENTITY_INTERACT,
-                            OperationType.CONTAINER_OPEN,
                             OperationType.FARM_BLOCK_BREAK,
                             OperationType.FARM_BLOCK_PLACE,
                             OperationType.FARM_BLOCK_INTERACT,
@@ -114,9 +120,7 @@ public class TrustLevels {
                             OperationType.PLAYER_DAMAGE_ENTITY,
                             OperationType.FILL_BUCKET,
                             OperationType.EMPTY_BUCKET,
-                            OperationType.USE_SPAWN_EGG,
-                            OperationType.ENDER_PEARL_TELEPORT,
-                            OperationType.START_RAID
+                            OperationType.USE_SPAWN_EGG
                     ))
                     .build(),
 
@@ -131,10 +135,12 @@ public class TrustLevels {
                     .flags(List.of(
                             OperationType.BLOCK_INTERACT,
                             OperationType.ENTITY_INTERACT,
-                            OperationType.CONTAINER_OPEN,
                             OperationType.REDSTONE_INTERACT,
+                            OperationType.PLACE_VEHICLE,
+                            OperationType.BREAK_VEHICLE,
                             OperationType.ENDER_PEARL_TELEPORT,
-                            OperationType.START_RAID
+                            OperationType.START_RAID,
+                            OperationType.CONTAINER_OPEN
                     ))
                     .build(),
 
@@ -150,6 +156,8 @@ public class TrustLevels {
                             OperationType.BLOCK_INTERACT,
                             OperationType.ENTITY_INTERACT,
                             OperationType.REDSTONE_INTERACT,
+                            OperationType.PLACE_VEHICLE,
+                            OperationType.BREAK_VEHICLE,
                             OperationType.ENDER_PEARL_TELEPORT,
                             OperationType.START_RAID
                     ))
@@ -158,12 +166,16 @@ public class TrustLevels {
 
     @Comment("The operation types that the claim owner can perform in their own claim")
     private Set<OperationType> allowedOwnerOperations = Set.of(
+            OperationType.BLOCK_INTERACT,
+            OperationType.ENTITY_INTERACT,
+            OperationType.REDSTONE_INTERACT,
+            OperationType.PLACE_VEHICLE,
+            OperationType.BREAK_VEHICLE,
+            OperationType.ENDER_PEARL_TELEPORT,
+            OperationType.START_RAID,
+            OperationType.CONTAINER_OPEN,
             OperationType.BLOCK_BREAK,
             OperationType.BLOCK_PLACE,
-            OperationType.BLOCK_INTERACT,
-            OperationType.REDSTONE_INTERACT,
-            OperationType.ENTITY_INTERACT,
-            OperationType.CONTAINER_OPEN,
             OperationType.FARM_BLOCK_BREAK,
             OperationType.FARM_BLOCK_PLACE,
             OperationType.FARM_BLOCK_INTERACT,
@@ -175,9 +187,7 @@ public class TrustLevels {
             OperationType.PLAYER_DAMAGE_ENTITY,
             OperationType.FILL_BUCKET,
             OperationType.EMPTY_BUCKET,
-            OperationType.USE_SPAWN_EGG,
-            OperationType.ENDER_PEARL_TELEPORT,
-            OperationType.START_RAID
+            OperationType.USE_SPAWN_EGG
     );
 
     @NotNull
