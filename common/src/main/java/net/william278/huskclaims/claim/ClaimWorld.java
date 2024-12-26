@@ -436,7 +436,7 @@ public class ClaimWorld {
     public boolean isOperationAllowed(@NotNull Operation operation, @NotNull HuskClaims plugin) {
         return getClaimAt((Position) operation.getOperationPosition())
                 .map(claim -> isOperationAllowedInClaim(operation, claim, plugin))
-                .orElse(isOperationAllowedInWilderness(operation, plugin));
+                .orElseGet(() -> isOperationAllowedInWilderness(operation, plugin));
     }
 
     /**
