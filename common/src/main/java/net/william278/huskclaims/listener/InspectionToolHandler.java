@@ -101,7 +101,7 @@ public interface InspectionToolHandler {
                 .ifPresent(user::sendMessage);
 
         // Send "last seen..." message if the user has permission
-        if (user.hasPermission(VIEW_LAST_SEEN_PERMISSION)) {
+        if (user.hasPermission(VIEW_LAST_SEEN_PERMISSION, false)) {
             claim.getOwner()
                     .flatMap(owner -> getPlugin().getCachedSavedUser(owner))
                     .flatMap(saved -> getPlugin()

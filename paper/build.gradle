@@ -49,7 +49,7 @@ tasks {
     runServer {
         minecraftVersion('1.21.4')
         downloadPlugins {
-            url("https://ci.lucko.me/job/LuckPerms/lastBuild/artifact/bukkit/loader/build/libs/LuckPerms-Bukkit-5.4.150.jar")
+            url("https://ci.lucko.me/job/LuckPerms/lastBuild/artifact/bukkit/loader/build/libs/LuckPerms-Bukkit-5.4.151.jar")
 
 //            modrinth("huskhomes", "kXsCoILk")
 //            modrinth("dynmap", "5F9fwzR1")
