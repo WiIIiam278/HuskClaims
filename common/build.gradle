@@ -22,7 +22,7 @@ dependencies {
     compileOnly 'net.kyori:adventure-api:4.17.0'
     compileOnly 'net.kyori:adventure-platform-api:4.3.4'
     compileOnly 'org.jetbrains:annotations:26.0.1'
-    compileOnly 'com.google.guava:guava:33.3.1-jre'
+    compileOnly 'com.google.guava:guava:33.4.0-jre'
     compileOnly 'org.projectlombok:lombok:1.18.36'
 
     compileOnly 'net.luckperms:api:5.4'
@@ -36,7 +36,7 @@ dependencies {
     }
 
     testImplementation 'com.github.plan-player-analytics:Plan:5.6.2906'
-    testImplementation 'com.google.guava:guava:33.3.1-jre'
+    testImplementation 'com.google.guava:guava:33.4.0-jre'
     testImplementation 'it.unimi.dsi:fastutil:8.5.15'
     testCompileOnly 'org.projectlombok:lombok:1.18.36'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
