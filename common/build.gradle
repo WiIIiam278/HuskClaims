@@ -28,7 +28,7 @@ dependencies {
     compileOnly 'net.luckperms:api:5.4'
     compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:2.7.0'
     compileOnly 'us.dynmap:DynmapCoreAPI:3.6'
-    compileOnly 'maven.modrinth:pl3xmap:1.20.4-492'
+    compileOnly 'maven.modrinth:pl3xmap:1.21.4-520'
     compileOnly 'com.github.plan-player-analytics:Plan:5.6.2906'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.9-SNAPSHOT'
     compileOnly('org.geysermc.floodgate:api:2.2.3-SNAPSHOT') {
