@@ -23,11 +23,13 @@ import com.google.common.collect.Lists;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.william278.cloplib.listener.InspectorCallbackProvider;
 import net.william278.huskclaims.FabricHuskClaims;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.hook.HuskHomesHook;
+import net.william278.huskclaims.network.FabricPluginMessage;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.util.Location;
 import org.jetbrains.annotations.ApiStatus;
@@ -60,19 +62,19 @@ public class FabricUser extends OnlineUser {
 
     @Override
     public void sendPluginMessage(@NotNull String channel, byte[] message) {
-//        fabricPlayer.networkHandler.sendPacket(new CustomPayloadS2CPacket(new FabricPluginMessage(message)));
+        fabricPlayer.networkHandler.sendPacket(new CustomPayloadS2CPacket(new FabricPluginMessage(message)));
     }
 
     @Override
     public boolean hasPermission(@NotNull String node) {
         boolean op = Boolean.TRUE.equals(((FabricHuskClaims) plugin).getPermissions().getOrDefault(node, true));
-        return Permissions.check(fabricPlayer, node, op);
+        return Permissions.check(fabricPlayer, node, !op || fabricPlayer.hasPermissionLevel(3));
     }
 
     @Override
     public boolean hasPermission(@NotNull String node, boolean isDefault) {
         boolean op = Boolean.TRUE.equals(((FabricHuskClaims) plugin).getPermissions().getOrDefault(node, true));
-        return Permissions.check(fabricPlayer, node, isDefault || (op || !fabricPlayer.hasPermissionLevel(3)));
+        return Permissions.check(fabricPlayer, node, isDefault || (!op || fabricPlayer.hasPermissionLevel(3)));
     }
 
     @Override

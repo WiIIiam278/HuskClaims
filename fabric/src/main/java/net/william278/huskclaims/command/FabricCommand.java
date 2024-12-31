@@ -73,7 +73,7 @@ public class FabricCommand {
 
         // Register aliases
         final LiteralCommandNode<ServerCommandSource> node = dispatcher.register(builder);
-        dispatcher.register(literal("huskhomes:" + command.getName())
+        dispatcher.register(literal("huskclaims:" + command.getName())
                 .requires(predicate).executes(getBrigadierExecutor()).redirect(node));
         command.getAliases().forEach(alias -> dispatcher.register(literal(alias)
                 .requires(predicate).executes(getBrigadierExecutor()).redirect(node)));
