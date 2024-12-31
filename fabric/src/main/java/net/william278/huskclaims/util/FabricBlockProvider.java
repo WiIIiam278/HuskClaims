@@ -1,0 +1,95 @@
+package net.william278.huskclaims.util;
+
+import com.google.common.collect.Maps;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.StainedGlassBlock;
+import net.minecraft.block.StainedGlassPaneBlock;
+import net.minecraft.item.Items;
+import net.minecraft.registry.Registries;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.Pair;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.william278.huskclaims.FabricHuskClaims;
+import net.william278.huskclaims.highlighter.BlockHighlighter;
+import net.william278.huskclaims.highlighter.Highlightable;
+import net.william278.huskclaims.position.BlockPosition;
+import net.william278.huskclaims.position.Position;
+import net.william278.huskclaims.position.World;
+import net.william278.huskclaims.FabricHuskClaims.Adapter;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Map;
+import java.util.Set;
+
+import static net.william278.huskclaims.highlighter.BlockHighlighter.VIEWING_RANGE;
+
+public interface FabricBlockProvider extends BlockProvider {
+
+    @NotNull
+    @Override
+    default MaterialBlock getBlockFor(@NotNull String materialKey) {
+        return BlockMaterialBlock.create(Registries.BLOCK.get(Identifier.tryParse(materialKey)));
+    }
+
+    @NotNull
+    @Override
+    default Map<BlockHighlighter.HighlightBlock, Highlightable.Type> getSurfaceBlocksAt(
+            @NotNull Map<? extends BlockPosition, Highlightable.Type> positions,
+            @NotNull World surfaceWorld, @NotNull Position viewerPos
+    ) {
+        final Map<BlockHighlighter.HighlightBlock, Highlightable.Type> blocks = Maps.newHashMap();
+        final BlockPos viewerBlock = new BlockPos(viewerPos.getBlockX(), (int) viewerPos.getY(), viewerPos.getBlockZ());
+        final ServerWorld world = Adapter.adapt(surfaceWorld, getPlugin().getMinecraftServer());
+        positions.forEach((pos, highlightType) -> {
+            final BlockPos location = new BlockPos(pos.getBlockX(), (int) viewerPos.getY(), pos.getBlockZ());
+            final boolean loaded = world.isChunkLoaded(location.getX() >> 4, location.getZ() >> 4);
+            if (loaded && location.toCenterPos().distanceTo(viewerBlock.toCenterPos()) <= VIEWING_RANGE) {
+                final Pair<BlockPos, Block> block = getSurfaceBlockAt(
+                        location.mutableCopy(), world,
+                        world.getBottomY(), world.getHeight()
+                );
+                blocks.put(new BlockHighlighter.HighlightBlock(
+                        Adapter.adapt(new Location(world, block.getLeft())),
+                        new BlockMaterialBlock(block.getRight())
+                ), highlightType);
+            }
+        });
+        return blocks;
+    }
+
+    // Scans up or down relative to where the player is standing to find a good surface block
+    @NotNull
+    private Pair<BlockPos, Block> getSurfaceBlockAt(@NotNull BlockPos.Mutable block, @NotNull ServerWorld world,
+                                                    int minHeight, int maxHeight) {
+        final BlockState state = world.getBlockState(block);
+        final Direction direction = !isOccluding(state) ? Direction.DOWN : Direction.UP;
+        while (isObscured(block, world, minHeight, maxHeight)) {
+            block = block.move(direction);
+        }
+        return new Pair<>(block, world.getBlockState(block).getBlock());
+    }
+
+    // Returns if a block would be obscured by the block above it (and that it's within the world boundaries)
+    private boolean isObscured(@NotNull BlockPos.Mutable block, @NotNull ServerWorld world,
+                               int minHeight, int maxHeight) {
+        return (isOccluding(world.getBlockState(block.offset(Direction.UP)))) ||
+               !isOccluding(world.getBlockState(block)) && block.getY() >= minHeight && (block.getY() < maxHeight - 1);
+    }
+
+    // Returns if a block occludes vision/light
+    private boolean isOccluding(@NotNull BlockState block) {
+        return !block.isTransparent() || isAllowedMaterial(block.getBlock());
+    }
+
+    private boolean isAllowedMaterial(@NotNull Block material) {
+        return Set.of(Items.GLASS, Items.ICE, Items.PACKED_ICE, Items.BLUE_ICE).contains(material.asItem()) ||
+               material instanceof StainedGlassBlock || material instanceof StainedGlassPaneBlock;
+    }
+
+    @NotNull
+    FabricHuskClaims getPlugin();
+
+}

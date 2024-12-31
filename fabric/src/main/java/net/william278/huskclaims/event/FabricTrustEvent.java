@@ -1,0 +1,62 @@
+package net.william278.huskclaims.event;
+
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import net.fabricmc.fabric.api.event.Event;
+import net.fabricmc.fabric.api.event.EventFactory;
+import net.minecraft.util.ActionResult;
+import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.claim.Claim;
+import net.william278.huskclaims.claim.ClaimWorld;
+import net.william278.huskclaims.claim.Region;
+import net.william278.huskclaims.trust.TrustLevel;
+import net.william278.huskclaims.trust.Trustable;
+import net.william278.huskclaims.user.OnlineUser;
+import net.william278.huskclaims.user.User;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
+
+public interface FabricTrustEvent extends FabricEventCallback<TrustEvent> {
+
+    @NotNull
+    Event<FabricTrustEvent> EVENT = EventFactory.createArrayBacked(FabricTrustEvent.class,
+            (listeners) -> (event) -> {
+                for (FabricTrustEvent listener : listeners) {
+                    final ActionResult result = listener.invoke(event);
+                    if (event.isCancelled()) {
+                        return ActionResult.CONSUME;
+                    } else if (result != ActionResult.PASS) {
+                        event.setCancelled(true);
+                        return result;
+                    }
+                }
+
+                return ActionResult.PASS;
+            });
+
+    @Getter
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+    final class Callback implements TrustEvent {
+
+        private final OnlineUser onlineUser;
+        private final Claim claim;
+        private final ClaimWorld claimWorld;
+        private final TrustLevel trustLevel;
+        private final Trustable trusted;
+        private final HuskClaims plugin;
+
+        @Setter
+        private boolean cancelled = false;
+
+        @NotNull
+        public Event<FabricTrustEvent> getEvent() {
+            return EVENT;
+        }
+
+    }
+
+}

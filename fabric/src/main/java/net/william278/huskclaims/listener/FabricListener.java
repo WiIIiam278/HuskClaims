@@ -1,0 +1,129 @@
+package net.william278.huskclaims.listener;
+
+import lombok.Getter;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
+import net.william278.cloplib.listener.FabricOperationListener;
+import net.william278.cloplib.operation.OperationPosition;
+import net.william278.cloplib.operation.OperationUser;
+import net.william278.huskclaims.FabricHuskClaims;
+import net.william278.huskclaims.moderation.SignListener;
+import org.jetbrains.annotations.NotNull;
+
+@Getter
+public class FabricListener extends FabricOperationListener implements FabricPetListener, FabricDropsListener,
+        ClaimsListener, UserListener, SignListener {
+
+    protected final FabricHuskClaims plugin;
+
+    public FabricListener(@NotNull FabricHuskClaims plugin) {
+        super(plugin, plugin.getMod());
+        this.plugin = plugin;
+    }
+
+    @Override
+    public void register() {
+        setInspectorCallbacks();
+
+        ServerPlayConnectionEvents.JOIN.register(this::onPlayerJoin);
+        ServerPlayConnectionEvents.DISCONNECT.register(this::onPlayerQuit);
+    }
+
+    private void onPlayerJoin(ServerPlayNetworkHandler handler, PacketSender sender, MinecraftServer server) {
+        plugin.getOnlineUserMap().remove(handler.getPlayer().getUuid());
+        this.onUserJoin(plugin.getOnlineUser(handler.getPlayer()));
+    }
+
+
+    public void onPlayerQuit(ServerPlayNetworkHandler handler, MinecraftServer server) {
+        this.onUserQuit(plugin.getOnlineUser(handler.getPlayer()));
+    }
+
+//    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+//    public void onPlayerSwitchHeldItem(@NotNull PlayerItemHeldEvent e) {
+//        final ItemStack mainHand = e.getPlayer().getInventory().getItem(e.getNewSlot());
+//        final ItemStack offHand = e.getPlayer().getInventory().getItemInOffHand();
+//        this.onUserSwitchHeldItem(
+//                plugin.getOnlineUser(e.getPlayer()),
+//                (mainHand != null ? mainHand.getType() : Material.AIR).getKey().toString(),
+//                offHand.getType().getKey().toString()
+//        );
+//    }
+//
+//    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+//    public void onUserSwapHands(@NotNull PlayerSwapHandItemsEvent e) {
+//        final ItemStack mainHand = e.getMainHandItem();
+//        final ItemStack offHand = e.getOffHandItem();
+//        this.onUserSwitchHeldItem(
+//                plugin.getOnlineUser(e.getPlayer()),
+//                (mainHand != null ? mainHand.getType() : Material.AIR).getKey().toString(),
+//                (offHand != null ? offHand.getType() : Material.AIR).getKey().toString()
+//        );
+//    }
+//
+//    @EventHandler(ignoreCancelled = true)
+//    public void onUserTeleport(@NotNull PlayerTeleportEvent e) {
+//        if (e.getTo() != null && getPlugin().cancelMovement(
+//                plugin.getOnlineUser(e.getPlayer()),
+//                BukkitHuskClaims.Adapter.adapt(e.getFrom()),
+//                BukkitHuskClaims.Adapter.adapt(e.getTo())
+//        )) {
+//            e.setCancelled(true);
+//        }
+//    }
+//
+//    @EventHandler(ignoreCancelled = true)
+//    public void onWorldLoad(@NotNull WorldLoadEvent e) {
+//        plugin.runAsync(() -> {
+//            final World world = BukkitHuskClaims.Adapter.adapt(e.getWorld());
+//            plugin.loadClaimWorld(world);
+//            plugin.getClaimWorld(world).ifPresent(loaded -> plugin.getMapHooks().forEach(
+//                    hook -> hook.markClaims(loaded.getClaims(), loaded))
+//            );
+//        });
+//    }
+//
+//    @Override
+//    public void onUserTamedEntityAction(@NotNull Cancellable event, @Nullable Entity player, @NotNull Entity entity) {
+//        // If pets are enabled, check if the entity is tamed
+//        if (player == null || !getPlugin().getSettings().getPets().isEnabled() || !(entity instanceof Tameable tamed)) {
+//            return;
+//        }
+//
+//        // Check it was damaged by a player
+//        final Optional<Player> source = getPlayerSource(player);
+//        final Optional<User> owner = getPlugin().getPetOwner(tamed);
+//        if (source.isEmpty() || owner.isEmpty()) {
+//            return;
+//        }
+//
+//        // Don't cancel the event if there's no mismatch
+//        if (getPlugin().cancelPetOperation(plugin.getOnlineUser(source.get()), owner.get())) {
+//            event.setCancelled(true);
+//        }
+//    }
+
+    @Override
+    @NotNull
+    public OperationPosition getPosition(@NotNull Vec3d vec3d, @NotNull World world, float yaw, float pitch) {
+        return FabricHuskClaims.Adapter.adapt(world, vec3d, yaw, pitch);
+    }
+
+    @Override
+    @NotNull
+    public OperationUser getUser(@NotNull PlayerEntity player) {
+        return plugin.getOnlineUser((ServerPlayerEntity) player);
+    }
+
+    @Override
+    public void setInspectionDistance(int i) {
+        throw new UnsupportedOperationException("Cannot change inspection distance");
+    }
+
+}
