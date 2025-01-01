@@ -20,19 +20,21 @@
 package net.william278.huskclaims.listener;
 
 import lombok.Getter;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 import net.william278.cloplib.listener.FabricOperationListener;
 import net.william278.cloplib.operation.OperationPosition;
 import net.william278.cloplib.operation.OperationUser;
 import net.william278.huskclaims.FabricHuskClaims;
 import net.william278.huskclaims.moderation.SignListener;
+import net.william278.huskclaims.position.World;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
@@ -52,6 +54,7 @@ public class FabricListener extends FabricOperationListener implements FabricPet
 
         ServerPlayConnectionEvents.JOIN.register(this::onPlayerJoin);
         ServerPlayConnectionEvents.DISCONNECT.register(this::onPlayerQuit);
+        ServerWorldEvents.LOAD.register(this::onWorldLoad);
     }
 
     private void onPlayerJoin(ServerPlayNetworkHandler handler, PacketSender sender, MinecraftServer server) {
@@ -74,7 +77,7 @@ public class FabricListener extends FabricOperationListener implements FabricPet
 //                offHand.getType().getKey().toString()
 //        );
 //    }
-//
+
 //    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
 //    public void onUserSwapHands(@NotNull PlayerSwapHandItemsEvent e) {
 //        final ItemStack mainHand = e.getMainHandItem();
@@ -85,7 +88,7 @@ public class FabricListener extends FabricOperationListener implements FabricPet
 //                (offHand != null ? offHand.getType() : Material.AIR).getKey().toString()
 //        );
 //    }
-//
+
 //    @EventHandler(ignoreCancelled = true)
 //    public void onUserTeleport(@NotNull PlayerTeleportEvent e) {
 //        if (e.getTo() != null && getPlugin().cancelMovement(
@@ -96,18 +99,17 @@ public class FabricListener extends FabricOperationListener implements FabricPet
 //            e.setCancelled(true);
 //        }
 //    }
-//
-//    @EventHandler(ignoreCancelled = true)
-//    public void onWorldLoad(@NotNull WorldLoadEvent e) {
-//        plugin.runAsync(() -> {
-//            final World world = BukkitHuskClaims.Adapter.adapt(e.getWorld());
-//            plugin.loadClaimWorld(world);
-//            plugin.getClaimWorld(world).ifPresent(loaded -> plugin.getMapHooks().forEach(
-//                    hook -> hook.markClaims(loaded.getClaims(), loaded))
-//            );
-//        });
-//    }
-//
+
+    public void onWorldLoad(@NotNull MinecraftServer server, @NotNull ServerWorld serverWorld) {
+        plugin.runAsync(() -> {
+            final World world = FabricHuskClaims.Adapter.adapt(serverWorld);
+            plugin.loadClaimWorld(world);
+            plugin.getClaimWorld(world).ifPresent(loaded -> plugin.getMapHooks().forEach(
+                    hook -> hook.markClaims(loaded.getClaims(), loaded))
+            );
+        });
+    }
+
 //    @Override
 //    public void onUserTamedEntityAction(@NotNull Cancellable event, @Nullable Entity player, @NotNull Entity entity) {
 //        // If pets are enabled, check if the entity is tamed
@@ -130,7 +132,8 @@ public class FabricListener extends FabricOperationListener implements FabricPet
 
     @Override
     @NotNull
-    public OperationPosition getPosition(@NotNull Vec3d vec3d, @NotNull World world, float yaw, float pitch) {
+    public OperationPosition getPosition(@NotNull Vec3d vec3d, @NotNull net.minecraft.world.World world,
+                                         float yaw, float pitch) {
         return FabricHuskClaims.Adapter.adapt(world, vec3d, yaw, pitch);
     }
 

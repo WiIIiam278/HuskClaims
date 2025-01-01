@@ -4,9 +4,10 @@
   "package": "net.william278.huskclaims.mixins",
   "compatibilityLevel": "JAVA_17",
   "server": [
-    "ChunkDeltaUpdateS2CPacketMixin"
   ],
-  "client": [],
+  "client": [
+    "EntityMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }

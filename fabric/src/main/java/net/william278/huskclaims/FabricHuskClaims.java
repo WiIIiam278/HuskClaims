@@ -24,8 +24,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
-import it.unimi.dsi.fastutil.shorts.Short2ObjectArrayMap;
-import it.unimi.dsi.fastutil.shorts.Short2ObjectMap;
+import it.unimi.dsi.fastutil.shorts.ShortArraySet;
+import it.unimi.dsi.fastutil.shorts.ShortSet;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -38,18 +38,25 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences;
+import net.kyori.adventure.text.Component;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.chunk.ChunkSection;
 import net.william278.cloplib.operation.OperationType;
 import net.william278.desertwell.util.Version;
 import net.william278.huskclaims.claim.ClaimWorld;
@@ -328,27 +335,37 @@ public class FabricHuskClaims implements DedicatedServerModInitializer, HuskClai
         }
     }
 
+    // Pack change data into chunk sections for the ChunkDeltaUpdate packet
     @Override
     public void sendBlockUpdates(@NotNull OnlineUser user, @NotNull Map<Position, MaterialBlock> blocks) {
-        // Pack change data into chunk sections for the ChunkDeltaUpdate packet
-        final Map<ChunkSectionPos, Short2ObjectMap<BlockState>> sections = new HashMap<>();
+        // Get biome registry
+        final net.minecraft.world.World world = Adapter.adapt(user.getWorld(), minecraftServer);
+        final Registry<Biome> biomes = world.getRegistryManager().getOrThrow(RegistryKeys.BIOME);
+
+        // Calculate chunk sectors to update
+        final Map<ChunkSectionPos, Pair<ShortSet, ChunkSection>> sections = Maps.newHashMap();
         for (Map.Entry<Position, MaterialBlock> entry : blocks.entrySet()) {
             final Position pos = entry.getKey();
-            final BlockPos blockPos = BlockPos.ofFloored(pos.getBlockX(), pos.getY(), pos.getBlockZ());
-            final BlockState blockData = ((BlockMaterialBlock) entry.getValue()).getData().getDefaultState();
-            final Short2ObjectMap<BlockState> sectionData = sections.computeIfAbsent(
-                    ChunkSectionPos.from(blockPos), k -> new Short2ObjectArrayMap<>());
-            sectionData.put(ChunkSectionPos.packLocal(blockPos), blockData);
+            final BlockPos block = BlockPos.ofFloored(pos.getBlockX(), pos.getY(), pos.getBlockZ());
+            final Pair<ShortSet, ChunkSection> sectionData = sections.computeIfAbsent(
+                    ChunkSectionPos.from(block), ignored -> new Pair<>(new ShortArraySet(), new ChunkSection(biomes))
+            );
+
+            // Set data
+            final short packed = ChunkSectionPos.packLocal(block);
+            sectionData.getLeft().add(packed);
+            sectionData.getRight().setBlockState(
+                    ChunkSectionPos.unpackLocalX(packed),
+                    ChunkSectionPos.unpackLocalY(packed),
+                    ChunkSectionPos.unpackLocalZ(packed),
+                    ((BlockMaterialBlock) entry.getValue()).getData().getDefaultState()
+            );
         }
 
-        // Send packets - todo
+        // Send packets for each pos
         final ServerPlayerEntity player = ((FabricUser) user).getFabricPlayer();
-//        sections.forEach((key, value) -> {
-//            final ChunkDeltaUpdateS2CPacket packet = new ChunkDeltaUpdateS2CPacket(key, null, null);
-//            ((ChunkDeltaUpdateS2CPacketMixin) packet).cloplib_setValues(key);
-//            player.networkHandler.sendPacket(
-//                    (ChunkDeltaUpdateS2CPacket) (Object) new ChunkDeltaUpdateS2CPacket(value, key))
-//        )};
+        sections.forEach((section, data) -> player.networkHandler.sendPacket(
+                new ChunkDeltaUpdateS2CPacket(section, data.getLeft(), data.getRight())));
     }
 
     @Override

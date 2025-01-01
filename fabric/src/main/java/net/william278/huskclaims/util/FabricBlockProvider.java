@@ -94,8 +94,9 @@ public interface FabricBlockProvider extends BlockProvider {
     // Returns if a block would be obscured by the block above it (and that it's within the world boundaries)
     private boolean isObscured(@NotNull BlockPos.Mutable block, @NotNull ServerWorld world,
                                int minHeight, int maxHeight) {
-        return (isOccluding(world.getBlockState(block.offset(Direction.UP)))) ||
-               !isOccluding(world.getBlockState(block)) && block.getY() >= minHeight && (block.getY() < maxHeight - 1);
+        return (isOccluding(world.getBlockState(block.offset(Direction.UP, 1))) ||
+               !isOccluding(world.getBlockState(block))) &&
+               block.getY() >= minHeight && (block.getY() < maxHeight - 1);
     }
 
     // Returns if a block occludes vision/light

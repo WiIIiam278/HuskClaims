@@ -1,52 +1,38 @@
-/*
- * This file is part of HuskClaims, licensed under the Apache License 2.0.
- *
- *  Copyright (c) William278 <will27528@gmail.com>
- *  Copyright (c) contributors
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- */
-
 package net.william278.huskclaims.highlighter;
 
-import net.william278.huskclaims.BukkitHuskClaims;
+import net.minecraft.entity.AreaEffectCloudEntity;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.data.TrackedData;
+import net.minecraft.entity.data.TrackedDataHandlerRegistry;
+import net.minecraft.entity.decoration.Brightness;
+import net.minecraft.entity.decoration.DisplayEntity;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.AffineTransformation;
+import net.william278.huskclaims.FabricHuskClaims;
 import net.william278.huskclaims.HuskClaims;
-import net.william278.huskclaims.PaperHuskClaims;
 import net.william278.huskclaims.hook.GeyserHook;
 import net.william278.huskclaims.position.Position;
-import net.william278.huskclaims.user.BukkitUser;
+import net.william278.huskclaims.user.FabricUser;
 import net.william278.huskclaims.user.OnlineUser;
-import net.william278.huskclaims.util.BlockDataBlock;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.entity.BlockDisplay;
-import org.bukkit.entity.Display;
-import org.bukkit.entity.EntityType;
-import org.bukkit.util.Transformation;
+import net.william278.huskclaims.util.BlockMaterialBlock;
+import net.william278.huskclaims.util.Location;
 import org.jetbrains.annotations.NotNull;
 import org.joml.AxisAngle4f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.Collection;
+import java.util.UUID;
 
-/**
- * Highlighter that uses {@link BlockDisplay} entities - used to highlight {@link Highlightable}s to a user in-game
- */
-public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighlighter.DisplayHighlightBlock> {
+public class FabricBlockDisplayHighlighter extends BlockHighlighter<FabricBlockDisplayHighlighter.DisplayHighlightBlock> {
 
     private static final int PRIORITY = 1;
 
-    public BlockDisplayHighlighter(@NotNull HuskClaims plugin) {
+    public FabricBlockDisplayHighlighter(@NotNull HuskClaims plugin) {
         super(plugin);
     }
 
@@ -91,19 +77,23 @@ public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighli
 
     public static final class DisplayHighlightBlock extends HighlightBlock {
 
+        public static final TrackedData<String> VISIBLE_TO = DataTracker.registerData(
+                DisplayEntity.BlockDisplayEntity.class, TrackedDataHandlerRegistry.STRING
+        );
+
         // Block display brightness value
-        private static final Display.Brightness FULL_BRIGHT = new Display.Brightness(15, 15);
+        private static final Brightness FULL_BRIGHT = new Brightness(15, 15);
 
         // Block display scale constants
         private static final float SCALAR = 0.002f;
-        private static final Transformation SCALE_TRANSFORMATION = new Transformation(
+        private static final AffineTransformation SCALE_TRANSFORMATION = new AffineTransformation(
                 new Vector3f(-(SCALAR / 2), -(SCALAR / 2), -(SCALAR / 2)),
-                new AxisAngle4f(0, 0, 0, 0),
+                new Quaternionf(0, 0, 0, 0),
                 new Vector3f(1 + SCALAR, 1 + SCALAR, 1 + SCALAR),
-                new AxisAngle4f(0, 0, 0, 0)
+                new Quaternionf(0, 0, 0, 0)
         );
 
-        private final BlockDisplay display;
+        private final DisplayEntity.BlockDisplayEntity display;
 
         private DisplayHighlightBlock(@NotNull Position position, @NotNull Highlightable.Type type,
                                       @NotNull HuskClaims plugin) {
@@ -111,24 +101,25 @@ public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighli
             this.display = createEntity(plugin, type);
         }
 
-        @SuppressWarnings("UnstableApiUsage")
         @NotNull
-        private BlockDisplay createEntity(@NotNull HuskClaims plugin, @NotNull Highlightable.Type type) {
-            final Location location = BukkitHuskClaims.Adapter.adapt(position);
-            if (!location.isWorldLoaded() || !location.getChunk().isLoaded()) {
+        private DisplayEntity.BlockDisplayEntity createEntity(@NotNull HuskClaims plugin, @NotNull Highlightable.Type type) {
+            final Location location = FabricHuskClaims.Adapter.adapt(position, ((FabricHuskClaims) plugin).getMinecraftServer());
+            if (!location.world().isPosLoaded(location.blockPos())) {
                 throw new IllegalStateException("World/chunk is not loaded");
             }
 
             // Create block display
-            final BlockDisplay display = (BlockDisplay) location.getWorld().spawnEntity(
-                    location, EntityType.BLOCK_DISPLAY
-            );
-            display.setBlock(((BlockDataBlock) this.block).getData());
+            final DisplayEntity.BlockDisplayEntity display = EntityType.BLOCK_DISPLAY
+                    .spawn(location.world(), location.blockPos(), SpawnReason.COMMAND);
+            if (display == null) {
+                throw new IllegalStateException("Failed to spawn display");
+            }
+            display.setBlockState(((BlockMaterialBlock) this.block).getData().getDefaultState());
             display.setViewRange(BlockHighlighter.VIEWING_RANGE);
-            display.setGravity(false);
-            display.setPersistent(false);
+            display.setNoGravity(true);
+            display.setInvisible(true);
             display.setBrightness(FULL_BRIGHT);
-            display.setVisibleByDefault(false);
+            display.setCustomNameVisible(false);
 
             // Scale to prevent z-fighting
             display.setTransformation(SCALE_TRANSFORMATION);
@@ -136,21 +127,20 @@ public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighli
             // Glow if needed
             if (plugin.getSettings().getHighlighter().isGlowEffect()) {
                 display.setGlowing(true);
-                display.setGlowColorOverride(Color.fromRGB(
-                        plugin.getSettings().getHighlighter().getGlowColor(type).getRgb()
-                ));
+                display.setGlowColorOverride(
+                        plugin.getSettings().getHighlighter().getGlowColor(type).getArgb()
+                );
             }
             return display;
         }
 
-        @SuppressWarnings("UnstableApiUsage")
         public void show(@NotNull HuskClaims plugin, @NotNull OnlineUser user) {
-            ((BukkitUser) user).getBukkitPlayer().showEntity((PaperHuskClaims) plugin, display);
+            display.getDataTracker().set(VISIBLE_TO, user.getUuid().toString());
         }
 
         public void remove() {
             if (display != null) {
-                display.remove();
+                display.remove(Entity.RemovalReason.DISCARDED);
             }
         }
 
