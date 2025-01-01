@@ -25,6 +25,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Identifier;
 import net.william278.cloplib.listener.InspectorCallbackProvider;
 import net.william278.huskclaims.FabricHuskClaims;
 import net.william278.huskclaims.HuskClaims;
@@ -38,6 +39,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.logging.Level;
 
 public class FabricUser extends OnlineUser {
 
@@ -79,8 +81,8 @@ public class FabricUser extends OnlineUser {
 
     @Override
     public boolean isHolding(@NotNull InspectorCallbackProvider.InspectionTool tool) {
-        final Predicate<ItemStack> pred = (i) -> i.getRegistryEntry().getIdAsString().equals(tool.material());
-        return pred.test(fabricPlayer.getMainHandStack()); // todo custom model data, etc
+        final Predicate<ItemStack> pred = (i) -> i.getRegistryEntry().matchesId(Identifier.of(tool.material()));
+        return pred.test(fabricPlayer.getMainHandStack());
     }
 
     @Override

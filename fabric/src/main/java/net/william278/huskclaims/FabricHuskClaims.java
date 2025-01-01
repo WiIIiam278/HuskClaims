@@ -262,7 +262,7 @@ public class FabricHuskClaims implements DedicatedServerModInitializer, HuskClai
     @NotNull
     @Override
     public Path getConfigDirectory() {
-        return FabricLoader.getInstance().getConfigDir().resolve("huskhomes");
+        return FabricLoader.getInstance().getConfigDir().resolve("huskclaims");
     }
 
     @Override
