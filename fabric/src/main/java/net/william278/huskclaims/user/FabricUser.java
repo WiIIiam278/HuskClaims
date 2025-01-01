@@ -39,7 +39,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.logging.Level;
 
 public class FabricUser extends OnlineUser {
 

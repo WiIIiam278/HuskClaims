@@ -24,8 +24,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
-import it.unimi.dsi.fastutil.shorts.ShortArraySet;
-import it.unimi.dsi.fastutil.shorts.ShortSet;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -38,25 +36,14 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences;
-import net.kyori.adventure.text.Component;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;
 import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.Pair;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.ChunkSection;
 import net.william278.cloplib.operation.OperationType;
 import net.william278.desertwell.util.Version;
 import net.william278.huskclaims.claim.ClaimWorld;
@@ -68,6 +55,7 @@ import net.william278.huskclaims.config.Settings;
 import net.william278.huskclaims.config.TrustLevels;
 import net.william278.huskclaims.database.Database;
 import net.william278.huskclaims.event.FabricEventDispatcher;
+import net.william278.huskclaims.highlighter.FabricBlockDisplayHighlighter;
 import net.william278.huskclaims.highlighter.Highlighter;
 import net.william278.huskclaims.hook.FabricHookProvider;
 import net.william278.huskclaims.hook.Hook;
@@ -335,9 +323,23 @@ public class FabricHuskClaims implements DedicatedServerModInitializer, HuskClai
         }
     }
 
+    @Override
+    public void loadHighlighters() {
+//        HuskClaims.super.loadHighlighters(); // todo - not yet implemented
+
+        if (!getSettings().getHighlighter().isBlockDisplays()) {
+            log(Level.WARNING, "Block display highlighting is disabled, but this is the only builtin " +
+                               "highlighter supported on Fabric currently. Enabling anyway.");
+        }
+        registerHighlighter(new FabricBlockDisplayHighlighter(this));
+    }
+
     // Pack change data into chunk sections for the ChunkDeltaUpdate packet
     @Override
     public void sendBlockUpdates(@NotNull OnlineUser user, @NotNull Map<Position, MaterialBlock> blocks) {
+        throw new UnsupportedOperationException("Block updates not yet implemented in Fabric HuskClaims");
+        /* todo
+
         // Get biome registry
         final net.minecraft.world.World world = Adapter.adapt(user.getWorld(), minecraftServer);
         final Registry<Biome> biomes = world.getRegistryManager().getOrThrow(RegistryKeys.BIOME);
@@ -365,7 +367,7 @@ public class FabricHuskClaims implements DedicatedServerModInitializer, HuskClai
         // Send packets for each pos
         final ServerPlayerEntity player = ((FabricUser) user).getFabricPlayer();
         sections.forEach((section, data) -> player.networkHandler.sendPacket(
-                new ChunkDeltaUpdateS2CPacket(section, data.getLeft(), data.getRight())));
+                new ChunkDeltaUpdateS2CPacket(section, data.getLeft(), data.getRight())));*/
     }
 
     @Override

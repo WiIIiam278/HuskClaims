@@ -32,12 +32,12 @@ import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.william278.huskclaims.FabricHuskClaims;
+import net.william278.huskclaims.FabricHuskClaims.Adapter;
 import net.william278.huskclaims.highlighter.BlockHighlighter;
 import net.william278.huskclaims.highlighter.Highlightable;
 import net.william278.huskclaims.position.BlockPosition;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.position.World;
-import net.william278.huskclaims.FabricHuskClaims.Adapter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -50,7 +50,7 @@ public interface FabricBlockProvider extends BlockProvider {
     @NotNull
     @Override
     default MaterialBlock getBlockFor(@NotNull String materialKey) {
-        return BlockMaterialBlock.create(Registries.BLOCK.get(Identifier.tryParse(materialKey)));
+        return BlockMaterialBlock.create(Registries.BLOCK.get(Identifier.of(materialKey)));
     }
 
     @NotNull
@@ -83,8 +83,7 @@ public interface FabricBlockProvider extends BlockProvider {
     @NotNull
     private Pair<BlockPos, Block> getSurfaceBlockAt(@NotNull BlockPos.Mutable block, @NotNull ServerWorld world,
                                                     int minHeight, int maxHeight) {
-        final BlockState state = world.getBlockState(block);
-        final Direction direction = !isOccluding(state) ? Direction.DOWN : Direction.UP;
+        final Direction direction = !isOccluding(world.getBlockState(block)) ? Direction.DOWN : Direction.UP;
         while (isObscured(block, world, minHeight, maxHeight)) {
             block = block.move(direction);
         }

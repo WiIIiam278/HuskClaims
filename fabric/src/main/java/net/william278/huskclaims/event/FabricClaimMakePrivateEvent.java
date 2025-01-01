@@ -30,7 +30,6 @@ import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.user.OnlineUser;
-import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 
 public interface FabricClaimMakePrivateEvent extends FabricEventCallback<ClaimMakePrivateEvent> {

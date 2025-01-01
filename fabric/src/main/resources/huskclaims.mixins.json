@@ -4,9 +4,7 @@
   "package": "net.william278.huskclaims.mixins",
   "compatibilityLevel": "JAVA_17",
   "server": [
-  ],
-  "client": [
-    "EntityMixin"
+    "ServerPlayNetworkHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

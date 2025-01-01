@@ -29,7 +29,6 @@ import net.minecraft.util.ActionResult;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ClaimWorld;
-import net.william278.huskclaims.claim.Region;
 import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 

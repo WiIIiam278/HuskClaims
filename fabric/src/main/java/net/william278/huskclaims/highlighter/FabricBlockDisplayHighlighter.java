@@ -1,17 +1,33 @@
+/*
+ * This file is part of HuskClaims, licensed under the Apache License 2.0.
+ *
+ *  Copyright (c) William278 <will27528@gmail.com>
+ *  Copyright (c) contributors
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package net.william278.huskclaims.highlighter;
 
-import net.minecraft.entity.AreaEffectCloudEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.decoration.Brightness;
 import net.minecraft.entity.decoration.DisplayEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.AffineTransformation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.william278.huskclaims.FabricHuskClaims;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.hook.GeyserHook;
@@ -21,13 +37,15 @@ import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.util.BlockMaterialBlock;
 import net.william278.huskclaims.util.Location;
 import org.jetbrains.annotations.NotNull;
-import org.joml.AxisAngle4f;
-import org.joml.Quaternionf;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 import java.util.Collection;
 import java.util.UUID;
 
+/**
+ * Highlighter that uses {@link TrackedBlockDisplayEntity}s - used to highlight {@link Highlightable}s to a user in-game
+ */
 public class FabricBlockDisplayHighlighter extends BlockHighlighter<FabricBlockDisplayHighlighter.DisplayHighlightBlock> {
 
     private static final int PRIORITY = 1;
@@ -50,7 +68,7 @@ public class FabricBlockDisplayHighlighter extends BlockHighlighter<FabricBlockD
 
     @Override
     public void showBlocks(@NotNull OnlineUser user, @NotNull Collection<DisplayHighlightBlock> blocks) {
-        blocks.forEach(block -> block.show(plugin, user));
+        blocks.forEach(block -> block.show(user));
     }
 
     @Override
@@ -77,23 +95,19 @@ public class FabricBlockDisplayHighlighter extends BlockHighlighter<FabricBlockD
 
     public static final class DisplayHighlightBlock extends HighlightBlock {
 
-        public static final TrackedData<String> VISIBLE_TO = DataTracker.registerData(
-                DisplayEntity.BlockDisplayEntity.class, TrackedDataHandlerRegistry.STRING
-        );
-
         // Block display brightness value
         private static final Brightness FULL_BRIGHT = new Brightness(15, 15);
 
         // Block display scale constants
         private static final float SCALAR = 0.002f;
         private static final AffineTransformation SCALE_TRANSFORMATION = new AffineTransformation(
-                new Vector3f(-(SCALAR / 2), -(SCALAR / 2), -(SCALAR / 2)),
-                new Quaternionf(0, 0, 0, 0),
-                new Vector3f(1 + SCALAR, 1 + SCALAR, 1 + SCALAR),
-                new Quaternionf(0, 0, 0, 0)
+                AffineTransformation.identity().getTranslation(),
+                AffineTransformation.identity().getLeftRotation(),
+                new Vector3f(AffineTransformation.identity().getScale()).add(SCALAR, SCALAR, SCALAR),
+                AffineTransformation.identity().getRightRotation()
         );
 
-        private final DisplayEntity.BlockDisplayEntity display;
+        private final TrackedBlockDisplayEntity display;
 
         private DisplayHighlightBlock(@NotNull Position position, @NotNull Highlightable.Type type,
                                       @NotNull HuskClaims plugin) {
@@ -102,24 +116,26 @@ public class FabricBlockDisplayHighlighter extends BlockHighlighter<FabricBlockD
         }
 
         @NotNull
-        private DisplayEntity.BlockDisplayEntity createEntity(@NotNull HuskClaims plugin, @NotNull Highlightable.Type type) {
+        private TrackedBlockDisplayEntity createEntity(@NotNull HuskClaims plugin, @NotNull Highlightable.Type type) {
             final Location location = FabricHuskClaims.Adapter.adapt(position, ((FabricHuskClaims) plugin).getMinecraftServer());
-            if (!location.world().isPosLoaded(location.blockPos())) {
+            final BlockPos blockPos = location.blockPos();
+            if (!location.world().isPosLoaded(blockPos)) {
                 throw new IllegalStateException("World/chunk is not loaded");
             }
 
             // Create block display
-            final DisplayEntity.BlockDisplayEntity display = EntityType.BLOCK_DISPLAY
-                    .spawn(location.world(), location.blockPos(), SpawnReason.COMMAND);
-            if (display == null) {
+            final TrackedBlockDisplayEntity display = new TrackedBlockDisplayEntity(location.world());
+            if (!location.world().spawnEntity(display)) {
                 throw new IllegalStateException("Failed to spawn display");
             }
+            display.refreshPositionAndAngles(blockPos.getX(), blockPos.getY(), blockPos.getZ(), 0.0f, 0.0f);
+
+            // Set parameters
             display.setBlockState(((BlockMaterialBlock) this.block).getData().getDefaultState());
             display.setViewRange(BlockHighlighter.VIEWING_RANGE);
             display.setNoGravity(true);
             display.setInvisible(true);
             display.setBrightness(FULL_BRIGHT);
-            display.setCustomNameVisible(false);
 
             // Scale to prevent z-fighting
             display.setTransformation(SCALE_TRANSFORMATION);
@@ -134,14 +150,39 @@ public class FabricBlockDisplayHighlighter extends BlockHighlighter<FabricBlockD
             return display;
         }
 
-        public void show(@NotNull HuskClaims plugin, @NotNull OnlineUser user) {
-            display.getDataTracker().set(VISIBLE_TO, user.getUuid().toString());
+        public void show(@NotNull OnlineUser user) {
+            display.showTo(((FabricUser) user).getFabricPlayer());
         }
 
         public void remove() {
             if (display != null) {
-                display.remove(Entity.RemovalReason.DISCARDED);
+                display.remove(Entity.RemovalReason.KILLED);
             }
+        }
+
+    }
+
+    public static class TrackedBlockDisplayEntity extends DisplayEntity.BlockDisplayEntity {
+
+        @Nullable
+        private UUID isVisibleTo;
+
+        public TrackedBlockDisplayEntity(World world) {
+            super(EntityType.BLOCK_DISPLAY, world);
+        }
+
+        public void showTo(@NotNull ServerPlayerEntity player) {
+            this.isVisibleTo = player.getGameProfile().getId();
+        }
+
+        @Override
+        public boolean isInvisibleTo(PlayerEntity player) {
+            return isVisibleTo == null || !isVisibleTo.equals(player.getUuid());
+        }
+
+        @Override
+        public boolean shouldSave() {
+            return false;
         }
 
     }

@@ -29,15 +29,10 @@ import net.minecraft.util.ActionResult;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ClaimWorld;
-import net.william278.huskclaims.claim.Region;
 import net.william278.huskclaims.trust.TrustLevel;
 import net.william278.huskclaims.trust.Trustable;
 import net.william278.huskclaims.user.OnlineUser;
-import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Optional;
 
 public interface FabricTrustEvent extends FabricEventCallback<TrustEvent> {
 

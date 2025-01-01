@@ -27,7 +27,6 @@ import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.util.ActionResult;
 import net.william278.huskclaims.HuskClaims;
-import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.claim.Region;
 import net.william278.huskclaims.user.OnlineUser;

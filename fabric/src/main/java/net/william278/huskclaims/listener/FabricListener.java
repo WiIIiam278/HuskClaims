@@ -24,6 +24,9 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -35,6 +38,7 @@ import net.william278.cloplib.operation.OperationUser;
 import net.william278.huskclaims.FabricHuskClaims;
 import net.william278.huskclaims.moderation.SignListener;
 import net.william278.huskclaims.position.World;
+import net.william278.huskclaims.util.PlayerActionEvents;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
@@ -55,6 +59,7 @@ public class FabricListener extends FabricOperationListener implements FabricPet
         ServerPlayConnectionEvents.JOIN.register(this::onPlayerJoin);
         ServerPlayConnectionEvents.DISCONNECT.register(this::onPlayerQuit);
         ServerWorldEvents.LOAD.register(this::onWorldLoad);
+        PlayerActionEvents.AFTER_HELD_ITEM_CHANGE.register(this::onUserChangeHeldItems);
     }
 
     private void onPlayerJoin(ServerPlayNetworkHandler handler, PacketSender sender, MinecraftServer server) {
@@ -67,27 +72,14 @@ public class FabricListener extends FabricOperationListener implements FabricPet
         this.onUserQuit(plugin.getOnlineUser(handler.getPlayer()));
     }
 
-//    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-//    public void onPlayerSwitchHeldItem(@NotNull PlayerItemHeldEvent e) {
-//        final ItemStack mainHand = e.getPlayer().getInventory().getItem(e.getNewSlot());
-//        final ItemStack offHand = e.getPlayer().getInventory().getItemInOffHand();
-//        this.onUserSwitchHeldItem(
-//                plugin.getOnlineUser(e.getPlayer()),
-//                (mainHand != null ? mainHand.getType() : Material.AIR).getKey().toString(),
-//                offHand.getType().getKey().toString()
-//        );
-//    }
-
-//    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-//    public void onUserSwapHands(@NotNull PlayerSwapHandItemsEvent e) {
-//        final ItemStack mainHand = e.getMainHandItem();
-//        final ItemStack offHand = e.getOffHandItem();
-//        this.onUserSwitchHeldItem(
-//                plugin.getOnlineUser(e.getPlayer()),
-//                (mainHand != null ? mainHand.getType() : Material.AIR).getKey().toString(),
-//                (offHand != null ? offHand.getType() : Material.AIR).getKey().toString()
-//        );
-//    }
+    public void onUserChangeHeldItems(@NotNull ServerPlayerEntity player,
+                                      @NotNull ItemStack mainHandItem, @NotNull ItemStack offHandItme) {
+        this.onUserSwitchHeldItem(
+                plugin.getOnlineUser(player),
+                Registries.ITEM.getId(mainHandItem.isEmpty() ? Items.AIR : mainHandItem.getItem()).asString(),
+                Registries.ITEM.getId(offHandItme.isEmpty() ? Items.AIR : offHandItme.getItem()).asString()
+        );
+    }
 
 //    @EventHandler(ignoreCancelled = true)
 //    public void onUserTeleport(@NotNull PlayerTeleportEvent e) {
