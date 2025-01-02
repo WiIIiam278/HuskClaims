@@ -76,11 +76,11 @@ public class FabricBlockDisplayHighlighter extends BlockHighlighter<FabricBlockD
         if (!replacedBlocks.containsKey(user.getUuid())) {
             return;
         }
-        plugin.runSync(() -> replacedBlocks.removeAll(user.getUuid()).forEach(block -> {
+        replacedBlocks.removeAll(user.getUuid()).forEach(block -> {
             if (block instanceof DisplayHighlightBlock display) {
                 display.remove();
             }
-        }));
+        });
     }
 
     @Override
@@ -101,7 +101,7 @@ public class FabricBlockDisplayHighlighter extends BlockHighlighter<FabricBlockD
         // Block display scale constants
         private static final float SCALAR = 0.002f;
         private static final AffineTransformation SCALE_TRANSFORMATION = new AffineTransformation(
-                AffineTransformation.identity().getTranslation(),
+                new Vector3f(-(SCALAR / 2), -(SCALAR / 2), -(SCALAR / 2)),
                 AffineTransformation.identity().getLeftRotation(),
                 new Vector3f(AffineTransformation.identity().getScale()).add(SCALAR, SCALAR, SCALAR),
                 AffineTransformation.identity().getRightRotation()
