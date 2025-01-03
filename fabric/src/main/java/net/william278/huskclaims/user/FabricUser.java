@@ -21,6 +21,8 @@ package net.william278.huskclaims.user;
 
 import com.google.common.collect.Lists;
 import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.CustomModelDataComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
@@ -80,8 +82,18 @@ public class FabricUser extends OnlineUser {
 
     @Override
     public boolean isHolding(@NotNull InspectorCallbackProvider.InspectionTool tool) {
-        final Predicate<ItemStack> pred = (i) -> i.getRegistryEntry().matchesId(Identifier.of(tool.material()));
-        return pred.test(fabricPlayer.getMainHandStack());
+        final Predicate<ItemStack> TYPE_MATCH = (i) -> i.getRegistryEntry().matchesId(Identifier.of(tool.material()));
+        final Predicate<ItemStack> MODEL_MATCH = (i) -> !tool.useCustomModelData() || getCustomModelData(i)
+                .map(m -> m == tool.customModelData()).orElse(false);
+        return TYPE_MATCH.and(MODEL_MATCH).test(fabricPlayer.getMainHandStack());
+    }
+
+    private Optional<Integer> getCustomModelData(@NotNull ItemStack i) {
+        final CustomModelDataComponent modelData = i.getComponents().get(DataComponentTypes.CUSTOM_MODEL_DATA);
+        if (modelData != null && !modelData.floats().isEmpty()) {
+            return Optional.of(modelData.floats().getFirst().intValue());
+        }
+        return Optional.empty();
     }
 
     @Override
