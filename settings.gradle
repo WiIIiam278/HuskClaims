@@ -1,12 +1,18 @@
 pluginManagement {
     repositories {
         gradlePluginPortal()
+        maven { url 'https://maven.fabricmc.net/' }
     }
 }
 
 rootProject.name = 'HuskClaims'
 include(
         'common',
+
+        // Paper/Spigot
         'bukkit',
         'paper',
+
+        // Fabric
+        'fabric'
 )

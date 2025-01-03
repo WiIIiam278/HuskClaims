@@ -467,6 +467,10 @@ public final class Settings {
             GlowColor(int rgb) {
                 this.rgb = rgb;
             }
+
+            public int getArgb() {
+                return (0xFF << 24) | rgb;
+            }
         }
     }
 

@@ -21,7 +21,7 @@ package net.william278.huskclaims;
 
 import lombok.NoArgsConstructor;
 import net.kyori.adventure.audience.Audience;
-import net.william278.huskclaims.highlighter.BlockDisplayHighlighter;
+import net.william278.huskclaims.highlighter.PaperBlockDisplayHighlighter;
 import net.william278.huskclaims.listener.ClaimsListener;
 import net.william278.huskclaims.listener.PaperListener;
 import net.william278.huskclaims.position.Position;
@@ -54,7 +54,7 @@ public class PaperHuskClaims extends BukkitHuskClaims {
         super.loadHighlighters();
 
         if (getSettings().getHighlighter().isBlockDisplays()) {
-            registerHighlighter(new BlockDisplayHighlighter(this));
+            registerHighlighter(new PaperBlockDisplayHighlighter(this));
         }
     }
 

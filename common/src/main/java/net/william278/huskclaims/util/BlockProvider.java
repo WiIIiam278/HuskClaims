@@ -19,6 +19,7 @@
 
 package net.william278.huskclaims.util;
 
+import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.highlighter.BlockHighlighter;
 import net.william278.huskclaims.highlighter.Highlightable;
 import net.william278.huskclaims.position.BlockPosition;
@@ -74,6 +75,9 @@ public interface BlockProvider {
      * @since 1.0
      */
     void sendBlockUpdates(@NotNull OnlineUser user, @NotNull Map<Position, MaterialBlock> blocks);
+
+    @NotNull
+    HuskClaims getPlugin();
 
     /**
      * Abstract representation of a block with material data

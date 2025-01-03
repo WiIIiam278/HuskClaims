@@ -42,11 +42,11 @@ import java.util.Collection;
 /**
  * Highlighter that uses {@link BlockDisplay} entities - used to highlight {@link Highlightable}s to a user in-game
  */
-public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighlighter.DisplayHighlightBlock> {
+public class PaperBlockDisplayHighlighter extends BlockHighlighter<PaperBlockDisplayHighlighter.DisplayHighlightBlock> {
 
     private static final int PRIORITY = 1;
 
-    public BlockDisplayHighlighter(@NotNull HuskClaims plugin) {
+    public PaperBlockDisplayHighlighter(@NotNull HuskClaims plugin) {
         super(plugin);
     }
 
@@ -114,15 +114,13 @@ public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighli
         @SuppressWarnings("UnstableApiUsage")
         @NotNull
         private BlockDisplay createEntity(@NotNull HuskClaims plugin, @NotNull Highlightable.Type type) {
-            final Location location = BukkitHuskClaims.Adapter.adapt(position);
-            if (!location.isWorldLoaded() || !location.getChunk().isLoaded()) {
+            final Location loc = BukkitHuskClaims.Adapter.adapt(position);
+            if (!loc.isWorldLoaded() || !loc.getChunk().isLoaded()) {
                 throw new IllegalStateException("World/chunk is not loaded");
             }
 
             // Create block display
-            final BlockDisplay display = (BlockDisplay) location.getWorld().spawnEntity(
-                    location, EntityType.BLOCK_DISPLAY
-            );
+            final BlockDisplay display = (BlockDisplay) loc.getWorld().spawnEntity(loc, EntityType.BLOCK_DISPLAY);
             display.setBlock(((BlockDataBlock) this.block).getData());
             display.setViewRange(BlockHighlighter.VIEWING_RANGE);
             display.setGravity(false);
