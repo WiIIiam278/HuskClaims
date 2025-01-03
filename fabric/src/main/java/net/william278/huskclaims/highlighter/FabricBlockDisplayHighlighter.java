@@ -19,15 +19,13 @@
 
 package net.william278.huskclaims.highlighter;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.Brightness;
 import net.minecraft.entity.decoration.DisplayEntity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.AffineTransformation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.william278.huskclaims.FabricHuskClaims;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.hook.GeyserHook;
@@ -37,14 +35,12 @@ import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.util.BlockMaterialBlock;
 import net.william278.huskclaims.util.Location;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 import java.util.Collection;
-import java.util.UUID;
 
 /**
- * Highlighter that uses {@link TrackedBlockDisplayEntity}s - used to highlight {@link Highlightable}s to a user in-game
+ * Highlighter that uses {@link DisplayEntity.BlockDisplayEntity}s - used to highlight {@link Highlightable}s to a user in-game
  */
 public class FabricBlockDisplayHighlighter extends BlockHighlighter<FabricBlockDisplayHighlighter.DisplayHighlightBlock> {
 
@@ -78,7 +74,7 @@ public class FabricBlockDisplayHighlighter extends BlockHighlighter<FabricBlockD
         }
         replacedBlocks.removeAll(user.getUuid()).forEach(block -> {
             if (block instanceof DisplayHighlightBlock display) {
-                display.remove();
+                display.remove(user);
             }
         });
     }
@@ -107,7 +103,9 @@ public class FabricBlockDisplayHighlighter extends BlockHighlighter<FabricBlockD
                 AffineTransformation.identity().getRightRotation()
         );
 
-        private final TrackedBlockDisplayEntity display;
+        private final DisplayEntity.BlockDisplayEntity display;
+        private Location location;
+        private EntityTrackerEntry tracker;
 
         private DisplayHighlightBlock(@NotNull Position position, @NotNull Highlightable.Type type,
                                       @NotNull HuskClaims plugin) {
@@ -116,25 +114,22 @@ public class FabricBlockDisplayHighlighter extends BlockHighlighter<FabricBlockD
         }
 
         @NotNull
-        private TrackedBlockDisplayEntity createEntity(@NotNull HuskClaims plugin, @NotNull Highlightable.Type type) {
-            final Location location = FabricHuskClaims.Adapter.adapt(position, ((FabricHuskClaims) plugin).getMinecraftServer());
+        private DisplayEntity.BlockDisplayEntity createEntity(@NotNull HuskClaims plugin, @NotNull Highlightable.Type type) {
+            this.location = FabricHuskClaims.Adapter.adapt(position, ((FabricHuskClaims) plugin).getMinecraftServer());
             final BlockPos blockPos = location.blockPos();
             if (!location.world().isPosLoaded(blockPos)) {
                 throw new IllegalStateException("World/chunk is not loaded");
             }
 
             // Create block display
-            final TrackedBlockDisplayEntity display = new TrackedBlockDisplayEntity(location.world());
-            if (!location.world().spawnEntity(display)) {
-                throw new IllegalStateException("Failed to spawn display");
-            }
+            final DisplayEntity.BlockDisplayEntity display = new DisplayEntity.BlockDisplayEntity(
+                    EntityType.BLOCK_DISPLAY, location.world());
             display.refreshPositionAndAngles(blockPos.getX(), blockPos.getY(), blockPos.getZ(), 0.0f, 0.0f);
 
             // Set parameters
             display.setBlockState(((BlockMaterialBlock) this.block).getData().getDefaultState());
             display.setViewRange(BlockHighlighter.VIEWING_RANGE);
             display.setNoGravity(true);
-            display.setInvisible(true);
             display.setBrightness(FULL_BRIGHT);
 
             // Scale to prevent z-fighting
@@ -143,47 +138,30 @@ public class FabricBlockDisplayHighlighter extends BlockHighlighter<FabricBlockD
             // Glow if needed
             if (plugin.getSettings().getHighlighter().isGlowEffect()) {
                 display.setGlowing(true);
-                display.setGlowColorOverride(
-                        plugin.getSettings().getHighlighter().getGlowColor(type).getArgb()
-                );
+                display.setGlowColorOverride(plugin.getSettings().getHighlighter().getGlowColor(type).getArgb());
             }
+
             return display;
         }
 
         public void show(@NotNull OnlineUser user) {
-            display.showTo(((FabricUser) user).getFabricPlayer());
+            final ServerPlayerEntity player = ((FabricUser) user).getFabricPlayer();
+            this.tracker = new EntityTrackerEntry(
+                    location.world(), display, 
+                    display.getType().getTrackTickInterval(), 
+                    display.velocityDirty, 
+                    player.networkHandler::sendPacket
+            );
+            tracker.startTracking(player);
         }
 
-        public void remove() {
-            if (display != null) {
-                display.remove(Entity.RemovalReason.KILLED);
+        public void remove(@NotNull OnlineUser user) {
+            final ServerPlayerEntity player = ((FabricUser) user).getFabricPlayer();
+            if (tracker != null) {
+                tracker.stopTracking(player);
             }
         }
 
     }
 
-    public static class TrackedBlockDisplayEntity extends DisplayEntity.BlockDisplayEntity {
-
-        @Nullable
-        private UUID isVisibleTo;
-
-        public TrackedBlockDisplayEntity(World world) {
-            super(EntityType.BLOCK_DISPLAY, world);
-        }
-
-        public void showTo(@NotNull ServerPlayerEntity player) {
-            this.isVisibleTo = player.getGameProfile().getId();
-        }
-
-        @Override
-        public boolean isInvisibleTo(PlayerEntity player) {
-            return isVisibleTo == null || !isVisibleTo.equals(player.getUuid());
-        }
-
-        @Override
-        public boolean shouldSave() {
-            return false;
-        }
-
-    }
 }
