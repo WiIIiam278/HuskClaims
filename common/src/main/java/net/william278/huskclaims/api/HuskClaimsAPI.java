@@ -251,9 +251,7 @@ public class HuskClaimsAPI {
      */
     @NotNull
     public OnlineUser getOnlineUser(@NotNull UUID uuid) {
-        return plugin.getOnlineUsers().stream()
-                .filter(user -> user.getUuid().equals(uuid)).findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("No user online with UUID " + uuid));
+        return plugin.getOnlineUser(uuid);
     }
 
     /**

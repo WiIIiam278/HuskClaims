@@ -46,6 +46,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.william278.cloplib.operation.OperationType;
 import net.william278.desertwell.util.Version;
+import net.william278.huskclaims.api.FabricHuskClaimsAPI;
 import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.command.Command;
 import net.william278.huskclaims.command.FabricCommand;
@@ -160,7 +161,7 @@ public class FabricHuskClaims implements DedicatedServerModInitializer, HuskClai
 
     @Override
     public void loadAPI() {
-        // todo API
+        FabricHuskClaimsAPI.register(this);
     }
 
     @Override

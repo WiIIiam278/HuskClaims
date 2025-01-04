@@ -26,6 +26,15 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.TeleportTarget;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Record wrapper for holding Minecraft positional data
+ *
+ * @param world the {@link ServerWorld} of the position
+ * @param pos   the double-accuracy {@link Vec3d vector positional coordinates}
+ * @param yaw   the yaw angle at the position
+ * @param pitch the pitch angle at the position
+ * @since 1.5
+ */
 public record Location(@NotNull ServerWorld world, @NotNull Vec3d pos, float yaw, float pitch) {
 
     public Location(@NotNull Entity entity) {
@@ -40,11 +49,24 @@ public record Location(@NotNull ServerWorld world, @NotNull Vec3d pos, float yaw
         this(world, new Vec3d(x, y, z), yaw, pitch);
     }
 
+    /**
+     * Get the {@link BlockPos}
+     *
+     * @return the blockPos, floored from the {@link #pos() vector positional coordinates}
+     * @since 1.5
+     */
     @NotNull
     public BlockPos blockPos() {
         return BlockPos.ofFloored(pos);
     }
 
+    /**
+     * Get a {@link TeleportTarget} from this position
+     *
+     * @return the teleportTarget
+     * @since 1.5
+     */
+    @NotNull
     public TeleportTarget teleportTarget() {
         return new TeleportTarget(world, pos, Vec3d.ZERO, yaw, pitch, TeleportTarget.NO_OP);
     }

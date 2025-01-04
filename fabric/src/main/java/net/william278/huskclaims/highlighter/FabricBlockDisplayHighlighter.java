@@ -19,6 +19,7 @@
 
 package net.william278.huskclaims.highlighter;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.Brightness;
 import net.minecraft.entity.decoration.DisplayEntity;
@@ -160,6 +161,7 @@ public class FabricBlockDisplayHighlighter extends BlockHighlighter<FabricBlockD
             if (tracker != null) {
                 tracker.stopTracking(player);
             }
+            display.remove(Entity.RemovalReason.DISCARDED);
         }
 
     }
