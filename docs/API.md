@@ -138,4 +138,5 @@ Now that you've got everything ready, you can start doing stuff with the HuskCla
 - [[Claims API]] &mdash; Get, create, resize, & delete [[claims]], child claims, and admin claims, and manage [[claim blocks]]
 - [[Trust API]] &mdash; Trust users, groups and trust tags in claims, and provide custom [trust tags](trust#trust-tags)
 - [[Highlighter API]] &mdash; Provide a custom claim highlighter
+- [[Operations API]] &mdash; Register operation types and create Operations using them to have HuskClaims protect against custom actions 
 - [[API Events]] &mdash; Listen to events when players perform certain actions

@@ -24,6 +24,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import net.william278.cloplib.operation.Operation;
 import net.william278.cloplib.operation.OperationType;
+import net.william278.cloplib.operation.OperationTypeRegistry;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ClaimWorld;
@@ -1232,6 +1233,17 @@ public class HuskClaimsAPI {
     @NotNull
     public BlockPosition getBlockPosition(int x, int z) {
         return Region.Point.at(x, z);
+    }
+
+    /**
+     * Get the {@link OperationTypeRegistry}
+     *
+     * @return the operation type registry
+     * @since 1.5
+     */
+    @NotNull
+    public OperationTypeRegistry getOperationTypeRegistry() {
+        return getPlugin().getOperationListener();
     }
 
     /**

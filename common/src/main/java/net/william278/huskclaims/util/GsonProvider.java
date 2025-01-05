@@ -25,6 +25,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import net.william278.cloplib.operation.OperationType;
+import net.william278.cloplib.operation.OperationTypeGsonTypeAdapter;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.claim.ClaimWorldSerializer;
@@ -70,6 +71,7 @@ public interface GsonProvider {
                 .registerTypeAdapter(Preferences.class, new PreferencesSerializer(MAX_PERSISTED_LOG_ENTRIES, users))
                 .registerTypeAdapter(ClaimWorld.class, new ClaimWorldSerializer(getPlugin()))
                 .registerTypeAdapter(Region.class, new RegionSerializer(getPlugin()))
+                .registerTypeAdapter(OperationType.class, new OperationTypeGsonTypeAdapter())
         );
     }
 

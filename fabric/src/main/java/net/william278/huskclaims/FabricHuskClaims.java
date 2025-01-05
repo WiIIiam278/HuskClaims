@@ -122,6 +122,8 @@ public class FabricHuskClaims implements DedicatedServerModInitializer, HuskClai
     @Setter
     private Set<Hook> hooks = Sets.newHashSet();
     @Setter
+    private ClaimsListener operationListener;
+    @Setter
     private Database database;
     @Setter
     private Settings settings;

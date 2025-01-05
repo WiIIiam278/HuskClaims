@@ -151,13 +151,7 @@ public abstract class Node implements Executable {
     }
 
     protected Optional<OperationType> parseOperationTypeArg(@NotNull String[] args, int index) {
-        return parseStringArg(args, index).flatMap(arg -> {
-            try {
-                return Optional.of(OperationType.valueOf(arg.toUpperCase(Locale.ENGLISH)));
-            } catch (IllegalArgumentException e) {
-                return Optional.empty();
-            }
-        });
+        return parseStringArg(args, index).flatMap(arg -> plugin.getOperationListener().getOperationType(arg));
     }
 
     protected Optional<Long> parseClaimBlocksArg(@NotNull String[] args, int index) {

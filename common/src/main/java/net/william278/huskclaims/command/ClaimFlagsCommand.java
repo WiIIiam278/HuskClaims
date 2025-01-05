@@ -60,7 +60,8 @@ public class ClaimFlagsCommand extends OnlineUserCommand implements TabCompletab
         final boolean setting = parseStringArg(args, 0).map(a -> a.equals("set")).orElse(false);
         return switch (args.length) {
             case 0, 1 -> Lists.newArrayList("set", "list");
-            case 2 -> setting ? Arrays.stream(OperationType.values()).map(Enum::name).toList() : null;
+            case 2 -> setting ? plugin.getOperationListener().getRegisteredOperationTypes().stream()
+                    .map(type -> type.getKey().asString()).toList() : null;
             case 3 -> setting ? List.of("true", "false") : null;
             default -> null;
         };
