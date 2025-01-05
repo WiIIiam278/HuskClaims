@@ -115,7 +115,8 @@ public class ClaimFlagsCommand extends OnlineUserCommand implements TabCompletab
         plugin.getDatabase().updateClaimWorld(world);
 
         // Send flag list on correct page to indicated the update
-        final double changedIndex = Lists.newArrayList(OperationType.values()).indexOf(type);
+        final double changedIndex = plugin.getOperationListener()
+                .getRegisteredOperationTypes().stream().toList().indexOf(type);
         final int changedPage = (int) Math.ceil(changedIndex / CLAIM_FLAGS_PER_PAGE);
         this.sendClaimFlagsList(onlineUser, claim, world, changedPage);
     }
@@ -133,12 +134,12 @@ public class ClaimFlagsCommand extends OnlineUserCommand implements TabCompletab
 
         onlineUser.sendMessage(
                 PaginatedList.of(
-                        Arrays.stream(OperationType.values())
+                        plugin.getOperationListener().getRegisteredOperationTypes().stream()
                                 .map(op -> plugin.getLocales().getRawLocale("claim_flag_%s"
                                                 .formatted((claim == null ? world.getWildernessFlags() : claim.getDefaultFlags())
                                                         .contains(op) ? "enabled" : "disabled"),
-                                        op.name()
-                                ).orElse(op.name())).toList(),
+                                        op.asMinimalString()
+                                ).orElse(op.asMinimalString())).toList(),
                         plugin.getLocales().getBaseList(CLAIM_FLAGS_PER_PAGE)
                                 .setCommand("/%s list".formatted(getName()))
                                 .setHeaderFormat(header).setItemSeparator("\n")

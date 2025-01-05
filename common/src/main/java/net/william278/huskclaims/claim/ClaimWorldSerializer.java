@@ -79,8 +79,7 @@ public class ClaimWorldSerializer implements JsonSerializer<ClaimWorld>, JsonDes
                 UUID.fromString(entry.getKey()), entry.getValue().getAsString()));
 
         final JsonArray wildernessFlags = jsonObject.has("wilderness_flags") ? jsonObject.getAsJsonArray("wilderness_flags") : new JsonArray();
-        wildernessFlags.forEach(w -> plugin.getOperationListener()
-                .getOperationType(w.getAsString()).ifPresent(claimWorld.getWildernessFlags()::add));
+        wildernessFlags.forEach(w -> claimWorld.getWildernessFlags().add(OperationType.getOrCreate(w.getAsString())));
 
         claimWorld.setSchemaVersion(jsonObject.has("schema_version")
                 ? jsonObject.get("schema_version").getAsInt() : ClaimWorld.CURRENT_SCHEMA);
