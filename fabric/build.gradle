@@ -1,8 +1,8 @@
 plugins {
-    id 'fabric-loom' version "$fabric_loom_version"
+    id 'gg.essential.multi-version'
+    id 'gg.essential.defaults'
 }
 
-apply plugin: 'fabric-loom'
 loom.serverOnlyMinecraftJar()
 
 repositories {
@@ -12,15 +12,11 @@ repositories {
 }
 
 dependencies {
-    minecraft "com.mojang:minecraft:${fabric_minecraft_version}"
-    mappings "net.fabricmc:yarn:${fabric_yarn_mappings}:v2"
-    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
-
     modImplementation include("net.kyori:adventure-platform-fabric:${fabric_adventure_platform_version}")
     modImplementation include("me.lucko:fabric-permissions-api:${fabric_permissions_api_version}")
     modImplementation include("eu.pb4:placeholder-api:${fabric_placeholder_api_version}")
     modImplementation include("net.impactdev.impactor.api:economy:${fabric_impactor_api_version}")
-    modImplementation include("net.william278.cloplib:cloplib-fabric:2.0-00e0a4d+1.21.4")
+    modImplementation include("net.william278.cloplib:cloplib-fabric:2.0-00e0a4d+$project.name")
     modCompileOnly "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 
     implementation include('org.apache.commons:commons-pool2:2.12.0')
@@ -36,6 +32,16 @@ dependencies {
 
 //    shadow project(path: ":common") // TODO - remove, for debug only
     implementation project(path: ":common")
+}
+
+processResources {
+    filesMatching(Arrays.asList("fabric.mod.json")) {
+        expand([
+                version: version,
+                fabric_loader_version: fabric_loader_version,
+                fabric_minecraft_version: project.name,
+        ])
+    }
 }
 
 shadowJar {

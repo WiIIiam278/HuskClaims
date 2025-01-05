@@ -31,6 +31,9 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+//#if MC==12101
+//$$ import net.minecraft.world.EmptyBlockView;
+//#endif
 import net.william278.huskclaims.FabricHuskClaims;
 import net.william278.huskclaims.FabricHuskClaims.Adapter;
 import net.william278.huskclaims.highlighter.BlockHighlighter;
@@ -99,7 +102,11 @@ public interface FabricBlockProvider extends BlockProvider {
 
     // Returns if a block occludes vision/light
     private boolean isOccluding(@NotNull BlockState block) {
+        //#if MC==12104
         return !block.isTransparent() || isAllowedMaterial(block.getBlock());
+        //#else
+        //$$ return !block.isTransparent(EmptyBlockView.INSTANCE, BlockPos.ORIGIN) || isAllowedMaterial(block.getBlock());
+        //#endif
     }
 
     private boolean isAllowedMaterial(@NotNull Block material) {
