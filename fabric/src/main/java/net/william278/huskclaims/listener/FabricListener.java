@@ -19,10 +19,15 @@
 
 package net.william278.huskclaims.listener;
 
+import java.util.Optional;
 import lombok.Getter;
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
+import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -38,8 +43,10 @@ import net.william278.cloplib.operation.OperationUser;
 import net.william278.huskclaims.FabricHuskClaims;
 import net.william278.huskclaims.moderation.SignListener;
 import net.william278.huskclaims.position.World;
+import net.william278.huskclaims.user.User;
 import net.william278.huskclaims.util.PlayerActionEvents;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @Getter
 public class FabricListener extends FabricOperationListener implements FabricPetListener, FabricDropsListener,
@@ -60,6 +67,8 @@ public class FabricListener extends FabricOperationListener implements FabricPet
         ServerPlayConnectionEvents.DISCONNECT.register(this::onPlayerQuit);
         ServerWorldEvents.LOAD.register(this::onWorldLoad);
         PlayerActionEvents.AFTER_HELD_ITEM_CHANGE.register(this::onUserChangeHeldItems);
+        ServerLivingEntityEvents.ALLOW_DAMAGE.register(this::onPlayerDamageTamed);
+        UseEntityCallback.EVENT.register(this::onPlayerTamedInteract);
     }
 
     private void onPlayerJoin(ServerPlayNetworkHandler handler, PacketSender sender, MinecraftServer server) {
@@ -102,25 +111,20 @@ public class FabricListener extends FabricOperationListener implements FabricPet
         });
     }
 
-//    @Override
-//    public void onUserTamedEntityAction(@NotNull Cancellable event, @Nullable Entity player, @NotNull Entity entity) {
-//        // If pets are enabled, check if the entity is tamed
-//        if (player == null || !getPlugin().getSettings().getPets().isEnabled() || !(entity instanceof Tameable tamed)) {
-//            return;
-//        }
-//
-//        // Check it was damaged by a player
-//        final Optional<Player> source = getPlayerSource(player);
-//        final Optional<User> owner = getPlugin().getPetOwner(tamed);
-//        if (source.isEmpty() || owner.isEmpty()) {
-//            return;
-//        }
-//
-//        // Don't cancel the event if there's no mismatch
-//        if (getPlugin().cancelPetOperation(plugin.getOnlineUser(source.get()), owner.get())) {
-//            event.setCancelled(true);
-//        }
-//    }
+    @Override
+    public boolean onUserTamedEntityAction(@Nullable Entity player, @NotNull Entity entity) {
+        if (player == null || !plugin.getSettings().getPets().isEnabled() || !(entity instanceof TameableEntity tamed)) {
+            return true;
+        }
+
+        final Optional<ServerPlayerEntity> source = getPlayerSource(player);
+        final Optional<User> owner = plugin.getPetOwner(tamed);
+        if (source.isEmpty() || owner.isEmpty()) {
+            return true;
+        }
+
+        return !plugin.cancelPetOperation(plugin.getOnlineUser(source.get()), owner.get());
+    }
 
     @Override
     @NotNull
