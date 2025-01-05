@@ -61,7 +61,7 @@ public class ClaimFlagsCommand extends OnlineUserCommand implements TabCompletab
         return switch (args.length) {
             case 0, 1 -> Lists.newArrayList("set", "list");
             case 2 -> setting ? plugin.getOperationListener().getRegisteredOperationTypes().stream()
-                    .map(type -> type.getKey().asString()).toList() : null;
+                    .map(OperationType::asMinimalString).toList() : null;
             case 3 -> setting ? List.of("true", "false") : null;
             default -> null;
         };
