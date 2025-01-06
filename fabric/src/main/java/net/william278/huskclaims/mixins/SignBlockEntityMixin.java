@@ -20,26 +20,31 @@
 package net.william278.huskclaims.mixins;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import com.llamalad7.mixinextras.sugar.Share;
-import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import java.util.List;
+import java.util.function.UnaryOperator;
 import net.minecraft.block.entity.SignBlockEntity;
+import net.minecraft.block.entity.SignText;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.filter.FilteredMessage;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.william278.huskclaims.util.PlayerActionEvents;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @Mixin(SignBlockEntity.class)
 public abstract class SignBlockEntityMixin {
 
-    @ModifyArg(method = "method_49845", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/SignBlockEntity;getTextWithMessages(Lnet/minecraft/entity/player/PlayerEntity;Ljava/util/List;Lnet/minecraft/block/entity/SignText;)Lnet/minecraft/block/entity/SignText;"))
-    List<FilteredMessage> changeTextLambdaMixin(List<FilteredMessage> messages, @Local(argsOnly = true) PlayerEntity player,
-            @Share("front") LocalBooleanRef frontRef) {
-        return PlayerActionEvents.BEFORE_CHANGE_TEXT_ON_SIGN.invoker()
-            .changeTextOnSign((SignBlockEntity) (Object) this, (ServerPlayerEntity) player, frontRef.get(), messages);
+    @Shadow
+    protected abstract SignText getTextWithMessages(PlayerEntity player, List<FilteredMessage> messages, SignText text);
+
+    @ModifyArg(method = "tryChangeText", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/SignBlockEntity;changeText(Ljava/util/function/UnaryOperator;Z)Z"))
+    UnaryOperator<SignText> tryChangeTextMixin(UnaryOperator<SignText> textChanger, @Local(argsOnly = true) PlayerEntity player,
+        @Local(argsOnly = true) boolean front, @Local(argsOnly = true) List<FilteredMessage> messages) {
+        List<FilteredMessage> filteredMessages = PlayerActionEvents.BEFORE_CHANGE_TEXT_ON_SIGN.invoker()
+            .changeTextOnSign((SignBlockEntity) (Object) this, (ServerPlayerEntity) player, front, messages);
+        return (text) -> this.getTextWithMessages(player, filteredMessages, text);
     }
 
 }
