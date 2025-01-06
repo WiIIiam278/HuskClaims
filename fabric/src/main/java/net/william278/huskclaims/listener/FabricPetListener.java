@@ -19,5 +19,31 @@
 
 package net.william278.huskclaims.listener;
 
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.EntityHitResult;
+import net.minecraft.world.World;
+import net.william278.huskclaims.HuskClaims;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 public interface FabricPetListener {
+
+    default ActionResult onPlayerTamedInteract(PlayerEntity player, World world, Hand hand, Entity entity, @Nullable EntityHitResult hitResult) {
+        return this.onUserTamedEntityAction(player, entity) ? ActionResult.PASS : ActionResult.FAIL;
+    }
+
+    default boolean onPlayerDamageTamed(LivingEntity entity, DamageSource damageSource, float damage) {
+        return this.onUserTamedEntityAction(damageSource.getAttacker(), entity);
+    }
+
+    boolean onUserTamedEntityAction(@Nullable Entity player, @NotNull Entity entity);
+
+    @NotNull
+    HuskClaims getPlugin();
+
 }
