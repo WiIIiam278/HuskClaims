@@ -21,6 +21,8 @@ package net.william278.huskclaims.pet;
 
 import java.util.Optional;
 import java.util.UUID;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
@@ -57,13 +59,19 @@ public interface FabricPetHandler extends PetHandler {
     }
 
     private void transferPet(@NotNull TameableEntity tamed, @NotNull OnlineUser owner, @NotNull User newOwner) {
-        final ServerPlayerEntity player = ((FabricHuskClaims) getPlugin()).getMinecraftServer().getPlayerManager().getPlayer(newOwner.getUuid());
+        final ServerPlayerEntity player = getPlugin().getMinecraftServer().getPlayerManager().getPlayer(newOwner.getUuid());
         if (player != null) {
             tamed.setOwner(player);
         } else {
             tamed.setOwnerUuid(newOwner.getUuid());
         }
-        getPlugin().getLocales().getLocale("pet_transferred", tamed.getName().getString(), newOwner.getName())
+        //#if MC==12104
+        Component nameComponent = getPlugin().getAudiences().asAdventure(tamed.getName());
+        //#else
+        //$$ Component nameComponent = tamed.getName().asComponent();
+        //#endif
+        String plainName = PlainTextComponentSerializer.plainText().serialize(nameComponent);
+        getPlugin().getLocales().getLocale("pet_transferred", plainName, newOwner.getName())
             .ifPresent(owner::sendMessage);
     }
 
@@ -92,5 +100,8 @@ public interface FabricPetHandler extends PetHandler {
         }
         return Optional.of((TameableEntity) hitResult.getEntity());
     }
+
+    @NotNull
+    FabricHuskClaims getPlugin();
 
 }

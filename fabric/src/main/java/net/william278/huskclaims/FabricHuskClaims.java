@@ -35,7 +35,6 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.platform.AudienceProvider;
 //#if MC==12104
 import net.kyori.adventure.platform.modcommon.MinecraftServerAudiences;
 //#else
@@ -105,7 +104,11 @@ public class FabricHuskClaims implements DedicatedServerModInitializer, HuskClai
             .orElseThrow(() -> new RuntimeException("Failed to get Mod Container"));
     private final Map<String, Boolean> permissions = Maps.newHashMap();
 
-    private AudienceProvider audiences;
+    //#if MC==12104
+    private MinecraftServerAudiences audiences;
+    //#else
+    //$$ private FabricServerAudiences audiences;
+    //#endif
     private MinecraftServer minecraftServer;
 
     private final Gson gson = getGsonBuilder().create();
