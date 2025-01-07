@@ -19,6 +19,8 @@
 
 package net.william278.huskclaims.listener;
 
+import com.google.common.collect.Lists;
+import java.util.List;
 import java.util.Optional;
 import lombok.Getter;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
@@ -26,6 +28,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.block.entity.SignBlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -33,6 +36,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.filter.FilteredMessage;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -42,8 +46,10 @@ import net.william278.cloplib.operation.OperationPosition;
 import net.william278.cloplib.operation.OperationUser;
 import net.william278.huskclaims.FabricHuskClaims;
 import net.william278.huskclaims.moderation.SignListener;
+import net.william278.huskclaims.moderation.SignWrite;
 import net.william278.huskclaims.position.World;
 import net.william278.huskclaims.user.User;
+import net.william278.huskclaims.util.Location;
 import net.william278.huskclaims.util.PlayerActionEvents;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -69,6 +75,7 @@ public class FabricListener extends FabricOperationListener implements FabricPet
         PlayerActionEvents.AFTER_HELD_ITEM_CHANGE.register(this::onUserChangeHeldItems);
         ServerLivingEntityEvents.ALLOW_DAMAGE.register(this::onPlayerDamageTamed);
         UseEntityCallback.EVENT.register(this::onPlayerTamedInteract);
+        PlayerActionEvents.BEFORE_CHANGE_TEXT_ON_SIGN.register(this::onSignEdit);
     }
 
     private void onPlayerJoin(ServerPlayNetworkHandler handler, PacketSender sender, MinecraftServer server) {
@@ -88,6 +95,26 @@ public class FabricListener extends FabricOperationListener implements FabricPet
                 Registries.ITEM.getId(mainHandItem.isEmpty() ? Items.AIR : mainHandItem.getItem()).asString(),
                 Registries.ITEM.getId(offHandItme.isEmpty() ? Items.AIR : offHandItme.getItem()).asString()
         );
+    }
+
+    public List<FilteredMessage> onSignEdit(SignBlockEntity sign, ServerPlayerEntity player, boolean front, List<FilteredMessage> messages) {
+        SignWrite write = handleSignEdit(SignWrite.create(
+            plugin.getOnlineUser(player),
+            FabricHuskClaims.Adapter.adapt(new Location((ServerWorld) sign.getWorld(), sign.getPos())),
+            front ? SignWrite.Type.SIGN_EDIT_FRONT : SignWrite.Type.SIGN_EDIT_BACK,
+            messages.stream().map(FilteredMessage::getString).toArray(String[]::new),
+            plugin.getServerName()
+        ));
+
+        if (write.getFilteredText() == null) {
+            return messages;
+        }
+
+        List<FilteredMessage> filteredMessages = Lists.newArrayList();
+        for (int l = 0; l < messages.size(); l++) {
+            filteredMessages.add(FilteredMessage.permitted(write.getFilteredText().get(l)));
+        }
+        return filteredMessages;
     }
 
 //    @EventHandler(ignoreCancelled = true)

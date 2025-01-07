@@ -19,9 +19,12 @@
 
 package net.william278.huskclaims.util;
 
+import java.util.List;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
+import net.minecraft.block.entity.SignBlockEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.filter.FilteredMessage;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,10 +40,28 @@ public final class PlayerActionEvents {
             }
     );
 
+    @NotNull
+    public static final Event<BeforeChangeTextOnSign> BEFORE_CHANGE_TEXT_ON_SIGN = EventFactory.createArrayBacked(
+        BeforeChangeTextOnSign.class,
+        (callbacks) -> (sign, player, front, messages) -> {
+            for (BeforeChangeTextOnSign listener : callbacks) {
+                messages = listener.changeTextOnSign(sign, player, front, messages);
+            }
+            return messages;
+        }
+    );
+
     @FunctionalInterface
     public interface AfterSwapHands {
 
         void swapHands(ServerPlayerEntity player, ItemStack mainHandItem, ItemStack offHandItem);
+
+    }
+
+    @FunctionalInterface
+    public interface BeforeChangeTextOnSign {
+
+        List<FilteredMessage> changeTextOnSign(SignBlockEntity sign, ServerPlayerEntity player, boolean front, List<FilteredMessage> messages);
 
     }
 
