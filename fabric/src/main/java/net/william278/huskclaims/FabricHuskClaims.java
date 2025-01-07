@@ -417,7 +417,7 @@ public class FabricHuskClaims implements DedicatedServerModInitializer, HuskClai
 
         @NotNull
         public static ServerWorld adapt(@NotNull World world, @NotNull MinecraftServer server) {
-            final Identifier id = Identifier.tryParse(world.getName());
+            final Identifier id = Identifier.of(world.getName());
             final ServerWorld found = server.getWorld(RegistryKey.of(RegistryKeys.WORLD, id));
             if (found == null) {
                 throw new IllegalArgumentException("World not found: %s".formatted(world.getName()));
@@ -445,7 +445,7 @@ public class FabricHuskClaims implements DedicatedServerModInitializer, HuskClai
             final Map<Location, Block> blockData = Maps.newHashMap();
             blocks.forEach((position, materialBlock) -> blockData.put(
                     adapt(position, server),
-                    Registries.BLOCK.get(Identifier.tryParse(materialBlock.getMaterialKey()))
+                    Registries.BLOCK.get(Identifier.of(materialBlock.getMaterialKey()))
             ));
             return blockData;
         }
