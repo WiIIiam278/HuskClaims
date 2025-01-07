@@ -16,7 +16,7 @@ dependencies {
     modImplementation include("me.lucko:fabric-permissions-api:${fabric_permissions_api_version}")
     modImplementation include("eu.pb4:placeholder-api:${fabric_placeholder_api_version}")
     modImplementation include("net.impactdev.impactor.api:economy:${fabric_impactor_api_version}")
-    modImplementation include("net.william278.cloplib:cloplib-fabric:2.0-00e0a4d+$project.name")
+    modImplementation include("net.william278.cloplib:cloplib-fabric:2.0-b779bfc+$project.name")
     modCompileOnly "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 
     implementation include('org.apache.commons:commons-pool2:2.12.0')

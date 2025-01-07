@@ -8,7 +8,7 @@ dependencies {
     implementation 'net.kyori:adventure-platform-bukkit:4.3.4'
     implementation 'io.papermc:paperlib:1.0.8'
     implementation 'space.arim.morepaperlib:morepaperlib:0.4.4'
-    implementation 'net.william278.cloplib:cloplib-bukkit:2.0-00e0a4d'
+    implementation 'net.william278.cloplib:cloplib-bukkit:2.0-b779bfc'
     implementation 'org.bstats:bstats-bukkit:3.1.0'
     implementation 'de.exlll:configlib-yaml:4.5.0'
 
