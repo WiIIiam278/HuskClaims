@@ -170,8 +170,8 @@ public class Locales implements PaginatedListProvider {
         final boolean crossServer = plugin.getSettings().getCrossServer().isEnabled();
         return plugin.getLocales().getRawLocale(
                 switch (serverWorld.world().getEnvironment().toLowerCase(Locale.ENGLISH)) {
-                    case "nether" -> "position_nether";
-                    case "the_end" -> "position_end";
+                    case "the_nether", "nether" -> "position_nether";
+                    case "the_end", "end" -> "position_end";
                     default -> "position_overworld";
                 },
                 crossServer ? serverWorld.toString() : serverWorld.world().getName(),
