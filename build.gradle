@@ -113,22 +113,26 @@ allprojects {
 }
 
 subprojects {
+    // Ignore root fabric project (no jars)
     if (project.name == 'fabric') {
         return
     }
 
+    // Project naming
     version rootProject.version
     def name = "$rootProject.name"
     if (rootProject != project.parent) {
         name += "-${project.parent.name.capitalize()}"
+    } else {
+        name += "-${project.name.capitalize()}"
     }
-    name += "-${project.name.capitalize()}"
     archivesBaseName = name
 
     // Fabric-specific configuration
     if (project.parent?.name?.equals('fabric')) {
         apply plugin: 'fabric-loom'
         compileJava.options.release.set 21
+        version += "+mc.${project.name}"
     }
 
     jar {
