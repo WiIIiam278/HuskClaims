@@ -19,18 +19,56 @@
 
 package net.william278.huskclaims.util;
 
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.william278.huskclaims.FabricHuskClaims;
 import net.william278.huskclaims.position.Position;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Predicate;
 
 public interface FabricSafeTeleportProvider extends SafeTeleportProvider {
+
+    List<Predicate<BlockState>> SAFETY_CHECKS = List.of(
+            b -> b.isOpaque() || b.getBlock() == Blocks.WATER, BlockState::isAir, BlockState::isAir
+    );
 
     @Override
     @NotNull
     default CompletableFuture<Optional<Position>> findSafePosition(@NotNull Position position) {
-        return CompletableFuture.completedFuture(Optional.empty()); // todo
+        final Location location = FabricHuskClaims.Adapter.adapt(position, getPlugin().getMinecraftServer());
+        return CompletableFuture.completedFuture(getSafe(location.world(), location.blockPos()));
     }
+
+    private Optional<Position> getSafe(@NotNull ServerWorld world, @NotNull BlockPos pos) {
+        int y = getHighestYAt(world, pos);
+        for (Predicate<BlockState> check : SAFETY_CHECKS) {
+            if (!check.test(world.getBlockState(pos.withY(y)))) {
+                return Optional.empty();
+            }
+            y++;
+        }
+        if (pos.getY() >= world.getHeight()) {
+            return Optional.empty();
+        }
+        return Optional.of(FabricHuskClaims.Adapter.adapt(world, pos.withY(y - 1).toCenterPos(), 0f, 0f));
+    }
+
+    private int getHighestYAt(@NotNull ServerWorld blockView, @NotNull BlockPos pos) {
+        final BlockPos.Mutable cursor = new BlockPos.Mutable(pos.getX(), blockView.getHeight(), pos.getZ());
+        while (blockView.getBlockState(cursor).isAir() && cursor.getY() > blockView.getBottomY()) {
+            cursor.move(Direction.DOWN);
+        }
+        return cursor.getY();
+    }
+
+    @NotNull
+    FabricHuskClaims getPlugin();
 
 }
