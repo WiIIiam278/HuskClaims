@@ -27,6 +27,7 @@ import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.AffineTransformation;
 import net.minecraft.util.math.BlockPos;
+import net.william278.cloplib.operation.OperationChunk;
 import net.william278.huskclaims.FabricHuskClaims;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.hook.GeyserHook;
@@ -117,12 +118,15 @@ public class FabricBlockDisplayHighlighter extends BlockHighlighter<FabricBlockD
         @NotNull
         private DisplayEntity.BlockDisplayEntity createEntity(@NotNull HuskClaims plugin, @NotNull Highlightable.Type type) {
             this.location = FabricHuskClaims.Adapter.adapt(position, ((FabricHuskClaims) plugin).getMinecraftServer());
-            final BlockPos blockPos = location.blockPos();
-            if (!location.world().getChunkManager().isChunkLoaded(blockPos.getX(), blockPos.getZ())) {
+
+            // Check the chunk is loaded
+            final OperationChunk chunk = position.getChunk();
+            if (!location.world().getChunkManager().isChunkLoaded(chunk.getX(), chunk.getZ())) {
                 throw new IllegalStateException("World/chunk is not loaded");
             }
 
             // Create block display
+            final BlockPos blockPos = location.blockPos();
             final DisplayEntity.BlockDisplayEntity display = new DisplayEntity.BlockDisplayEntity(
                     EntityType.BLOCK_DISPLAY, location.world());
             display.refreshPositionAndAngles(blockPos.getX(), blockPos.getY(), blockPos.getZ(), 0.0f, 0.0f);
