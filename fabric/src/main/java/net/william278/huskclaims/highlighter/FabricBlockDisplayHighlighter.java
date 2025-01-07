@@ -118,11 +118,7 @@ public class FabricBlockDisplayHighlighter extends BlockHighlighter<FabricBlockD
         private DisplayEntity.BlockDisplayEntity createEntity(@NotNull HuskClaims plugin, @NotNull Highlightable.Type type) {
             this.location = FabricHuskClaims.Adapter.adapt(position, ((FabricHuskClaims) plugin).getMinecraftServer());
             final BlockPos blockPos = location.blockPos();
-            //#if MC==12104
-            if (!location.world().isPosLoaded(blockPos)) {
-            //#else
-            //$$ if (!location.world().isChunkLoaded(blockPos)) {
-            //#endif
+            if (!location.world().getChunkManager().isChunkLoaded(blockPos.getX(), blockPos.getZ())) {
                 throw new IllegalStateException("World/chunk is not loaded");
             }
 
