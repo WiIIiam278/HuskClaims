@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
+import com.google.common.primitives.Longs;
 import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -77,6 +78,7 @@ import net.william278.huskclaims.trust.TrustTag;
 import net.william278.huskclaims.trust.UserGroup;
 import net.william278.huskclaims.user.*;
 import net.william278.huskclaims.util.*;
+import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -311,7 +313,7 @@ public class FabricHuskClaims implements DedicatedServerModInitializer, HuskClai
     @Override
     public void receive(@NotNull FabricPluginMessage payload, @NotNull ServerPlayNetworking.Context context) {
         if (broker instanceof PluginMessageBroker messenger &&
-            getSettings().getCrossServer().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
+                getSettings().getCrossServer().getBrokerType() == Broker.Type.PLUGIN_MESSAGE) {
             messenger.onReceive(
                     PluginMessageBroker.BUNGEE_CHANNEL_ID,
                     getOnlineUser(context.player()),
@@ -344,7 +346,7 @@ public class FabricHuskClaims implements DedicatedServerModInitializer, HuskClai
 
         if (!getSettings().getHighlighter().isBlockDisplays()) {
             log(Level.WARNING, "Block display highlighting is disabled, but this is the only builtin " +
-                               "highlighter supported on Fabric currently. Enabling anyway.");
+                    "highlighter supported on Fabric currently. Enabling anyway.");
         }
         registerHighlighter(new FabricBlockDisplayHighlighter(this));
     }
@@ -425,10 +427,15 @@ public class FabricHuskClaims implements DedicatedServerModInitializer, HuskClai
 
         @NotNull
         public static World adapt(@NotNull net.minecraft.world.World world) {
-            final String id = world.getRegistryKey().getValue().asString();
+            final MinecraftServer server = world.getServer();
+            final long seed = server != null ? server.getSaveProperties().getGeneratorOptions().getSeed() : 0;
+            final Identifier id = world.getRegistryKey().getValue();
             return World.of(
-                    id, UUID.nameUUIDFromBytes(id.getBytes(StandardCharsets.UTF_8)),
-                    world.getDimensionEntry().getIdAsString().toLowerCase(Locale.ENGLISH)
+                    id.asMinimalString(),
+                    UUID.nameUUIDFromBytes(ArrayUtils.addAll(Longs.toByteArray(seed),
+                            id.toString().getBytes(StandardCharsets.UTF_8))),
+                    world.getDimensionEntry().getKey().map(k -> k.getValue().asMinimalString())
+                            .orElse("unknown")
             );
         }
 
