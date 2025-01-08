@@ -14,6 +14,7 @@ The HuskClaims API shares version numbering with the plugin itself for consisten
 The HuskClaims API is available for the following platforms:
 
 * `bukkit` - Bukkit, Spigot, Paper, etc. Provides Bukkit API event listeners and adapters to `org.bukkit` objects.
+* `fabric` - Fabric, Quilt, etc. Provides Fabric API event callbacks and adapters to `net.minecraft` objects.
 * `common` - Common API for all platforms.
 
 ## Table of contents
@@ -35,7 +36,7 @@ Add the repository to your `pom.xml` as per below. You can alternatively specify
     </repository>
 </repositories>
 ```
-Add the dependency to your `pom.xml` as per below. Replace `PLATFORM` with your target platform (see above) and `VERSION` with the latest version of HuskClaims (without the v): ![Latest version](https://img.shields.io/github/v/tag/WiIIiam278/HuskClaims?color=%23282828&label=%20&style=flat-square)
+Add the dependency to your `pom.xml` as per below. Replace `PLATFORM` with your target platform (see above) and `VERSION` with the latest version of HuskClaims (without the v): ![Latest version](https://img.shields.io/github/v/tag/WiIIiam278/HuskClaims?color=%23282828&label=%20&style=flat-square). Note for Fabric you must append the target Minecraft version to the version number (e.g. `1.5+1.21.1`).
 ```xml
 <dependency>
     <groupId>net.william278.huskclaims</groupId>
@@ -58,7 +59,7 @@ allprojects {
 	}
 }
 ```
-Add the dependency as per below. Replace `PLATFORM` with your target platform (see above) and `VERSION` with the latest version of HuskClaims (without the v): ![Latest version](https://img.shields.io/github/v/tag/WiIIiam278/HuskClaims?color=%23282828&label=%20&style=flat-square)
+Add the dependency as per below. Replace `PLATFORM` with your target platform (see above) and `VERSION` with the latest version of HuskClaims (without the v): ![Latest version](https://img.shields.io/github/v/tag/WiIIiam278/HuskClaims?color=%23282828&label=%20&style=flat-square). Note for Fabric you must append the target Minecraft version to the version number (e.g. `1.5+1.21.1`).
 
 ```groovy
 dependencies {
