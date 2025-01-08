@@ -159,6 +159,7 @@ locales:
   position_overworld: '[⭘ %1% (%2%, %3%)](#03cafc show_text=&7%4%\n&8⭘ În Overworld%5%)'
   position_nether: '[🔥 %1% (%2%, %3%)](#ff304f show_text=&7%4%\n&8🔥 În Nether%5%)'
   position_end: '[🗡 %1% (%2%, %3%)](#f3f59f show_text=&7%4%\n&8🗡 În End%5%)'
+  position_custom: '[🗡 %1% (%2%, %3%)](#96e640 show_text=&7%4%\n&8⛏ In %6%%5%)'
   position_teleport_tooltip: '\n&#00fb9a&⏩ Click pentru a teleporta'
   position_world_tooltip: 'Lumea și coordonatele'
   position_server_world_tooltip: 'Serverul/lumea și coordonatele'

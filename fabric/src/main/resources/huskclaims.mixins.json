@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.william278.huskclaims.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "server": [
+    "PlayerInventoryMixin",
+    "ServerPlayNetworkHandlerMixin",
+    "SignBlockEntityMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

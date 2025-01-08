@@ -19,34 +19,36 @@
 
 package net.william278.huskclaims.highlighter;
 
-import net.william278.huskclaims.BukkitHuskClaims;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.decoration.Brightness;
+import net.minecraft.entity.decoration.DisplayEntity;
+import net.minecraft.server.network.EntityTrackerEntry;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.AffineTransformation;
+import net.minecraft.util.math.BlockPos;
+import net.william278.cloplib.operation.OperationChunk;
+import net.william278.huskclaims.FabricHuskClaims;
 import net.william278.huskclaims.HuskClaims;
-import net.william278.huskclaims.PaperHuskClaims;
 import net.william278.huskclaims.hook.GeyserHook;
 import net.william278.huskclaims.position.Position;
-import net.william278.huskclaims.user.BukkitUser;
+import net.william278.huskclaims.user.FabricUser;
 import net.william278.huskclaims.user.OnlineUser;
-import net.william278.huskclaims.util.BlockDataBlock;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.entity.BlockDisplay;
-import org.bukkit.entity.Display;
-import org.bukkit.entity.EntityType;
-import org.bukkit.util.Transformation;
+import net.william278.huskclaims.util.BlockMaterialBlock;
+import net.william278.huskclaims.util.Location;
 import org.jetbrains.annotations.NotNull;
-import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
 
 import java.util.Collection;
 
 /**
- * Highlighter that uses {@link BlockDisplay} entities - used to highlight {@link Highlightable}s to a user in-game
+ * Highlighter that uses {@link DisplayEntity.BlockDisplayEntity}s - used to highlight {@link Highlightable}s to a user in-game
  */
-public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighlighter.DisplayHighlightBlock> {
+public class FabricBlockDisplayHighlighter extends BlockHighlighter<FabricBlockDisplayHighlighter.DisplayHighlightBlock> {
 
     private static final int PRIORITY = 1;
 
-    public BlockDisplayHighlighter(@NotNull HuskClaims plugin) {
+    public FabricBlockDisplayHighlighter(@NotNull HuskClaims plugin) {
         super(plugin);
     }
 
@@ -64,7 +66,7 @@ public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighli
 
     @Override
     public void showBlocks(@NotNull OnlineUser user, @NotNull Collection<DisplayHighlightBlock> blocks) {
-        blocks.forEach(block -> block.show(plugin, user));
+        blocks.forEach(block -> block.show(user));
     }
 
     @Override
@@ -72,11 +74,11 @@ public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighli
         if (!replacedBlocks.containsKey(user.getUuid())) {
             return;
         }
-        plugin.runSync(() -> replacedBlocks.removeAll(user.getUuid()).forEach(block -> {
+        replacedBlocks.removeAll(user.getUuid()).forEach(block -> {
             if (block instanceof DisplayHighlightBlock display) {
-                display.remove();
+                display.remove(user);
             }
-        }));
+        });
     }
 
     @Override
@@ -92,18 +94,20 @@ public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighli
     public static final class DisplayHighlightBlock extends HighlightBlock {
 
         // Block display brightness value
-        private static final Display.Brightness FULL_BRIGHT = new Display.Brightness(15, 15);
+        private static final Brightness FULL_BRIGHT = new Brightness(15, 15);
 
         // Block display scale constants
         private static final float SCALAR = 0.002f;
-        private static final Transformation SCALE_TRANSFORMATION = new Transformation(
+        private static final AffineTransformation SCALE_TRANSFORMATION = new AffineTransformation(
                 new Vector3f(-(SCALAR / 2), -(SCALAR / 2), -(SCALAR / 2)),
-                new AxisAngle4f(0, 0, 0, 0),
-                new Vector3f(1 + SCALAR, 1 + SCALAR, 1 + SCALAR),
-                new AxisAngle4f(0, 0, 0, 0)
+                AffineTransformation.identity().getLeftRotation(),
+                new Vector3f(AffineTransformation.identity().getScale()).add(SCALAR, SCALAR, SCALAR),
+                AffineTransformation.identity().getRightRotation()
         );
 
-        private final BlockDisplay display;
+        private final DisplayEntity.BlockDisplayEntity display;
+        private Location location;
+        private EntityTrackerEntry tracker;
 
         private DisplayHighlightBlock(@NotNull Position position, @NotNull Highlightable.Type type,
                                       @NotNull HuskClaims plugin) {
@@ -111,24 +115,27 @@ public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighli
             this.display = createEntity(plugin, type);
         }
 
-        @SuppressWarnings("UnstableApiUsage")
         @NotNull
-        private BlockDisplay createEntity(@NotNull HuskClaims plugin, @NotNull Highlightable.Type type) {
-            final Location location = BukkitHuskClaims.Adapter.adapt(position);
-            if (!location.isWorldLoaded() || !location.getChunk().isLoaded()) {
+        private DisplayEntity.BlockDisplayEntity createEntity(@NotNull HuskClaims plugin, @NotNull Highlightable.Type type) {
+            this.location = FabricHuskClaims.Adapter.adapt(position, ((FabricHuskClaims) plugin).getMinecraftServer());
+
+            // Check the chunk is loaded
+            final OperationChunk chunk = position.getChunk();
+            if (!location.world().getChunkManager().isChunkLoaded(chunk.getX(), chunk.getZ())) {
                 throw new IllegalStateException("World/chunk is not loaded");
             }
 
             // Create block display
-            final BlockDisplay display = (BlockDisplay) location.getWorld().spawnEntity(
-                    location, EntityType.BLOCK_DISPLAY
-            );
-            display.setBlock(((BlockDataBlock) this.block).getData());
+            final BlockPos blockPos = location.blockPos();
+            final DisplayEntity.BlockDisplayEntity display = new DisplayEntity.BlockDisplayEntity(
+                    EntityType.BLOCK_DISPLAY, location.world());
+            display.refreshPositionAndAngles(blockPos.getX(), blockPos.getY(), blockPos.getZ(), 0.0f, 0.0f);
+
+            // Set parameters
+            display.setBlockState(((BlockMaterialBlock) this.block).getData().getDefaultState());
             display.setViewRange(BlockHighlighter.VIEWING_RANGE);
-            display.setGravity(false);
-            display.setPersistent(false);
+            display.setNoGravity(true);
             display.setBrightness(FULL_BRIGHT);
-            display.setVisibleByDefault(false);
 
             // Scale to prevent z-fighting
             display.setTransformation(SCALE_TRANSFORMATION);
@@ -136,23 +143,31 @@ public class BlockDisplayHighlighter extends BlockHighlighter<BlockDisplayHighli
             // Glow if needed
             if (plugin.getSettings().getHighlighter().isGlowEffect()) {
                 display.setGlowing(true);
-                display.setGlowColorOverride(Color.fromRGB(
-                        plugin.getSettings().getHighlighter().getGlowColor(type).getRgb()
-                ));
+                display.setGlowColorOverride(plugin.getSettings().getHighlighter().getGlowColor(type).getArgb());
             }
+
             return display;
         }
 
-        @SuppressWarnings("UnstableApiUsage")
-        public void show(@NotNull HuskClaims plugin, @NotNull OnlineUser user) {
-            ((BukkitUser) user).getBukkitPlayer().showEntity((PaperHuskClaims) plugin, display);
+        public void show(@NotNull OnlineUser user) {
+            final ServerPlayerEntity player = ((FabricUser) user).getFabricPlayer();
+            this.tracker = new EntityTrackerEntry(
+                    location.world(), display, 
+                    display.getType().getTrackTickInterval(), 
+                    display.velocityDirty, 
+                    player.networkHandler::sendPacket
+            );
+            tracker.startTracking(player);
         }
 
-        public void remove() {
-            if (display != null) {
-                display.remove();
+        public void remove(@NotNull OnlineUser user) {
+            final ServerPlayerEntity player = ((FabricUser) user).getFabricPlayer();
+            if (tracker != null) {
+                tracker.stopTracking(player);
             }
+            display.remove(Entity.RemovalReason.DISCARDED);
         }
 
     }
+
 }

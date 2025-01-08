@@ -44,7 +44,7 @@ public interface SignNotifier {
             return;
         }
         getPlugin().getOnlineUsers().stream()
-                .filter(this::isSignSpying).filter(u -> !u.equals(write.getEditor()))
+                .filter(u -> !u.equals(write.getEditor())).filter(this::isSignSpying)
                 .forEach(mod -> notifySignModerator(mod, write));
     }
 

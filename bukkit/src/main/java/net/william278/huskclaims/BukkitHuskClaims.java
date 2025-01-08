@@ -102,6 +102,8 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     @Setter
     private Set<Hook> hooks = Sets.newHashSet();
     @Setter
+    private ClaimsListener operationListener;
+    @Setter
     private Database database;
     @Setter
     private Settings settings;

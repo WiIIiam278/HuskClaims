@@ -27,7 +27,13 @@ public interface ListenerProvider {
     ClaimsListener createListener();
 
     default void loadListeners() {
-        createListener().register();
+        setOperationListener(createListener());
+        getOperationListener().register();
     }
+
+    @NotNull
+    ClaimsListener getOperationListener();
+
+    void setOperationListener(@NotNull ClaimsListener listener);
 
 }

@@ -68,17 +68,21 @@ public class ClaimWorldSerializer implements JsonSerializer<ClaimWorld>, JsonDes
         final JsonObject jsonObject = jsonElement.getAsJsonObject();
         final ClaimWorld claimWorld = new ClaimWorld();
         final Set<Claim> claims = Sets.newHashSet();
-        final JsonArray claimsArray = jsonObject.has("claims") ? jsonObject.getAsJsonArray("claims") : new JsonArray();
+        final JsonArray claimsArray = jsonObject.has("claims")
+                ? jsonObject.getAsJsonArray("claims") : new JsonArray();
         claimsArray.forEach(claimElement -> claims.add(plugin.getGson().fromJson(claimElement, Claim.class)));
         claimWorld.loadClaims(claims);
 
-        final JsonObject userCache = jsonObject.has("user_cache") ? jsonObject.getAsJsonObject("user_cache") : new JsonObject();
-        userCache.entrySet().forEach(entry -> claimWorld.getUserCache().put(UUID.fromString(entry.getKey()), entry.getValue().getAsString()));
+        final JsonObject userCache = jsonObject.has("user_cache")
+                ? jsonObject.getAsJsonObject("user_cache") : new JsonObject();
+        userCache.entrySet().forEach(entry -> claimWorld.getUserCache().put(
+                UUID.fromString(entry.getKey()), entry.getValue().getAsString()));
 
         final JsonArray wildernessFlags = jsonObject.has("wilderness_flags") ? jsonObject.getAsJsonArray("wilderness_flags") : new JsonArray();
-        wildernessFlags.forEach(w -> claimWorld.getWildernessFlags().add(OperationType.valueOf(w.getAsString())));
+        wildernessFlags.forEach(w -> claimWorld.getWildernessFlags().add(OperationType.getOrCreate(w.getAsString())));
 
-        claimWorld.setSchemaVersion(jsonObject.has("schema_version") ? jsonObject.get("schema_version").getAsInt() : ClaimWorld.CURRENT_SCHEMA);
+        claimWorld.setSchemaVersion(jsonObject.has("schema_version")
+                ? jsonObject.get("schema_version").getAsInt() : ClaimWorld.CURRENT_SCHEMA);
         return claimWorld;
     }
 

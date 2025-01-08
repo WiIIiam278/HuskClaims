@@ -195,8 +195,8 @@ public final class Settings {
 
         @Comment({"Default flags for the wilderness (outside claims)",
                 "To modify existing worlds, use /claimflags set <flag> <true/false> while standing outside a claim."})
-        private List<OperationType> wildernessRules = List.of(
-                OperationType.values() // Allow all operation types
+        private List<OperationType> wildernessRules = Lists.newArrayList(
+                OperationType.getRegistered() // Allow all operation types
         );
 
         @Comment("List of worlds where users cannot claim")
@@ -466,6 +466,10 @@ public final class Settings {
 
             GlowColor(int rgb) {
                 this.rgb = rgb;
+            }
+
+            public int getArgb() {
+                return (0xFF << 24) | rgb;
             }
         }
     }

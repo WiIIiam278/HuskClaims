@@ -100,7 +100,6 @@ public class BukkitGriefPreventionImporter extends Importer {
         config.setMaximumPoolSize(1);
         config.setConnectionTimeout(30000);
         config.setPoolName(String.format("HuskClaims-%s-Importer", getName()));
-        config.setReadOnly(true);
 
         this.dataSource = new HikariDataSource(config);
         this.pool = Executors.newFixedThreadPool(20);

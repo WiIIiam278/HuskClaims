@@ -53,18 +53,22 @@ public interface DropsHandler {
             return;
         }
         removeIfMarkedDropper(item.getStack()).ifPresent(owner -> {
-            lockDrops(item, owner);
+            lockDrop(owner, item);
             getMarkedDrops().get(owner).remove(item.getStack());
         });
     }
 
-    default void lockDrops(@NotNull GroundStack item, @NotNull UUID owner) {
-        item.lock(owner, getSettings().isPreventDestruction());
+    default void lockDrop(@NotNull UUID owner, @NotNull GroundStack item) {
+        lockDrops(owner, Lists.newArrayList(item));
+    }
+
+    default void lockDrops(@NotNull UUID owner, @NotNull Collection<? extends GroundStack> items) {
+        items.forEach(item -> item.lock(owner, getSettings().isPreventDestruction()));
         if (getTrackedItems().containsKey(owner)) {
-            getTrackedItems().get(owner).add(item);
+            getTrackedItems().get(owner).addAll(items);
             return;
         }
-        getTrackedItems().put(owner, Sets.newHashSet(item));
+        getTrackedItems().put(owner, Sets.newHashSet(items));
     }
 
     //TODO: Future - permit globally unlocking via a network message?

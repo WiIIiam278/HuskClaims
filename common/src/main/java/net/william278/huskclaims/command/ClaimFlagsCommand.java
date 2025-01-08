@@ -60,7 +60,8 @@ public class ClaimFlagsCommand extends OnlineUserCommand implements TabCompletab
         final boolean setting = parseStringArg(args, 0).map(a -> a.equals("set")).orElse(false);
         return switch (args.length) {
             case 0, 1 -> Lists.newArrayList("set", "list");
-            case 2 -> setting ? Arrays.stream(OperationType.values()).map(Enum::name).toList() : null;
+            case 2 -> setting ? plugin.getOperationListener().getRegisteredOperationTypes().stream()
+                    .map(OperationType::asMinimalString).toList() : null;
             case 3 -> setting ? List.of("true", "false") : null;
             default -> null;
         };
@@ -114,7 +115,8 @@ public class ClaimFlagsCommand extends OnlineUserCommand implements TabCompletab
         plugin.getDatabase().updateClaimWorld(world);
 
         // Send flag list on correct page to indicated the update
-        final double changedIndex = Lists.newArrayList(OperationType.values()).indexOf(type);
+        final double changedIndex = plugin.getOperationListener()
+                .getRegisteredOperationTypes().stream().toList().indexOf(type);
         final int changedPage = (int) Math.ceil(changedIndex / CLAIM_FLAGS_PER_PAGE);
         this.sendClaimFlagsList(onlineUser, claim, world, changedPage);
     }
@@ -132,12 +134,12 @@ public class ClaimFlagsCommand extends OnlineUserCommand implements TabCompletab
 
         onlineUser.sendMessage(
                 PaginatedList.of(
-                        Arrays.stream(OperationType.values())
+                        plugin.getOperationListener().getRegisteredOperationTypes().stream()
                                 .map(op -> plugin.getLocales().getRawLocale("claim_flag_%s"
                                                 .formatted((claim == null ? world.getWildernessFlags() : claim.getDefaultFlags())
                                                         .contains(op) ? "enabled" : "disabled"),
-                                        op.name()
-                                ).orElse(op.name())).toList(),
+                                        op.asMinimalString()
+                                ).orElse(op.asMinimalString())).toList(),
                         plugin.getLocales().getBaseList(CLAIM_FLAGS_PER_PAGE)
                                 .setCommand("/%s list".formatted(getName()))
                                 .setHeaderFormat(header).setItemSeparator("\n")

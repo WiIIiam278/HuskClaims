@@ -33,6 +33,7 @@ import net.william278.huskclaims.user.CommandUser;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.util.PaginatedListProvider;
 import org.apache.commons.text.StringEscapeUtils;
+import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -168,11 +169,13 @@ public class Locales implements PaginatedListProvider {
     public String getPositionText(@NotNull BlockPosition position, int yPosition, @NotNull ServerWorld serverWorld,
                                   @NotNull CommandUser user, @NotNull HuskClaims plugin) {
         final boolean crossServer = plugin.getSettings().getCrossServer().isEnabled();
+        final String environment = serverWorld.world().getEnvironment().toLowerCase(Locale.ENGLISH);
         return plugin.getLocales().getRawLocale(
-                switch (serverWorld.world().getEnvironment().toLowerCase(Locale.ENGLISH)) {
-                    case "nether" -> "position_nether";
-                    case "the_end" -> "position_end";
-                    default -> "position_overworld";
+                switch (environment) {
+                    case "overworld", "normal" -> "position_overworld";
+                    case "the_nether", "nether" -> "position_nether";
+                    case "the_end", "end" -> "position_end";
+                    default -> "position_custom";
                 },
                 crossServer ? serverWorld.toString() : serverWorld.world().getName(),
                 Integer.toString(position.getBlockX()),
@@ -182,7 +185,8 @@ public class Locales implements PaginatedListProvider {
                 ).orElse(""),
                 user instanceof OnlineUser online ? getTeleportText(
                         position, yPosition, serverWorld, online, plugin
-                ) : ""
+                ) : "",
+                escapeText(WordUtils.capitalizeFully(environment.replaceAll("[-_]", " ")))
         ).orElse("");
     }
 
