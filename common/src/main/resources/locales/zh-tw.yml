@@ -159,6 +159,7 @@ locales:
   position_overworld: '[⭘ %1%（%2%， %3%）](#03cafc show_text=&7%4%\n&8⭘ 在主世界%5%)'
   position_nether: '[🔥 %1%（%2%， %3%）](#ff304f show_text=&7%4%\n&8🔥 在地獄%5%)'
   position_end: '[🗡 %1%（%2%， %3%）](#f3f59f show_text=&7%4%\n&8🗡 在終界%5%)'
+  position_custom: '[🗡 %1% (%2%, %3%)](#96e640 show_text=&7%4%\n&8⛏ In %6%%5%)'
   position_teleport_tooltip: '\n�fb9a&⏩ 點選以傳送'
   position_world_tooltip: '世界和座標'
   position_server_world_tooltip: '伺服器/世界和座標'
