@@ -172,7 +172,7 @@ public class Locales implements PaginatedListProvider {
         final String environment = serverWorld.world().getEnvironment().toLowerCase(Locale.ENGLISH);
         return plugin.getLocales().getRawLocale(
                 switch (environment) {
-                    case "the_overworld", "overworld" -> "position_overworld";
+                    case "overworld", "normal" -> "position_overworld";
                     case "the_nether", "nether" -> "position_nether";
                     case "the_end", "end" -> "position_end";
                     default -> "position_custom";
