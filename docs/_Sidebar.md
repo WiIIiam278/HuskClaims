@@ -21,6 +21,7 @@
 * ⚙️ [[Claims API]]
 * 🧡 [[Trust API]]
 * 💡 [[Highlighter API]]
+* 🎬 [[Operations API]]
 * ❗ [[API Events]]
 
 ## Links
