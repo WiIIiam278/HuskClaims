@@ -19,10 +19,12 @@
 
 package net.william278.huskclaims.util;
 
+import java.util.Collection;
 import java.util.List;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.block.entity.SignBlockEntity;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.filter.FilteredMessage;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -51,6 +53,16 @@ public final class PlayerActionEvents {
         }
     );
 
+    @NotNull
+    public static final Event<AfterDeathDropItems> AFTER_DEATH_DROP_ITEMS = EventFactory.createArrayBacked(
+        AfterDeathDropItems.class,
+        (callbacks) -> (player, items) -> {
+            for (AfterDeathDropItems listener : callbacks) {
+                listener.dropItems(player, items);
+            }
+        }
+    );
+
     @FunctionalInterface
     public interface AfterSwapHands {
 
@@ -62,6 +74,13 @@ public final class PlayerActionEvents {
     public interface BeforeChangeTextOnSign {
 
         List<FilteredMessage> changeTextOnSign(SignBlockEntity sign, ServerPlayerEntity player, boolean front, List<FilteredMessage> messages);
+
+    }
+
+    @FunctionalInterface
+    public interface AfterDeathDropItems {
+
+        void dropItems(ServerPlayerEntity player, Collection<ItemEntity> items);
 
     }
 

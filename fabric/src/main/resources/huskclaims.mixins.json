@@ -4,6 +4,7 @@
   "package": "net.william278.huskclaims.mixins",
   "compatibilityLevel": "JAVA_17",
   "server": [
+    "PlayerInventoryMixin",
     "ServerPlayNetworkHandlerMixin",
     "SignBlockEntityMixin"
   ],

@@ -76,6 +76,7 @@ public class FabricListener extends FabricOperationListener implements FabricPet
         ServerLivingEntityEvents.ALLOW_DAMAGE.register(this::onPlayerDamageTamed);
         UseEntityCallback.EVENT.register(this::onPlayerTamedInteract);
         PlayerActionEvents.BEFORE_CHANGE_TEXT_ON_SIGN.register(this::onSignEdit);
+        PlayerActionEvents.AFTER_DEATH_DROP_ITEMS.register(this::onPlayerDeath);
     }
 
     private void onPlayerJoin(ServerPlayNetworkHandler handler, PacketSender sender, MinecraftServer server) {
