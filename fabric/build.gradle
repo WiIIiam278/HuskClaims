@@ -35,7 +35,7 @@ dependencies {
         if (dependency.name in ['cloplib-common', 'gson']) { // skip because it already exists (e.g. in cloplib-fabric)
             return
         }
-        include("${dependency.group}:${dependency.name}:${dependency.version}")
+        include(dependency)
     }
 }
 
