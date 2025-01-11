@@ -56,7 +56,8 @@ public class BukkitPlaceholderAPIHook extends Hook {
 
     @Override
     public void load() {
-        this.expansion = new HuskClaimsExpansion((BukkitHuskClaims) plugin);
+        final String version = plugin.getPluginVersion().toStringWithoutMetadata();
+        this.expansion = new HuskClaimsExpansion((BukkitHuskClaims) plugin, version);
         this.expansion.register();
     }
 
@@ -73,7 +74,7 @@ public class BukkitPlaceholderAPIHook extends Hook {
 
         @Getter(AccessLevel.NONE)
         private final BukkitHuskClaims plugin;
-        private final String version = plugin.getPluginVersion().toStringWithoutMetadata();
+        private final String version;
         private final String author = "William278";
         private final String name = "HuskClaims";
         private final String identifier = Placeholder.IDENTIFIER;
