@@ -38,7 +38,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 @PluginHook(
         name = "PlaceholderAPI",
@@ -54,9 +56,7 @@ public class BukkitPlaceholderAPIHook extends Hook {
 
     @Override
     public void load() {
-        this.expansion = new HuskClaimsExpansion(
-                plugin, plugin.getPluginVersion().toStringWithoutMetadata()
-        );
+        this.expansion = new HuskClaimsExpansion((BukkitHuskClaims) plugin);
         this.expansion.register();
     }
 
@@ -72,22 +72,22 @@ public class BukkitPlaceholderAPIHook extends Hook {
     public static class HuskClaimsExpansion extends PlaceholderExpansion {
 
         @Getter(AccessLevel.NONE)
-        private final HuskClaims plugin;
-        private final String version;
+        private final BukkitHuskClaims plugin;
+        private final String version = plugin.getPluginVersion().toStringWithoutMetadata();
         private final String author = "William278";
         private final String name = "HuskClaims";
         private final String identifier = Placeholder.IDENTIFIER;
         private final List<String> placeholders = Placeholder.getFormattedList();
 
         @Override
-        public String onPlaceholderRequest(@Nullable Player player, @NotNull String identifier) {
+        public String onPlaceholderRequest(@Nullable Player player, @NotNull String id) {
             if (player == null) {
                 return null;
             }
 
             // Format placeholders, handle exceptions (placeholder formatting is non-critical)
             try {
-                return Placeholder.format(plugin, ((BukkitHuskClaims) plugin).getOnlineUser(player), identifier);
+                return Placeholder.format(plugin, plugin.getOnlineUser(player), id.toLowerCase(Locale.ENGLISH));
             } catch (IllegalArgumentException | IllegalStateException | NullPointerException e) {
                 return plugin.getLocales().getNotApplicable();
             }
@@ -127,16 +127,15 @@ public class BukkitPlaceholderAPIHook extends Hook {
             )));
 
             private static final String IDENTIFIER = "huskclaims";
+            private static final Map<String, Placeholder> IDENTIFIER_MAP = Arrays.stream(values())
+                    .map(p -> Map.entry(p.name().toLowerCase(Locale.ENGLISH), p))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
             private final BiFunction<HuskClaims, OnlineUser, String> resolver;
 
             @Nullable
-            public static String format(@NotNull HuskClaims plugin, @NotNull OnlineUser user, @NotNull String identifier) {
-                return Arrays.stream(values())
-                        .filter(placeholder -> placeholder.name().toLowerCase(Locale.ENGLISH).equals(identifier))
-                        .findFirst()
-                        .map(placeholder -> placeholder.resolve(plugin, user))
-                        .orElse(null);
+            public static String format(@NotNull HuskClaims plugin, @NotNull OnlineUser user, @NotNull String id) {
+                return IDENTIFIER_MAP.containsKey(id) ? IDENTIFIER_MAP.get(id).resolve(plugin, user) : null;
             }
 
             @NotNull
