@@ -19,9 +19,6 @@
 
 package net.william278.huskclaims.listener;
 
-import java.util.Collection;
-import java.util.Objects;
-import java.util.UUID;
 import lombok.Getter;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
@@ -32,6 +29,10 @@ import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.util.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Collection;
+import java.util.Objects;
+import java.util.UUID;
 
 public interface FabricDropsListener {
 

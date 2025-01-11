@@ -170,7 +170,7 @@ public final class Settings {
     @Configuration
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class ClaimSettings {
-        @Comment("Default flags for new regular claims")
+        @Comment("Default operation type flags for new regular claims")
         private List<OperationType> defaultFlags = List.of(
                 OperationType.PLAYER_DAMAGE_MONSTER,
                 OperationType.EXPLOSION_DAMAGE_ENTITY,
@@ -179,7 +179,7 @@ public final class Settings {
                 OperationType.PASSIVE_MOB_SPAWN
         );
 
-        @Comment("Default flags for new admin claims")
+        @Comment("Default operation type flags for new admin claims")
         private List<OperationType> adminFlags = List.of(
                 OperationType.PLAYER_DAMAGE_MONSTER,
                 OperationType.EXPLOSION_DAMAGE_ENTITY,
@@ -193,7 +193,7 @@ public final class Settings {
                 ClaimingMode.values() // Allow all claiming modes
         );
 
-        @Comment({"Default flags for the wilderness (outside claims)",
+        @Comment({"Default operation type flags for the wilderness (outside claims)",
                 "To modify existing worlds, use /claimflags set <flag> <true/false> while standing outside a claim."})
         private List<OperationType> wildernessRules = Lists.newArrayList(
                 OperationType.getRegistered() // Allow all operation types
@@ -541,7 +541,8 @@ public final class Settings {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class HookSettings {
 
-        private LuckPermsHookSettings luckPerms = new LuckPermsHookSettings();
+        @Getter(AccessLevel.NONE)
+        private LuckPermsHookSettings luckperms = new LuckPermsHookSettings();
 
         @Getter
         @Configuration
@@ -567,7 +568,8 @@ public final class Settings {
             private boolean enabled = true;
         }
 
-        private HuskHomesHookSettings huskHomes = new HuskHomesHookSettings();
+        @Getter(AccessLevel.NONE)
+        private HuskHomesHookSettings huskhomes = new HuskHomesHookSettings();
 
         @Getter
         @Configuration
@@ -576,14 +578,12 @@ public final class Settings {
             @Comment("Whether to hook into HuskHomes for claim teleportation and home restriction")
             private boolean enabled = true;
 
-            @Comment("Whether to restrict setting a home in claims to a trust level")
+            @Comment("Whether to register the huskhomes:set_home operation type for restricting home setting in claims")
             private boolean restrictSetHome = true;
-
-            @Comment("The trust level required to set a home in a claim (the ID of a level in 'trust_levels.yml')")
-            private String setHomeTrustLevel = "access";
         }
 
-        private HuskTownsHookSettings huskTowns = new HuskTownsHookSettings();
+        @Getter(AccessLevel.NONE)
+        private HuskTownsHookSettings husktowns = new HuskTownsHookSettings();
 
         @Getter
         @Configuration
@@ -617,7 +617,8 @@ public final class Settings {
             private boolean enabled = true;
         }
 
-        private WorldGuardSettings worldGuard = new WorldGuardSettings();
+        @Getter(AccessLevel.NONE)
+        private WorldGuardSettings worldguard = new WorldGuardSettings();
 
         @Getter
         @Configuration
@@ -659,6 +660,26 @@ public final class Settings {
 
             @Comment("The label format for markers. '%s' will be replaced with the claim owner's name")
             private String labelFormat = "Claim by %s";
+        }
+
+        @NotNull
+        public HuskHomesHookSettings getHuskHomes() {
+            return huskhomes;
+        }
+
+        @NotNull
+        public HuskTownsHookSettings getHuskTowns() {
+            return husktowns;
+        }
+
+        @NotNull
+        public WorldGuardSettings getWorldGuard() {
+            return worldguard;
+        }
+
+        @NotNull
+        public LuckPermsHookSettings getLuckPerms() {
+            return luckperms;
         }
 
     }

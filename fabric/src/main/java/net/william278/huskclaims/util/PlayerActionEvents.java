@@ -19,8 +19,6 @@
 
 package net.william278.huskclaims.util;
 
-import java.util.Collection;
-import java.util.List;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.block.entity.SignBlockEntity;
@@ -29,6 +27,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.server.filter.FilteredMessage;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Collection;
+import java.util.List;
 
 public final class PlayerActionEvents {
 

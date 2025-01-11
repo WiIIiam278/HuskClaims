@@ -49,8 +49,9 @@ tasks {
     runServer {
         minecraftVersion('1.21.4')
         downloadPlugins {
-            url("https://ci.lucko.me/job/LuckPerms/lastBuild/artifact/bukkit/loader/build/libs/LuckPerms-Bukkit-5.4.151.jar")
+            url("https://download.luckperms.net/1569/bukkit/loader/LuckPerms-Bukkit-5.4.152.jar")
 
+//            modrinth("huskhomes", "kXsCoILk")
 //            modrinth("huskhomes", "kXsCoILk")
 //            modrinth("dynmap", "5F9fwzR1")
 //            modrinth("pl3xmap", "1.20.4-478")

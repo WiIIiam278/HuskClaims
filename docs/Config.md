@@ -77,53 +77,57 @@ cross_server:
       password: ''
 # Claim flags & world settings
 claims:
-  # Default flags for regular claims
+  # Default operation type flags for new regular claims
   default_flags:
-  - PLAYER_DAMAGE_MONSTER
-  - EXPLOSION_DAMAGE_ENTITY
-  - PLAYER_DAMAGE_PLAYER
-  - MONSTER_SPAWN
-  - PASSIVE_MOB_SPAWN
-  # Default flags for admin claims
+    - player_damage_monster
+    - explosion_damage_entity
+    - player_damage_player
+    - monster_spawn
+    - passive_mob_spawn
+  # Default operation type flags for new admin claims
   admin_flags:
-  - PLAYER_DAMAGE_MONSTER
-  - EXPLOSION_DAMAGE_ENTITY
-  - PLAYER_DAMAGE_PLAYER
-  - MONSTER_SPAWN
-  - PASSIVE_MOB_SPAWN
+    - player_damage_monster
+    - explosion_damage_entity
+    - player_damage_player
+    - monster_spawn
+    - passive_mob_spawn
   # List of enabled claim types. Must include at least the regular "CLAIMS" mode
   enabled_claiming_modes:
-  - CLAIMS
-  - CHILD_CLAIMS
-  - ADMIN_CLAIMS
-  # Default flags for the wilderness (outside claims)
+    - CLAIMS
+    - CHILD_CLAIMS
+    - ADMIN_CLAIMS
+  # Default operation type flags for the wilderness (outside claims)
+  # To modify existing worlds, use /claimflags set <flag> <true/false> while standing outside a claim.
   wilderness_rules:
-  - BLOCK_PLACE
-  - BLOCK_BREAK
-  - BLOCK_INTERACT
-  - REDSTONE_INTERACT
-  - FARM_BLOCK_BREAK
-  - FARM_BLOCK_PLACE
-  - PLAYER_DAMAGE_PLAYER
-  - PLAYER_DAMAGE_MONSTER
-  - PLAYER_DAMAGE_ENTITY
-  - PLAYER_DAMAGE_PERSISTENT_ENTITY
-  - MONSTER_SPAWN
-  - PASSIVE_MOB_SPAWN
-  - MONSTER_DAMAGE_TERRAIN
-  - EXPLOSION_DAMAGE_TERRAIN
-  - EXPLOSION_DAMAGE_ENTITY
-  - FIRE_BURN
-  - FIRE_SPREAD
-  - FILL_BUCKET
-  - EMPTY_BUCKET
-  - PLACE_HANGING_ENTITY
-  - BREAK_HANGING_ENTITY
-  - ENTITY_INTERACT
-  - FARM_BLOCK_INTERACT
-  - USE_SPAWN_EGG
-  - ENDER_PEARL_TELEPORT
-  - CONTAINER_OPEN
+    - empty_bucket
+    - block_place
+    - farm_block_break
+    - farm_block_place
+    - entity_interact
+    - start_raid
+    - place_hanging_entity
+    - break_vehicle
+    - explosion_damage_entity
+    - place_vehicle
+    - fire_burn
+    - player_damage_entity
+    - fill_bucket
+    - break_hanging_entity
+    - use_spawn_egg
+    - block_break
+    - passive_mob_spawn
+    - monster_damage_terrain
+    - container_open
+    - explosion_damage_terrain
+    - monster_spawn
+    - ender_pearl_teleport
+    - player_damage_persistent_entity
+    - farm_block_interact
+    - fire_spread
+    - block_interact
+    - player_damage_monster
+    - redstone_interact
+    - player_damage_player
   # List of worlds where users cannot claim
   unclaimable_worlds: []
   # The number of claim blocks a user gets when they first join the server
@@ -134,15 +138,23 @@ claims:
   # The maximum number of claim blocks a user can have.
   maximum_claim_blocks: 9999999
   # The maximum amount of land, in claim blocks, that can be affected at once by /claim, /extendclaim,
-  # or the claim tool. Increasing this can affect performance when users claim lots of land at once.
+  # or the claim tool. Increasing this can affect performance when users claim lots of land at once. 
   maximum_claim_action_size: 45000
   # Claim inspection tool (right click with this to inspect claims)
   inspection_tool: minecraft:stick
+  # Model data settings for the inspection tool
+  inspection_tool_model_data:
+    required: false
+    model_data: 0
   # Claim creation & resize tool (right click with this to create/resize claims)
   claim_tool: minecraft:golden_shovel
+  # Model data settings for the claim tool
+  claim_tool_model_data:
+    required: false
+    model_data: 0
   # Require players to hold the claim tool to use claim commands (e.g. /claim <radius>, /extendclaim)
   require_tool_for_commands: true
-  # Minimum size of claims. This does not affect child or admin claims.
+  # Minimum size of claims along one edge. This does not affect child or admin claims.
   minimum_claim_size: 5
   # Max range of inspector tools
   inspection_distance: 64
@@ -150,6 +162,10 @@ claims:
   allow_nearby_claim_inspection: true
   # Whether to require confirmation when deleting claims that have children
   confirm_deleting_parent_claims: true
+  # Whether to send a message when a player enters a claim
+  send_entry_message: false
+  # Whether to send a message when a player exits a claim
+  send_exit_message: false
   # Whether to enable the /trapped command. Install HuskHomes to require a warmup before teleporting.
   trapped_command: true
   # Settings for automatically removing claims made by now-inactive users
@@ -167,15 +183,18 @@ claims:
     # Whether to let users ban others from their claims (prevent them from entering) using /claimban
     # Also requires the MANAGE_BANS privilege (by default, restricted to those with 'manage' trust)
     enabled: false
+    # Whether to let users set their claim claims to private (prevent others from entering) using /claimprivate
+    # Also requires the MANAGE_BANS privilege (by default, restricted to those with 'manage' trust)
+    private_claims: false
 # Groups of operations that can be toggled on/off in claims
 operation_groups:
-- name: Claim Explosions
-  description: Toggle whether explosions can damage terrain in claims
-  toggle_command_aliases:
-  - claimexplosions
-  allowed_operations:
-  - EXPLOSION_DAMAGE_TERRAIN
-  - MONSTER_DAMAGE_TERRAIN
+  - name: Claim Explosions
+    description: Toggle whether explosions can damage terrain in claims
+    toggle_command_aliases:
+      - claimexplosions
+    allowed_operations:
+      - explosion_damage_terrain
+      - monster_damage_terrain
 # Settings for user groups, letting users quickly manage trust for groups of multiple players at once
 user_groups:
   # Whether to enable user groups
@@ -245,12 +264,12 @@ moderation:
     filtered_words: []
   drops:
     # Whether to lock ground items dropped by players when they die from being picked up by others
-    lock_items: false
+    lock_items: true
     # Whether to also prevent death drops from being destroyed by lava, fire, cacti, etc.
     prevent_destruction: true
 # Settings for integration hooks with other plugins
 hooks:
-  luck_perms:
+  luckperms:
     # Whether to hook into LuckPerms for permission group trust tags
     enabled: true
     # Require users to have the "huskclaims.trust.luckperms" permission to use LuckPerms trust tags
@@ -260,14 +279,12 @@ hooks:
   plan:
     # Whether to hook into Plan to display claim analytics
     enabled: true
-  husk_homes:
+  huskhomes:
     # Whether to hook into HuskHomes for claim teleportation and home restriction
     enabled: true
-    # Whether to restrict setting a home in claims to a trust level
+    # Whether to register the huskhomes:set_home operation type for restricting home setting in claims
     restrict_set_home: true
-    # The trust level required to set a home in a claim (the ID of a level in 'trust_levels.yml')
-    set_home_trust_level: access
-  husk_towns:
+  husktowns:
     # Whether to hook into HuskTowns to disable claiming over town claims
     enabled: true
   economy:

@@ -20,8 +20,6 @@
 package net.william278.huskclaims.listener;
 
 import com.google.common.collect.Lists;
-import java.util.List;
-import java.util.Optional;
 import lombok.Getter;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
@@ -53,6 +51,9 @@ import net.william278.huskclaims.util.Location;
 import net.william278.huskclaims.util.PlayerActionEvents;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.Optional;
 
 @Getter
 public class FabricListener extends FabricOperationListener implements FabricPetListener, FabricDropsListener,

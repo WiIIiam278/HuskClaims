@@ -20,8 +20,6 @@
 package net.william278.huskclaims.mixins;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import java.util.List;
-import java.util.function.UnaryOperator;
 import net.minecraft.block.entity.SignBlockEntity;
 import net.minecraft.block.entity.SignText;
 import net.minecraft.entity.player.PlayerEntity;
@@ -32,6 +30,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
+
+import java.util.List;
+import java.util.function.UnaryOperator;
 
 @Mixin(SignBlockEntity.class)
 public abstract class SignBlockEntityMixin {

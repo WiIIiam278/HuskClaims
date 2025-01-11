@@ -19,17 +19,21 @@
 
 package net.william278.huskclaims.hook;
 
+import net.kyori.adventure.key.Key;
+import net.william278.cloplib.operation.Operation;
+import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.position.Position;
-import net.william278.huskclaims.trust.TrustLevel;
 import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.logging.Level;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class HuskHomesHook extends Hook {
 
-    private TrustLevel requiredLevel;
+    private static final Key OPERATION_TYPE_KEY = Key.key("huskhomes", "set_home");
+
+    @Nullable
+    private OperationType setHomeOperation;
 
     protected HuskHomesHook(@NotNull HuskClaims plugin) {
         super(plugin);
@@ -37,17 +41,17 @@ public abstract class HuskHomesHook extends Hook {
 
     @Override
     public void load() {
-        requiredLevel = plugin.getTrustLevel(plugin.getSettings().getHooks().getHuskHomes().getSetHomeTrustLevel())
-                .orElseGet(() -> {
-                    plugin.log(Level.WARNING, "Invalid home trust level specified for HuskHomes hook.");
-                    return plugin.getLowestTrustLevel();
-                });
+        if (plugin.getSettings().getHooks().getHuskHomes().isRestrictSetHome()) {
+            return;
+        }
+
+        // Register operation type
+        setHomeOperation = plugin.getOperationListener().createOperationType(OPERATION_TYPE_KEY);
+        plugin.getOperationListener().registerOperationType(setHomeOperation);
     }
 
-    protected boolean cancelHomeAt(@NotNull OnlineUser user, @NotNull Position position) {
-        return plugin.getClaimAt(position)
-                .flatMap(claim -> claim.getTrustLevel(user, plugin).map(level -> level.compareTo(requiredLevel) < 0))
-                .orElse(false);
+    protected boolean cancelSetHomeAt(@NotNull OnlineUser user, @NotNull Position position) {
+        return setHomeOperation != null && plugin.cancelOperation(Operation.of(user, setHomeOperation, position));
     }
 
     public abstract void teleport(@NotNull OnlineUser user, @NotNull Position position, @NotNull String server);

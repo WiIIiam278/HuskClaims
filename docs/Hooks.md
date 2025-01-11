@@ -22,7 +22,27 @@ If LuckPerms is installed, HuskClaims will register [Trust Tags](trust#trust-tag
 ## HuskHomes
 If HuskHomes is installed, the `/huskclaims teleport` command will be enabled allowing admins to quickly teleport to claims from the [claim list](claims#listing-claims), or to the location of a placed sign if you are using [[Sign Moderation]].
 
-Additionally, HuskClaims will prevent creating or relocating homes within claims unless the user has a minimum [[trust]] level in the claim (default is Access Trust+).
+Additionally, the HuskHomes hook will register the `huskhomes:set_home` operation type. Add this to [[trust]] levels in your `trust_levels.yml` file to require a minimum trust level to set or relocate a home within a claim.
+
+<details>
+<summary>HuskHomes Hook &mdash; Adding to trust_levels.yml</summary>
+
+```yaml
+#...
+- id: build
+  display_name: Build
+  description: Allows users to build in the claim
+  color: '#fcd303'
+  command_aliases:
+  - trust
+  - buildtrust
+  flags:
+  - huskhomes:set_home
+  - block_interact
+  - entity_interact
+#...
+```
+</details>
 
 ## HuskTowns
 If HuskTowns is installed, HuskClaims will prevent the creation of HuskClaims claims over existing Town claims.

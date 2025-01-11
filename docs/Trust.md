@@ -22,28 +22,28 @@ Trust Levels are defined in the `trust_levels.yml` config file and the default s
                 <details>
                 <summary>View list</summary>
                 <ul>
-                    <li style="opacity: 66%">BLOCK_INTERACT</li>
-                    <li style="opacity: 66%">ENTITY_INTERACT</li>
-                    <li style="opacity: 66%">REDSTONE_INTERACT</li>
-                    <li style="opacity: 66%">BREAK_VEHICLE</li>
-                    <li style="opacity: 66%">PLACE_VEHICLE</li>
-                    <li style="opacity: 66%">ENDER_PEARL_TELEPORT</li>
-                    <li style="opacity: 66%">START_RAID</li>
-                    <li style="opacity: 66%">CONTAINER_OPEN</li>
-                    <li style="opacity: 66%">BLOCK_BREAK</li>
-                    <li style="opacity: 66%">BLOCK_PLACE</li>
-                    <li style="opacity: 66%">FARM_BLOCK_BREAK</li>
-                    <li style="opacity: 66%">FARM_BLOCK_PLACE</li>
-                    <li style="opacity: 66%">FARM_BLOCK_INTERACT</li>
-                    <li style="opacity: 66%">PLACE_HANGING_ENTITY</li>
-                    <li style="opacity: 66%">BREAK_HANGING_ENTITY</li>
-                    <li style="opacity: 66%">PLAYER_DAMAGE_PLAYER</li>
-                    <li style="opacity: 66%">PLAYER_DAMAGE_PERSISTENT_ENTITY</li>
-                    <li style="opacity: 66%">PLAYER_DAMAGE_MONSTER</li>
-                    <li style="opacity: 66%">PLAYER_DAMAGE_ENTITY</li>
-                    <li style="opacity: 66%">FILL_BUCKET</li>
-                    <li style="opacity: 66%">EMPTY_BUCKET</li>
-                    <li style="opacity: 66%">USE_SPAWN_EGG</li>
+                    <li style="opacity: 66%">block_interact</li>
+                    <li style="opacity: 66%">entity_interact</li>
+                    <li style="opacity: 66%">redstone_interact</li>
+                    <li style="opacity: 66%">break_vehicle</li>
+                    <li style="opacity: 66%">place_vehicle</li>
+                    <li style="opacity: 66%">ender_pearl_teleport</li>
+                    <li style="opacity: 66%">start_raid</li>
+                    <li style="opacity: 66%">container_open</li>
+                    <li style="opacity: 66%">block_break</li>
+                    <li style="opacity: 66%">block_place</li>
+                    <li style="opacity: 66%">farm_block_break</li>
+                    <li style="opacity: 66%">farm_block_place</li>
+                    <li style="opacity: 66%">farm_block_interact</li>
+                    <li style="opacity: 66%">place_hanging_entity</li>
+                    <li style="opacity: 66%">break_hanging_entity</li>
+                    <li style="opacity: 66%">player_damage_player</li>
+                    <li style="opacity: 66%">player_damage_persistent_entity</li>
+                    <li style="opacity: 66%">player_damage_monster</li>
+                    <li style="opacity: 66%">player_damage_entity</li>
+                    <li style="opacity: 66%">fill_bucket</li>
+                    <li style="opacity: 66%">empty_bucket</li>
+                    <li style="opacity: 66%">use_spawn_egg</li>
                 </ul>
                 </details>
             </td>
@@ -68,28 +68,28 @@ Trust Levels are defined in the `trust_levels.yml` config file and the default s
                 <details>
                 <summary>View list</summary>
                 <ul>
-                    <li style="opacity: 66%">BLOCK_INTERACT</li>
-                    <li style="opacity: 66%">ENTITY_INTERACT</li>
-                    <li style="opacity: 66%">REDSTONE_INTERACT</li>
-                    <li style="opacity: 66%">BREAK_VEHICLE</li>
-                    <li style="opacity: 66%">PLACE_VEHICLE</li>
-                    <li style="opacity: 66%">ENDER_PEARL_TELEPORT</li>
-                    <li style="opacity: 66%">START_RAID</li>
-                    <li style="opacity: 66%">CONTAINER_OPEN</li>
-                    <li>BLOCK_BREAK</li>
-                    <li>BLOCK_PLACE</li>
-                    <li>FARM_BLOCK_BREAK</li>
-                    <li>FARM_BLOCK_PLACE</li>
-                    <li>FARM_BLOCK_INTERACT</li>
-                    <li>PLACE_HANGING_ENTITY</li>
-                    <li>BREAK_HANGING_ENTITY</li>
-                    <li>PLAYER_DAMAGE_PLAYER</li>
-                    <li>PLAYER_DAMAGE_PERSISTENT_ENTITY</li>
-                    <li>PLAYER_DAMAGE_MONSTER</li>
-                    <li>PLAYER_DAMAGE_ENTITY</li>
-                    <li>FILL_BUCKET</li>
-                    <li>EMPTY_BUCKET</li>
-                    <li>USE_SPAWN_EGG</li>
+                    <li style="opacity: 66%">block_interact</li>
+                    <li style="opacity: 66%">entity_interact</li>
+                    <li style="opacity: 66%">redstone_interact</li>
+                    <li style="opacity: 66%">break_vehicle</li>
+                    <li style="opacity: 66%">place_vehicle</li>
+                    <li style="opacity: 66%">ender_pearl_teleport</li>
+                    <li style="opacity: 66%">start_raid</li>
+                    <li style="opacity: 66%">container_open</li>
+                    <li>block_break</li>
+                    <li>block_place</li>
+                    <li>farm_block_break</li>
+                    <li>farm_block_place</li>
+                    <li>farm_block_interact</li>
+                    <li>place_hanging_entity</li>
+                    <li>break_hanging_entity</li>
+                    <li>player_damage_player</li>
+                    <li>player_damage_persistent_entity</li>
+                    <li>player_damage_monster</li>
+                    <li>player_damage_entity</li>
+                    <li>fill_bucket</li>
+                    <li>empty_bucket</li>
+                    <li>use_spawn_egg</li>
                 </ul>
                 </details>
             </td>
@@ -105,14 +105,14 @@ Trust Levels are defined in the `trust_levels.yml` config file and the default s
                 <details>
                 <summary>View list</summary>
                 <ul>
-                    <li style="opacity: 66%">BLOCK_INTERACT</li>
-                    <li style="opacity: 66%">ENTITY_INTERACT</li>
-                    <li style="opacity: 66%">REDSTONE_INTERACT</li>
-                    <li style="opacity: 66%">BREAK_VEHICLE</li>
-                    <li style="opacity: 66%">PLACE_VEHICLE</li>
-                    <li style="opacity: 66%">ENDER_PEARL_TELEPORT</li>
-                    <li style="opacity: 66%">START_RAID</li>
-                    <li>CONTAINER_OPEN</li>
+                    <li style="opacity: 66%">block_interact</li>
+                    <li style="opacity: 66%">entity_interact</li>
+                    <li style="opacity: 66%">redstone_interact</li>
+                    <li style="opacity: 66%">break_vehicle</li>
+                    <li style="opacity: 66%">place_vehicle</li>
+                    <li style="opacity: 66%">ender_pearl_teleport</li>
+                    <li style="opacity: 66%">start_raid</li>
+                    <li>container_open</li>
                 </ul>
                 </details>
             </td>
@@ -128,13 +128,13 @@ Trust Levels are defined in the `trust_levels.yml` config file and the default s
                 <details>
                 <summary>View list</summary>
                 <ul>
-                    <li>BLOCK_INTERACT</li>
-                    <li>ENTITY_INTERACT</li>
-                    <li>REDSTONE_INTERACT</li>
-                    <li>BREAK_VEHICLE</li>
-                    <li>PLACE_VEHICLE</li>
-                    <li>ENDER_PEARL_TELEPORT</li>
-                    <li>START_RAID</li>
+                    <li>block_interact</li>
+                    <li>entity_interact</li>
+                    <li>redstone_interact</li>
+                    <li>break_vehicle</li>
+                    <li>place_vehicle</li>
+                    <li>ender_pearl_teleport</li>
+                    <li>start_raid</li>
                 </ul>
                 </details>
             </td>
@@ -177,28 +177,28 @@ trust_levels:
       - permissiontrust
       - managetrust
     flags:
-      - BLOCK_INTERACT
-      - ENTITY_INTERACT
-      - REDSTONE_INTERACT
-      - PLACE_VEHICLE
-      - BREAK_VEHICLE
-      - ENDER_PEARL_TELEPORT
-      - START_RAID
-      - CONTAINER_OPEN
-      - BLOCK_BREAK
-      - BLOCK_PLACE
-      - FARM_BLOCK_BREAK
-      - FARM_BLOCK_PLACE
-      - FARM_BLOCK_INTERACT
-      - PLACE_HANGING_ENTITY
-      - BREAK_HANGING_ENTITY
-      - PLAYER_DAMAGE_PLAYER
-      - PLAYER_DAMAGE_PERSISTENT_ENTITY
-      - PLAYER_DAMAGE_MONSTER
-      - PLAYER_DAMAGE_ENTITY
-      - FILL_BUCKET
-      - EMPTY_BUCKET
-      - USE_SPAWN_EGG
+      - block_interact
+      - entity_interact
+      - redstone_interact
+      - place_vehicle
+      - break_vehicle
+      - ender_pearl_teleport
+      - start_raid
+      - container_open
+      - block_break
+      - block_place
+      - farm_block_break
+      - farm_block_place
+      - farm_block_interact
+      - place_hanging_entity
+      - break_hanging_entity
+      - player_damage_player
+      - player_damage_persistent_entity
+      - player_damage_monster
+      - player_damage_entity
+      - fill_bucket
+      - empty_bucket
+      - use_spawn_egg
     privileges:
       - MANAGE_TRUSTEES
       - MANAGE_CHILD_CLAIMS
@@ -214,28 +214,28 @@ trust_levels:
       - trust
       - buildtrust
     flags:
-      - BLOCK_INTERACT
-      - ENTITY_INTERACT
-      - REDSTONE_INTERACT
-      - PLACE_VEHICLE
-      - BREAK_VEHICLE
-      - ENDER_PEARL_TELEPORT
-      - START_RAID
-      - CONTAINER_OPEN
-      - BLOCK_BREAK
-      - BLOCK_PLACE
-      - FARM_BLOCK_BREAK
-      - FARM_BLOCK_PLACE
-      - FARM_BLOCK_INTERACT
-      - PLACE_HANGING_ENTITY
-      - BREAK_HANGING_ENTITY
-      - PLAYER_DAMAGE_PLAYER
-      - PLAYER_DAMAGE_PERSISTENT_ENTITY
-      - PLAYER_DAMAGE_MONSTER
-      - PLAYER_DAMAGE_ENTITY
-      - FILL_BUCKET
-      - EMPTY_BUCKET
-      - USE_SPAWN_EGG
+      - block_interact
+      - entity_interact
+      - redstone_interact
+      - place_vehicle
+      - break_vehicle
+      - ender_pearl_teleport
+      - start_raid
+      - container_open
+      - block_break
+      - block_place
+      - farm_block_break
+      - farm_block_place
+      - farm_block_interact
+      - place_hanging_entity
+      - break_hanging_entity
+      - player_damage_player
+      - player_damage_persistent_entity
+      - player_damage_monster
+      - player_damage_entity
+      - fill_bucket
+      - empty_bucket
+      - use_spawn_egg
     privileges: []
     weight: 300
   - id: container
@@ -245,14 +245,14 @@ trust_levels:
     command_aliases:
       - containertrust
     flags:
-      - BLOCK_INTERACT
-      - ENTITY_INTERACT
-      - REDSTONE_INTERACT
-      - PLACE_VEHICLE
-      - BREAK_VEHICLE
-      - ENDER_PEARL_TELEPORT
-      - START_RAID
-      - CONTAINER_OPEN
+      - block_interact
+      - entity_interact
+      - redstone_interact
+      - place_vehicle
+      - break_vehicle
+      - ender_pearl_teleport
+      - start_raid
+      - container_open
     privileges: []
     weight: 200
   - id: access
@@ -262,39 +262,39 @@ trust_levels:
     command_aliases:
       - accesstrust
     flags:
-      - BLOCK_INTERACT
-      - ENTITY_INTERACT
-      - REDSTONE_INTERACT
-      - PLACE_VEHICLE
-      - BREAK_VEHICLE
-      - ENDER_PEARL_TELEPORT
-      - START_RAID
+      - block_interact
+      - entity_interact
+      - redstone_interact
+      - place_vehicle
+      - break_vehicle
+      - ender_pearl_teleport
+      - start_raid
     privileges: []
     weight: 100
 # The operation types that the claim owner can perform in their own claim
 allowed_owner_operations:
-  - FARM_BLOCK_PLACE
-  - USE_SPAWN_EGG
-  - ENTITY_INTERACT
-  - PLACE_HANGING_ENTITY
-  - PLAYER_DAMAGE_PERSISTENT_ENTITY
-  - FARM_BLOCK_INTERACT
-  - PLAYER_DAMAGE_MONSTER
-  - BREAK_VEHICLE
-  - REDSTONE_INTERACT
-  - BLOCK_BREAK
-  - BLOCK_PLACE
-  - PLAYER_DAMAGE_PLAYER
-  - FARM_BLOCK_BREAK
-  - START_RAID
-  - ENDER_PEARL_TELEPORT
-  - PLAYER_DAMAGE_ENTITY
-  - FILL_BUCKET
-  - BLOCK_INTERACT
-  - CONTAINER_OPEN
-  - BREAK_HANGING_ENTITY
-  - EMPTY_BUCKET
-  - PLACE_VEHICLE
+  - start_raid
+  - player_damage_monster
+  - break_hanging_entity
+  - farm_block_place
+  - player_damage_persistent_entity
+  - empty_bucket
+  - block_place
+  - ender_pearl_teleport
+  - block_interact
+  - redstone_interact
+  - use_spawn_egg
+  - fill_bucket
+  - player_damage_player
+  - player_damage_entity
+  - place_hanging_entity
+  - entity_interact
+  - farm_block_interact
+  - container_open
+  - break_vehicle
+  - block_break
+  - place_vehicle
+  - farm_block_break
 ```
 </details>
 

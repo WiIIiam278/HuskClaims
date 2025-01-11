@@ -21,6 +21,7 @@ package net.william278.huskclaims.hook;
 
 import net.fabricmc.loader.api.FabricLoader;
 import net.william278.huskclaims.FabricHuskClaims;
+import net.william278.huskclaims.config.Settings;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -30,7 +31,17 @@ public interface FabricHookProvider extends HookProvider {
     @Override
     @NotNull
     default List<Hook> getAvailableHooks() {
-        return HookProvider.super.getAvailableHooks();
+        final List<Hook> hooks = HookProvider.super.getAvailableHooks();
+        final Settings.HookSettings settings = getPlugin().getSettings().getHooks();
+
+        // Add fabric hooks
+        //#if MC==12104
+        //$$ if (isDependencyAvailable("huskhomes") && settings.getHuskHomes().isEnabled()) {
+        //$$     hooks.add(new FabricHuskHomesHook(getPlugin()));
+        //$$ }
+        //#endif
+
+        return hooks;
     }
 
     @Override

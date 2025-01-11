@@ -19,8 +19,6 @@
 
 package net.william278.huskclaims.pet;
 
-import java.util.Optional;
-import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.minecraft.entity.LivingEntity;
@@ -35,6 +33,9 @@ import net.william278.huskclaims.user.FabricUser;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
+import java.util.UUID;
 
 public interface FabricPetHandler extends PetHandler {
 

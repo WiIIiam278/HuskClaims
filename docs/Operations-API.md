@@ -46,7 +46,8 @@ private final OperationType releaseMonOpType;
 
 void getRegistry() {
     final OperationTypeRegistry reg = huskClaims.getOperationTypeRegistry();
-    releaseMonOpType = reg.registerOperationType(Key.of("mons_mod", "release_mon"));
+    releaseMonOpType = reg.createOperationType(Key.of("mons_mod", "release_mon"));
+    reg.registerOperationType(releaseMonOpType);
 }
 ```
 </details>

@@ -87,7 +87,7 @@ public class BukkitHuskHomesHook extends HuskHomesHook {
             if (!(event.getCreator() instanceof net.william278.huskhomes.user.BukkitUser player)) {
                 return;
             }
-            if (hook.cancelHomeAt(getPlugin().getOnlineUser(player.getPlayer()), Adapter.adapt(event.getPosition()))) {
+            if (hook.cancelSetHomeAt(getPlugin().getOnlineUser(player.getPlayer()), Adapter.adapt(event.getPosition()))) {
                 event.setCancelled(true);
             }
         }
@@ -98,7 +98,7 @@ public class BukkitHuskHomesHook extends HuskHomesHook {
                     || !hasMoved(event.getOriginalHome(), event.getHome())) {
                 return;
             }
-            if (hook.cancelHomeAt(getPlugin().getOnlineUser(player.getPlayer()), Adapter.adapt(event.getHome()))) {
+            if (hook.cancelSetHomeAt(getPlugin().getOnlineUser(player.getPlayer()), Adapter.adapt(event.getHome()))) {
                 event.setCancelled(true);
             }
         }

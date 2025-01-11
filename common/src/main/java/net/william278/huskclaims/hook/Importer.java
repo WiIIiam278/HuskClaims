@@ -43,7 +43,7 @@ public abstract class Importer extends Hook {
     @Getter
     private final List<ImportData> supportedData;
     @Getter
-    private Map<String, Boolean> requiredParameters;
+    private final Map<String, Boolean> requiredParameters;
     @Getter
     private ImportState state;
 

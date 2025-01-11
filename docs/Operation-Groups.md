@@ -23,8 +23,8 @@ operation_groups:
   toggle_command_aliases:
   - claimexplosions
   allowed_operations:
-  - EXPLOSION_DAMAGE_TERRAIN
-  - MONSTER_DAMAGE_TERRAIN
+  - explosion_damage_terrain
+  - monster_damage_terrain
 ```
 </details>
 

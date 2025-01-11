@@ -290,6 +290,12 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
                 JoinConfiguration.commas(true),
                 plugin.getTrustTags().stream().map(tag -> Component.text(tag.getName())).toList()
         )),
+        REGISTERED_CUSTOM_OPERATION_TYPES(plugin -> Component.join(
+                JoinConfiguration.commas(true),
+                plugin.getOperationListener().getRegisteredOperationTypes().stream()
+                        .filter(t -> !t.getKey().namespace().equals("cloplib"))
+                        .map(tag -> Component.text(tag.getKey().asString())).toList()
+        )),
         REGISTERED_HIGHLIGHTERS(plugin -> Component.join(
                 JoinConfiguration.commas(true),
                 plugin.getHighlighters().stream().map(hook -> Component.text(hook.getClass().getSimpleName())
