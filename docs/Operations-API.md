@@ -42,7 +42,7 @@ void getRegistry() {
 <summary>Example &mdash; Registering a custom OperationType</summary>
 
 ```java
-private final OperationType releaseMonOpType;
+private OperationType releaseMonOpType;
 
 void getRegistry() {
     final OperationTypeRegistry reg = huskClaims.getOperationTypeRegistry();
@@ -63,7 +63,7 @@ void getRegistry() {
 <summary>Example &mdash; Checking if Operations are allowed</summary>
 
 ```java
-private final OperationType releaseMonOpType;
+private OperationType releaseMonOpType;
 
 void onMonReleased(Player bukkitPlayer, Location releasedAt) {
   final OperationTypeRegistry reg = huskClaims.getOperationTypeRegistry();
