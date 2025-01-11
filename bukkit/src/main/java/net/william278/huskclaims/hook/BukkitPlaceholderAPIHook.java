@@ -31,7 +31,6 @@ import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.trust.TrustLevel;
 import net.william278.huskclaims.user.OnlineUser;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -79,11 +78,9 @@ public class BukkitPlaceholderAPIHook extends Hook {
         private final String name = "HuskClaims";
         private final String identifier = Placeholder.IDENTIFIER;
         private final List<String> placeholders = Placeholder.getFormattedList();
-        private final boolean persist = true;
 
         @Override
-        public String onRequest(@NotNull OfflinePlayer offlinePlayer, @NotNull String identifier) {
-            final Player player = offlinePlayer.getPlayer();
+        public String onPlaceholderRequest(@Nullable Player player, @NotNull String identifier) {
             if (player == null) {
                 return null;
             }
@@ -94,6 +91,12 @@ public class BukkitPlaceholderAPIHook extends Hook {
             } catch (IllegalArgumentException | IllegalStateException | NullPointerException e) {
                 return plugin.getLocales().getNotApplicable();
             }
+        }
+
+        // Do not unload expansion on /papi reload.
+        @Override
+        public boolean persist() {
+            return true;
         }
 
         @AllArgsConstructor
