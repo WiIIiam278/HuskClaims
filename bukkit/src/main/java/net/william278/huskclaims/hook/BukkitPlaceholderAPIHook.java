@@ -79,11 +79,9 @@ public class BukkitPlaceholderAPIHook extends Hook {
         private final String name = "HuskClaims";
         private final String identifier = Placeholder.IDENTIFIER;
         private final List<String> placeholders = Placeholder.getFormattedList();
-        private final boolean persist = true;
 
         @Override
-        public String onRequest(@NotNull OfflinePlayer offlinePlayer, @NotNull String identifier) {
-            final Player player = offlinePlayer.getPlayer();
+        public String onPlaceholderRequest(@Nullable Player player, @NotNull String identifier) {
             if (player == null) {
                 return null;
             }
@@ -94,6 +92,12 @@ public class BukkitPlaceholderAPIHook extends Hook {
             } catch (IllegalArgumentException | IllegalStateException | NullPointerException e) {
                 return plugin.getLocales().getNotApplicable();
             }
+        }
+
+        // Do not unload expansion on /papi reload.
+        @Override
+        public boolean persist() {
+            return true;
         }
 
         @AllArgsConstructor
