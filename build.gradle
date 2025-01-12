@@ -208,16 +208,20 @@ logger.lifecycle("Building HuskClaims ${version} by William278")
 
 @SuppressWarnings('GrMethodMayBeStatic')
 def versionMetadata() {
+    // Require grgit
     if (grgit == null) {
-        return '-' + System.getenv("GITHUB_RUN_NUMBER") ? 'build.' + System.getenv("GITHUB_RUN_NUMBER") : 'unknown'
+        return '-unknown'
     }
 
-    // Get if there is a tag for this commit
+    // If unclean, return the last commit hash with -indev
+    if (!grgit.status().clean) {
+        return '-' + grgit.head().abbreviatedId + '-indev'
+    }
+
+    // Otherwise if this matches a tag, return nothing
     def tag = grgit.tag.list().find { it.commit.id == grgit.head().id }
     if (tag != null) {
         return ''
     }
-
-    // Otherwise, get the last commit hash and if it's a clean head
-    return '-' + grgit.head().abbreviatedId + (grgit.status().clean ? '' : '-indev')
+    return '-' + grgit.head().abbreviatedId
 }
