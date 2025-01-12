@@ -145,7 +145,7 @@ subprojects {
     }
 
     // API publishing
-    if (['common','bukkit'].contains(project.name)) {
+    if (['common', 'bukkit'].contains(project.name) || project.parent?.name?.equals('fabric')) {
         java {
             withSourcesJar()
             withJavadocJar()
