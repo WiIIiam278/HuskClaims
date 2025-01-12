@@ -23,7 +23,7 @@
 </p>
 <br/>
 
-**HuskClaims** is a clean, cross-server compatible grief prevention plugin that you already know how to use. HuskClaims will bring claiming on your server into the 2020s with intuitive chat menus, cross-server synchronisation support, modern display block visualisation, user group and LuckPerms role trust management, and much more &mdash; achieved through a modular, performant design.
+**HuskClaims** is a clean, cross-server compatible grief prevention plugin/mod for Spigot/Paper and Fabric servers that you already know how to use. HuskClaims will bring claiming on your server into the 2020s with intuitive chat menus, cross-server synchronisation support, modern display block visualisation, user group and LuckPerms role trust management, and much more &mdash; achieved through a modular, performant design.
 
 ## Features
 **⭐ Works cross-server** &mdash; Works seamlessly cross-server. Manage/accrue claim blocks and list claims globally.
@@ -40,17 +40,8 @@
 
 **Ready?** [Let the claims begin!](https://william278.net/docs/huskclaims/setup)
 
-## Setup
-Requires Java 17+ and a Minecraft 1.17.1+ Spigot-based server. A MySQL database and (optionally) Redis are also needed if you wish to run the plugin across multiple servers on a proxy network.
-
-1. Place the plugin jar file in the `/plugins/` directory of each Spigot server you want to install it on.
-2. Start, then stop every server to let HuskClaims generate the config file.
-3. Navigate to the HuskClaims config file on each server (`~/plugins/HuskClaims/config.yml`)
-4. Configure the plugin to your liking. If you are running HuskClaims across multiple servers, set `cross_server.enabled` to `true` and fill in your MySQL credentials, remembering to change the database type to `MYSQL` as well.
-5. Start every server again and begin claiming!
-
 ## Development
-To build HuskClaims, simply run the following in the root of the repository:
+To build HuskClaims, simply run the following in the root of the repository (building requires Java 21):
 
 ```bash
 ./gradlew clean build
@@ -74,8 +65,10 @@ Translations of the plugin locales are welcome to help make the plugin more acce
 
 ## Links
 - [Docs](https://william278.net/docs/huskclaims) &mdash; Read the plugin documentation!
+- [Spigot](https://www.spigotmc.org/resources/huskclaims.114467/) &mdash; View the plugin Modrinth page (Also: [Polymart](https://polymart.org/resource/huskclaims.5336/), & [BuiltByBit](https://builtbybit.com/resources/huskclaims.37536/))
 - [Issues](https://github.com/WiIIiam278/HuskClaims/issues) &mdash; File a bug report or feature request
 - [Discord](https://discord.gg/tVYhJfyDWG) &mdash; Get help, ask questions (Proof of purchase required)
+- [bStats](https://bstats.org/plugin/bukkit/HuskClaims/20728) &mdash; View plugin metrics
 
 ---
-&copy; [William278](https://william278.net/), 2024. Licensed under the Apache-2.0 License.
+&copy; [William278](https://william278.net/), 2025. Licensed under the Apache-2.0 License.
