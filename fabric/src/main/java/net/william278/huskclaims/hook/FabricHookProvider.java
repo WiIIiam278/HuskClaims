@@ -35,11 +35,9 @@ public interface FabricHookProvider extends HookProvider {
         final Settings.HookSettings settings = getPlugin().getSettings().getHooks();
 
         // Add fabric hooks
-        //#if MC==12104
-        //$$ if (isDependencyAvailable("huskhomes") && settings.getHuskHomes().isEnabled()) {
-        //$$     hooks.add(new FabricHuskHomesHook(getPlugin()));
-        //$$ }
-        //#endif
+        if (isDependencyAvailable("huskhomes") && settings.getHuskHomes().isEnabled()) {
+            hooks.add(new FabricHuskHomesHook(getPlugin()));
+        }
 
         return hooks;
     }

@@ -25,7 +25,7 @@ dependencies {
     implementation include("org.mariadb.jdbc:mariadb-java-client:$mariadb_driver_version")
     implementation include("redis.clients:jedis:$jedis_version")
 
-    compileOnly "net.william278.huskhomes:huskhomes-fabric:$fabric_huskhomes_version"
+    compileOnly "net.william278.huskhomes:huskhomes-fabric:4.9-2aaf674+$project.name"
     compileOnly 'org.jetbrains:annotations:26.0.1'
     compileOnly 'org.projectlombok:lombok:1.18.36'
 

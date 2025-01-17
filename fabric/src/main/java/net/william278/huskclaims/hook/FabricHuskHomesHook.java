@@ -17,8 +17,6 @@
  *  limitations under the License.
  */
 
-// todo HuskHomes buildscript changes clearly needed here. Fabric API stuff is not working :(
-//#if MC==12104
 package net.william278.huskclaims.hook;
 
 import net.william278.huskclaims.HuskClaims;
@@ -45,21 +43,20 @@ public class FabricHuskHomesHook extends HuskHomesHook {
         super.load();
         huskHomes = FabricHuskHomesAPI.getInstance();
 
-        // todo broken due to mappings issues. Investigate HuskHomes.
 //        HomeCreateCallback.EVENT.register((event) -> {
 //            if (!(event.getCreator() instanceof FabricUser player)) {
-//                return PASS;
+//                return ActionResult.PASS;
 //            }
 //            return cancelSetHomeAt(getPlugin().getOnlineUser(player.getUuid()),
-//                    Adapter.adapt(event.getPosition())) ? FAIL : PASS;
+//                    Adapter.adapt(event.getPosition())) ? ActionResult.FAIL : ActionResult.PASS;
 //        });
 //        HomeEditCallback.EVENT.register((event) -> {
 //            if (!(event.getEditor() instanceof FabricUser player)
 //                    || !hasMoved(event.getOriginalHome(), event.getHome())) {
-//                return PASS;
+//                return ActionResult.PASS;
 //            }
 //            return cancelSetHomeAt(getPlugin().getOnlineUser(player.getUuid()),
-//                    Adapter.adapt(event.getHome())) ? FAIL : PASS;
+//                    Adapter.adapt(event.getHome())) ? ActionResult.FAIL : ActionResult.PASS;
 //        });
     }
 
@@ -122,4 +119,3 @@ public class FabricHuskHomesHook extends HuskHomesHook {
     }
 
 }
-//#endif
