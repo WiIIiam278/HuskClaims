@@ -42,3 +42,10 @@ These permissions restrict being able to use certain trust tags when granting tr
 | `huskclaims.trust.luckperms` | Use the `#role/(name)` trust tags in claims to grant LuckPerms role-based access. Requires the LuckPerms hook. |    ❌    |
 
 You can turn off the permission requirement for using LuckPerms groups in claims in the [[config]] hook settings. 
+
+## Flags
+These permissions restrict the use of flags.
+
+| Permission                       | Description        | Default |
+|----------------------------------|--------------------|:-------:|
+| `huskclaims.flag.<name of flag>` | Access to the flag |    ✅    |

@@ -35,6 +35,8 @@ import java.util.*;
 
 public class ClaimFlagsCommand extends OnlineUserCommand implements TabCompletable {
 
+    public static final String FLAG_PERMISSION = "huskclaims.flag";
+
     private final int CLAIM_FLAGS_PER_PAGE = 8;
     private final TrustLevel.Privilege MANAGE_FLAGS = TrustLevel.Privilege.MANAGE_OPERATION_GROUPS;
 
@@ -61,6 +63,7 @@ public class ClaimFlagsCommand extends OnlineUserCommand implements TabCompletab
         return switch (args.length) {
             case 0, 1 -> Lists.newArrayList("set", "list");
             case 2 -> setting ? plugin.getOperationListener().getRegisteredOperationTypes().stream()
+                    .filter(op -> canManageFlag(user, op))
                     .map(OperationType::asMinimalString).toList() : null;
             case 3 -> setting ? List.of("true", "false") : null;
             default -> null;
@@ -101,6 +104,11 @@ public class ClaimFlagsCommand extends OnlineUserCommand implements TabCompletab
 
         // Parse operation type
         final OperationType type = operationType.get();
+        if (!canManageFlag(onlineUser, type)) {
+            plugin.getLocales().getLocale("error_no_permission_flag", type.asMinimalString())
+                .ifPresent(onlineUser::sendMessage);
+            return;
+        }
         final boolean value = parseBooleanArg(args, 1).orElse(claim == null
                 ? world.getWildernessFlags().contains(type)
                 : claim.getDefaultFlags().contains(type));
@@ -116,13 +124,27 @@ public class ClaimFlagsCommand extends OnlineUserCommand implements TabCompletab
 
         // Send flag list on correct page to indicated the update
         final double changedIndex = plugin.getOperationListener()
-                .getRegisteredOperationTypes().stream().toList().indexOf(type);
+                .getRegisteredOperationTypes().stream()
+                    .filter(op -> canManageFlag(onlineUser, op)).toList().indexOf(type);
         final int changedPage = (int) Math.ceil(changedIndex / CLAIM_FLAGS_PER_PAGE);
         this.sendClaimFlagsList(onlineUser, claim, world, changedPage);
     }
 
     private void sendClaimFlagsList(@NotNull OnlineUser onlineUser, @Nullable Claim claim,
                                     @NotNull ClaimWorld world, int page) {
+        List<String> flags = plugin.getOperationListener().getRegisteredOperationTypes().stream()
+            .filter(op -> canManageFlag(onlineUser, op))
+            .map(op -> plugin.getLocales().getRawLocale("claim_flag_%s"
+                    .formatted((claim == null ? world.getWildernessFlags() : claim.getDefaultFlags())
+                        .contains(op) ? "enabled" : "disabled"),
+                op.asMinimalString()
+            ).orElse(op.asMinimalString())).toList();
+        if (flags.isEmpty()) {
+            plugin.getLocales().getLocale("error_no_flags")
+                .ifPresent(onlineUser::sendMessage);
+            return;
+        }
+
         final String header;
         if (claim != null) {
             header = plugin.getLocales().getRawLocale("claim_flags_header", claim.getOwnerName(world, plugin))
@@ -134,12 +156,7 @@ public class ClaimFlagsCommand extends OnlineUserCommand implements TabCompletab
 
         onlineUser.sendMessage(
                 PaginatedList.of(
-                        plugin.getOperationListener().getRegisteredOperationTypes().stream()
-                                .map(op -> plugin.getLocales().getRawLocale("claim_flag_%s"
-                                                .formatted((claim == null ? world.getWildernessFlags() : claim.getDefaultFlags())
-                                                        .contains(op) ? "enabled" : "disabled"),
-                                        op.asMinimalString()
-                                ).orElse(op.asMinimalString())).toList(),
+                        flags,
                         plugin.getLocales().getBaseList(CLAIM_FLAGS_PER_PAGE)
                                 .setCommand("/%s list".formatted(getName()))
                                 .setHeaderFormat(header).setItemSeparator("\n")
@@ -154,6 +171,10 @@ public class ClaimFlagsCommand extends OnlineUserCommand implements TabCompletab
             return hasPermission(user, "world");
         }
         return hasPermission(user, "other") || claim.isPrivilegeAllowed(MANAGE_FLAGS, user, plugin);
+    }
+
+    private boolean canManageFlag(@NotNull CommandUser user, @NotNull OperationType type) {
+        return user.hasPermission(String.join(".", FLAG_PERMISSION, type.asMinimalString()), true);
     }
 
 }
