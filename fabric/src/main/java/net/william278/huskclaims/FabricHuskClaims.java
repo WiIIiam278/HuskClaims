@@ -30,6 +30,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -102,6 +103,7 @@ public class FabricHuskClaims implements DedicatedServerModInitializer, HuskClai
         FabricHookProvider, ServerPlayNetworking.PlayPayloadHandler<FabricPluginMessage> {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("HuskClaims");
+    public static final Identifier INITIAL_PHASE = Identifier.of("huskclaims", "on_enable");
     private final ModContainer mod = FabricLoader.getInstance().getModContainer("huskclaims")
             .orElseThrow(() -> new RuntimeException("Failed to get Mod Container"));
     private final Map<String, Boolean> permissions = Maps.newHashMap();
@@ -153,7 +155,8 @@ public class FabricHuskClaims implements DedicatedServerModInitializer, HuskClai
         this.load();
         this.loadCommands();
 
-        ServerLifecycleEvents.SERVER_STARTING.register(this::onEnable);
+        ServerLifecycleEvents.SERVER_STARTING.addPhaseOrdering(Event.DEFAULT_PHASE, INITIAL_PHASE);
+        ServerLifecycleEvents.SERVER_STARTING.register(INITIAL_PHASE, this::onEnable);
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onDisable);
     }
 
