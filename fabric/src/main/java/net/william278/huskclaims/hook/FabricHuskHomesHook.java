@@ -19,11 +19,15 @@
 
 package net.william278.huskclaims.hook;
 
+import net.minecraft.util.ActionResult;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.position.World;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskhomes.api.FabricHuskHomesAPI;
+import net.william278.huskhomes.event.HomeCreateCallback;
+import net.william278.huskhomes.event.HomeEditCallback;
+import net.william278.huskhomes.user.FabricUser;
 import org.jetbrains.annotations.NotNull;
 
 @PluginHook(
@@ -43,21 +47,21 @@ public class FabricHuskHomesHook extends HuskHomesHook {
         super.load();
         huskHomes = FabricHuskHomesAPI.getInstance();
 
-//        HomeCreateCallback.EVENT.register((event) -> {
-//            if (!(event.getCreator() instanceof FabricUser player)) {
-//                return ActionResult.PASS;
-//            }
-//            return cancelSetHomeAt(getPlugin().getOnlineUser(player.getUuid()),
-//                    Adapter.adapt(event.getPosition())) ? ActionResult.FAIL : ActionResult.PASS;
-//        });
-//        HomeEditCallback.EVENT.register((event) -> {
-//            if (!(event.getEditor() instanceof FabricUser player)
-//                    || !hasMoved(event.getOriginalHome(), event.getHome())) {
-//                return ActionResult.PASS;
-//            }
-//            return cancelSetHomeAt(getPlugin().getOnlineUser(player.getUuid()),
-//                    Adapter.adapt(event.getHome())) ? ActionResult.FAIL : ActionResult.PASS;
-//        });
+        HomeCreateCallback.EVENT.register((event) -> {
+            if (!(event.getCreator() instanceof FabricUser player)) {
+                return ActionResult.PASS;
+            }
+            return cancelSetHomeAt(getPlugin().getOnlineUser(player.getUuid()),
+                    Adapter.adapt(event.getPosition())) ? ActionResult.FAIL : ActionResult.PASS;
+        });
+        HomeEditCallback.EVENT.register((event) -> {
+            if (!(event.getEditor() instanceof FabricUser player)
+                    || !hasMoved(event.getOriginalHome(), event.getHome())) {
+                return ActionResult.PASS;
+            }
+            return cancelSetHomeAt(getPlugin().getOnlineUser(player.getUuid()),
+                    Adapter.adapt(event.getHome())) ? ActionResult.FAIL : ActionResult.PASS;
+        });
     }
 
     @Override
