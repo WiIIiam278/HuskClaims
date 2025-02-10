@@ -19,7 +19,7 @@ dependencies {
     modImplementation include("net.william278.cloplib:cloplib-fabric:2.0+$project.name")
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 
-    implementation include('org.apache.commons:commons-pool2:2.12.0')
+    implementation include('org.apache.commons:commons-pool2:2.12.1')
     implementation include("org.xerial:sqlite-jdbc:$sqlite_driver_version")
     implementation include("com.mysql:mysql-connector-j:$mysql_driver_version")
     implementation include("org.mariadb.jdbc:mariadb-java-client:$mariadb_driver_version")
