@@ -33,7 +33,7 @@ dependencies {
     compileOnly 'maven.modrinth:pl3xmap:1.21.4-521'
     compileOnly 'com.github.plan-player-analytics:Plan:5.6.2965'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.9-SNAPSHOT'
-    compileOnly('org.geysermc.floodgate:api:2.2.3-SNAPSHOT') {
+    compileOnly('org.geysermc.floodgate:api:2.2.4-SNAPSHOT') {
         exclude group: 'com.google.code.gson'
     }
 
