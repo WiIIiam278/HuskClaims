@@ -21,6 +21,12 @@ package net.william278.huskclaims.util;
 
 import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.position.Position;
+import net.william278.huskclaims.position.World;
+import net.william278.huskclaims.util.folia.FoliaScheduler;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 import space.arim.morepaperlib.scheduling.GracefulScheduling;
 import space.arim.morepaperlib.scheduling.ScheduledTask;
@@ -144,6 +150,23 @@ public interface BukkitTask extends Task {
         @Override
         default Task.Repeating getRepeatingTask(@NotNull Runnable runnable, @NotNull Duration repeatingTicks, @NotNull Duration delayTicks) {
             return new Repeating(getPlugin(), runnable, repeatingTicks, delayTicks);
+        }
+
+        @Override
+        @NotNull
+        default Task.Sync runSyncEntity(Object e, @NotNull Runnable runnable) {
+            Entity entity = (Entity) e;
+            FoliaScheduler.getEntityScheduler().run(entity, (BukkitHuskClaims) this.getPlugin(), $ -> runnable.run(), null);
+            return runSyncDelayed(() -> {}, Duration.ZERO);
+        }
+
+        @Override
+        @NotNull
+        default Task.Sync runSync(World world, Position position, @NotNull Runnable runnable) {
+            FoliaScheduler.getRegionScheduler().execute((BukkitHuskClaims) this.getPlugin(),
+                    new Location(Bukkit.getWorld(world.getName()), position.getX(), position.getY(), position.getZ()), runnable);
+
+            return runSyncDelayed(() -> {}, Duration.ZERO);
         }
 
         @Override

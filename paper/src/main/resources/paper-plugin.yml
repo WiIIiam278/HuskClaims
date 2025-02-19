@@ -6,6 +6,7 @@ main: 'net.william278.huskclaims.PaperHuskClaims'
 loader: 'net.william278.huskclaims.PaperHuskClaimsLoader'
 version: '${version}'
 api-version: '1.19'
+folia-supported: true
 dependencies:
   server:
     LuckPerms:

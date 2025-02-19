@@ -56,6 +56,8 @@ import net.william278.huskclaims.trust.TrustTag;
 import net.william278.huskclaims.trust.UserGroup;
 import net.william278.huskclaims.user.*;
 import net.william278.huskclaims.util.*;
+import net.william278.huskclaims.util.folia.FoliaScheduler;
+import net.william278.huskclaims.util.folia.TaskWrapper;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
@@ -128,6 +130,14 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
         this.audiences = BukkitAudiences.create(this);
         this.morePaperLib = new MorePaperLib(this);
         this.enable();
+
+        if (FoliaScheduler.isFolia()) {
+            FoliaScheduler.getAsyncScheduler();
+            FoliaScheduler.getEntityScheduler();
+            FoliaScheduler.getGlobalRegionScheduler();
+            FoliaScheduler.getEntityScheduler();
+            TaskWrapper taskWrapper;
+        }
     }
 
     @Override
