@@ -22,9 +22,9 @@ package net.william278.huskclaims.util;
 import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.position.Position;
-import net.william278.huskclaims.position.World;
 import net.william278.huskclaims.util.folia.FoliaScheduler;
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.NotNull;
@@ -154,19 +154,33 @@ public interface BukkitTask extends Task {
 
         @Override
         @NotNull
-        default Task.Sync runSyncEntity(Object e, @NotNull Runnable runnable) {
-            Entity entity = (Entity) e;
-            FoliaScheduler.getEntityScheduler().run(entity, (BukkitHuskClaims) this.getPlugin(), $ -> runnable.run(), null);
+        default <T> Task.Sync runSync(T e, @NotNull Runnable runnable) {
+            if (!FoliaScheduler.isFolia()) return runSync(runnable);
+
+            if (e instanceof Entity entity) {
+                System.out.println("Running entity scheduler");
+                FoliaScheduler.getEntityScheduler().run(entity, (BukkitHuskClaims) this.getPlugin(),
+                        $ -> runnable.run(), null);
+            } else if (e instanceof Location location) {
+                System.out.println("Running region location scheduler");
+                FoliaScheduler.getRegionScheduler().run((BukkitHuskClaims) this.getPlugin(),
+                        location, $ -> runnable.run());
+            } else if (e instanceof Chunk chunk) {
+                System.out.println("Running region chunk scheduler");
+                FoliaScheduler.getRegionScheduler().run((BukkitHuskClaims) this.getPlugin(),
+                        chunk.getWorld(),chunk.getX(), chunk.getZ(),
+                        $ -> runnable.run());
+            } else throw new IllegalArgumentException(
+                        "Entity must be an instance of Bukkit Entity");
+
             return runSyncDelayed(() -> {}, Duration.ZERO);
         }
 
         @Override
         @NotNull
-        default Task.Sync runSync(World world, Position position, @NotNull Runnable runnable) {
-            FoliaScheduler.getRegionScheduler().execute((BukkitHuskClaims) this.getPlugin(),
-                    new Location(Bukkit.getWorld(world.getName()), position.getX(), position.getY(), position.getZ()), runnable);
-
-            return runSyncDelayed(() -> {}, Duration.ZERO);
+        default Task.Sync runSync(Position position, @NotNull Runnable runnable) {
+             return runSync(new Location(Bukkit.getWorld(position.getWorld().getName()),
+                    position.getX(), position.getY(), position.getZ()), runnable);
         }
 
         @Override

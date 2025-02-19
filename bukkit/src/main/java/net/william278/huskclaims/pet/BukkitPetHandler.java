@@ -23,6 +23,8 @@ import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.user.BukkitUser;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.User;
+import net.william278.huskclaims.util.folia.FoliaScheduler;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Player;
@@ -41,9 +43,10 @@ public interface BukkitPetHandler extends PetHandler {
 
     @Override
     default void userTransferPet(@NotNull OnlineUser user, @NotNull User newOwner, boolean forceTransfer) {
-        getPlugin().runSync(() -> {
+        final Player player = ((BukkitUser) user).getBukkitPlayer();
+
+        getPlugin().runSync(player.getLocation(), () -> {
             // Get the entity the player is looking at to transfer
-            final Player player = ((BukkitUser) user).getBukkitPlayer();
             final Optional<Tameable> lookingAt = getLookingAtTamed(player);
             final Optional<User> owner = lookingAt.flatMap(this::getPetOwner);
             if (lookingAt.isEmpty() || owner.isEmpty()) {

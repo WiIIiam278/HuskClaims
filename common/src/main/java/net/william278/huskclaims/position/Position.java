@@ -90,7 +90,6 @@ public class Position implements BlockPosition, OperationPosition {
         return ((long) getChunk().getX() << 32) | (getChunk().getZ() & 0xFFFFFFFFL);
     }
 
-
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Position position) {

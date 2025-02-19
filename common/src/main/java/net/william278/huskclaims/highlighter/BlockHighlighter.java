@@ -67,10 +67,8 @@ public abstract class BlockHighlighter<B extends BlockHighlighter.HighlightBlock
         toHighlight.forEach(h -> points.putAll(h.getHighlightPoints(claimWorld, showOverlap, position, VIEWING_RANGE)));
 
         // Synchronously highlight
-        plugin.runSync(world, position, () -> {
-            System.out.println("higlight 1");
+        plugin.runSync(position, () -> {
             final Map<HighlightBlock, Highlightable.Type> blocks = plugin.getSurfaceBlocksAt(points, world, position);
-            System.out.println("higlight 2");
             final Collection<HighlightBlock> userBlocks = replacedBlocks.get(user.getUuid());
             if (!userBlocks.isEmpty() && userBlocks.size() == blocks.size()
                     && blocks.entrySet().stream().allMatch(b -> userBlocks.stream()
