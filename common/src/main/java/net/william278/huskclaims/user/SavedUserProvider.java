@@ -93,7 +93,7 @@ public interface SavedUserProvider extends ClaimBlocksManager {
                     saved.getUser().setName(user.getName());
                     return saved;
                 })
-                .orElse(SavedUser.createNew(user, getPlugin()));
+                .orElseGet(() -> SavedUser.createNew(user, getPlugin()));
 
         // Update the cache and database (creating them if they don't exist)
         getUserCache().remove(user.getUuid());
