@@ -158,15 +158,12 @@ public interface BukkitTask extends Task {
             if (!FoliaScheduler.isFolia()) return runSync(runnable);
 
             if (e instanceof Entity entity) {
-                System.out.println("Running entity scheduler");
                 FoliaScheduler.getEntityScheduler().run(entity, (BukkitHuskClaims) this.getPlugin(),
                         $ -> runnable.run(), null);
             } else if (e instanceof Location location) {
-                System.out.println("Running region location scheduler");
                 FoliaScheduler.getRegionScheduler().run((BukkitHuskClaims) this.getPlugin(),
                         location, $ -> runnable.run());
             } else if (e instanceof Chunk chunk) {
-                System.out.println("Running region chunk scheduler");
                 FoliaScheduler.getRegionScheduler().run((BukkitHuskClaims) this.getPlugin(),
                         chunk.getWorld(),chunk.getX(), chunk.getZ(),
                         $ -> runnable.run());
