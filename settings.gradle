@@ -24,19 +24,17 @@ include(
 )
 
 
-// Fabricinclude("fabric")
-////project(":fabric").with {
-////    projectDir = file("fabric/")
-////    buildFileName = "root.gradle"
-////}
-////
-////file('fabric').listFiles((FileFilter) ((File file) -> file.isDirectory() && file.name ==~ /(\d+)\.(\d+)(\.(\d+))?/)).each {
-////    // skip if it.name is 1.21.1 - local changes to compile it lol
-////    if (it.name == "1.21.1") return
-////    include("fabric:$it.name")
-////    project(":fabric:$it.name").with {
-////        projectDir = file("fabric/${it.name}")
-////        buildFileName = '../build.gradle'
-////    }
-////}
-//
+// Fabric
+include("fabric")
+project(":fabric").with {
+    projectDir = file("fabric/")
+    buildFileName = "root.gradle"
+}
+
+file('fabric').listFiles((FileFilter) ((File file) -> file.isDirectory() && file.name ==~ /(\d+)\.(\d+)(\.(\d+))?/)).each {
+    include("fabric:$it.name")
+    project(":fabric:$it.name").with {
+        projectDir = file("fabric/${it.name}")
+        buildFileName = '../build.gradle'
+    }
+}
