@@ -501,7 +501,7 @@ public final class Settings {
         @Configuration
         @NoArgsConstructor(access = AccessLevel.PRIVATE)
         public static class SignSettings {
-            @Comment("Whether to notify users with /signspy on when signs are placed.edited. Requires Minecraft 1.19.4+"
+            @Comment("Whether to notify users with /signspy on when signs are placed/edited. "
                     + "Requires Minecraft 1.19.4+")
             private boolean notifyModerators = true;
 

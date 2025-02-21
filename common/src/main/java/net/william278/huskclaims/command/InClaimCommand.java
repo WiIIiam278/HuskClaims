@@ -73,7 +73,7 @@ public abstract class InClaimCommand extends OnlineUserCommand {
 
         final Claim claim = optionalClaim.get();
         if (privilege != null && !claim.isPrivilegeAllowed(privilege, user, plugin)
-            && !hasPermission(user, "other")) {
+                && !hasPermission(user, "other")) {
             plugin.getLocales().getLocale("no_claim_privilege")
                     .ifPresent(user::sendMessage);
             return;
@@ -157,6 +157,11 @@ public abstract class InClaimCommand extends OnlineUserCommand {
 
     protected Optional<TrustTag> resolveTag(@NotNull OnlineUser user, @NotNull String name, @NotNull Claim claim) {
         return plugin.getTrustTag(name)
+                .or(() -> {
+                    plugin.getLocales().getLocale("error_invalid_tag", name)
+                            .ifPresent(user::sendMessage);
+                    return Optional.empty();
+                })
                 .flatMap(tag -> {
                     if (!tag.canUse(user)) {
                         plugin.getLocales().getLocale("error_no_permission_tag", tag.getName())
@@ -164,11 +169,6 @@ public abstract class InClaimCommand extends OnlineUserCommand {
                         return Optional.empty();
                     }
                     return Optional.of(tag);
-                })
-                .or(() -> {
-                    plugin.getLocales().getLocale("error_invalid_tag", name)
-                            .ifPresent(user::sendMessage);
-                    return Optional.empty();
                 });
     }
 
