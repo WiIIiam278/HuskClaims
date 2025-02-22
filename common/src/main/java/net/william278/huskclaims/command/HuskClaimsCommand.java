@@ -22,7 +22,7 @@ package net.william278.huskclaims.command;
 import de.themoep.minedown.adventure.MineDown;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
-import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextColor;
 import net.william278.desertwell.about.AboutMenu;
 import net.william278.desertwell.util.UpdateChecker;
@@ -36,14 +36,13 @@ import net.william278.huskclaims.user.AuditLogger;
 import net.william278.huskclaims.user.CommandUser;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.SavedUser;
+import net.william278.huskclaims.util.StatusLine;
 import net.william278.paginedown.PaginatedList;
-import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -57,6 +56,7 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
             "teleport", true,
             "logs", true,
             "status", true,
+            "dump", true,
             "import", true,
             "reload", true,
             "update", true
@@ -122,6 +122,10 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
                         JoinConfiguration.newlines(),
                         Arrays.stream(StatusLine.values()).map(s -> s.get(plugin)).toList()
                 ));
+            }
+            case "dump" -> {
+                final String url = plugin.createDump(executor);
+                executor.sendMessage(Component.text(url).clickEvent(ClickEvent.openUrl(url)));
             }
             case "import" -> handleImportCommand(executor, removeFirstArg(args));
             case "reload" -> plugin.runSync(() -> {
@@ -266,79 +270,6 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
                         .setItemSeparator("\n").setCommand("/%s help".formatted(getName()))
                         .build()
         );
-    }
-
-    private enum StatusLine {
-        PLUGIN_VERSION(plugin -> Component.text("v" + plugin.getPluginVersion().toStringWithoutMetadata())
-                .appendSpace().append(plugin.getPluginVersion().getMetadata().isBlank() ? Component.empty()
-                        : Component.text("(build " + plugin.getPluginVersion().getMetadata() + ")"))),
-        SERVER_VERSION(plugin -> Component.text(plugin.getServerType())),
-        LANGUAGE(plugin -> Component.text(plugin.getSettings().getLanguage())),
-        MINECRAFT_VERSION(plugin -> Component.text(plugin.getMinecraftVersion().toString())),
-        JAVA_VERSION(plugin -> Component.text(System.getProperty("java.version"))),
-        JAVA_VENDOR(plugin -> Component.text(System.getProperty("java.vendor"))),
-        SERVER_NAME(plugin -> Component.text(plugin.getServerName())),
-        DATABASE_TYPE(plugin -> Component.text(plugin.getSettings().getDatabase().getType().getDisplayName())),
-        IS_DATABASE_LOCAL(plugin -> getLocalhostBoolean(plugin.getSettings().getDatabase().getCredentials().getHost())),
-        USING_REDIS_SENTINEL(plugin -> getBoolean(!plugin.getSettings().getCrossServer().getRedis().getSentinel()
-                .getMasterName().isBlank())),
-        USING_REDIS_PASSWORD(plugin -> getBoolean(!plugin.getSettings().getCrossServer().getRedis().getPassword()
-                .isBlank())),
-        REDIS_USING_SSL(plugin -> getBoolean(!plugin.getSettings().getCrossServer().getRedis().isUseSsl())),
-        IS_REDIS_LOCAL(plugin -> getLocalhostBoolean(plugin.getSettings().getCrossServer().getRedis().getHost())),
-        REGISTERED_TRUST_TAGS(plugin -> Component.join(
-                JoinConfiguration.commas(true),
-                plugin.getTrustTags().stream().map(tag -> Component.text(tag.getName())).toList()
-        )),
-        REGISTERED_CUSTOM_OPERATION_TYPES(plugin -> Component.join(
-                JoinConfiguration.commas(true),
-                plugin.getOperationListener().getRegisteredOperationTypes().stream()
-                        .filter(t -> !t.getKey().namespace().equals("cloplib"))
-                        .map(tag -> Component.text(tag.getKey().asString())).toList()
-        )),
-        REGISTERED_HIGHLIGHTERS(plugin -> Component.join(
-                JoinConfiguration.commas(true),
-                plugin.getHighlighters().stream().map(hook -> Component.text(hook.getClass().getSimpleName())
-                        .hoverEvent(Component.text("Priority: %s".formatted(hook.getPriority())))).toList()
-        )),
-        LOADED_HOOKS(plugin -> Component.join(
-                JoinConfiguration.commas(true),
-                plugin.getHooks().stream().filter(hook -> !(hook instanceof Importer))
-                        .map(hook -> Component.text(hook.getName())).toList()
-        )),
-        LOADED_IMPORTERS(plugin -> Component.join(
-                JoinConfiguration.commas(true),
-                plugin.getImporters().stream().map(hook -> Component.text(hook.getName())).toList()
-        ));
-
-        private final Function<HuskClaims, Component> supplier;
-
-        StatusLine(@NotNull Function<HuskClaims, Component> supplier) {
-            this.supplier = supplier;
-        }
-
-        @NotNull
-        private Component get(@NotNull HuskClaims plugin) {
-            return Component
-                    .text("•").appendSpace()
-                    .append(Component.text(
-                            WordUtils.capitalizeFully(name().replaceAll("_", " ")),
-                            TextColor.color(0x848484)
-                    ))
-                    .append(Component.text(':')).append(Component.space().color(NamedTextColor.WHITE))
-                    .append(supplier.apply(plugin));
-        }
-
-        @NotNull
-        private static Component getBoolean(boolean value) {
-            return Component.text(value ? "Yes" : "No", value ? NamedTextColor.GREEN : NamedTextColor.RED);
-        }
-
-        @NotNull
-        private static Component getLocalhostBoolean(@NotNull String value) {
-            return getBoolean(value.equals("127.0.0.1") || value.equals("0.0.0.0")
-                              || value.equals("localhost") || value.equals("::1"));
-        }
     }
 
 }

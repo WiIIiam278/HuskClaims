@@ -56,6 +56,8 @@ import net.william278.huskclaims.trust.TrustTag;
 import net.william278.huskclaims.trust.UserGroup;
 import net.william278.huskclaims.user.*;
 import net.william278.huskclaims.util.*;
+import net.william278.toilet.BukkitToilet;
+import net.william278.toilet.Toilet;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
@@ -83,6 +85,7 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
 
     private MorePaperLib morePaperLib;
     private AudienceProvider audiences;
+    private Toilet toilet;
     private final Gson gson = getGsonBuilder().create();
     private final Set<TrustTag> trustTags = ConcurrentHashMap.newKeySet();
     private final Map<UUID, List<DroppedItem>> markedDrops = Maps.newHashMap();
@@ -127,6 +130,7 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     public void onEnable() {
         this.audiences = BukkitAudiences.create(this);
         this.morePaperLib = new MorePaperLib(this);
+        this.toilet = BukkitToilet.create(getDumpOptions());
         this.enable();
     }
 
