@@ -36,7 +36,7 @@ import java.util.List;
 public interface ToiletProvider {
 
     @NotNull String BYTEBIN_URL = "https://bytebin.lucko.me";
-    @NotNull String VIEWER_URL = "https://bytebin.lucko.me";
+    @NotNull String VIEWER_URL = "https://william278.net/dump";
 
     @NotNull
     Toilet getToilet();
