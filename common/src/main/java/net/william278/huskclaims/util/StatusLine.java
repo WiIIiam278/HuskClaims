@@ -19,7 +19,6 @@
 
 package net.william278.huskclaims.util;
 
-import com.google.common.collect.Maps;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -30,7 +29,6 @@ import net.william278.huskclaims.hook.Importer;
 import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
 import java.util.function.Function;
 
 public enum StatusLine {
@@ -42,6 +40,8 @@ public enum StatusLine {
     MINECRAFT_VERSION(plugin -> Component.text(plugin.getMinecraftVersion().toString())),
     JAVA_VERSION(plugin -> Component.text(System.getProperty("java.version"))),
     JAVA_VENDOR(plugin -> Component.text(System.getProperty("java.vendor"))),
+    IS_CROSS_SERVER(plugin -> getBoolean(plugin.getSettings().getCrossServer().isEnabled())),
+    MESSAGE_BROKER_TYPE(plugin -> Component.text(plugin.getSettings().getCrossServer().getBrokerType().getDisplayName())),
     SERVER_NAME(plugin -> Component.text(plugin.getServerName())),
     DATABASE_TYPE(plugin -> Component.text(plugin.getSettings().getDatabase().getType().getDisplayName())),
     IS_DATABASE_LOCAL(plugin -> getLocalhostBoolean(plugin.getSettings().getDatabase().getCredentials().getHost())),
@@ -80,18 +80,6 @@ public enum StatusLine {
 
     StatusLine(@NotNull Function<HuskClaims, Component> supplier) {
         this.supplier = supplier;
-    }
-
-    @NotNull
-    public static Map<String, String> toMap(@NotNull HuskClaims plugin) {
-        final Map<String, String> map = Maps.newHashMap();
-        for (StatusLine value : values()) {
-            map.put(
-                    WordUtils.capitalizeFully(value.name().replaceAll("_", " ")),
-                    value.getValue(plugin)
-            );
-        }
-        return map;
     }
 
     @NotNull
