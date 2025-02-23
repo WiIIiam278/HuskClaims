@@ -23,6 +23,7 @@ import de.themoep.minedown.adventure.MineDown;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.william278.desertwell.about.AboutMenu;
@@ -130,7 +131,7 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
                     final String url = plugin.createDump(executor);
                     getPlugin().getLocales().getLocale("system_dump_ready").ifPresent(executor::sendMessage);
                     executor.sendMessage(Component.text(url).clickEvent(ClickEvent.openUrl(url))
-                            .decorate(TextDecoration.UNDERLINED).color(TextColor.color(0xff9f0f)));
+                            .decorate(TextDecoration.UNDERLINED).color(NamedTextColor.GRAY));
                 });
             }
             case "import" -> handleImportCommand(executor, removeFirstArg(args));
