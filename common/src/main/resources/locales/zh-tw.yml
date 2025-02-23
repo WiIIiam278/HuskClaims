@@ -200,6 +200,8 @@ locales:
   update_available: '[HuskClaims](#ff7e5e bold) [| 有新的 HuskClaims 版本可用：v%1%（正在執行：v%2%）。](#ff7e5e)'
   reload_complete: '[HuskClaims](#00fb9a bold) [| 已重新載入設定和訊息檔案。](#00fb9a)\n[⚠ 請確保所有伺服器上的設定檔案都是最新的！](#00fb9a)\n[需要重新啟動才能使設定變更生效。](#00fb9a italic)'
   system_status_header: '[HuskClaims](#00fb9a bold) [| 系統狀態報告：](#00fb9a)'
+  system_dump_started: '[HuskClaims](#00fb9a bold) [| Preparing system status dump, please wait…](#00fb9a)'
+  system_dump_ready: '[HuskClaims](#00fb9a bold) [| System status dump prepared! Click the link to view in browser:](#00fb9a)'
   available_importers: '[HuskClaims](#00fb9a bold) [| 可用的匯入器：](#00fb9a) [%1%](white)'
   command_list_header: '[HuskClaims](#00fb9a bold) [| 指令清單：](#00fb9a)\n'
   command_list_row: '[%1%](#00fb9a italic show_text=�fb9a&%1%\n&7%2% suggest_command=%1%)   [%3%](gray show_text=&7%4% suggest_command=%1%)'

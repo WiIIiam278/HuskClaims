@@ -391,7 +391,7 @@ This is a table of HuskClaims commands, how to use them, their required permissi
             <td align="center">❌</td>
         </tr>
         <tr>
-            <td rowspan="9"><code>/huskclaims</code></td>
+            <td rowspan="10"><code>/huskclaims</code></td>
             <td><code>/huskclaims</code></td>
             <td>Use plugin management commands</td>
             <td><code>huskclaims.command.huskclaims</code></td>
@@ -443,6 +443,12 @@ This is a table of HuskClaims commands, how to use them, their required permissi
             <td><code>/huskclaims status</code></td>
             <td>View the system status debug info screen.</td>
             <td><code>huskclaims.command.huskclaims.status</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <tr>
+            <td><code>/huskclaims dump</code></td>
+            <td>Perform a web dump of the plugin system & server status.</td>
+            <td><code>huskclaims.command.huskclaims.dump</code></td>
             <td align="center">❌</td>
         </tr>
     </tbody>
