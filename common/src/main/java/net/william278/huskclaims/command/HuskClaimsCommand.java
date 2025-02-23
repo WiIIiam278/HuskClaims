@@ -24,6 +24,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.william278.desertwell.about.AboutMenu;
 import net.william278.desertwell.util.UpdateChecker;
 import net.william278.huskclaims.HuskClaims;
@@ -124,8 +125,13 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
                 ));
             }
             case "dump" -> {
-                final String url = plugin.createDump(executor);
-                executor.sendMessage(Component.text(url).clickEvent(ClickEvent.openUrl(url)));
+                getPlugin().getLocales().getLocale("system_dump_started").ifPresent(executor::sendMessage);
+                plugin.runAsync(() -> {
+                    final String url = plugin.createDump(executor);
+                    getPlugin().getLocales().getLocale("system_dump_ready").ifPresent(executor::sendMessage);
+                    executor.sendMessage(Component.text(url).clickEvent(ClickEvent.openUrl(url))
+                            .decorate(TextDecoration.UNDERLINED).color(TextColor.color(0xff9f0f)));
+                });
             }
             case "import" -> handleImportCommand(executor, removeFirstArg(args));
             case "reload" -> plugin.runSync(() -> {
