@@ -44,6 +44,7 @@ shadowJar {
     relocate 'net.william278.paginedown', 'net.william278.huskclaims.libraries.paginedown'
     relocate 'net.william278.desertwell', 'net.william278.huskclaims.libraries.desertwell'
     relocate 'net.william278.cloplib', 'net.william278.huskclaims.libraries.cloplib'
+    relocate 'net.william278.toilet', 'net.william278.huskclaims.libraries.toilet'
     relocate 'org.json', 'net.william278.huskclaims.libraries.json'
     relocate 'dev.dejvokep.boostedyaml', 'net.william278.huskclaims.libraries.boostedyaml'
     relocate 'org.snakeyaml', 'net.william278.huskclaims.libraries.snakeyaml'
