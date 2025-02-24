@@ -79,6 +79,8 @@ import net.william278.huskclaims.trust.TrustTag;
 import net.william278.huskclaims.trust.UserGroup;
 import net.william278.huskclaims.user.*;
 import net.william278.huskclaims.util.*;
+import net.william278.toilet.Toilet;
+import net.william278.toilet.fabric.FabricToilet;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -114,6 +116,7 @@ public class FabricHuskClaims implements DedicatedServerModInitializer, HuskClai
     //$$ private FabricServerAudiences audiences;
     //#endif
     private MinecraftServer minecraftServer;
+    private Toilet toilet;
 
     private final Gson gson = getGsonBuilder().create();
     private final Set<TrustTag> trustTags = ConcurrentHashMap.newKeySet();
@@ -167,6 +170,7 @@ public class FabricHuskClaims implements DedicatedServerModInitializer, HuskClai
         //#else
         //$$ this.audiences = FabricServerAudiences.of(minecraftServer);
         //#endif
+        this.toilet = FabricToilet.create(getDumpOptions(), minecraftServer);
         this.enable();
     }
 
