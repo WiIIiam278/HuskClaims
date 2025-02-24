@@ -27,6 +27,7 @@ import net.william278.huskclaims.user.OnlineUser;
 import net.william278.toilet.DumpOptions;
 import net.william278.toilet.Toilet;
 import net.william278.toilet.dump.DumpUser;
+import net.william278.toilet.dump.PluginInfo;
 import net.william278.toilet.dump.PluginStatus;
 import net.william278.toilet.dump.ProjectMeta;
 import org.jetbrains.annotations.Blocking;
@@ -74,6 +75,10 @@ public interface DumpProvider {
                         FileInclusionRule.configFile("trust_levels.yml", "Trust Levels"),
                         FileInclusionRule.configFile(getMessagesFile(), "Locales File")
                 ))
+                .compatibilityRules(List.of(
+                        getCompatibilityWarning("CMI", "CMI may cause compatibility issues with " +
+                                "HuskClaims. If you're using Vault, ensure the CMI-compatible version is in use.")
+                ))
                 .build();
     }
 
@@ -112,7 +117,7 @@ public interface DumpProvider {
         return new PluginStatus.ChartStatusBlock(
                 getPlugin().getClaimWorlds().entrySet().stream()
                         .map((e) -> Map.entry(
-                                new PluginStatus.ChartKey(e.getKey(), "", getColorFor(e.getKey())),
+                                new PluginStatus.ChartKey(e.getKey()),
                                 e.getValue().getClaimCount()
                         ))
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)),
@@ -148,6 +153,14 @@ public interface DumpProvider {
                         .map(OperationType::asMinimalString).toList(),
                 "Operation Types", "ci:flag"
         );
+    }
+
+    @NotNull
+    @SuppressWarnings("SameParameterValue")
+    private CompatibilityRule getCompatibilityWarning(@NotNull String plugin, @NotNull String description) {
+        return CompatibilityRule.builder()
+                .labelToApply(new PluginInfo.Label("Warning", "#fcba03", description))
+                .resourceName(plugin).build();
     }
 
     @NotNull
