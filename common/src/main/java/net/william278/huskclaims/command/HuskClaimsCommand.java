@@ -126,6 +126,11 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
                 ));
             }
             case "dump" -> {
+                if (!parseConfirmArg(args)) {
+                    getPlugin().getLocales().getLocale("system_dump_confirm").ifPresent(executor::sendMessage);
+                    return;
+                }
+
                 getPlugin().getLocales().getLocale("system_dump_started").ifPresent(executor::sendMessage);
                 plugin.runAsync(() -> {
                     final String url = plugin.createDump(executor);
@@ -180,6 +185,7 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
                                             .noneMatch(p::equalsIgnoreCase))
                                     .map("%s:"::formatted)).toList();
                 };
+                case "dump" -> List.of("confirm");
                 case "help" -> IntStream.rangeClosed(1, getCommandList(user).getTotalPages())
                         .mapToObj(Integer::toString).toList();
                 default -> null;
