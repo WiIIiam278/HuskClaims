@@ -20,19 +20,19 @@
 package net.william278.huskclaims.user;
 
 import com.google.common.collect.Lists;
+import com.pokeskies.fabricpluginmessaging.PluginMessagePacket;
 import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.CustomModelDataComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.william278.cloplib.listener.InspectorCallbackProvider;
 import net.william278.huskclaims.FabricHuskClaims;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.hook.HuskHomesHook;
-import net.william278.huskclaims.network.FabricPluginMessage;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.util.Location;
 import org.jetbrains.annotations.ApiStatus;
@@ -65,7 +65,7 @@ public class FabricUser extends OnlineUser {
 
     @Override
     public void sendPluginMessage(@NotNull String channel, byte[] message) {
-        fabricPlayer.networkHandler.sendPacket(new CustomPayloadS2CPacket(new FabricPluginMessage(message)));
+        ServerPlayNetworking.send(fabricPlayer, new PluginMessagePacket(message));
     }
 
     @Override
