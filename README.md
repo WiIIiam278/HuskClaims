@@ -36,7 +36,7 @@
 
 **⭐ Modern conveniences** &mdash; Beautiful clickable menus and glowing display entity visualisation. Make groups to manage trust in bulk.
 
-**⭐ Easy to import & configure** &mdash; Import existing player claims and profiles from GriefPrevention. Has a robust, [extensible API](https://william278.net/docs/huskclaims/api). 
+**⭐ Easy to import & configure** &mdash; Import existing player claims and profiles from GriefPrevention. Seamlessly migrate between MySQL and SQLite. Has a robust, [extensible API](https://william278.net/docs/huskclaims/api). 
 
 **Ready?** [Let the claims begin!](https://william278.net/docs/huskclaims/setup)
 

@@ -236,3 +236,6 @@ locales:
   transferpet_command_description: 'Transfer ownership of a tamed animal.'
   claimban_command_description: 'Ban a player from a claim.'
   trapped_command_description: 'Teleport out of a claim you''re trapped in.'
+  error_invalid_database_type: '[Error:](#ff3300) ["%1%" is not a valid database type. Use "mysql" or "sqlite".](#ff7e5e)'
+  error_same_database_type: '[Error:](#ff3300) [Source and target database types cannot be the same.](#ff7e5e)'
+  error_importer_not_found: '[Error:](#ff3300) [%1% importer could not be found.](#ff7e5e)'

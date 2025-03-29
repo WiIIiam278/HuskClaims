@@ -428,6 +428,12 @@ This is a table of HuskClaims commands, how to use them, their required permissi
             <td align="center">❌</td>
         </tr>
         <tr>
+            <td><code>/huskclaims import database &lt;source&gt; &lt;destination&gt;</code></td>
+            <td>Import claim data between different database types (mysql/sqlite)</td>
+            <td><code>huskclaims.command.huskclaims.import</code></td>
+            <td align="center">❌</td>
+        </tr>
+        <tr>
             <td><code>/huskclaims teleport [coordinates]</code></td>
             <td>Teleport to a claim at a position. Requires the HuskHomes hook to use.</td>
             <td><code>huskclaims.command.huskclaims.teleport</code></td>
