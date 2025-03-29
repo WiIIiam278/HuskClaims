@@ -19,24 +19,19 @@
 
 package net.william278.huskclaims.hook;
 
-import com.google.common.collect.Maps;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.database.Database;
 import net.william278.huskclaims.database.MySqlDatabase;
 import net.william278.huskclaims.database.SqLiteDatabase;
+import net.william278.huskclaims.position.ServerWorld;
+import net.william278.huskclaims.trust.UserGroup;
 import net.william278.huskclaims.user.CommandUser;
 import net.william278.huskclaims.user.SavedUser;
-import net.william278.huskclaims.user.UserGroup;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -55,7 +50,7 @@ public class DatabaseImporter extends Importer {
     private Database targetDatabase;
     private List<SavedUser> allUsers;
     private Map<UUID, Set<UserGroup>> allUserGroups;
-    private Map<String, ClaimWorld> allClaimWorlds;
+    private Map<ServerWorld, ClaimWorld> allClaimWorlds;
     private String sourceType;
     private String targetType;
 
@@ -72,12 +67,6 @@ public class DatabaseImporter extends Importer {
     @NotNull
     public String getName() {
         return "database";
-    }
-
-    @Override
-    @NotNull
-    public String getDescription() {
-        return "Import claim data between different database types (MySQL and SQLite)";
     }
 
     @Override
@@ -122,8 +111,8 @@ public class DatabaseImporter extends Importer {
         allUserGroups = sourceDatabase.getAllUserGroups();
         allClaimWorlds = new HashMap<>();
         
-        sourceDatabase.getAllClaimWorlds().forEach((world, claimWorld) -> {
-            allClaimWorlds.put(world.getKey(), claimWorld);
+        sourceDatabase.getAllClaimWorlds().forEach((serverWorld, claimWorld) -> {
+            allClaimWorlds.put(serverWorld, claimWorld);
         });
     }
 
@@ -142,8 +131,6 @@ public class DatabaseImporter extends Importer {
                 Path targetFile = backupsDir.resolve("HuskClaimsData_" + timestamp + ".db");
                 Files.copy(sourceFile, targetFile);
             } else {
-                // For MySQL, we rely on the server admin to have backups
-                // We could implement a MySQL dump here, but it's outside the scope of this implementation
             }
         } catch (Exception e) {
             getPlugin().log(Level.WARNING, "Failed to create database backup: " + e.getMessage(), e);
@@ -172,8 +159,8 @@ public class DatabaseImporter extends Importer {
                 }
                 
                 // Import claim worlds
-                for (ClaimWorld claimWorld : allClaimWorlds.values()) {
-                    targetDatabase.updateClaimWorld(claimWorld);
+                for (Map.Entry<ServerWorld, ClaimWorld> entry : allClaimWorlds.entrySet()) {
+                    targetDatabase.updateClaimWorld(entry.getValue());
                     count++;
                 }
             }
