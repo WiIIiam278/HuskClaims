@@ -19,6 +19,7 @@
 
 package net.william278.huskclaims.hook;
 
+import net.kyori.adventure.text.Component;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.database.Database;
@@ -37,23 +38,42 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.Level;
 
+/**
+ * Importer for migrating between SQLite and MySQL databases
+ */
 @PluginHook(
         name = "DatabaseImporter",
         register = PluginHook.Register.ON_ENABLE
 )
 public class DatabaseImporter extends Importer {
 
+    // Constants for database operations
     private static final String SQLITE_DB_NAME = "HuskClaimsData.db";
     private static final String BACKUP_FOLDER = "backups";
 
+    // Database instance references
     private Database sourceDatabase;
     private Database targetDatabase;
+    
+    // Data caches for migration
     private List<SavedUser> allUsers;
     private Map<UUID, Set<UserGroup>> allUserGroups;
     private Map<ServerWorld, ClaimWorld> allClaimWorlds;
+    
+    // Database type configuration
     private String sourceType;
     private String targetType;
+    
+    // Counters for migration statistics
+    private int userCount = 0;
+    private int groupCount = 0;
+    private int claimWorldCount = 0;
 
+    /**
+     * Create a new database importer
+     *
+     * @param plugin The HuskClaims plugin instance
+     */
     public DatabaseImporter(@NotNull HuskClaims plugin) {
         super(
                 List.of(ImportData.USERS, ImportData.CLAIMS),
@@ -69,8 +89,31 @@ public class DatabaseImporter extends Importer {
         return "database";
     }
 
+    /**
+     * Set source and target database types for migration
+     * 
+     * @param source The source database type (mysql/sqlite)
+     * @param target The target database type (mysql/sqlite)
+     */
+    public void setDatabaseTypes(@NotNull String source, @NotNull String target) {
+        this.sourceType = source.toLowerCase(Locale.ENGLISH);
+        this.targetType = target.toLowerCase(Locale.ENGLISH);
+    }
+
     @Override
     protected void prepare() {
+        validateDatabaseTypes();
+        createBackup();
+        setupDatabases();
+        resetCounters();
+    }
+
+    /**
+     * Validates that the database types are properly configured for migration
+     *
+     * @throws IllegalArgumentException if the configuration is invalid
+     */
+    private void validateDatabaseTypes() {
         if (sourceType == null || targetType == null) {
             throw new IllegalArgumentException("Source and target database types must be specified");
         }
@@ -86,10 +129,42 @@ public class DatabaseImporter extends Importer {
         if (sourceType.equalsIgnoreCase(targetType)) {
             throw new IllegalArgumentException("Source and target database types must be different");
         }
+    }
 
-        // Create backup of the current database
-        createBackup();
+    /**
+     * Creates a backup of the source database if it's SQLite
+     */
+    private void createBackup() {
+        try {
+            // Only backup SQLite databases
+            if (!sourceType.equalsIgnoreCase("sqlite")) {
+                getPlugin().log(Level.INFO, "MySQL database should be backed up manually before migration");
+                return;
+            }
+            
+            // Create backups directory if it doesn't exist
+            Path backupsDir = getPlugin().getConfigDirectory().resolve(BACKUP_FOLDER);
+            Files.createDirectories(backupsDir);
 
+            // Create timestamp for the backup filename
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
+            
+            // Backup SQLite database file
+            Path sourceFile = getPlugin().getConfigDirectory().resolve(SQLITE_DB_NAME);
+            Path targetFile = backupsDir.resolve("HuskClaimsData_" + timestamp + ".db");
+            Files.copy(sourceFile, targetFile);
+            getPlugin().log(Level.INFO, "Created SQLite database backup at " + targetFile);
+        } catch (Exception e) {
+            getPlugin().log(Level.WARNING, "Failed to create database backup: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Sets up the source and target databases for migration
+     *
+     * @throws IllegalStateException if database initialization fails
+     */
+    private void setupDatabases() {
         // Get source database (current database)
         sourceDatabase = getPlugin().getDatabase();
 
@@ -105,96 +180,131 @@ public class DatabaseImporter extends Importer {
         if (!targetDatabase.hasLoaded()) {
             throw new IllegalStateException("Failed to initialize target database");
         }
-
-        // Cache all data from source database for migration
-        allUsers = sourceDatabase.getInactiveUsers(-1); // Get all users
-        allUserGroups = sourceDatabase.getAllUserGroups();
-        allClaimWorlds = new HashMap<>();
-        
-        sourceDatabase.getAllClaimWorlds().forEach((serverWorld, claimWorld) -> {
-            allClaimWorlds.put(serverWorld, claimWorld);
-        });
     }
 
-    private void createBackup() {
-        try {
-            // Create backups directory if it doesn't exist
-            Path backupsDir = getPlugin().getConfigDirectory().resolve(BACKUP_FOLDER);
-            Files.createDirectories(backupsDir);
-
-            // Create timestamp for the backup filename
-            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
-            
-            if (sourceType.equalsIgnoreCase("sqlite")) {
-                // Backup SQLite database file
-                Path sourceFile = getPlugin().getConfigDirectory().resolve(SQLITE_DB_NAME);
-                Path targetFile = backupsDir.resolve("HuskClaimsData_" + timestamp + ".db");
-                Files.copy(sourceFile, targetFile);
-            } else {
-            }
-        } catch (Exception e) {
-            getPlugin().log(Level.WARNING, "Failed to create database backup: " + e.getMessage(), e);
-        }
+    /**
+     * Reset statistical counters for a new migration
+     */
+    private void resetCounters() {
+        userCount = 0;
+        groupCount = 0;
+        claimWorldCount = 0;
     }
 
     @Override
     protected int importData(@NotNull ImportData importData, @NotNull CommandUser executor) {
-        int count = 0;
-        
-        switch (importData) {
-            case USERS -> {
-                // Import users
-                for (SavedUser user : allUsers) {
-                    targetDatabase.createOrUpdateUser(user);
-                    count++;
+        return switch (importData) {
+            case USERS -> importUserData(executor);
+            case CLAIMS -> importClaimData(executor);
+            default -> 0;
+        };
+    }
+
+    /**
+     * Import user data including saved users and user groups
+     *
+     * @param executor The command user executing the import
+     * @return The number of users imported
+     */
+    private int importUserData(CommandUser executor) {
+        try {
+            // Get and import all users (including inactive)
+            allUsers = sourceDatabase.getInactiveUsers(-1);
+            
+            // Import users
+            for (SavedUser user : allUsers) {
+                targetDatabase.createOrUpdateUser(user);
+                userCount++;
+            }
+            
+            // Import user groups - doing it here ensures we have all users first
+            allUserGroups = sourceDatabase.getAllUserGroups();
+            for (Map.Entry<UUID, Set<UserGroup>> entry : allUserGroups.entrySet()) {
+                for (UserGroup group : entry.getValue()) {
+                    targetDatabase.addUserGroup(group);
+                    groupCount++;
                 }
             }
-            case CLAIMS -> {
-                // Import user groups
-                for (Map.Entry<UUID, Set<UserGroup>> entry : allUserGroups.entrySet()) {
-                    for (UserGroup group : entry.getValue()) {
-                        targetDatabase.addUserGroup(group);
-                        count++;
-                    }
-                }
-                
-                // Import claim worlds
-                for (Map.Entry<ServerWorld, ClaimWorld> entry : allClaimWorlds.entrySet()) {
-                    targetDatabase.updateClaimWorld(entry.getValue());
-                    count++;
-                }
-            }
+            
+            return userCount;
+        } catch (Exception e) {
+            getPlugin().log(Level.SEVERE, "Error migrating user data: " + e.getMessage(), e);
+            executor.sendMessage(Component.text("Error migrating user data: " + e.getMessage()));
+            throw e;
         }
-        
-        return count;
+    }
+
+    /**
+     * Import claim data including claim worlds and all associated claim information
+     *
+     * @param executor The command user executing the import
+     * @return The number of non-user entries imported (groups + claim worlds)
+     */
+    private int importClaimData(CommandUser executor) {
+        try {
+            // Get and import claim worlds with all their data
+            allClaimWorlds = sourceDatabase.getAllClaimWorlds();
+            
+            // Import claim worlds and their data
+            for (Map.Entry<ServerWorld, ClaimWorld> entry : allClaimWorlds.entrySet()) {
+                ServerWorld serverWorld = entry.getKey();
+                ClaimWorld claimWorld = entry.getValue();
+                
+                // Log more details
+                int claimCount = claimWorld.getClaims().size();
+                getPlugin().log(Level.INFO, String.format(
+                    "Migrating world %s with %d claims", 
+                    serverWorld.toString(), 
+                    claimCount
+                ));
+                
+                // Ensure the target database has the claim world record
+                targetDatabase.updateClaimWorld(claimWorld);
+                claimWorldCount++;
+            }
+            
+            return groupCount + claimWorldCount;
+        } catch (Exception e) {
+            getPlugin().log(Level.SEVERE, "Error migrating claim data: " + e.getMessage(), e);
+            executor.sendMessage(Component.text("Error migrating claim data: " + e.getMessage()));
+            throw e;
+        }
     }
 
     @Override
     protected void finish() {
-        // Close the target database
-        targetDatabase.close();
-        
-        // Clear cached data
+        try {
+            // Close the target database
+            if (targetDatabase != null) {
+                targetDatabase.close();
+            }
+            
+            // Log summary of migration
+            getPlugin().log(Level.INFO, String.format(
+                "Migration summary: %d users, %d user groups, %d claim worlds with all associated data (regions, trusts, flags)",
+                userCount,
+                groupCount,
+                claimWorldCount
+            ));
+            
+            // Clear cached data
+            clearCache();
+            
+            // Let the user know they need to update their config.yml to use the new database
+            getPlugin().log(Level.INFO, "Database migration completed. Please update your config.yml to use the new database type.");
+        } catch (Exception e) {
+            getPlugin().log(Level.SEVERE, "Error during migration cleanup: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Clear all cached data after migration completes
+     */
+    private void clearCache() {
         allUsers = null;
         allUserGroups = null;
         allClaimWorlds = null;
-        
-        // Reset the source and target types
         sourceType = null;
         targetType = null;
-        
-        // Let the user know they need to update their config.yml to use the new database
-        getPlugin().log(Level.INFO, "Database migration completed. Please update your config.yml to use the new database type.");
-    }
-    
-    /**
-     * Set source and target database types for migration
-     * 
-     * @param source The source database type (mysql/sqlite)
-     * @param target The target database type (mysql/sqlite)
-     */
-    public void setDatabaseTypes(@NotNull String source, @NotNull String target) {
-        this.sourceType = source.toLowerCase(Locale.ENGLISH);
-        this.targetType = target.toLowerCase(Locale.ENGLISH);
     }
 } 
