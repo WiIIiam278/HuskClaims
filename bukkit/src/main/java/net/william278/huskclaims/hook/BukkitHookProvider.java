@@ -52,6 +52,9 @@ public interface BukkitHookProvider extends HookProvider {
 
         // Add bukkit importers
         hooks.add(new BukkitGriefPreventionImporter(getPlugin()));
+        
+        // Add database importer
+        hooks.add(new DatabaseImporter(getPlugin()));
 
         return hooks;
     }

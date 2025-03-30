@@ -40,6 +40,7 @@ import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.SavedUser;
 import net.william278.huskclaims.util.StatusLine;
 import net.william278.paginedown.PaginatedList;
+import net.william278.huskclaims.hook.DatabaseImporter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -177,8 +178,25 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
             case 0, 1 -> SUB_COMMANDS.keySet().stream().filter(n -> user.hasPermission(getPermission(n))).toList();
             default -> switch (args[0].toLowerCase(Locale.ENGLISH)) {
                 case "import" -> switch (args.length - 2) {
-                    case 0 -> plugin.getImporters().stream().map(Importer::getName).toList();
-                    case 1 -> List.of("start", "set", "reset");
+                    case 0 -> plugin.getImporters().stream()
+                              .map(Importer::getName)
+                              .collect(Collectors.toList());
+                    case 1 -> {
+                        if (args[1].equalsIgnoreCase("database")) {
+                            yield List.of("mysql", "sqlite", "mariadb");
+                        }
+                        yield List.of("start", "set", "reset");
+                    }
+                    case 2 -> {
+                        if (args[1].equalsIgnoreCase("database")) {
+                            yield List.of("mysql", "sqlite", "mariadb");
+                        }
+                        yield plugin.getImporters().stream().filter(i -> i.getName().equalsIgnoreCase(args[1]))
+                            .flatMap(i -> i.getRequiredParameters().keySet().stream()
+                                    .filter(p -> parseKeyValues(args, 3).keySet().stream()
+                                            .noneMatch(p::equalsIgnoreCase))
+                                    .map("%s:"::formatted)).toList();
+                    }
                     default -> plugin.getImporters().stream().filter(i -> i.getName().equalsIgnoreCase(args[1]))
                             .flatMap(i -> i.getRequiredParameters().keySet().stream()
                                     .filter(p -> parseKeyValues(args, 3).keySet().stream()
@@ -194,6 +212,48 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
     }
 
     private void handleImportCommand(@NotNull CommandUser executor, @NotNull String[] args) {
+        // Special handling for database import command
+        if (args.length >= 3 && args[0].equalsIgnoreCase("database")) {
+            final String sourceType = args[1].toLowerCase(Locale.ENGLISH);
+            final String targetType = args[2].toLowerCase(Locale.ENGLISH);
+            
+            // Validate database types
+            if (!isValidDatabaseType(sourceType)) {
+                plugin.getLocales().getLocale("error_invalid_database_type", sourceType)
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+            if (!isValidDatabaseType(targetType)) {
+                plugin.getLocales().getLocale("error_invalid_database_type", targetType)
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+            
+            // Compare normalized types (treat mariadb as mysql)
+            String normalizedSource = normalizeDbType(sourceType);
+            String normalizedTarget = normalizeDbType(targetType);
+            if (normalizedSource.equalsIgnoreCase(normalizedTarget)) {
+                plugin.getLocales().getLocale("error_same_database_type")
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+            
+            // Get the database importer
+            final Optional<Importer> optionalImporter = plugin.getImporterByName("database");
+            if (optionalImporter.isEmpty()) {
+                plugin.getLocales().getLocale("error_importer_not_found", "database")
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+            
+            // Set source and target database types and start import
+            final DatabaseImporter databaseImporter = (DatabaseImporter) optionalImporter.get();
+            databaseImporter.setDatabaseTypes(sourceType, targetType);
+            databaseImporter.start(executor);
+            return;
+        }
+        
+        // Standard importer handling
         final Optional<Importer> optionalImporter = parseStringArg(args, 0).flatMap(plugin::getImporterByName);
         if (optionalImporter.isEmpty()) {
             plugin.getLocales().getLocale("available_importers", plugin.getImporters().stream()
@@ -211,6 +271,22 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
             default -> plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                     .ifPresent(executor::sendMessage);
         }
+    }
+
+    /**
+     * Check if a database type is valid (mysql, mariadb, or sqlite)
+     */
+    private boolean isValidDatabaseType(String dbType) {
+        return dbType.equalsIgnoreCase("mysql") || 
+               dbType.equalsIgnoreCase("mariadb") || 
+               dbType.equalsIgnoreCase("sqlite");
+    }
+    
+    /**
+     * Normalize database type names (treats mariadb as mysql)
+     */
+    private String normalizeDbType(String dbType) {
+        return dbType.equalsIgnoreCase("mariadb") ? "mysql" : dbType;
     }
 
     private void handleLogsCommand(@NotNull CommandUser executor, @NotNull String[] args) {

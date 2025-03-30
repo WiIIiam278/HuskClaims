@@ -39,6 +39,9 @@ public interface FabricHookProvider extends HookProvider {
             hooks.add(new FabricHuskHomesHook(getPlugin()));
         }
 
+        // Add database importer
+        hooks.add(new DatabaseImporter(getPlugin()));
+
         return hooks;
     }
 

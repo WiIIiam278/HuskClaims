@@ -3,6 +3,7 @@ HuskClaims supports importing data from other plugins through the `/huskclaims i
 | Name                                | Supported Import Data | Link                         |
 |-------------------------------------|-----------------------|------------------------------|
 | [GriefPrevention](#griefprevention) | Claims, Users         | https://griefprevention.com/ |
+| [Database Migration](Database-Migration.md) | Claims, Users, Groups | Internal Migration Tool     |
 
 ## GriefPrevention
 HuskClaims supports importing Claims, Trust and User data from [GriefPrevention](https://griefprevention.com/) (`v16.18.1`+).
