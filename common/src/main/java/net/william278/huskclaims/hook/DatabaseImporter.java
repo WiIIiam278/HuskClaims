@@ -118,17 +118,37 @@ public class DatabaseImporter extends Importer {
             throw new IllegalArgumentException("Source and target database types must be specified");
         }
 
-        if (!sourceType.equalsIgnoreCase("mysql") && !sourceType.equalsIgnoreCase("sqlite")) {
-            throw new IllegalArgumentException("Source database type must be 'mysql' or 'sqlite'");
+        if (!isValidDatabaseType(sourceType)) {
+            throw new IllegalArgumentException("Source database type must be 'mysql', 'mariadb', or 'sqlite'");
         }
 
-        if (!targetType.equalsIgnoreCase("mysql") && !targetType.equalsIgnoreCase("sqlite")) {
-            throw new IllegalArgumentException("Target database type must be 'mysql' or 'sqlite'");
+        if (!isValidDatabaseType(targetType)) {
+            throw new IllegalArgumentException("Target database type must be 'mysql', 'mariadb', or 'sqlite'");
         }
-
-        if (sourceType.equalsIgnoreCase(targetType)) {
+        
+        // Consider mariadb same as mysql for comparison purposes
+        String normalizedSource = normalizeDbType(sourceType);
+        String normalizedTarget = normalizeDbType(targetType);
+        
+        if (normalizedSource.equalsIgnoreCase(normalizedTarget)) {
             throw new IllegalArgumentException("Source and target database types must be different");
         }
+    }
+
+    /**
+     * Normalizes database type names (treats mariadb as mysql)
+     */
+    private String normalizeDbType(String dbType) {
+        return dbType.equalsIgnoreCase("mariadb") ? "mysql" : dbType;
+    }
+
+    /**
+     * Checks if the database type is valid
+     */
+    private boolean isValidDatabaseType(String dbType) {
+        return dbType.equalsIgnoreCase("mysql") || 
+               dbType.equalsIgnoreCase("mariadb") || 
+               dbType.equalsIgnoreCase("sqlite");
     }
 
     /**
@@ -154,7 +174,7 @@ public class DatabaseImporter extends Importer {
             Path targetFile = backupsDir.resolve("HuskClaimsData_" + timestamp + ".db");
             Files.copy(sourceFile, targetFile);
             getPlugin().log(Level.INFO, "Created SQLite database backup at " + targetFile);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             getPlugin().log(Level.WARNING, "Failed to create database backup: " + e.getMessage(), e);
         }
     }
@@ -169,7 +189,8 @@ public class DatabaseImporter extends Importer {
         sourceDatabase = getPlugin().getDatabase();
 
         // Create target database based on target type
-        if (targetType.equalsIgnoreCase("mysql")) {
+        String normalizedTargetType = normalizeDbType(targetType);
+        if (normalizedTargetType.equalsIgnoreCase("mysql")) {
             targetDatabase = new MySqlDatabase(getPlugin());
         } else {
             targetDatabase = new SqLiteDatabase(getPlugin());
@@ -227,7 +248,7 @@ public class DatabaseImporter extends Importer {
             }
             
             return userCount;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             getPlugin().log(Level.SEVERE, "Error migrating user data: " + e.getMessage(), e);
             executor.sendMessage(Component.text("Error migrating user data: " + e.getMessage()));
             throw e;
@@ -264,7 +285,7 @@ public class DatabaseImporter extends Importer {
             }
             
             return groupCount + claimWorldCount;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             getPlugin().log(Level.SEVERE, "Error migrating claim data: " + e.getMessage(), e);
             executor.sendMessage(Component.text("Error migrating claim data: " + e.getMessage()));
             throw e;
@@ -292,7 +313,7 @@ public class DatabaseImporter extends Importer {
             
             // Let the user know they need to update their config.yml to use the new database
             getPlugin().log(Level.INFO, "Database migration completed. Please update your config.yml to use the new database type.");
-        } catch (Exception e) {
+        } catch (Throwable e) {
             getPlugin().log(Level.SEVERE, "Error during migration cleanup: " + e.getMessage(), e);
         }
     }

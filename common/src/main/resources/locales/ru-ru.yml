@@ -237,6 +237,6 @@ locales:
   claimban_command_description: 'Заблокировать игрока из владения.'
   trapped_command_description: 'Телепортироваться из владения, в котором вы оказались в ловушке.'
   giftclaimblocks_command_description: 'Подарить блоки привата другому игроку.'
-  error_invalid_database_type: '[Ошибка:](#ff3300) ["%1%" не является допустимым типом базы данных. Используйте "mysql" или "sqlite".](#ff7e5e)'
-  error_same_database_type: '[Ошибка:](#ff3300) [Типы исходной и целевой базы данных не могут быть одинаковыми.](#ff7e5e)'
+  error_invalid_database_type: '[Ошибка:](#ff3300) ["%1%" не является допустимым типом базы данных. Используйте "mysql", "mariadb" или "sqlite".](#ff7e5e)'
+  error_same_database_type: '[Ошибка:](#ff3300) [Исходный и целевой типы баз данных не могут быть одинаковыми.](#ff7e5e)'
   error_importer_not_found: '[Ошибка:](#ff3300) [Импортер %1% не найден.](#ff7e5e)'

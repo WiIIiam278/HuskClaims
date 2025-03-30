@@ -178,18 +178,18 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
             case 0, 1 -> SUB_COMMANDS.keySet().stream().filter(n -> user.hasPermission(getPermission(n))).toList();
             default -> switch (args[0].toLowerCase(Locale.ENGLISH)) {
                 case "import" -> switch (args.length - 2) {
-                    case 0 -> List.of("database").stream()
-                              .collect(Collectors.toCollection(() -> plugin.getImporters().stream()
-                                      .map(Importer::getName).collect(Collectors.toList())));
+                    case 0 -> plugin.getImporters().stream()
+                              .map(Importer::getName)
+                              .collect(Collectors.toList());
                     case 1 -> {
                         if (args[1].equalsIgnoreCase("database")) {
-                            yield List.of("mysql", "sqlite");
+                            yield List.of("mysql", "sqlite", "mariadb");
                         }
                         yield List.of("start", "set", "reset");
                     }
                     case 2 -> {
                         if (args[1].equalsIgnoreCase("database")) {
-                            yield List.of("mysql", "sqlite");
+                            yield List.of("mysql", "sqlite", "mariadb");
                         }
                         yield plugin.getImporters().stream().filter(i -> i.getName().equalsIgnoreCase(args[1]))
                             .flatMap(i -> i.getRequiredParameters().keySet().stream()
@@ -218,17 +218,21 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
             final String targetType = args[2].toLowerCase(Locale.ENGLISH);
             
             // Validate database types
-            if (!sourceType.equalsIgnoreCase("mysql") && !sourceType.equalsIgnoreCase("sqlite")) {
+            if (!isValidDatabaseType(sourceType)) {
                 plugin.getLocales().getLocale("error_invalid_database_type", sourceType)
                         .ifPresent(executor::sendMessage);
                 return;
             }
-            if (!targetType.equalsIgnoreCase("mysql") && !targetType.equalsIgnoreCase("sqlite")) {
+            if (!isValidDatabaseType(targetType)) {
                 plugin.getLocales().getLocale("error_invalid_database_type", targetType)
                         .ifPresent(executor::sendMessage);
                 return;
             }
-            if (sourceType.equalsIgnoreCase(targetType)) {
+            
+            // Compare normalized types (treat mariadb as mysql)
+            String normalizedSource = normalizeDbType(sourceType);
+            String normalizedTarget = normalizeDbType(targetType);
+            if (normalizedSource.equalsIgnoreCase(normalizedTarget)) {
                 plugin.getLocales().getLocale("error_same_database_type")
                         .ifPresent(executor::sendMessage);
                 return;
@@ -267,6 +271,22 @@ public class HuskClaimsCommand extends Command implements TabCompletable {
             default -> plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                     .ifPresent(executor::sendMessage);
         }
+    }
+
+    /**
+     * Check if a database type is valid (mysql, mariadb, or sqlite)
+     */
+    private boolean isValidDatabaseType(String dbType) {
+        return dbType.equalsIgnoreCase("mysql") || 
+               dbType.equalsIgnoreCase("mariadb") || 
+               dbType.equalsIgnoreCase("sqlite");
+    }
+    
+    /**
+     * Normalize database type names (treats mariadb as mysql)
+     */
+    private String normalizeDbType(String dbType) {
+        return dbType.equalsIgnoreCase("mariadb") ? "mysql" : dbType;
     }
 
     private void handleLogsCommand(@NotNull CommandUser executor, @NotNull String[] args) {

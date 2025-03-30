@@ -1,15 +1,13 @@
-# Database Migration
-
 HuskClaims supports migrating data between different database types through the `/huskclaims import database` command.
 
-## Migrating Between MySQL and SQLite
+## Migrating Between Database Types
 
-You can seamlessly migrate all your claim data between MySQL and SQLite databases with a simple command.
+You can seamlessly migrate all your claim data between MySQL, MariaDB, and SQLite databases with a simple command.
 
 ### Prerequisites
 
 1. Ensure both database configurations are properly set in your `config.yml` file:
-   - For MySQL migration, make sure your MySQL credentials are correctly configured
+   - For MySQL/MariaDB migration, make sure your database credentials are correctly configured
    - For SQLite migration, the plugin will use the default file location
 
 ### Migration Process
@@ -21,8 +19,8 @@ To migrate data between database types, use the following command:
 ```
 
 Where:
-- `<source>`: Current database type (mysql/sqlite)
-- `<destination>`: Target database type (mysql/sqlite)
+- `<source>`: Current database type (mysql/mariadb/sqlite)
+- `<destination>`: Target database type (mysql/mariadb/sqlite)
 
 ### Examples
 
@@ -38,11 +36,17 @@ Where:
 /huskclaims import database sqlite mysql
 ```
 
+#### Migrating from SQLite to MariaDB
+
+```
+/huskclaims import database sqlite mariadb
+```
+
 ### Troubleshooting
 
 If you encounter issues during migration:
 
 1. Check that both database configurations are correct in your `config.yml`
 2. Ensure you have sufficient disk space for backups and new database files
-3. Verify that your MySQL server is properly configured and accessible
+3. Verify that your MySQL/MariaDB server is properly configured and accessible
 4. Review the server logs for detailed error information 
