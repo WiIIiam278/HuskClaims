@@ -13,7 +13,7 @@ dependencies {
     api 'net.william278:paginedown:1.1.2'
     api 'net.william278.cloplib:cloplib-common:2.0.7'
     api 'net.william278:DesertWell:2.0.4'
-    api('com.zaxxer:HikariCP:6.2.1') {
+    api('com.zaxxer:HikariCP:6.3.0') {
         exclude module: 'slf4j-api'
     }
 
