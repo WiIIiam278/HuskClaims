@@ -20,7 +20,6 @@
 package net.william278.huskclaims.hook;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.config.Settings;
 import org.jetbrains.annotations.NotNull;
@@ -65,12 +64,9 @@ public interface HookProvider extends MapHookProvider {
                 .findFirst();
     }
 
-    void setHooks(@NotNull Set<Hook> hooks);
-
     default void loadHooks(@NotNull PluginHook.Register... register) {
         final Set<PluginHook.Register> registers = Arrays.stream(register).collect(Collectors.toSet());
-        final List<Hook> load = getAvailableHooks().stream().filter(h -> registers.contains(h.getRegister())).toList();
-        setHooks(Sets.newHashSet(load));
+        getAvailableHooks().stream().filter(h -> registers.contains(h.getRegister())).forEach(getHooks()::add);
     }
 
     default void registerHooks(@NotNull PluginHook.Register... register) {
