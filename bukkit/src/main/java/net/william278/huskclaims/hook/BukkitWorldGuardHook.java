@@ -51,7 +51,7 @@ public class BukkitWorldGuardHook extends WorldGuardHook {
             return false;
         }
         final ApplicableRegionSet set = getOverlappingRegions(region, regionManager.get(), bukkitWorld);
-        return set.getRegions().stream().anyMatch(overlapped -> overlapped.getFlag(CLAIMING) == StateFlag.State.DENY);
+        return set.queryState(null, CLAIMING) == StateFlag.State.DENY;
     }
 
     @NotNull
