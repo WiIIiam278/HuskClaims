@@ -39,6 +39,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -70,14 +71,13 @@ public class FabricUser extends OnlineUser {
 
     @Override
     public boolean hasPermission(@NotNull String node) {
-        boolean op = Boolean.TRUE.equals(((FabricHuskClaims) plugin).getPermissions().getOrDefault(node, true));
-        return Permissions.check(fabricPlayer, node, !op || fabricPlayer.hasPermissionLevel(3));
+        final Map<String, Boolean> permissionDefaultsMap = ((FabricHuskClaims) plugin).getPermissions();
+        return hasPermission(node, !permissionDefaultsMap.getOrDefault(node, true));
     }
 
     @Override
     public boolean hasPermission(@NotNull String node, boolean isDefault) {
-        boolean op = Boolean.TRUE.equals(((FabricHuskClaims) plugin).getPermissions().getOrDefault(node, true));
-        return Permissions.check(fabricPlayer, node, isDefault || (!op || fabricPlayer.hasPermissionLevel(3)));
+        return Permissions.check(fabricPlayer, node, fabricPlayer.hasPermissionLevel(!isDefault ? 3 : 0));
     }
 
     @Override
