@@ -64,7 +64,7 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
 
         final User user = optionalUser.get();
         if (!option.hasPermission(executor, this) || (!hasPermission(executor, "other")
-                && (executor instanceof OnlineUser other && !other.equals(user)))) {
+                && (executor instanceof OnlineUser other && !other.equals(user))) && option == ClaimBlockOption.SHOW) {
             plugin.getLocales().getLocale("error_no_permission")
                     .ifPresent(executor::sendMessage);
             return;
