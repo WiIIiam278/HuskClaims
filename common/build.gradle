@@ -17,7 +17,7 @@ dependencies {
         exclude module: 'slf4j-api'
     }
 
-    compileOnly 'de.exlll:configlib-yaml:4.5.0'
+    compileOnly 'de.exlll:configlib-yaml:4.6.0'
     compileOnly 'it.unimi.dsi:fastutil:8.5.15'
     compileOnly 'net.kyori:adventure-api:4.20.0'
     compileOnly 'net.kyori:adventure-platform-api:4.3.4'
