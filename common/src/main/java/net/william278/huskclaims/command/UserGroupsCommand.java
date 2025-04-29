@@ -38,7 +38,7 @@ public class UserGroupsCommand extends OnlineUserCommand implements TabCompletab
 
     protected UserGroupsCommand(@NotNull HuskClaims plugin) {
         super(
-                List.of("group", "usergroup"),
+                List.of("usergroup", "group"),
                 "[name] [<add|remove> <user(s)>|delete|list] ",
                 plugin
         );
