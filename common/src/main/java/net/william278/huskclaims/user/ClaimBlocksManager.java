@@ -20,6 +20,7 @@
 package net.william278.huskclaims.user;
 
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.claim.ServerWorldClaim;
 import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.NotNull;
@@ -72,8 +73,18 @@ public interface ClaimBlocksManager {
             maxClaimBlocks = Long.MAX_VALUE;
         }
 
+        // Calculate the user's claim block totals
+        long started = getPlugin().getSettings().getClaims().getStartingClaimBlocks();
+        long available = getPlugin().getClaimBlocks(user.getUuid());
+        long spent = getPlugin().getDatabase().getAllClaimWorlds().entrySet().stream()
+                .flatMap(e -> e.getValue().getClaimsByUser(user.getUuid()).stream()
+                        .map(c -> new ServerWorldClaim(e.getKey(), c)))
+                .mapToLong(ServerWorldClaim::getSurfaceArea)
+                .sum();
+        long earned = (available + spent) - started;
+
         // Calculate block balance
-        final long originalBlocks = getClaimBlocks(user.getUuid());
+        final long originalBlocks = started + earned;
         final long newBlocks = Math.min(consumer.apply(originalBlocks), maxClaimBlocks);
         if (newBlocks < 0) {
             throw new IllegalArgumentException("Claim blocks cannot be negative (%s)".formatted(newBlocks));
