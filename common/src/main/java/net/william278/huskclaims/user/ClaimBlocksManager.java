@@ -73,19 +73,17 @@ public interface ClaimBlocksManager {
             maxClaimBlocks = Long.MAX_VALUE;
         }
 
-        // Calculate the user's claim block totals
-        long started = getPlugin().getSettings().getClaims().getStartingClaimBlocks();
-        long available = getPlugin().getClaimBlocks(user.getUuid());
+        // Calculate block balance
+        long originalBlocks = getPlugin().getClaimBlocks(user.getUuid());
         long spent = getPlugin().getDatabase().getAllClaimWorlds().entrySet().stream()
                 .flatMap(e -> e.getValue().getClaimsByUser(user.getUuid()).stream()
                         .map(c -> new ServerWorldClaim(e.getKey(), c)))
                 .mapToLong(ServerWorldClaim::getSurfaceArea)
                 .sum();
-        long earned = (available + spent) - started;
-
-        // Calculate block balance
-        final long originalBlocks = started + earned;
-        final long newBlocks = Math.min(consumer.apply(originalBlocks), maxClaimBlocks);
+        long currentTotal = originalBlocks + spent;
+        long newTotal = consumer.apply(currentTotal);
+        long finalTotal = Math.min(newTotal, maxClaimBlocks);
+        final long newBlocks = finalTotal - spent;
         if (newBlocks < 0) {
             throw new IllegalArgumentException("Claim blocks cannot be negative (%s)".formatted(newBlocks));
         }
