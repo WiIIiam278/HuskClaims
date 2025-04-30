@@ -40,6 +40,7 @@ public interface ClaimBlocksManager {
 
     // Permission to grant hourly claim blocks
     String HOURLY_BLOCKS_PERMISSION = "huskclaims.hourly_blocks.";
+    String MAX_CLAIM_BLOCKS_PERMISSION = "huskclaims.max_claim_blocks.";
 
     Optional<SavedUser> getCachedSavedUser(@NotNull UUID uuid);
 
@@ -69,6 +70,9 @@ public interface ClaimBlocksManager {
                                  @NotNull Function<Long, Long> consumer, @Nullable Consumer<Long> callback) {
         // Determine max claim blocks
         long maxClaimBlocks = getPlugin().getSettings().getClaims().getMaximumClaimBlocks();
+        if (user instanceof OnlineUser onlineUser) {
+            maxClaimBlocks = onlineUser.getNumericalPermission(MAX_CLAIM_BLOCKS_PERMISSION).orElse(maxClaimBlocks);
+        }
         if (maxClaimBlocks < 0) {
             maxClaimBlocks = Long.MAX_VALUE;
         }
