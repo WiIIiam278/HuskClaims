@@ -21,6 +21,7 @@ package net.william278.huskclaims.hook;
 
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import net.william278.huskclaims.HuskClaims;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,7 +35,10 @@ public abstract class WorldGuardHook extends RestrictedRegionHook {
 
     @Override
     public void load() {
-        WorldGuard.getInstance().getFlagRegistry().register(CLAIMING);
+        final FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
+        if (registry.get(CLAIMING.getName()) == null) {
+            registry.register(CLAIMING);
+        }
     }
 
     @Override
