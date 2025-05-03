@@ -151,12 +151,22 @@ public class FabricBlockDisplayHighlighter extends BlockHighlighter<FabricBlockD
 
         public void show(@NotNull OnlineUser user) {
             final ServerPlayerEntity player = ((FabricUser) user).getFabricPlayer();
+            //#if MC==12105
             this.tracker = new EntityTrackerEntry(
                     location.world(), display, 
                     display.getType().getTrackTickInterval(), 
                     display.velocityDirty, 
-                    player.networkHandler::sendPacket
+                    player.networkHandler::sendPacket,
+                    (p, b) -> player.networkHandler.sendPacket(p)
             );
+            //#else
+            //$$ this.tracker = new EntityTrackerEntry(
+            //$$     location.world(), display,
+            //$$     display.getType().getTrackTickInterval(),
+            //$$     display.velocityDirty,
+            //$$     player.networkHandler::sendPacket
+            //$$ );
+            //#endif
             tracker.startTracking(player);
         }
 

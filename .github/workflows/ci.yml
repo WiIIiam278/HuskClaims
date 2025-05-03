@@ -54,15 +54,19 @@ jobs:
             paper
             fabric-1.21.1
             fabric-1.21.4
+            fabric-1.21.5
           distro-groups: |
             paper
+            fabric
             fabric
             fabric
           distro-descriptions: |
             Paper
             Fabric 1.21.1
             Fabric 1.21.4
+            Fabric 1.21.5
           files: |
             target/HuskClaims-Paper-${{ env.version_name }}.jar
             target/HuskClaims-Fabric-${{ env.version_name }}+mc.1.21.1.jar
             target/HuskClaims-Fabric-${{ env.version_name }}+mc.1.21.4.jar
+            target/HuskClaims-Fabric-${{ env.version_name }}+mc.1.21.5.jar

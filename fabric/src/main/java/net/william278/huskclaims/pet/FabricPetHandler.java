@@ -21,6 +21,9 @@ package net.william278.huskclaims.pet;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+//#if MC==12105
+import net.minecraft.entity.LazyEntityReference;
+//#endif
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
@@ -60,13 +63,13 @@ public interface FabricPetHandler extends PetHandler {
     }
 
     private void transferPet(@NotNull TameableEntity tamed, @NotNull OnlineUser owner, @NotNull User newOwner) {
-        final ServerPlayerEntity player = getPlugin().getMinecraftServer().getPlayerManager().getPlayer(newOwner.getUuid());
-        if (player != null) {
-            tamed.setOwner(player);
-        } else {
-            tamed.setOwnerUuid(newOwner.getUuid());
-        }
-        //#if MC==12104
+        //#if MC>=12105
+        tamed.setOwner(new LazyEntityReference<>(newOwner.getUuid()));
+        //#else
+        //$$ tamed.setOwnerUuid(newOwner.getUuid());
+        //#endif
+
+        //#if MC>=12104
         Component nameComponent = getPlugin().getAudiences().asAdventure(tamed.getName());
         //#else
         //$$ Component nameComponent = tamed.getName().asComponent();
@@ -80,13 +83,17 @@ public interface FabricPetHandler extends PetHandler {
         if (!entity.isTamed()) {
             return Optional.empty();
         }
-        final UUID ownerUuid = entity.getOwnerUuid();
+        //#if MC>=12105
+        final UUID ownerUuid = entity.getOwnerReference() != null ? entity.getOwnerReference().getUuid() : null;
+        //#else
+        //$$ final UUID ownerUuid = entity.getOwnerUuid();
+        //#endif
         if (ownerUuid == null) {
             return Optional.empty();
         }
 
         final LivingEntity owner = entity.getOwner();
-        return Optional.of(User.of(entity.getOwnerUuid(), !(owner instanceof ServerPlayerEntity playerOwner)
+        return Optional.of(User.of(ownerUuid, !(owner instanceof ServerPlayerEntity playerOwner)
             ? getPlugin().getLocales().getNotApplicable() : playerOwner.getGameProfile().getName()));
     }
 

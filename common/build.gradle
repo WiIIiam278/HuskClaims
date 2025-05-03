@@ -17,16 +17,16 @@ dependencies {
         exclude module: 'slf4j-api'
     }
 
-    compileOnly 'de.exlll:configlib-yaml:4.5.0'
+    compileOnly 'de.exlll:configlib-yaml:4.6.0'
     compileOnly 'it.unimi.dsi:fastutil:8.5.15'
-    compileOnly 'net.kyori:adventure-api:4.20.0'
+    compileOnly 'net.kyori:adventure-api:4.21.0'
     compileOnly 'net.kyori:adventure-platform-api:4.3.4'
     compileOnly 'org.jetbrains:annotations:26.0.2'
     compileOnly 'com.google.guava:guava:33.4.5-jre'
     compileOnly 'org.projectlombok:lombok:1.18.38'
 
-    compileOnlyApi 'net.william278.toilet:toilet-common:1.0.12'
-    compileOnlyApi 'net.william278.huskhomes:huskhomes-common:4.9.2-473c5e7'
+    compileOnlyApi 'net.william278.toilet:toilet-common:1.0.13'
+    compileOnlyApi 'net.william278.huskhomes:huskhomes-common:4.9.6'
 
     compileOnly 'net.luckperms:api:5.4'
     compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:2.7.0'

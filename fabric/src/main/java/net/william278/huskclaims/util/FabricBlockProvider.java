@@ -102,7 +102,7 @@ public interface FabricBlockProvider extends BlockProvider {
 
     // Returns if a block occludes vision/light
     private boolean isOccluding(@NotNull BlockState block) {
-        //#if MC==12104
+        //#if MC>=12104
         return !block.isTransparent() || isAllowedMaterial(block.getBlock());
         //#else
         //$$ return !block.isTransparent(EmptyBlockView.INSTANCE, BlockPos.ORIGIN) || isAllowedMaterial(block.getBlock());
