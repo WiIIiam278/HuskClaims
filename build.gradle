@@ -3,7 +3,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'org.cadixdev.licenser' version '0.6.1' apply false
-    id 'fabric-loom' version "$fabric_loom_version" apply false
+    id 'dev.architectury.loom' version '1.9-SNAPSHOT' apply false
     id 'gg.essential.multi-version.root' apply false
     id 'org.ajoberstar.grgit' version '5.3.0'
     id 'maven-publish'
@@ -88,9 +88,9 @@ allprojects {
     }
 
     dependencies {
-        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.4'
-        testImplementation 'org.junit.jupiter:junit-jupiter-params:5.11.4'
-        testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.11.4'
+        testImplementation(platform("org.junit:junit-bom:5.12.1"))
+        testImplementation 'org.junit.jupiter:junit-jupiter'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
         testCompileOnly 'org.jetbrains:annotations:26.0.2'
     }
 
@@ -130,7 +130,7 @@ subprojects {
 
     // Fabric-specific configuration
     if (project.parent?.name?.equals('fabric')) {
-        apply plugin: 'fabric-loom'
+        apply plugin: 'dev.architectury.loom'
         compileJava.options.release.set 21
         version += "+mc.${project.name}"
     }

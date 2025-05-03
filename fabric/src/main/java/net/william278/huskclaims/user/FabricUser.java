@@ -90,7 +90,7 @@ public class FabricUser extends OnlineUser {
 
     private Optional<Integer> getCustomModelData(@NotNull ItemStack i) {
         final CustomModelDataComponent modelData = i.getComponents().get(DataComponentTypes.CUSTOM_MODEL_DATA);
-        //#if MC==12104
+        //#if MC>=12104
         if (modelData != null && !modelData.floats().isEmpty()) {
             return Optional.of(modelData.floats().getFirst().intValue());
         //#else
