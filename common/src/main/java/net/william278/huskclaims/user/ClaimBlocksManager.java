@@ -55,14 +55,27 @@ public interface ClaimBlocksManager {
                 .orElseThrow(() -> new IllegalArgumentException("Couldn't get cached claim blocks for: " + uuid));
     }
 
+    private long getCachedSpentClaimBlocks(@NotNull UUID uuid) {
+        return getCachedSavedUser(uuid).map(SavedUser::getSpentClaimBlocks)
+                .orElseThrow(() -> new IllegalArgumentException("Couldn't get cached spent claim blocks for: " + uuid));
+    }
+
     default long getCachedClaimBlocks(@NotNull OnlineUser user) {
         return getCachedClaimBlocks(user.getUuid());
     }
+
+    default long getCachedSpentClaimBlocks(@NotNull OnlineUser user) {return getCachedSpentClaimBlocks(user.getUuid());}
 
     @Blocking
     default long getClaimBlocks(@NotNull UUID uuid) {
         return getSavedUser(uuid).map(SavedUser::getClaimBlocks)
                 .orElseThrow(() -> new IllegalArgumentException("Couldn't get cached/saved claim blocks for: " + uuid));
+    }
+
+    @Blocking
+    default long getSpentClaimBlocks(@NotNull UUID uuid) {
+        return getSavedUser(uuid).map(SavedUser::getSpentClaimBlocks)
+                .orElseThrow(() -> new IllegalArgumentException("Couldn't get cached/saved spent claim blocks for: " + uuid));
     }
 
     @Blocking
@@ -79,11 +92,7 @@ public interface ClaimBlocksManager {
 
         // Calculate block balance
         long originalBlocks = getPlugin().getClaimBlocks(user.getUuid());
-        long spent = getPlugin().getDatabase().getAllClaimWorlds().entrySet().stream()
-                .flatMap(e -> e.getValue().getClaimsByUser(user.getUuid()).stream()
-                        .map(c -> new ServerWorldClaim(e.getKey(), c)))
-                .mapToLong(ServerWorldClaim::getSurfaceArea)
-                .sum();
+        long spent = getPlugin().getSpentClaimBlocks(user.getUuid());
         long currentTotal = originalBlocks + spent;
         long newTotal = consumer.apply(currentTotal);
         long finalTotal = Math.min(newTotal, maxClaimBlocks);
@@ -111,6 +120,23 @@ public interface ClaimBlocksManager {
     default void editClaimBlocks(@NotNull User user, @NotNull SavedUserProvider.ClaimBlockSource source,
                                  @NotNull Function<Long, Long> consumer) {
         editClaimBlocks(user, source, consumer, null);
+    }
+
+    @Blocking
+    default void editSpentClaimBlocks(@NotNull User user, @NotNull SavedUserProvider.ClaimBlockSource ignoredSource,
+                                 @NotNull Function<Long, Long> consumer, @Nullable Consumer<Long> callback) {
+        getPlugin().editSavedUser(user.getUuid(), (savedUser) -> {
+            savedUser.setSpentClaimBlocks(consumer.apply(savedUser.getSpentClaimBlocks()));
+            if (callback != null) {
+                callback.accept(savedUser.getSpentClaimBlocks());
+            }
+        });
+    }
+
+    @Blocking
+    default void editSpentClaimBlocks(@NotNull User user, @NotNull SavedUserProvider.ClaimBlockSource source,
+                                 @NotNull Function<Long, Long> consumer) {
+        editSpentClaimBlocks(user, source, consumer, null);
     }
 
     @Blocking

@@ -133,6 +133,10 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor, ClaimPruner {
                     owner, ClaimBlocksManager.ClaimBlockSource.CLAIM_CREATED,
                     (blocks -> blocks - region.getSurfaceArea())
             );
+            getPlugin().editSpentClaimBlocks(
+                    owner, ClaimBlocksManager.ClaimBlockSource.CLAIM_CREATED,
+                    (blocks) -> (blocks + region.getSurfaceArea())
+            );
         }
         getPlugin().invalidateClaimListCache(owner == null ? null : owner.getUuid());
         return claim;
@@ -193,9 +197,12 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor, ClaimPruner {
         getPlugin().invalidateClaimListCache(claim.getOwner().orElse(null));
 
         // Adjust the owner's claim block count
-        claim.getOwner().flatMap(world::getUser).ifPresent(user -> getPlugin().editClaimBlocks(
-                user, ClaimBlocksManager.ClaimBlockSource.CLAIM_RESIZED, (blocks -> blocks - neededBlocks))
-        );
+        claim.getOwner().flatMap(world::getUser).ifPresent(user -> {
+            getPlugin().editClaimBlocks(
+                    user, ClaimBlocksManager.ClaimBlockSource.CLAIM_RESIZED, (blocks -> blocks - neededBlocks));
+            getPlugin().editSpentClaimBlocks(
+                    user, ClaimBlocksManager.ClaimBlockSource.CLAIM_RESIZED, (blocks) -> (blocks + neededBlocks));
+        });
     }
 
     default void deleteClaim(@NotNull ClaimWorld claimWorld, @NotNull Claim claim) {
@@ -210,9 +217,12 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor, ClaimPruner {
         getPlugin().runQueued(() -> getPlugin().getDatabase().updateClaimWorld(claimWorld));
 
         // Adjust the owner's claim block count
-        claim.getOwner().flatMap(claimWorld::getUser).ifPresent(user -> getPlugin().editClaimBlocks(
-                user, ClaimBlocksManager.ClaimBlockSource.CLAIM_DELETED, (blocks -> blocks + surfaceArea))
-        );
+        claim.getOwner().flatMap(claimWorld::getUser).ifPresent(user -> {
+            getPlugin().editClaimBlocks(
+                    user, ClaimBlocksManager.ClaimBlockSource.CLAIM_DELETED, (blocks -> blocks + surfaceArea));
+            getPlugin().editSpentClaimBlocks(
+                    user, ClaimBlocksManager.ClaimBlockSource.CLAIM_DELETED, (blocks -> blocks - surfaceArea));
+        });
         getPlugin().removeMappedClaim(claim, claimWorld);
         getPlugin().invalidateClaimListCache(claim.getOwner().orElse(null));
     }

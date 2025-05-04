@@ -91,7 +91,7 @@ public class ClaimBlocksCommand extends Command implements UserListTabCompletabl
         // Calculate the user's claim block totals
         long started = settings.getStartingClaimBlocks();
         long available = Math.max(0, plugin.getClaimBlocks(user.getUuid()));
-        long spent = Math.max(0, claims.stream().map(ServerWorldClaim::getSurfaceArea).reduce(0L, Long::sum));
+        long spent = Math.max(0, plugin.getSpentClaimBlocks(user.getUuid()));
         long earned = (available + spent) - started;
         long accrued = started + earned;
 

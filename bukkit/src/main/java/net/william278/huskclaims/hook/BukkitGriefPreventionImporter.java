@@ -126,6 +126,7 @@ public class BukkitGriefPreventionImporter extends Importer {
     }
 
     private int importUsers() {
+        //
         final int totalUsers = getTotalUsers();
         final int totalPages = (int) Math.ceil(totalUsers / (double) USERS_PER_PAGE);
         final List<CompletableFuture<List<GriefPreventionUser>>> userPages = IntStream.rangeClosed(1, totalPages)
@@ -436,7 +437,7 @@ public class BukkitGriefPreventionImporter extends Importer {
 
         @NotNull
         private SavedUser toSavedUser() {
-            return SavedUser.createImported(toUser(), getLastLogin(), claimBlocks);
+            return SavedUser.createImported(toUser(), getLastLogin(), claimBlocks, 0);
         }
 
     }
