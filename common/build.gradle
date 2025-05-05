@@ -22,7 +22,7 @@ dependencies {
     compileOnly 'net.kyori:adventure-api:4.21.0'
     compileOnly 'net.kyori:adventure-platform-api:4.3.4'
     compileOnly 'org.jetbrains:annotations:26.0.2'
-    compileOnly 'com.google.guava:guava:33.4.5-jre'
+    compileOnly 'com.google.guava:guava:33.4.8-jre'
     compileOnly 'org.projectlombok:lombok:1.18.38'
 
     compileOnlyApi 'net.william278.toilet:toilet-common:1.0.13'
@@ -39,7 +39,7 @@ dependencies {
     }
 
     testImplementation 'com.github.plan-player-analytics:Plan:5.6.2965'
-    testImplementation 'com.google.guava:guava:33.4.5-jre'
+    testImplementation 'com.google.guava:guava:33.4.8-jre'
     testImplementation 'it.unimi.dsi:fastutil:8.5.15'
     testCompileOnly 'org.projectlombok:lombok:1.18.38'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.38'
