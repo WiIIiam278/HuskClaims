@@ -22,6 +22,7 @@ package net.william278.huskclaims.database;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.position.ServerWorld;
 import net.william278.huskclaims.position.World;
@@ -29,6 +30,7 @@ import net.william278.huskclaims.trust.UserGroup;
 import net.william278.huskclaims.user.SavedUser;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,6 +41,8 @@ import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -151,6 +155,9 @@ public abstract class Database {
                                 type.name().toLowerCase(Locale.ENGLISH),
                                 migration.getMigrationName()
                         ));
+                        if (migration.getRunnable() != null) {
+                            migration.getRunnable().accept(connection, this);
+                        }
                     } catch (SQLException e) {
                         plugin.log(Level.WARNING, "Migration " + migration.getMigrationName()
                                 + " (v" + migration.getVersion() + ") failed; skipping", e);
@@ -372,26 +379,47 @@ public abstract class Database {
      */
     public enum Migration {
         ADD_METADATA_TABLE(
-                0, "add_metadata_table",
+                0, "add_metadata_table", null,
                 Type.MYSQL, Type.MARIADB, Type.SQLITE
         ),
         REMOVE_HOURS_PLAYED_COLUMN(
-                1, "remove_hours_played_column",
+                1, "remove_hours_played_column", null,
                 Type.MYSQL, Type.MARIADB, Type.SQLITE
         ),
         CONVERT_TO_JSONB(
-                2, "convert_to_jsonb",
+                2, "convert_to_jsonb", null,
                 Type.SQLITE
+        ),
+        ADD_SPENT_CLAIM_BLOCKS_COLUMN(
+                3, "add_spent_claim_blocks_column", (connection, database) -> {
+                    for (ClaimWorld world : database.getAllClaimWorlds().values()) {
+                        for (Claim claim : world.getClaims()) {
+                            if (claim.getOwner().isPresent()) {
+                                database.getUser(claim.getOwner().get()).ifPresent(savedUser -> {
+                                    int surfaceArea = claim.getRegion().getSurfaceArea();
+                                    savedUser.setSpentClaimBlocks(savedUser.getSpentClaimBlocks() + surfaceArea);
+                                });
+                            }
+                        }
+                    }},
+                Type.MYSQL, Type.MARIADB, Type.SQLITE
         );
 
         private final int version;
         private final String migrationName;
         private final Type[] supportedTypes;
+        private final BiConsumer<Connection, Database> runnable;
 
-        Migration(int version, @NotNull String migrationName, @NotNull Type... supportedTypes) {
+        Migration(int version, @NotNull String migrationName, @Nullable BiConsumer<Connection, Database> runnable,
+                  @NotNull Type... supportedTypes) {
             this.version = version;
             this.migrationName = migrationName;
             this.supportedTypes = supportedTypes;
+            this.runnable = runnable;
+        }
+
+        private BiConsumer<Connection, Database> getRunnable() {
+            return runnable;
         }
 
         private int getVersion() {
@@ -416,7 +444,6 @@ public abstract class Database {
         public static int getLatestVersion() {
             return getOrderedMigrations().get(getOrderedMigrations().size() - 1).getVersion();
         }
-
     }
 
 }
