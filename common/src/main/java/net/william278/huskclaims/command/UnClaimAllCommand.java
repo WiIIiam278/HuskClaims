@@ -130,6 +130,7 @@ public class UnClaimAllCommand extends OnlineUserCommand implements UserListTabC
             long reclaimedBlocks = claims.stream().mapToLong(ServerWorldClaim::getSurfaceArea).sum();
             plugin.deleteAllClaims(executor, user);
             plugin.editClaimBlocks(user, ClaimBlocksManager.ClaimBlockSource.CLAIM_DELETED, (blocks) -> blocks + reclaimedBlocks);
+            plugin.editSpentClaimBlocks(user, ClaimBlocksManager.ClaimBlockSource.CLAIM_DELETED, (blocks) -> 0L);
             plugin.getLocales().getLocale("delete_all_claims", user.getName(), Integer.toString(claims.size()),
                     Long.toString(reclaimedBlocks)).ifPresent(executor::sendMessage);
             plugin.getHighlighter(executor).stopHighlighting(executor);

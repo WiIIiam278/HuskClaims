@@ -209,7 +209,8 @@ public final class Settings {
                 "Override with the \"huskclaims.hourly_blocks.(amount)\" permission"})
         private long hourlyClaimBlocks = 100;
 
-        @Comment("The maximum number of claim blocks a user can have.")
+        @Comment({"The maximum number of claim blocks a user can have.",
+                "Override with the \"huskclaims.max_claim_blocks.(amount)\" permission"})
         private long maximumClaimBlocks = 9999999;
 
         @Comment({"The maximum amount of land, in claim blocks, that can be affected at once by /claim, /extendclaim,",

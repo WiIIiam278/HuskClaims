@@ -172,6 +172,7 @@ public class BukkitGriefPreventionImporter extends Importer {
                     })
                     .sum();
             user.claimBlocks = Math.max(0, user.claimBlocks - totalArea);
+            user.spentClaimBlocks = totalArea;
 
             saveFutures.add(CompletableFuture.runAsync(
                     () -> {
@@ -360,6 +361,7 @@ public class BukkitGriefPreventionImporter extends Importer {
                             UUID.fromString(resultSet.getString("name")),
                             resultSet.getTimestamp("lastlogin"),
                             resultSet.getInt("claimblocks"),
+                            0,
                             (BukkitHuskClaims) plugin
                     ));
                 }
@@ -407,12 +409,14 @@ public class BukkitGriefPreventionImporter extends Importer {
         private String name;
         private final Timestamp lastLogin;
         private int claimBlocks;
+        private int spentClaimBlocks;
 
         private GriefPreventionUser(@NotNull UUID uuid, @NotNull Timestamp lastLogin, int claimBlocks,
-                                    @NotNull BukkitHuskClaims plugin) {
+                                    int spentClaimBlocks, @NotNull BukkitHuskClaims plugin) {
             this.uuid = uuid;
             this.lastLogin = lastLogin;
             this.claimBlocks = claimBlocks;
+            this.spentClaimBlocks = spentClaimBlocks;
 
             final OfflinePlayer player = plugin.getServer().getOfflinePlayer(uuid);
             if (player.hasPlayedBefore()) {
@@ -436,7 +440,7 @@ public class BukkitGriefPreventionImporter extends Importer {
 
         @NotNull
         private SavedUser toSavedUser() {
-            return SavedUser.createImported(toUser(), getLastLogin(), claimBlocks);
+            return SavedUser.createImported(toUser(), getLastLogin(), claimBlocks, spentClaimBlocks);
         }
 
     }

@@ -20,6 +20,7 @@
 package net.william278.huskclaims.user;
 
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.claim.ServerWorldClaim;
 import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.NotNull;
@@ -39,6 +40,7 @@ public interface ClaimBlocksManager {
 
     // Permission to grant hourly claim blocks
     String HOURLY_BLOCKS_PERMISSION = "huskclaims.hourly_blocks.";
+    String MAX_CLAIM_BLOCKS_PERMISSION = "huskclaims.max_claim_blocks.";
 
     Optional<SavedUser> getCachedSavedUser(@NotNull UUID uuid);
 
@@ -53,9 +55,16 @@ public interface ClaimBlocksManager {
                 .orElseThrow(() -> new IllegalArgumentException("Couldn't get cached claim blocks for: " + uuid));
     }
 
+    private long getCachedSpentClaimBlocks(@NotNull UUID uuid) {
+        return getCachedSavedUser(uuid).map(SavedUser::getSpentClaimBlocks)
+                .orElseThrow(() -> new IllegalArgumentException("Couldn't get cached spent claim blocks for: " + uuid));
+    }
+
     default long getCachedClaimBlocks(@NotNull OnlineUser user) {
         return getCachedClaimBlocks(user.getUuid());
     }
+
+    default long getCachedSpentClaimBlocks(@NotNull OnlineUser user) {return getCachedSpentClaimBlocks(user.getUuid());}
 
     @Blocking
     default long getClaimBlocks(@NotNull UUID uuid) {
@@ -64,17 +73,30 @@ public interface ClaimBlocksManager {
     }
 
     @Blocking
+    default long getSpentClaimBlocks(@NotNull UUID uuid) {
+        return getSavedUser(uuid).map(SavedUser::getSpentClaimBlocks)
+                .orElseThrow(() -> new IllegalArgumentException("Couldn't get cached/saved spent claim blocks for: " + uuid));
+    }
+
+    @Blocking
     default void editClaimBlocks(@NotNull User user, @NotNull SavedUserProvider.ClaimBlockSource source,
                                  @NotNull Function<Long, Long> consumer, @Nullable Consumer<Long> callback) {
         // Determine max claim blocks
         long maxClaimBlocks = getPlugin().getSettings().getClaims().getMaximumClaimBlocks();
+        if (user instanceof OnlineUser onlineUser) {
+            maxClaimBlocks = onlineUser.getNumericalPermission(MAX_CLAIM_BLOCKS_PERMISSION).orElse(maxClaimBlocks);
+        }
         if (maxClaimBlocks < 0) {
             maxClaimBlocks = Long.MAX_VALUE;
         }
 
         // Calculate block balance
-        final long originalBlocks = getClaimBlocks(user.getUuid());
-        final long newBlocks = Math.min(consumer.apply(originalBlocks), maxClaimBlocks);
+        long originalBlocks = getPlugin().getClaimBlocks(user.getUuid());
+        long spent = getPlugin().getSpentClaimBlocks(user.getUuid());
+        long currentTotal = originalBlocks + spent;
+        long newTotal = consumer.apply(currentTotal);
+        long finalTotal = Math.min(newTotal, maxClaimBlocks);
+        final long newBlocks = finalTotal - spent;
         if (newBlocks < 0) {
             throw new IllegalArgumentException("Claim blocks cannot be negative (%s)".formatted(newBlocks));
         }
@@ -98,6 +120,23 @@ public interface ClaimBlocksManager {
     default void editClaimBlocks(@NotNull User user, @NotNull SavedUserProvider.ClaimBlockSource source,
                                  @NotNull Function<Long, Long> consumer) {
         editClaimBlocks(user, source, consumer, null);
+    }
+
+    @Blocking
+    default void editSpentClaimBlocks(@NotNull User user, @NotNull SavedUserProvider.ClaimBlockSource ignoredSource,
+                                 @NotNull Function<Long, Long> consumer, @Nullable Consumer<Long> callback) {
+        getPlugin().editSavedUser(user.getUuid(), (savedUser) -> {
+            savedUser.setSpentClaimBlocks(consumer.apply(savedUser.getSpentClaimBlocks()));
+            if (callback != null) {
+                callback.accept(savedUser.getSpentClaimBlocks());
+            }
+        });
+    }
+
+    @Blocking
+    default void editSpentClaimBlocks(@NotNull User user, @NotNull SavedUserProvider.ClaimBlockSource source,
+                                 @NotNull Function<Long, Long> consumer) {
+        editSpentClaimBlocks(user, source, consumer, null);
     }
 
     @Blocking
