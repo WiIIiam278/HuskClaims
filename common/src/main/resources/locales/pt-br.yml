@@ -215,7 +215,7 @@ locales:
   trapped_teleporting: '[Teleportando você com segurança para fora do terreno…](#00fb9a)'
   untrust_command_description: 'Remove do terreno a autorização de acesso de um jogador.'
   trustlist_command_description: 'Mostra a lista de jogadores autorizados no terreno.'
-  group_command_description: 'Cria e gerencia grupos de jogadores.'
+  usergroup_command_description: 'Cria e gerencia grupos de jogadores.'
   unclaim_command_description: 'Deleta o terreno que você está dentro.'
   claimslist_command_description: 'Mostra uma lista dos terrenos de jogadores.'
   adminclaimslist_command_description: 'Mostra uma lista dos terrenos administrativos.'

@@ -33,6 +33,15 @@ These permissions restrict the ability to create certain types of claims. See [[
 | `huskclaims.admin_claim` | Create admin claims, **and manage all other admin claims.**     |    ❌    |
 | `huskclaims.child_claim` | Create child claims; sub-divisons of land within parent claims. |    ✅    |
 
+## Claim Blocks
+These numerical permissions let you control the number of [[claim blocks]] to award players each hour, and specify the upper limit. By default, these permission nodes are not granted and the [[config]] file defaults are used for all players.
+
+| Permission                             | Description                                                                            |
+|----------------------------------------|----------------------------------------------------------------------------------------|
+| `huskclaims.hourly_blocks.(amount)`    | Specify the integer `(amount)` of claim blocks this player should receive hourly.      |
+| `huskclaims.max_claim_blocks.(amount)` | Specify the maximum integer `(amount)` of claim blocks this player can have and spend. |
+
+
 ## Trust Tags
 These permissions restrict being able to use certain trust tags when granting trust to other players. See [[Trust]] for more details on trust tags.
 

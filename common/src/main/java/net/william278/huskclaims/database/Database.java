@@ -29,6 +29,7 @@ import net.william278.huskclaims.trust.UserGroup;
 import net.william278.huskclaims.user.SavedUser;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,6 +40,7 @@ import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -151,6 +153,7 @@ public abstract class Database {
                                 type.name().toLowerCase(Locale.ENGLISH),
                                 migration.getMigrationName()
                         ));
+                        migration.executeRunnable(this);
                     } catch (SQLException e) {
                         plugin.log(Level.WARNING, "Migration " + migration.getMigrationName()
                                 + " (v" + migration.getVersion() + ") failed; skipping", e);
@@ -382,16 +385,40 @@ public abstract class Database {
         CONVERT_TO_JSONB(
                 2, "convert_to_jsonb",
                 Type.SQLITE
+        ),
+        ADD_SPENT_CLAIM_BLOCKS_COLUMN(
+                3, "add_spent_claim_blocks_column",
+                (database) -> database.getAllClaimWorlds().values().forEach(world -> world
+                        .getClaims().stream().filter(claim -> claim.getOwner().isPresent())
+                        .forEach(claim -> database.getUser(claim.getOwner().get())
+                                .ifPresent(saved -> saved.setSpentClaimBlocks(
+                                        saved.getSpentClaimBlocks() + claim.getRegion().getSurfaceArea()
+                                ))
+                        )),
+                Type.MYSQL, Type.MARIADB, Type.SQLITE
         );
 
         private final int version;
         private final String migrationName;
         private final Type[] supportedTypes;
+        private final Consumer<Database> runnable;
 
-        Migration(int version, @NotNull String migrationName, @NotNull Type... supportedTypes) {
+        Migration(int version, @NotNull String migrationName, @Nullable Consumer<Database> runnable,
+                  @NotNull Type... supportedTypes) {
             this.version = version;
             this.migrationName = migrationName;
             this.supportedTypes = supportedTypes;
+            this.runnable = runnable;
+        }
+
+        Migration(int version, @NotNull String migrationName, @NotNull Type... supportedTypes) {
+            this(version, migrationName, null, supportedTypes);
+        }
+
+        private void executeRunnable(@NotNull Database database) {
+            if (runnable != null) {
+                runnable.accept(database);
+            }
         }
 
         private int getVersion() {
@@ -416,7 +443,6 @@ public abstract class Database {
         public static int getLatestVersion() {
             return getOrderedMigrations().get(getOrderedMigrations().size() - 1).getVersion();
         }
-
     }
 
 }

@@ -47,12 +47,15 @@ public class SavedUser {
     @Range(from = 0, to = MAX_CLAIM_BLOCKS)
     private long claimBlocks;
     @Setter
+    @Range(from = 0, to = MAX_CLAIM_BLOCKS)
+    private long spentClaimBlocks;
+    @Setter
     @Deprecated(since = "1.4.5", forRemoval = true)
     private int hoursPlayed;
 
     public SavedUser(@NotNull User user, @NotNull Preferences preferences,
-                     @NotNull OffsetDateTime lastLogin, long claimBlocks) {
-        this(user, preferences, lastLogin, claimBlocks, 0);
+                     @NotNull OffsetDateTime lastLogin, long claimBlocks, long spentClaimBlocks) {
+        this(user, preferences, lastLogin, claimBlocks, spentClaimBlocks, 0);
     }
 
     public long getDaysSinceLastLogin() {
@@ -73,7 +76,8 @@ public class SavedUser {
                 user,
                 Preferences.DEFAULTS,
                 OffsetDateTime.now(),
-                plugin.getSettings().getClaims().getStartingClaimBlocks()
+                plugin.getSettings().getClaims().getStartingClaimBlocks(),
+                0
         );
     }
 
@@ -87,12 +91,13 @@ public class SavedUser {
      * @since 1.0.3
      */
     @NotNull
-    public static SavedUser createImported(@NotNull User user, @NotNull OffsetDateTime lastLogin, int claimBlocks) {
+    public static SavedUser createImported(@NotNull User user, @NotNull OffsetDateTime lastLogin, int claimBlocks, int spentClaimBlocks) {
         return new SavedUser(
                 user,
                 Preferences.IMPORTED,
                 lastLogin,
-                claimBlocks
+                claimBlocks,
+                spentClaimBlocks
         );
     }
 

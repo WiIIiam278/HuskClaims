@@ -206,7 +206,7 @@ public class SqLiteDatabase extends Database {
     @Override
     public Optional<SavedUser> getUser(@NotNull UUID uuid) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `uuid`, `username`, `last_login`, `claim_blocks`, json(`preferences`) AS preferences
+                SELECT `uuid`, `username`, `last_login`, `claim_blocks`, json(`preferences`) AS preferences, `spent_claim_blocks`
                 FROM `%user_data%`
                 WHERE uuid = ?"""))) {
             statement.setString(1, uuid.toString());
@@ -219,7 +219,8 @@ public class SqLiteDatabase extends Database {
                         plugin.getPreferencesFromJson(preferences),
                         resultSet.getTimestamp("last_login").toLocalDateTime()
                                 .atOffset(OffsetDateTime.now().getOffset()),
-                        resultSet.getLong("claim_blocks")
+                        resultSet.getLong("claim_blocks"),
+                        resultSet.getLong("spent_claim_blocks")
                 ));
             }
         } catch (SQLException e) {
@@ -231,7 +232,7 @@ public class SqLiteDatabase extends Database {
     @Override
     public Optional<SavedUser> getUser(@NotNull String username) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `uuid`, `username`, `last_login`, `claim_blocks`, json(`preferences`) AS preferences
+                SELECT `uuid`, `username`, `last_login`, `claim_blocks`, json(`preferences`) AS preferences, `spent_claim_blocks`
                 FROM `%user_data%`
                 WHERE `username` = ?"""))) {
             statement.setString(1, username);
@@ -245,7 +246,8 @@ public class SqLiteDatabase extends Database {
                         plugin.getPreferencesFromJson(preferences),
                         resultSet.getTimestamp("last_login").toLocalDateTime()
                                 .atOffset(OffsetDateTime.now().getOffset()),
-                        resultSet.getLong("claim_blocks")
+                        resultSet.getLong("claim_blocks"),
+                        resultSet.getLong("spent_claim_blocks")
                 ));
             }
         } catch (SQLException e) {
@@ -258,7 +260,7 @@ public class SqLiteDatabase extends Database {
     public List<SavedUser> getInactiveUsers(long daysInactive) {
         final List<SavedUser> inactiveUsers = Lists.newArrayList();
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                SELECT `uuid`, `username`, `last_login`, `claim_blocks`, json(`preferences`) AS preferences
+                SELECT `uuid`, `username`, `last_login`, `claim_blocks`, json(`preferences`) AS preferences, `spent_claim_blocks`
                 FROM `%user_data%`
                 WHERE datetime(`last_login` / 1000, 'unixepoch') < datetime('now', ?);"""))) {
             statement.setString(1, String.format("-%d days", daysInactive));
@@ -272,7 +274,8 @@ public class SqLiteDatabase extends Database {
                         plugin.getPreferencesFromJson(preferences),
                         resultSet.getTimestamp("last_login").toLocalDateTime()
                                 .atOffset(OffsetDateTime.now().getOffset()),
-                        resultSet.getLong("claim_blocks")
+                        resultSet.getLong("claim_blocks"),
+                        resultSet.getLong("spent_claim_blocks")
                 ));
             }
         } catch (SQLException e) {
@@ -285,14 +288,15 @@ public class SqLiteDatabase extends Database {
     @Override
     public void createUser(@NotNull SavedUser saved) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                    INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`, `preferences`)
-                    VALUES (?, ?, ?, ?, jsonb(?))"""))) {
+                    INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`, `preferences`, `spent_claim_blocks`)
+                    VALUES (?, ?, ?, ?, jsonb(?), ?)"""))) {
             statement.setString(1, saved.getUser().getUuid().toString());
             statement.setString(2, saved.getUser().getName());
             statement.setTimestamp(3, Timestamp.valueOf(saved.getLastLogin().toLocalDateTime()));
             statement.setLong(4, saved.getClaimBlocks());
             statement.setBytes(5, plugin.getGson().toJson(saved.getPreferences())
                     .getBytes(StandardCharsets.UTF_8));
+            statement.setLong(6, saved.getSpentClaimBlocks());
             statement.executeUpdate();
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to create user in table", e);
@@ -303,12 +307,13 @@ public class SqLiteDatabase extends Database {
     public void updateUser(@NotNull SavedUser user) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 UPDATE `%user_data%`
-                SET `claim_blocks` = ?, `preferences` = jsonb(?)
+                SET `claim_blocks` = ?, `preferences` = jsonb(?), `spent_claim_blocks` = ?
                 WHERE `uuid` = ?"""))) {
             statement.setLong(1, user.getClaimBlocks());
             statement.setBytes(2, plugin.getGson().toJson(user.getPreferences())
                     .getBytes(StandardCharsets.UTF_8));
             statement.setString(3, user.getUser().getUuid().toString());
+            statement.setLong(4, user.getSpentClaimBlocks());
             statement.executeUpdate();
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to update Saved User data in table", e);
@@ -318,19 +323,21 @@ public class SqLiteDatabase extends Database {
     @Override
     public void createOrUpdateUser(@NotNull SavedUser saved) {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
-                INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`, `preferences`)
-                VALUES (?, ?, ?, ?, jsonb(?))
-                ON CONFLICT(`uuid`) DO UPDATE SET `username` = ?, `last_login` = ?, `claim_blocks` = ?, `preferences` = jsonb(?);"""))) {
+                INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`, `preferences`, `spent_claim_blocks`)
+                VALUES (?, ?, ?, ?, jsonb(?), ?)
+                ON CONFLICT(`uuid`) DO UPDATE SET `username` = ?, `last_login` = ?, `claim_blocks` = ?, `preferences` = jsonb(?), `spent_claim_blocks` = ?;"""))) {
             final byte[] prefs = plugin.getGson().toJson(saved.getPreferences()).getBytes(StandardCharsets.UTF_8);
             statement.setString(1, saved.getUser().getUuid().toString());
             statement.setString(2, saved.getUser().getName());
             statement.setTimestamp(3, Timestamp.valueOf(saved.getLastLogin().toLocalDateTime()));
             statement.setLong(4, saved.getClaimBlocks());
             statement.setBytes(5, prefs);
-            statement.setString(6, saved.getUser().getName());
-            statement.setTimestamp(7, Timestamp.valueOf(saved.getLastLogin().toLocalDateTime()));
-            statement.setLong(8, saved.getClaimBlocks());
-            statement.setBytes(9, prefs);
+            statement.setLong(6, saved.getSpentClaimBlocks());
+            statement.setString(7, saved.getUser().getName());
+            statement.setTimestamp(8, Timestamp.valueOf(saved.getLastLogin().toLocalDateTime()));
+            statement.setLong(9, saved.getClaimBlocks());
+            statement.setBytes(10, prefs);
+            statement.setLong(11, saved.getSpentClaimBlocks());
             statement.executeUpdate();
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to create or update user in table", e);

@@ -15,11 +15,12 @@ CREATE TABLE IF NOT EXISTS `%meta_data%`
 # Create the users table if it does not exist
 CREATE TABLE IF NOT EXISTS `%user_data%`
 (
-    `uuid`         char(36)    NOT NULL UNIQUE,
-    `username`     varchar(16) NOT NULL,
-    `last_login`   timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `claim_blocks` bigint      NOT NULL DEFAULT 0,
-    `preferences`  longblob    NOT NULL,
+    `uuid`               char(36)    NOT NULL UNIQUE,
+    `username`           varchar(16) NOT NULL,
+    `last_login`         timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `claim_blocks`       bigint      NOT NULL DEFAULT 0,
+    `preferences`        longblob    NOT NULL,
+    `spent_claim_blocks` bigint      NOT NULL DEFAULT 0,
 
     PRIMARY KEY (`uuid`)
 ) ENGINE = InnoDB

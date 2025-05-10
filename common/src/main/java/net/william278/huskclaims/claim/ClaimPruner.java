@@ -112,11 +112,18 @@ public interface ClaimPruner {
     // Refunds claim blocks based on a user map of blocks to refund
     @Blocking
     private void refundPrunedBlocks(@NotNull Map<User, Long> blocksToRefund) {
-        blocksToRefund.forEach((user, blocks) -> getPlugin().editClaimBlocks(
-                user,
-                ClaimBlockSource.CLAIMS_DELETED_PRUNED,
-                (b -> b + blocks)
-        ));
+        blocksToRefund.forEach((user, blocks) -> {
+            getPlugin().editClaimBlocks(
+                    user,
+                    ClaimBlockSource.CLAIMS_DELETED_PRUNED,
+                    (b -> b + blocks)
+            );
+            getPlugin().editSpentClaimBlocks(
+                    user,
+                    ClaimBlockSource.CLAIMS_DELETED_PRUNED,
+                    (b -> b - blocks)
+            );
+        });
     }
 
     @NotNull

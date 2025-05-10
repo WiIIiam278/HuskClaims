@@ -136,6 +136,7 @@ claims:
   # Override with the "huskclaims.hourly_blocks.(amount)" permission
   hourly_claim_blocks: 100
   # The maximum number of claim blocks a user can have.
+  # Override with the "huskclaims.max_claim_blocks.(amount)" permission
   maximum_claim_blocks: 9999999
   # The maximum amount of land, in claim blocks, that can be affected at once by /claim, /extendclaim,
   # or the claim tool. Increasing this can affect performance when users claim lots of land at once. 
@@ -193,8 +194,8 @@ operation_groups:
     toggle_command_aliases:
       - claimexplosions
     allowed_operations:
-      - explosion_damage_terrain
       - monster_damage_terrain
+      - explosion_damage_terrain
 # Settings for user groups, letting users quickly manage trust for groups of multiple players at once
 user_groups:
   # Whether to enable user groups
@@ -252,7 +253,7 @@ pets:
 # Settings for moderation tools
 moderation:
   signs:
-    # Whether to notify users with /signspy on when signs are placed.edited. Requires Minecraft 1.19.4+Requires Minecraft 1.19.4+
+    # Whether to notify users with /signspy on when signs are placed/edited. Requires Minecraft 1.19.4+
     notify_moderators: true
     # Whether to filter messages
     filter_messages: false

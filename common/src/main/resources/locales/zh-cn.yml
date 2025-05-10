@@ -215,7 +215,7 @@ locales:
   trapped_teleporting: '[正在将你安全地传送出领地外…](#00fb9a)'
   untrust_command_description: '撤回对指定玩家的领地信任.'
   trustlist_command_description: '浏览领地的受信任玩家列表.'
-  group_command_description: '创建并管理玩家组.'
+  usergroup_command_description: '创建并管理玩家组.'
   unclaim_command_description: '删除你所处的领地.'
   claimslist_command_description: '浏览公开的玩家领地.'
   adminclaimslist_command_description: '浏览管理员领地.'
