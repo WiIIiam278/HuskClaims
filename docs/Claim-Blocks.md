@@ -2,7 +2,7 @@ Claim Blocks (■) are a special currency that HuskClaims provides that limit ho
 
 When a user creates a claim, a number of claim blocks equal to the lateral rectangular surface area of the claim will be deducted from the player's balance. Removing a claim will refund the player the claim blocks that were used to create it; resizing a claim will either refund or charge the user additional claim blocks based on the claim's change in surface area after the resize. Users will not be permitted to create or resize a claim if they lack the sufficient number of claim blocks.
 
-Neither child claims nor admin claims cost claim blocks to create.
+Neither child claims nor admin claims cost claim blocks to create. On servers running HuskClaims using cross-server mode, claim blocks will be globally synchronised.
 
 ## Claim Block Accrual
 By default, players accrue 100 claim blocks for every hour they play on the server. This can be changed in the config file:
@@ -17,7 +17,20 @@ hourly_claim_blocks: 100
 ```
 </details>
 
-This value can additionally be overridden by granting the `huskclaims.hourly_blocks.(amount)` permission node to a user/group, where `(amount)` is the number of claim blocks to grant that user hourly. Note this permission node does not stack; the value of the highest effective permission will be taken. On servers running HuskClaims using cross-server mode, claim blocks will be globally synchronised.
+This value can additionally be overridden by granting the `huskclaims.hourly_blocks.(amount)` [permission](permissions) node to a user/group, where `(amount)` is the number of claim blocks to grant that user hourly. Note this permission node does not stack; the value of the highest effective permission will be taken.
+
+## Maximum claim blocks
+By default, the maximum number of claim blocks a user can have is 9,999,999 (or just under 10 million). This value includes both spent and unspent claim blocks.
+
+As claim blocks are required for users to create claims, this effectively puts a cap on the maximum surface of your worlds a player can claim in total. This value can be adjusted in the `config.yml` file.
+
+```yaml
+# The maximum number of claim blocks a user can have.
+# Override with the "huskclaims.max_claim_blocks.(amount)" permission
+maximum_claim_blocks: 9999999
+```
+
+This value can additionally be overridden by granting the `huskclaims.max_claim_blocks.(amount)` [permission](permissions) node to a user/group, where `(amount)` is the maximum number of blocks a player can have. Note this permission node does not stack; the value of the highest effective permission will be taken.
 
 ## Buying Claim Blocks
 If the Vault ("economy") hook is enabled, and you have an economy plugin installed, players can buy claim blocks with the `/buyclaimblocks (amount)` command. The cost of buying claim blocks can be configured in the config file, and is `1.0` unit of currency by default:
