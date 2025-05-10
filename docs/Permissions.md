@@ -27,11 +27,11 @@ These permissions restrict the ability to inspect claims.
 ## Claims
 These permissions restrict the ability to create certain types of claims. See [[Claims]] for more details on claiming land. It is also possible to disable creating admin/child claims in the plugin config.
 
-| Permission               | Description                                                     | Default |
-|--------------------------|-----------------------------------------------------------------|:-------:|
-| `huskclaims.claim`       | Create regular user-owned claims.                               |    ✅    |
-| `huskclaims.admin_claim` | Create admin claims, **and manage all other admin claims.**     |    ❌    |
-| `huskclaims.child_claim` | Create child claims; sub-divisons of land within parent claims. |    ✅    |
+| Permission               | Description                                                      | Default |
+|--------------------------|------------------------------------------------------------------|:-------:|
+| `huskclaims.claim`       | Create regular user-owned claims.                                |    ✅    |
+| `huskclaims.admin_claim` | Create admin claims, **and manage all other admin claims.**      |    ❌    |
+| `huskclaims.child_claim` | Create child claims; sub-divisions of land within parent claims. |    ✅    |
 
 ## Claim Blocks
 These numerical permissions let you control the number of [[claim blocks]] to award players each hour, and specify the upper limit. By default, these permission nodes are not granted and the [[config]] file defaults are used for all players.
