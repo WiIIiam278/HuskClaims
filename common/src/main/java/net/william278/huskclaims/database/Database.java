@@ -22,7 +22,6 @@ package net.william278.huskclaims.database;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import net.william278.huskclaims.HuskClaims;
-import net.william278.huskclaims.claim.Claim;
 import net.william278.huskclaims.claim.ClaimWorld;
 import net.william278.huskclaims.position.ServerWorld;
 import net.william278.huskclaims.position.World;
@@ -41,7 +40,6 @@ import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
@@ -155,9 +153,7 @@ public abstract class Database {
                                 type.name().toLowerCase(Locale.ENGLISH),
                                 migration.getMigrationName()
                         ));
-                        if (migration.getRunnable() != null) {
-                            migration.getRunnable().accept(connection, this);
-                        }
+                        migration.executeRunnable(this);
                     } catch (SQLException e) {
                         plugin.log(Level.WARNING, "Migration " + migration.getMigrationName()
                                 + " (v" + migration.getVersion() + ") failed; skipping", e);
@@ -379,38 +375,35 @@ public abstract class Database {
      */
     public enum Migration {
         ADD_METADATA_TABLE(
-                0, "add_metadata_table", null,
+                0, "add_metadata_table",
                 Type.MYSQL, Type.MARIADB, Type.SQLITE
         ),
         REMOVE_HOURS_PLAYED_COLUMN(
-                1, "remove_hours_played_column", null,
+                1, "remove_hours_played_column",
                 Type.MYSQL, Type.MARIADB, Type.SQLITE
         ),
         CONVERT_TO_JSONB(
-                2, "convert_to_jsonb", null,
+                2, "convert_to_jsonb",
                 Type.SQLITE
         ),
         ADD_SPENT_CLAIM_BLOCKS_COLUMN(
-                3, "add_spent_claim_blocks_column", (connection, database) -> {
-                    for (ClaimWorld world : database.getAllClaimWorlds().values()) {
-                        for (Claim claim : world.getClaims()) {
-                            if (claim.getOwner().isPresent()) {
-                                database.getUser(claim.getOwner().get()).ifPresent(savedUser -> {
-                                    int surfaceArea = claim.getRegion().getSurfaceArea();
-                                    savedUser.setSpentClaimBlocks(savedUser.getSpentClaimBlocks() + surfaceArea);
-                                });
-                            }
-                        }
-                    }},
+                3, "add_spent_claim_blocks_column",
+                (database) -> database.getAllClaimWorlds().values().forEach(world -> world
+                        .getClaims().stream().filter(claim -> claim.getOwner().isPresent())
+                        .forEach(claim -> database.getUser(claim.getOwner().get())
+                                .ifPresent(saved -> saved.setSpentClaimBlocks(
+                                        saved.getSpentClaimBlocks() + claim.getRegion().getSurfaceArea()
+                                ))
+                        )),
                 Type.MYSQL, Type.MARIADB, Type.SQLITE
         );
 
         private final int version;
         private final String migrationName;
         private final Type[] supportedTypes;
-        private final BiConsumer<Connection, Database> runnable;
+        private final Consumer<Database> runnable;
 
-        Migration(int version, @NotNull String migrationName, @Nullable BiConsumer<Connection, Database> runnable,
+        Migration(int version, @NotNull String migrationName, @Nullable Consumer<Database> runnable,
                   @NotNull Type... supportedTypes) {
             this.version = version;
             this.migrationName = migrationName;
@@ -418,8 +411,14 @@ public abstract class Database {
             this.runnable = runnable;
         }
 
-        private BiConsumer<Connection, Database> getRunnable() {
-            return runnable;
+        Migration(int version, @NotNull String migrationName, @NotNull Type... supportedTypes) {
+            this(version, migrationName, null, supportedTypes);
+        }
+
+        private void executeRunnable(@NotNull Database database) {
+            if (runnable != null) {
+                runnable.accept(database);
+            }
         }
 
         private int getVersion() {
