@@ -215,7 +215,7 @@ locales:
   trapped_teleporting: '[Safely teleporting you out of the claim…](#00fb9a)'
   untrust_command_description: 'Revocă accesul revendicării unui administrator.'
   trustlist_command_description: 'Vezi lista de administratori ale revendicării.'
-  group_command_description: 'Creează și gestionează grupuri de jucători.'
+  usergroup_command_description: 'Creează și gestionează grupuri de jucători.'
   unclaim_command_description: 'Șterge revendicarea în care staționezi.'
   claimslist_command_description: 'Vezi o listă de revendicări ale jucătorilor.'
   adminclaimslist_command_description: 'Vezi o listă de revendicări de admin.'

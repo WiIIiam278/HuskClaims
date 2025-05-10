@@ -215,7 +215,7 @@ locales:
   trapped_teleporting: '[Безопасная телепортация из привата…](#00fb9a)'
   untrust_command_description: 'Отозвать право доверия у игрока.'
   trustlist_command_description: 'Показать список доверенных лиц.'
-  group_command_description: 'Создание и управление группами игроков и их прав.'
+  usergroup_command_description: 'Создание и управление группами игроков и их прав.'
   unclaim_command_description: 'Удалить приват, в котором вы находитесь.'
   claimslist_command_description: 'Показать список приватов игрока.'
   adminclaimslist_command_description: 'Показать список приватов администрации.'

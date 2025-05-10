@@ -215,7 +215,7 @@ locales:
   trapped_teleporting: '[Teletrasporto sicuro fuori dal claim in corso…](#00fb9a)'
   untrust_command_description: 'Revoca l''accesso di un utente a un claim.'
   trustlist_command_description: 'Visualizza la lista degli utenti fidati del claim.'
-  group_command_description: 'Crea e gestisci gruppi di giocatori.'
+  usergroup_command_description: 'Crea e gestisci gruppi di giocatori.'
   unclaim_command_description: 'Elimina il claim in cui ti trovi.'
   claimslist_command_description: 'Visualizza la lista dei claim del giocatore.'
   adminclaimslist_command_description: 'Visualizza la lista dei claim amministrativi.'
