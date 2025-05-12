@@ -25,9 +25,11 @@ import net.william278.cloplib.operation.OperationPosition;
 import net.william278.cloplib.operation.OperationUser;
 import net.william278.cloplib.operation.OperationWorld;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.command.IgnoreClaimsCommand;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.position.World;
 import net.william278.huskclaims.user.OnlineUser;
+import net.william278.huskclaims.user.Preferences;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -41,6 +43,9 @@ public interface ClaimHandler extends Handler {
 
     @Override
     default boolean cancelOperation(@NotNull Operation operation) {
+        if (isOperationIgnored(operation)) {
+            return false;
+        }
         return getClaimWorld((World) operation.getOperationPosition().getWorld())
                 .map(world -> !world.isOperationAllowed(operation, getPlugin()))
                 .orElse(false);
@@ -134,6 +139,25 @@ public interface ClaimHandler extends Handler {
 
         // Otherwise allow it so long as there's no claim at either position
         return !(claim1.isEmpty() && claim2.isEmpty());
+    }
+
+    // Checks if the outcome of an operation is being ignored by its involved user
+    private boolean isOperationIgnored(@NotNull Operation operation) {
+        return operation.getUser().map(user -> isIgnoringClaims((OnlineUser) user)).orElse(false);
+    }
+
+    // Checks if a user is ignoring claims, ensuring they also have permission to ignore claims
+    default boolean isIgnoringClaims(@NotNull OnlineUser u) {
+        boolean toggled = getPlugin().getCachedUserPreferences(u.getUuid()).map(Preferences::isIgnoringClaims).orElse(false);
+        if (toggled && !getPlugin().canUseCommand(IgnoreClaimsCommand.class, u)) {
+            getPlugin().runAsync(() -> {
+                getPlugin().editUserPreferences(u, (preferences) -> preferences.setIgnoringClaims(false));
+                getPlugin().getLocales().getLocale("respecting_claims")
+                        .ifPresent(u::sendMessage);
+            });
+            return false;
+        }
+        return toggled;
     }
 
     Optional<ClaimWorld> getClaimWorld(@NotNull World world);
