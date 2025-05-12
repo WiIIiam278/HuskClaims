@@ -25,7 +25,7 @@ dependencies {
     compileOnly 'com.google.guava:guava:33.4.8-jre'
     compileOnly 'org.projectlombok:lombok:1.18.38'
 
-    compileOnlyApi 'net.william278.toilet:toilet-common:1.0.13'
+    compileOnlyApi 'net.william278.toilet:toilet-common:1.0.13-9605517'
     compileOnlyApi 'net.william278.huskhomes:huskhomes-common:4.9.6'
 
     compileOnly 'net.luckperms:api:5.4'
