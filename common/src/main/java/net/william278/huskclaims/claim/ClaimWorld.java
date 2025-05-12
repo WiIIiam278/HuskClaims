@@ -426,7 +426,7 @@ public class ClaimWorld {
     }
 
     /**
-     * Get if a region is claimed by a specific user
+     * Get if an operation should be allowed in this world
      *
      * @param operation The operation to check
      * @param plugin    The HuskClaims plugin instance
@@ -452,7 +452,7 @@ public class ClaimWorld {
     // Check if a user is banned from a claim
     @ApiStatus.Internal
     public boolean isBannedFromClaim(@NotNull OnlineUser user, @NotNull Claim claim, @NotNull HuskClaims plugin) {
-        if (!plugin.getSettings().getClaims().getBans().isEnabled() || isIgnoringClaims(user, plugin)) {
+        if (!plugin.getSettings().getClaims().getBans().isEnabled() || plugin.isIgnoringClaims(user)) {
             return false;
         }
 
@@ -468,7 +468,7 @@ public class ClaimWorld {
     @ApiStatus.Internal
     public boolean cannotNavigatePrivateClaim(@NotNull OnlineUser user, @NotNull Claim claim,
                                               @NotNull HuskClaims plugin) {
-        if (!plugin.getSettings().getClaims().getBans().isPrivateClaims() || isIgnoringClaims(user, plugin)) {
+        if (!plugin.getSettings().getClaims().getBans().isPrivateClaims() || plugin.isIgnoringClaims(user)) {
             return false;
         }
         if (!claim.isPrivateClaim()) {
@@ -523,7 +523,7 @@ public class ClaimWorld {
     // Check if an operation is allowed in a specific claim
     private boolean isOperationAllowedInClaim(@NotNull Operation operation, @NotNull Claim claim,
                                               @NotNull HuskClaims plugin) {
-        if (isOperationIgnored(operation, plugin) || claim.isOperationAllowed(operation, plugin)) {
+        if (claim.isOperationAllowed(operation, plugin)) {
             return true;
         }
 
@@ -549,25 +549,6 @@ public class ClaimWorld {
                     .ifPresent(((OnlineUser) user)::sendMessage));
         }
         return false;
-    }
-
-    // Checks if the outcome of an operation is being ignored by its involved user
-    private boolean isOperationIgnored(@NotNull Operation operation, @NotNull HuskClaims plugin) {
-        return operation.getUser().map(user -> isIgnoringClaims((OnlineUser) user, plugin)).orElse(false);
-    }
-
-    // Checks if a user is ignoring claims, ensuring they also have permission to ignore claims
-    private boolean isIgnoringClaims(@NotNull OnlineUser u, @NotNull HuskClaims plugin) {
-        boolean toggled = plugin.getCachedUserPreferences(u.getUuid()).map(Preferences::isIgnoringClaims).orElse(false);
-        if (toggled && !plugin.canUseCommand(IgnoreClaimsCommand.class, u)) {
-            plugin.runAsync(() -> {
-                plugin.editUserPreferences(u, (preferences) -> preferences.setIgnoringClaims(false));
-                plugin.getLocales().getLocale("respecting_claims")
-                        .ifPresent(u::sendMessage);
-            });
-            return false;
-        }
-        return toggled;
     }
 
     @Override
