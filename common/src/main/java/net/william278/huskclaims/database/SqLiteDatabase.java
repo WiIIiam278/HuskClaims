@@ -312,8 +312,8 @@ public class SqLiteDatabase extends Database {
             statement.setLong(1, user.getClaimBlocks());
             statement.setBytes(2, plugin.getGson().toJson(user.getPreferences())
                     .getBytes(StandardCharsets.UTF_8));
-            statement.setString(3, user.getUser().getUuid().toString());
-            statement.setLong(4, user.getSpentClaimBlocks());
+            statement.setLong(3, user.getSpentClaimBlocks());
+            statement.setString(4, user.getUser().getUuid().toString());
             statement.executeUpdate();
         } catch (SQLException e) {
             plugin.log(Level.SEVERE, "Failed to update Saved User data in table", e);

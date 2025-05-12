@@ -19,6 +19,7 @@
 
 package net.william278.huskclaims.database;
 
+import com.google.common.collect.Maps;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import net.william278.huskclaims.HuskClaims;
@@ -153,11 +154,11 @@ public abstract class Database {
                                 type.name().toLowerCase(Locale.ENGLISH),
                                 migration.getMigrationName()
                         ));
-                        migration.executeRunnable(this);
                     } catch (SQLException e) {
                         plugin.log(Level.WARNING, "Migration " + migration.getMigrationName()
                                 + " (v" + migration.getVersion() + ") failed; skipping", e);
                     }
+                    migration.executeRunnable(this);
                 }
             }
             setSchemaVersion(latestVersion);
@@ -388,13 +389,25 @@ public abstract class Database {
         ),
         ADD_SPENT_CLAIM_BLOCKS_COLUMN(
                 3, "add_spent_claim_blocks_column",
-                (database) -> database.getAllClaimWorlds().values().forEach(world -> world
-                        .getClaims().stream().filter(claim -> claim.getOwner().isPresent())
-                        .forEach(claim -> database.getUser(claim.getOwner().get())
-                                .ifPresent(saved -> saved.setSpentClaimBlocks(
-                                        saved.getSpentClaimBlocks() + claim.getRegion().getSurfaceArea()
-                                ))
-                        )),
+                (database) -> {
+                    // Update all users to have the correct spent_claim_blocks
+                    final Map<UUID, SavedUser> users = Maps.newHashMap();
+                    for (ClaimWorld world : database.getAllClaimWorlds().values()) {
+                        world.getClaims().stream().filter(c -> c.getOwner().isPresent()).forEach(claim -> {
+                            final UUID owner = claim.getOwner().get();
+                            if (!users.containsKey(owner)) {
+                                database.getUser(owner).ifPresent(user -> users.put(owner, user));
+                            }
+                            final SavedUser user = users.getOrDefault(owner, null);
+                            if (user == null) {
+                                return;
+                            }
+                            user.setSpentClaimBlocks(user.getSpentClaimBlocks() + claim.getRegion().getSurfaceArea());
+                            users.put(owner, user);
+                        });
+                    }
+                    users.values().forEach(database::updateUser);
+                },
                 Type.MYSQL, Type.MARIADB, Type.SQLITE
         );
 
@@ -425,6 +438,7 @@ public abstract class Database {
             return version;
         }
 
+        @NotNull
         private String getMigrationName() {
             return migrationName;
         }
