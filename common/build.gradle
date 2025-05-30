@@ -11,13 +11,13 @@ dependencies {
     api 'com.fatboyindustrial.gson-javatime-serialisers:gson-javatime-serialisers:1.1.2'
     api 'net.william278:minedown:1.8.2'
     api 'net.william278:paginedown:1.1.2'
-    api 'net.william278.cloplib:cloplib-common:2.0.8'
+    api 'net.william278.cloplib:cloplib-common:2.0.9'
     api 'net.william278:DesertWell:2.0.4'
     api('com.zaxxer:HikariCP:6.3.0') {
         exclude module: 'slf4j-api'
     }
 
-    compileOnly 'de.exlll:configlib-yaml:4.6.0'
+    compileOnly 'de.exlll:configlib-yaml:4.6.1'
     compileOnly 'it.unimi.dsi:fastutil:8.5.15'
     compileOnly 'net.kyori:adventure-api:4.21.0'
     compileOnly 'net.kyori:adventure-platform-api:4.4.0'
@@ -28,10 +28,10 @@ dependencies {
     compileOnlyApi 'net.william278.toilet:toilet-common:1.0.13'
     compileOnlyApi 'net.william278.huskhomes:huskhomes-common:4.9.6'
 
-    compileOnly 'net.luckperms:api:5.4'
+    compileOnly 'net.luckperms:api:5.5'
     compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:2.7.0'
     compileOnly 'us.dynmap:DynmapCoreAPI:3.6'
-    compileOnly 'maven.modrinth:pl3xmap:1.21.4-525'
+    compileOnly 'maven.modrinth:pl3xmap:1.21.5-527'
     compileOnly 'com.github.plan-player-analytics:Plan:5.6.2965'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.9-SNAPSHOT'
     compileOnly('org.geysermc.floodgate:api:2.2.4-SNAPSHOT') {
