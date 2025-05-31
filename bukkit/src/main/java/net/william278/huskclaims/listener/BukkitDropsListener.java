@@ -48,7 +48,7 @@ public interface BukkitDropsListener extends Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     default void onItemSpawn(@NotNull ItemSpawnEvent e) {
-        getPlugin().checkDroppedItem(new BukkitGroundItem(e.getEntity()));
+        getPlugin().checkDroppedItem(new BukkitGroundItem(e.getEntity(), getPlugin()));
     }
 
     @NotNull
@@ -76,7 +76,6 @@ public interface BukkitDropsListener extends Listener {
                    && dropLocation.getWorld() != null && this.distance(item) <= DEATH_DROPS_EQUAL_RANGE
                    && item.getStack() != null && item.getStack().equals(getStack());
         }
-
     }
 
     class BukkitGroundItem implements DropsHandler.GroundStack {
@@ -85,11 +84,15 @@ public interface BukkitDropsListener extends Listener {
         @Getter
         private final Item entity;
 
+        @NotNull
+        private final BukkitHuskClaims plugin;
+
         @Nullable
         private UUID owner;
 
-        public BukkitGroundItem(@NotNull Item entity) {
+        public BukkitGroundItem(@NotNull Item entity, @NotNull BukkitHuskClaims plugin) {
             this.entity = entity;
+            this.plugin = plugin;
         }
 
         public void lock(@NotNull UUID owner, boolean preventDestruction) {
@@ -103,8 +106,10 @@ public interface BukkitDropsListener extends Listener {
         }
 
         private void updateEntity(boolean preventDestruction) {
-            entity.setInvulnerable(owner != null && preventDestruction);
-            entity.setOwner(owner);
+            plugin.runSync(entity, () -> {
+                entity.setInvulnerable(owner != null && preventDestruction);
+                entity.setOwner(owner);
+            });
         }
 
         @Override
@@ -112,7 +117,5 @@ public interface BukkitDropsListener extends Listener {
         public DropsHandler.DroppedItem getStack() {
             return new BukkitDroppedItem(entity.getItemStack(), entity.getLocation());
         }
-
     }
-
 }
