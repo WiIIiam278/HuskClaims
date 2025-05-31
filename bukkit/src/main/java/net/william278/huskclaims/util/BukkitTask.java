@@ -21,6 +21,12 @@ package net.william278.huskclaims.util;
 
 import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.position.Position;
+import net.william278.huskclaims.util.folia.FoliaScheduler;
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 import space.arim.morepaperlib.scheduling.GracefulScheduling;
 import space.arim.morepaperlib.scheduling.ScheduledTask;
@@ -144,6 +150,34 @@ public interface BukkitTask extends Task {
         @Override
         default Task.Repeating getRepeatingTask(@NotNull Runnable runnable, @NotNull Duration repeatingTicks, @NotNull Duration delayTicks) {
             return new Repeating(getPlugin(), runnable, repeatingTicks, delayTicks);
+        }
+
+        @Override
+        @NotNull
+        default <T> Task.Sync runSync(T e, @NotNull Runnable runnable) {
+            if (!FoliaScheduler.isFolia()) return runSync(runnable);
+
+            if (e instanceof Entity entity) {
+                FoliaScheduler.getEntityScheduler().run(entity, (BukkitHuskClaims) this.getPlugin(),
+                        $ -> runnable.run(), null);
+            } else if (e instanceof Location location) {
+                FoliaScheduler.getRegionScheduler().run((BukkitHuskClaims) this.getPlugin(),
+                        location, $ -> runnable.run());
+            } else if (e instanceof Chunk chunk) {
+                FoliaScheduler.getRegionScheduler().run((BukkitHuskClaims) this.getPlugin(),
+                        chunk.getWorld(),chunk.getX(), chunk.getZ(),
+                        $ -> runnable.run());
+            } else throw new IllegalArgumentException(
+                        "Entity must be an instance of Bukkit Entity");
+
+            return runSyncDelayed(() -> {}, Duration.ZERO);
+        }
+
+        @Override
+        @NotNull
+        default Task.Sync runSync(Position position, @NotNull Runnable runnable) {
+             return runSync(new Location(Bukkit.getWorld(position.getWorld().getName()),
+                    position.getX(), position.getY(), position.getZ()), runnable);
         }
 
         @Override

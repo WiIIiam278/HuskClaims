@@ -20,6 +20,7 @@
 package net.william278.huskclaims.util;
 
 import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.position.Position;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
@@ -115,6 +116,16 @@ public interface Task extends Runnable {
 
         @NotNull
         default Task.Sync runSync(@NotNull Runnable runnable) {
+            return runSyncDelayed(runnable, Duration.ZERO);
+        }
+
+        @NotNull
+        default <T> Task.Sync runSync(T entity, @NotNull Runnable runnable) {
+            return runSyncDelayed(runnable, Duration.ZERO);
+        }
+
+        @NotNull
+        default Task.Sync runSync(Position position, @NotNull Runnable runnable) {
             return runSyncDelayed(runnable, Duration.ZERO);
         }
 
