@@ -26,7 +26,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.38'
 
     compileOnlyApi 'net.william278.toilet:toilet-common:1.0.13'
-    compileOnlyApi 'net.william278.huskhomes:huskhomes-common:4.9.6'
+    compileOnlyApi 'net.william278.huskhomes:huskhomes-common:4.9.7-77433cc'
 
     compileOnly 'net.luckperms:api:5.5'
     compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:2.7.0'
