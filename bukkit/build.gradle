@@ -19,7 +19,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.38'
     compileOnly 'it.unimi.dsi:fastutil:8.5.15'
 
-    compileOnly 'net.william278.huskhomes:huskhomes-bukkit:4.9.6'
+    compileOnly 'net.william278.huskhomes:huskhomes-bukkit:4.9.7-77433cc'
     compileOnly 'net.william278.husktowns:husktowns-bukkit:3.1-753d263'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
     compileOnly 'me.clip:placeholderapi:2.11.6'
