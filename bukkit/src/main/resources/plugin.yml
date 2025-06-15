@@ -5,6 +5,7 @@ website: 'https://william278.net/project/huskclaims'
 main: 'net.william278.huskclaims.BukkitHuskClaims'
 version: '${version}'
 api-version: 1.17
+folia-supported: true
 libraries:
   - 'redis.clients:jedis:${jedis_version}'
   - 'com.mysql:mysql-connector-j:${mysql_driver_version}'
