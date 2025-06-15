@@ -81,10 +81,20 @@ public interface EventDispatcher extends EventProvider {
         fireEvent(getCreateChildClaimEvent(claimer, parent, childRegion, claimWorld), callback);
     }
 
+    default void firePostCreateChildClaimEvent(@NotNull OnlineUser claimer, @NotNull Claim newChildClaim,
+                                               @NotNull ClaimWorld claimWorld) {
+        fireEvent(getPostCreateChildClaimEvent(claimer, newChildClaim, claimWorld), null);
+    }
+
     default void fireCreateClaimEvent(@NotNull OnlineUser claimer, @Nullable User claimOwner,
                                       @NotNull Region region, @NotNull ClaimWorld claimWorld,
                                       @NotNull Consumer<CreateClaimEvent> callback) {
         fireEvent(getCreateClaimEvent(claimer, claimOwner, region, claimWorld), callback);
+    }
+
+    default void firePostCreateClaimEvent(@NotNull OnlineUser claimer, @NotNull Claim newClaim,
+                                          @NotNull ClaimWorld claimWorld) {
+        fireEvent(getPostCreateClaimEvent(claimer, newClaim, claimWorld), null);
     }
 
     default void fireDeleteAllClaimsEvent(@NotNull OnlineUser deleter, @Nullable User claimOwner,
@@ -157,15 +167,15 @@ public interface EventDispatcher extends EventProvider {
         fireEvent(getClaimUnBanEvent(user, claim, claimWorld, bannedUser), callback);
     }
 
-    default void fireClaimMakePrivateEvent(@NotNull OnlineUser user, @NotNull Claim claim, 
-                                           @NotNull ClaimWorld claimWorld, 
+    default void fireClaimMakePrivateEvent(@NotNull OnlineUser user, @NotNull Claim claim,
+                                           @NotNull ClaimWorld claimWorld,
                                            @NotNull Consumer<ClaimMakePrivateEvent> callback) {
         fireEvent(getClaimMakePrivateEvent(user, claim, claimWorld), callback);
     }
 
     default void fireClaimMakePublicEvent(@NotNull OnlineUser user, @NotNull Claim claim,
-                                           @NotNull ClaimWorld claimWorld,
-                                           @NotNull Consumer<ClaimMakePublicEvent> callback) {
+                                          @NotNull ClaimWorld claimWorld,
+                                          @NotNull Consumer<ClaimMakePublicEvent> callback) {
         fireEvent(getClaimMakePublicEvent(user, claim, claimWorld), callback);
     }
 

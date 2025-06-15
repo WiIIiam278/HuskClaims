@@ -19,17 +19,24 @@
 
 package net.william278.huskclaims.event;
 
-import net.william278.huskclaims.claim.Region;
+import lombok.Getter;
+import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.claim.Claim;
+import net.william278.huskclaims.claim.ClaimWorld;
+import net.william278.huskclaims.user.OnlineUser;
 import org.jetbrains.annotations.NotNull;
 
-public interface ResizeClaimEvent extends OnlineUserEvent, ClaimEvent, CancellableEvent {
+@Getter
+public class BukkitPostCreateChildClaimEvent extends BukkitPlayerEvent implements PostCreateChildClaimEvent {
 
-    @NotNull
-    default Region getOldRegion() {
-        return getClaim().getRegion();
+    private final Claim claim;
+    private final ClaimWorld claimWorld;
+
+    protected BukkitPostCreateChildClaimEvent(@NotNull OnlineUser user, @NotNull Claim claim,
+                                              @NotNull ClaimWorld claimWorld, @NotNull HuskClaims plugin) {
+        super(user, plugin);
+        this.claim = claim;
+        this.claimWorld = claimWorld;
     }
-
-    @NotNull
-    Region getNewRegion();
 
 }

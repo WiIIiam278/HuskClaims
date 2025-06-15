@@ -75,9 +75,24 @@ public interface FabricEventDispatcher extends EventDispatcher {
 
     @Override
     @NotNull
+    default PostCreateChildClaimEvent getPostCreateChildClaimEvent(@NotNull OnlineUser claimer,
+                                                                   @NotNull Claim newChildClaim,
+                                                                   @NotNull ClaimWorld claimWorld) {
+        return new FabricPostCreateChildClaimEvent.Callback(claimer, newChildClaim, claimWorld, getPlugin());
+    }
+
+    @Override
+    @NotNull
     default CreateClaimEvent getCreateClaimEvent(@NotNull OnlineUser claimer, @Nullable User claimOwner,
                                                  @NotNull Region region, @NotNull ClaimWorld claimWorld) {
         return new FabricCreateClaimEvent.Callback(claimer, claimOwner, region, claimWorld, getPlugin());
+    }
+
+    @Override
+    @NotNull
+    default PostCreateClaimEvent getPostCreateClaimEvent(@NotNull OnlineUser claimer, @NotNull Claim newClaim,
+                                                         @NotNull ClaimWorld claimWorld) {
+        return new FabricPostCreateClaimEvent.Callback(claimer, newClaim, claimWorld, getPlugin());
     }
 
     @Override
