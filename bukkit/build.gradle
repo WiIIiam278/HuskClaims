@@ -8,8 +8,8 @@ dependencies {
     implementation 'net.kyori:adventure-platform-bukkit:4.4.0'
     implementation 'io.papermc:paperlib:1.0.8'
     implementation 'space.arim.morepaperlib:morepaperlib:0.4.4'
-    implementation 'net.william278.cloplib:cloplib-bukkit:2.0.9'
-    implementation 'net.william278.toilet:toilet-bukkit:1.0.13'
+    implementation 'net.william278.cloplib:cloplib-bukkit:2.0.11'
+    implementation 'net.william278.toilet:toilet-bukkit:1.0.14'
     implementation 'org.bstats:bstats-bukkit:3.1.0'
     implementation 'de.exlll:configlib-yaml:4.6.1'
 
@@ -19,7 +19,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.38'
     compileOnly 'it.unimi.dsi:fastutil:8.5.15'
 
-    compileOnly 'net.william278.huskhomes:huskhomes-bukkit:4.9.6'
+    compileOnly 'net.william278.huskhomes:huskhomes-bukkit:4.9.8'
     compileOnly 'net.william278.husktowns:husktowns-bukkit:3.1-753d263'
     compileOnly 'com.github.MilkBowl:VaultAPI:1.7.1'
     compileOnly 'me.clip:placeholderapi:2.11.6'

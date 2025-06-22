@@ -19,17 +19,5 @@
 
 package net.william278.huskclaims.event;
 
-import net.william278.huskclaims.claim.Region;
-import org.jetbrains.annotations.NotNull;
-
-public interface ResizeClaimEvent extends OnlineUserEvent, ClaimEvent, CancellableEvent {
-
-    @NotNull
-    default Region getOldRegion() {
-        return getClaim().getRegion();
-    }
-
-    @NotNull
-    Region getNewRegion();
-
+public interface PostCreateClaimEvent extends OnlineUserEvent, ClaimEvent, Event {
 }

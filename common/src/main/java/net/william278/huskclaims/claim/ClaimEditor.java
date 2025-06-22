@@ -247,6 +247,9 @@ public interface ClaimEditor {
                     .flatMap(alias -> getPlugin().getLocales().getLocale("claim_created_trust_prompt",
                             alias, level.getDisplayName(), level.getColor(), level.getDescription()
                     ))).ifPresent(user::sendMessage);
+
+            // Fire post event
+            getPlugin().firePostCreateClaimEvent(user, claim, world);
         });
     }
 
@@ -295,6 +298,9 @@ public interface ClaimEditor {
             getPlugin().getHighlighter(user).startHighlighting(user, user.getWorld(), claim);
             getPlugin().getLocales().getLocale("created_admin_claim")
                     .ifPresent(user::sendMessage);
+
+            // Fire post event
+            getPlugin().firePostCreateClaimEvent(user, claim, world);
         });
     }
 
@@ -500,6 +506,9 @@ public interface ClaimEditor {
             getPlugin().getHighlighter(user).startHighlighting(user, user.getWorld(), List.of(parent, child));
             getPlugin().getLocales().getLocale("created_child_claim")
                     .ifPresent(user::sendMessage);
+
+            // Fire post event
+            getPlugin().firePostCreateChildClaimEvent(user, child, world);
         });
     }
 

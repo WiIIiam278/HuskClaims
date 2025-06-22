@@ -46,8 +46,16 @@ public interface EventProvider {
                                                    @NotNull Region childRegion, @NotNull ClaimWorld claimWorld);
 
     @NotNull
+    PostCreateChildClaimEvent getPostCreateChildClaimEvent(@NotNull OnlineUser claimer, @NotNull Claim newChildClaim,
+                                                           @NotNull ClaimWorld claimWorld);
+
+    @NotNull
     CreateClaimEvent getCreateClaimEvent(@NotNull OnlineUser claimer, @Nullable User claimOwner,
                                          @NotNull Region region, @NotNull ClaimWorld claimWorld);
+
+    @NotNull
+    PostCreateClaimEvent getPostCreateClaimEvent(@NotNull OnlineUser claimer, @NotNull Claim newClaim,
+                                                 @NotNull ClaimWorld claimWorld);
 
     @NotNull
     DeleteAllClaimsEvent getDeleteAllClaimsEvent(@NotNull OnlineUser deleter, @Nullable User claimOwner,

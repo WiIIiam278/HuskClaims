@@ -11,7 +11,7 @@ dependencies {
     api 'com.fatboyindustrial.gson-javatime-serialisers:gson-javatime-serialisers:1.1.2'
     api 'net.william278:minedown:1.8.2'
     api 'net.william278:paginedown:1.1.2'
-    api 'net.william278.cloplib:cloplib-common:2.0.9'
+    api 'net.william278.cloplib:cloplib-common:2.0.11'
     api 'net.william278:DesertWell:2.0.4'
     api('com.zaxxer:HikariCP:6.3.0') {
         exclude module: 'slf4j-api'
@@ -25,13 +25,13 @@ dependencies {
     compileOnly 'com.google.guava:guava:33.4.8-jre'
     compileOnly 'org.projectlombok:lombok:1.18.38'
 
-    compileOnlyApi 'net.william278.toilet:toilet-common:1.0.13'
-    compileOnlyApi 'net.william278.huskhomes:huskhomes-common:4.9.6'
+    compileOnlyApi 'net.william278.toilet:toilet-common:1.0.14'
+    compileOnlyApi 'net.william278.huskhomes:huskhomes-common:4.9.8'
 
     compileOnly 'net.luckperms:api:5.5'
     compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:2.7.0'
     compileOnly 'us.dynmap:DynmapCoreAPI:3.6'
-    compileOnly 'maven.modrinth:pl3xmap:1.21.5-527'
+    compileOnly 'maven.modrinth:pl3xmap:1.21.5-529'
     compileOnly 'com.github.plan-player-analytics:Plan:5.6.2965'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.9-SNAPSHOT'
     compileOnly('org.geysermc.floodgate:api:2.2.4-SNAPSHOT') {
