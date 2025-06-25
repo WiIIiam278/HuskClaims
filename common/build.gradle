@@ -18,7 +18,7 @@ dependencies {
     }
 
     compileOnly 'de.exlll:configlib-yaml:4.6.1'
-    compileOnly 'it.unimi.dsi:fastutil:8.5.15'
+    compileOnly 'it.unimi.dsi:fastutil:8.5.16'
     compileOnly 'net.kyori:adventure-api:4.23.0'
     compileOnly 'net.kyori:adventure-platform-api:4.4.0'
     compileOnly 'org.jetbrains:annotations:26.0.2'
@@ -40,7 +40,7 @@ dependencies {
 
     testImplementation 'com.github.plan-player-analytics:Plan:5.6.2965'
     testImplementation 'com.google.guava:guava:33.4.8-jre'
-    testImplementation 'it.unimi.dsi:fastutil:8.5.15'
+    testImplementation 'it.unimi.dsi:fastutil:8.5.16'
     testCompileOnly 'org.projectlombok:lombok:1.18.38'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.38'
 
