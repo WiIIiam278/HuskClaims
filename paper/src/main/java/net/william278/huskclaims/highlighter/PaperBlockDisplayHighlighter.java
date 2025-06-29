@@ -72,9 +72,10 @@ public class PaperBlockDisplayHighlighter extends BlockHighlighter<PaperBlockDis
         if (!replacedBlocks.containsKey(user.getUuid())) {
             return;
         }
+
         plugin.runSync(() -> replacedBlocks.removeAll(user.getUuid()).forEach(block -> {
             if (block instanceof DisplayHighlightBlock display) {
-                display.remove();
+                plugin.runSync(display.getDisplay(), display::remove);
             }
         }));
     }
@@ -152,5 +153,8 @@ public class PaperBlockDisplayHighlighter extends BlockHighlighter<PaperBlockDis
             }
         }
 
+        public BlockDisplay getDisplay() {
+            return display;
+        }
     }
 }
