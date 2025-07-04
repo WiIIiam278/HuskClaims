@@ -44,7 +44,7 @@ jobs:
             fabric-1.21.1
             fabric-1.21.4
             fabric-1.21.5
-            fabric-1.21.6
+            fabric-1.21.7
           distro-groups: |
             paper
             fabric
@@ -56,10 +56,10 @@ jobs:
             Fabric 1.21.1
             Fabric 1.21.4
             Fabric 1.21.5
-            Fabric 1.21.6
+            Fabric 1.21.7
           files: |
             target/HuskClaims-Paper-${{ github.event.release.tag_name }}.jar
             target/HuskClaims-Fabric-${{ github.event.release.tag_name }}+mc.1.21.1.jar
             target/HuskClaims-Fabric-${{ github.event.release.tag_name }}+mc.1.21.4.jar
             target/HuskClaims-Fabric-${{ github.event.release.tag_name }}+mc.1.21.5.jar
-            target/HuskClaims-Fabric-${{ github.event.release.tag_name }}+mc.1.21.6.jar
+            target/HuskClaims-Fabric-${{ github.event.release.tag_name }}+mc.1.21.7.jar

@@ -25,6 +25,7 @@ import net.william278.huskclaims.config.Settings;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Locale;
 
 public interface FabricHookProvider extends HookProvider {
 
@@ -44,7 +45,8 @@ public interface FabricHookProvider extends HookProvider {
 
     @Override
     default boolean isDependencyAvailable(@NotNull String name) {
-        return FabricLoader.getInstance().isModLoaded(name);
+        final FabricLoader loader = FabricLoader.getInstance();
+        return loader.isModLoaded(name) || loader.isModLoaded(name.toLowerCase(Locale.ENGLISH));
     }
 
     @NotNull
