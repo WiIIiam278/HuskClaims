@@ -41,7 +41,7 @@ public abstract class HuskHomesHook extends Hook {
 
     @Override
     public void load() {
-        if (plugin.getSettings().getHooks().getHuskHomes().isRestrictSetHome()) {
+        if (!plugin.getSettings().getHooks().getHuskHomes().isRestrictSetHome()) {
             return;
         }
 
