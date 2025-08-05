@@ -20,11 +20,10 @@
 package net.william278.huskclaims.claim;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,12 +31,12 @@ import lombok.Setter;
 import net.william278.cloplib.operation.Operation;
 import net.william278.cloplib.operation.OperationType;
 import net.william278.huskclaims.HuskClaims;
-import net.william278.huskclaims.command.IgnoreClaimsCommand;
 import net.william278.huskclaims.position.BlockPosition;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.user.OnlineUser;
-import net.william278.huskclaims.user.Preferences;
 import net.william278.huskclaims.user.User;
+import net.william278.huskclaims.util.datastrcture.ConcurrentLong2ObjectMap;
+import net.william278.huskclaims.util.datastrcture.ConcurrentObject2ObjectMap;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,12 +44,19 @@ import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ClaimWorld {
+
+    // Cache values
+    private static final int INITIAL_CHUNK_CACHE_CAPACITY = 1024;
+    private static final int INITIAL_USER_CACHE_CAPACITY = 1024;
+    private static final int INITIAL_SINGLE_CHUNK_CACHE_CAPACITY = 4;
+    private static final int INITIAL_SINGLE_USER_CACHE_CAPACITY = 8;
+    private static final float PERFORMANCE_LOAD_FACTOR = 0.6f;
+    private static final float LOW_LATENCY_LOAD_FACTOR = 0.25f;
 
     // The UUID of the admin claim
     public final static UUID ADMIN_CLAIM = UUID.fromString("00000000-0000-0000-0000-000000000000");
@@ -62,13 +68,13 @@ public class ClaimWorld {
 
     @Expose
     @SerializedName("user_cache")
-    private ConcurrentMap<UUID, String> userCache;
+    private Map<UUID, String> userCache;
     @Expose
     @SerializedName("wilderness_flags")
     private Set<OperationType> wildernessFlags;
     @Expose
     @SerializedName("cached_claims")
-    private Long2ObjectOpenHashMap<Set<Claim>> cachedClaims;
+    private Long2ObjectMap<Set<Claim>> cachedClaims;
     @Expose(deserialize = false, serialize = false)
     private transient Map<UUID, Set<Claim>> userClaims;
     @Expose
@@ -78,10 +84,10 @@ public class ClaimWorld {
 
     private ClaimWorld(@NotNull HuskClaims plugin) {
         this.id = 0;
-        this.userCache = Maps.newConcurrentMap();
-        this.wildernessFlags = Sets.newHashSet(plugin.getSettings().getClaims().getWildernessRules());
-        this.cachedClaims = new Long2ObjectOpenHashMap<>();
-        this.userClaims = Maps.newConcurrentMap();
+        this.userCache = new ConcurrentObject2ObjectMap<>(INITIAL_USER_CACHE_CAPACITY, PERFORMANCE_LOAD_FACTOR);
+        this.wildernessFlags = Sets.newCopyOnWriteArraySet(plugin.getSettings().getClaims().getWildernessRules());
+        this.cachedClaims = new ConcurrentLong2ObjectMap<>(INITIAL_CHUNK_CACHE_CAPACITY, PERFORMANCE_LOAD_FACTOR);
+        this.userClaims = new ConcurrentObject2ObjectMap<>(INITIAL_USER_CACHE_CAPACITY, PERFORMANCE_LOAD_FACTOR);
         this.schemaVersion = CURRENT_SCHEMA;
     }
 
@@ -100,9 +106,9 @@ public class ClaimWorld {
                                      @NotNull Map<UUID, String> userCache, @NotNull Set<OperationType> wildernessFlags) {
         final ClaimWorld world = new ClaimWorld();
         world.userCache = new ConcurrentHashMap<>(userCache);
-        world.wildernessFlags = Sets.newConcurrentHashSet(wildernessFlags);
-        world.cachedClaims = new Long2ObjectOpenHashMap<>();
-        world.userClaims = Maps.newConcurrentMap();
+        world.wildernessFlags = Sets.newCopyOnWriteArraySet(wildernessFlags);
+        world.cachedClaims = new ConcurrentLong2ObjectMap<>(INITIAL_CHUNK_CACHE_CAPACITY, PERFORMANCE_LOAD_FACTOR);
+        world.userClaims = new ConcurrentObject2ObjectMap<>(INITIAL_USER_CACHE_CAPACITY, PERFORMANCE_LOAD_FACTOR);
         world.schemaVersion = CURRENT_SCHEMA;
         claims.forEach(world::cacheClaim);
         return world;
@@ -197,7 +203,8 @@ public class ClaimWorld {
         claim.setRegion(newRegion);
         newRegion.getChunks().forEach(chunk -> {
             final long asLong = ((long) chunk[0] << 32) | (chunk[1] & 0xffffffffL);
-            final Set<Claim> chunkClaims = cachedClaims.computeIfAbsent(asLong, k -> Sets.newConcurrentHashSet());
+            final Set<Claim> chunkClaims = cachedClaims.computeIfAbsent(asLong,
+                    k -> new ConcurrentObject2ObjectMap<Claim, Boolean>(INITIAL_SINGLE_CHUNK_CACHE_CAPACITY, LOW_LATENCY_LOAD_FACTOR).keySet());
             chunkClaims.add(claim);
         });
     }
@@ -353,14 +360,14 @@ public class ClaimWorld {
      */
     @NotNull
     public List<Claim> getParentClaimsOverlapping(@NotNull Region region) {
-        final List<Claim> overlappingClaims = Lists.newArrayList();
+        final Set<Claim> overlappingClaims = Sets.newHashSet();
         region.getChunks().forEach(chunk -> {
             final long asLong = ((long) chunk[0] << 32) | (chunk[1] & 0xffffffffL);
             cachedClaims.getOrDefault(asLong, Collections.emptySet()).stream()
                     .filter(claim -> claim.getRegion().overlaps(region))
                     .forEach(overlappingClaims::add);
         });
-        return overlappingClaims.stream().distinct().toList();
+        return List.copyOf(overlappingClaims);
     }
 
     /**
@@ -422,7 +429,9 @@ public class ClaimWorld {
      * @since 1.3.4
      */
     public boolean contains(@NotNull Claim claim) {
-        return getClaims().contains(claim);
+        return claim.getOwner()
+                .map(owner -> userClaims.getOrDefault(owner, Collections.emptySet()).contains(claim))
+                .orElseGet(() -> userClaims.getOrDefault(ADMIN_CLAIM, Collections.emptySet()).contains(claim));
     }
 
     /**
@@ -490,16 +499,17 @@ public class ClaimWorld {
 
     // Load claims (caching all of them)
     protected void loadClaims(@NotNull Set<Claim> claims) {
-        this.cachedClaims = new Long2ObjectOpenHashMap<>();
-        this.userCache = Maps.newConcurrentMap();
-        this.userClaims = Maps.newConcurrentMap();
-        this.wildernessFlags = Sets.newConcurrentHashSet();
+        this.cachedClaims = new ConcurrentLong2ObjectMap<>(INITIAL_CHUNK_CACHE_CAPACITY, PERFORMANCE_LOAD_FACTOR);
+        this.userCache = new ConcurrentObject2ObjectMap<>(INITIAL_USER_CACHE_CAPACITY, PERFORMANCE_LOAD_FACTOR);
+        this.userClaims = new ConcurrentObject2ObjectMap<>(INITIAL_USER_CACHE_CAPACITY, PERFORMANCE_LOAD_FACTOR);
+        this.wildernessFlags = Sets.newCopyOnWriteArraySet();
         claims.forEach(this::cacheClaim);
     }
 
     // Cache a user claim
     private void cacheOwnedClaim(@NotNull Claim claim) {
-        final Set<Claim> ownedClaims = userClaims.computeIfAbsent(claim.getOwner().orElse(ADMIN_CLAIM), k -> Sets.newConcurrentHashSet());
+        final Set<Claim> ownedClaims = userClaims.computeIfAbsent(claim.getOwner().orElse(ADMIN_CLAIM),
+                k -> new ConcurrentObject2ObjectMap<Claim, Boolean>(INITIAL_SINGLE_USER_CACHE_CAPACITY, LOW_LATENCY_LOAD_FACTOR).keySet());
         ownedClaims.add(claim);
     }
 
@@ -515,7 +525,8 @@ public class ClaimWorld {
 
         claim.getRegion().getChunks().forEach(chunk -> {
             final long asLong = ((long) chunk[0] << 32) | (chunk[1] & 0xffffffffL);
-            final Set<Claim> chunkClaims = cachedClaims.computeIfAbsent(asLong, k -> Sets.newConcurrentHashSet());
+            final Set<Claim> chunkClaims = cachedClaims.computeIfAbsent(asLong,
+                    k -> new ConcurrentObject2ObjectMap<Claim, Boolean>(INITIAL_SINGLE_CHUNK_CACHE_CAPACITY, LOW_LATENCY_LOAD_FACTOR).keySet());
             chunkClaims.add(claim);
         });
     }
@@ -554,6 +565,11 @@ public class ClaimWorld {
     @Override
     public boolean equals(Object obj) {
         return obj instanceof ClaimWorld world && world.id == id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
 }
