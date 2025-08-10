@@ -196,7 +196,7 @@ public final class Settings {
         @Comment({"Default operation type flags for the wilderness (outside claims)",
                 "To modify existing worlds, use /claimflags set <flag> <true/false> while standing outside a claim."})
         private List<OperationType> wildernessRules = Lists.newArrayList(
-                OperationType.getRegistered() // Allow all operation types
+                OperationType.getRegistered() // Allow all operation types including redstone outside claims
         );
 
         @Comment("List of worlds where users cannot claim")

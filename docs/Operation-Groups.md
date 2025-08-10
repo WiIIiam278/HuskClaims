@@ -9,6 +9,15 @@ By default, HuskClaims provides the `Claim Explosions` operation group to let yo
 |--------------------|--------------------|--------------------------------------------------------------------------------------------------------|:-------:|
 | `Claim Explosions` | `/claimexplosions` | Toggle whether explosion block damage should be allowed in a claim. Includes block and mob explosions. |    ❌    |
 
+## Wilderness Redstone Restrictions
+HuskClaims includes a `redstone_outside_claims` operation type that controls whether redstone mechanisms (pistons, dispensers, etc.) can function outside of claims. This provides similar functionality to GriefPrevention's redstone restrictions and is **enabled by default** in wilderness areas.
+
+This means:
+- **In Claims**: Redstone works normally (controlled by existing `redstone_interact` permissions)  
+- **Outside Claims**: Redstone mechanisms work by default (pistons, dispensers, etc. function normally)
+
+Server administrators can disable redstone in wilderness by using `/claimflags set redstone_outside_claims false` while standing outside any claim, or by modifying the `wilderness_rules` in the config file.
+
 ## Customizing Operation Groups
 Operation groups can be customised in the plugin config as follows:
 
