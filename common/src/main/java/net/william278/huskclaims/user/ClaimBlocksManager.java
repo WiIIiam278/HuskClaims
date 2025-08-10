@@ -145,10 +145,9 @@ public interface ClaimBlocksManager {
         // Validate that the user still has accessible saved data before proceeding
         // This prevents race conditions when users disconnect during scheduler execution
         if (getCachedSavedUser(user.getUuid()).isEmpty()) {
-            final Optional<SavedUser> savedUser = getSavedUser(user.getUuid());
-            if (savedUser.isEmpty()) {
-                return;
-            }
+            // User not in cache - skip database lookup during scheduler execution to avoid blocking
+            // This prevents performance issues and indicates user likely disconnected
+            return;
         }
 
         final long hourlyBlocks = user.getNumericalPermission(HOURLY_BLOCKS_PERMISSION)
@@ -158,6 +157,10 @@ public interface ClaimBlocksManager {
         }
 
         try {
+            // Double-check user is still online right before block editing to minimize TOCTOU window
+            if (!getPlugin().getOnlineUserMap().containsKey(user.getUuid())) {
+                return;
+            }
             editClaimBlocks(user, ClaimBlockSource.HOURLY_BLOCKS, (blocks -> blocks + hourlyBlocks));
         } catch (IllegalArgumentException e) {
             // Log warning if user data becomes unavailable during execution
