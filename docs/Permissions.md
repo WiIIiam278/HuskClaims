@@ -52,6 +52,14 @@ These permissions restrict being able to use certain trust tags when granting tr
 
 You can turn off the permission requirement for using LuckPerms groups in claims in the [[config]] hook settings. 
 
+## Bypass Permissions
+These permissions allow users to bypass certain claim restrictions.
+
+| Permission                    | Description                                              | Default |
+|-------------------------------|----------------------------------------------------------|:-------:|
+| `huskclaims.bypass.ban`       | Bypass claim bans and enter claims the user is banned from. |    ❌    |
+| `huskclaims.bypass.private`   | Bypass private claim restrictions and enter private claims without trust. |    ❌    |
+
 ## Flags
 These permissions restrict the use of flags.
 

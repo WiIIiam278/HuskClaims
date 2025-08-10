@@ -465,6 +465,10 @@ public class ClaimWorld {
             return false;
         }
 
+        if (user.hasPermission("huskclaims.bypass.ban")) {
+            return false;
+        }
+
         if (claim.isUserBanned(user)) {
             plugin.getLocales().getLocale("user_banned_you", claim.getOwnerName(this, plugin))
                     .ifPresent(user::sendMessage);
@@ -481,6 +485,10 @@ public class ClaimWorld {
             return false;
         }
         if (!claim.isPrivateClaim()) {
+            return false;
+        }
+
+        if (user.hasPermission("huskclaims.bypass.private")) {
             return false;
         }
 
