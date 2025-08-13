@@ -27,10 +27,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.logging.Level;
 
 public interface ClaimBlocksManager {
 
@@ -140,17 +142,69 @@ public interface ClaimBlocksManager {
 
     @Blocking
     default void grantHourlyClaimBlocks(@NotNull OnlineUser user) {
+        // Validate that the user still has accessible saved data before proceeding
+        // This prevents race conditions when users disconnect during scheduler execution
+        if (getCachedSavedUser(user.getUuid()).isEmpty()) {
+            // User not in cache - skip database lookup during scheduler execution to avoid blocking
+            // This prevents performance issues and indicates user likely disconnected
+            return;
+        }
+
         final long hourlyBlocks = user.getNumericalPermission(HOURLY_BLOCKS_PERMISSION)
                 .orElse(getPlugin().getSettings().getClaims().getHourlyClaimBlocks()) / HOURLY_BLOCKS_UPDATES;
         if (hourlyBlocks <= 0) {
             return;
         }
-        editClaimBlocks(user, ClaimBlockSource.HOURLY_BLOCKS, (blocks -> blocks + hourlyBlocks));
+
+        try {
+            // Double-check user is still online right before block editing to minimize TOCTOU window
+            if (!getPlugin().getOnlineUserMap().containsKey(user.getUuid())) {
+                return;
+            }
+            editClaimBlocks(user, ClaimBlockSource.HOURLY_BLOCKS, (blocks -> blocks + hourlyBlocks));
+        } catch (IllegalArgumentException e) {
+            // Log warning if user data becomes unavailable during execution
+            // This can happen if user disconnects after validation but before block editing
+            getPlugin().log(Level.WARNING, "Failed to grant hourly claim blocks to user " + 
+                user.getUuid() + " (user data unavailable): " + e.getMessage());
+        }
     }
 
     default void loadClaimBlockScheduler() {
         getPlugin().getRepeatingTask(
-                () -> getPlugin().getOnlineUsers().forEach(this::grantHourlyClaimBlocks),
+                () -> {
+                    // Create a stable snapshot of online users to prevent concurrent modification issues
+                    final Collection<OnlineUser> onlineUsers = getPlugin().getOnlineUsers();
+                    if (onlineUsers.isEmpty()) {
+                        return; // No users online, skip this cycle
+                    }
+
+                    // Process each user with individual error handling to prevent one failure from affecting others
+                    int processedUsers = 0;
+                    int skippedUsers = 0;
+                    
+                    for (OnlineUser user : onlineUsers) {
+                        try {
+                            // Double-check user is still in the online users map (not just in the collection snapshot)
+                            if (getPlugin().getOnlineUserMap().containsKey(user.getUuid())) {
+                                grantHourlyClaimBlocks(user);
+                                processedUsers++;
+                            } else {
+                                skippedUsers++;
+                            }
+                        } catch (Exception e) {
+                            getPlugin().log(Level.SEVERE, "Unexpected error granting hourly claim blocks to user " +
+                                user.getUuid() + ": " + e.getMessage(), e);
+                            skippedUsers++;
+                        }
+                    }
+
+                    if (skippedUsers > 0) {
+                        getPlugin().log(Level.INFO, String.format(
+                            "Hourly claim blocks cycle completed: %d users processed, %d users skipped", 
+                            processedUsers, skippedUsers));
+                    }
+                },
                 Duration.ofMinutes(60 / HOURLY_BLOCKS_UPDATES),
                 getFirstClaimBlocksUpdateDelay()
         ).run();
