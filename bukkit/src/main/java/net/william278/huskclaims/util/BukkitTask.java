@@ -157,6 +157,7 @@ public interface BukkitTask extends Task {
             final BukkitHuskClaims bukkit = (BukkitHuskClaims) getPlugin();
 
             final BukkitTask.Sync task = new BukkitTask.Sync(bukkit, runnable, Duration.ZERO) {
+
                 private ScheduledTask scheduled;
 
                 @Override
@@ -165,7 +166,7 @@ public interface BukkitTask extends Task {
                         return;
                     }
 
-                    final GracefulScheduling scheduler = bukkit.getMorePaperLib().scheduling();
+                    final GracefulScheduling scheduler = getScheduler();
 
                     if (e instanceof Entity entity) {
                         scheduled = scheduler.entitySpecificScheduler(entity).run(runnable, null);
@@ -191,6 +192,15 @@ public interface BukkitTask extends Task {
 
             task.run();
             return task;
+        }
+
+        default void runSync(@NotNull Entity entity, @NotNull Runnable runnable) {
+            runSync((Object) entity, runnable);
+        }
+
+        @NotNull
+        default Task.Sync runSync(@NotNull Location location, @NotNull Runnable runnable) {
+            return runSync((Object) location, runnable);
         }
 
         @Override
