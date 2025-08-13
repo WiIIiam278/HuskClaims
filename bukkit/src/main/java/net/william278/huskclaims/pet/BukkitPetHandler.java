@@ -23,8 +23,6 @@ import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.user.BukkitUser;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.User;
-import net.william278.huskclaims.util.folia.FoliaScheduler;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Player;

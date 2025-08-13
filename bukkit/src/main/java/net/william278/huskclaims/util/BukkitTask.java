@@ -22,7 +22,6 @@ package net.william278.huskclaims.util;
 import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.position.Position;
-import net.william278.huskclaims.util.folia.FoliaScheduler;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -155,28 +154,49 @@ public interface BukkitTask extends Task {
         @Override
         @NotNull
         default <T> Task.Sync runSync(T e, @NotNull Runnable runnable) {
-            if (!FoliaScheduler.isFolia()) return runSync(runnable);
+            final BukkitHuskClaims bukkit = (BukkitHuskClaims) getPlugin();
 
-            if (e instanceof Entity entity) {
-                FoliaScheduler.getEntityScheduler().run(entity, (BukkitHuskClaims) this.getPlugin(),
-                        $ -> runnable.run(), null);
-            } else if (e instanceof Location location) {
-                FoliaScheduler.getRegionScheduler().run((BukkitHuskClaims) this.getPlugin(),
-                        location, $ -> runnable.run());
-            } else if (e instanceof Chunk chunk) {
-                FoliaScheduler.getRegionScheduler().run((BukkitHuskClaims) this.getPlugin(),
-                        chunk.getWorld(),chunk.getX(), chunk.getZ(),
-                        $ -> runnable.run());
-            } else throw new IllegalArgumentException(
-                        "Entity must be an instance of Bukkit Entity");
+            final BukkitTask.Sync task = new BukkitTask.Sync(bukkit, runnable, Duration.ZERO) {
+                private ScheduledTask scheduled;
 
-            return runSyncDelayed(() -> {}, Duration.ZERO);
+                @Override
+                public void run() {
+                    if (isPluginDisabled() || cancelled) {
+                        return;
+                    }
+
+                    final GracefulScheduling scheduler = bukkit.getMorePaperLib().scheduling();
+
+                    if (e instanceof Entity entity) {
+                        scheduled = scheduler.entitySpecificScheduler(entity).run(runnable, null);
+                    } else if (e instanceof Location location) {
+                        scheduled = scheduler.regionSpecificScheduler(location).run(runnable);
+                    } else if (e instanceof Chunk chunk) {
+                        scheduled = scheduler.regionSpecificScheduler(chunk.getWorld(), chunk.getX(), chunk.getZ()).run(runnable);
+                    } else {
+                        scheduled = scheduler.globalRegionalScheduler().run(runnable);
+                    }
+                }
+
+                @Override
+                public void cancel() {
+                    if (!cancelled) {
+                        if (scheduled != null) {
+                            scheduled.cancel();
+                        }
+                        super.cancel();
+                    }
+                }
+            };
+
+            task.run();
+            return task;
         }
 
         @Override
         @NotNull
         default Task.Sync runSync(Position position, @NotNull Runnable runnable) {
-             return runSync(new Location(Bukkit.getWorld(position.getWorld().getName()),
+            return runSync(new Location(Bukkit.getWorld(position.getWorld().getName()),
                     position.getX(), position.getY(), position.getZ()), runnable);
         }
 

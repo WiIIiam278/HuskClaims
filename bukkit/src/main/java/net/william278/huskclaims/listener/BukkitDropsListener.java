@@ -76,6 +76,7 @@ public interface BukkitDropsListener extends Listener {
                    && dropLocation.getWorld() != null && this.distance(item) <= DEATH_DROPS_EQUAL_RANGE
                    && item.getStack() != null && item.getStack().equals(getStack());
         }
+
     }
 
     class BukkitGroundItem implements DropsHandler.GroundStack {
@@ -117,5 +118,7 @@ public interface BukkitDropsListener extends Listener {
         public DropsHandler.DroppedItem getStack() {
             return new BukkitDroppedItem(entity.getItemStack(), entity.getLocation());
         }
+
     }
+
 }

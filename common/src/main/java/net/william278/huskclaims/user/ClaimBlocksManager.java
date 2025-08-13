@@ -20,7 +20,6 @@
 package net.william278.huskclaims.user;
 
 import net.william278.huskclaims.HuskClaims;
-import net.william278.huskclaims.claim.ServerWorldClaim;
 import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.Blocking;
 import org.jetbrains.annotations.NotNull;
