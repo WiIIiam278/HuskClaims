@@ -27,6 +27,7 @@ import net.william278.huskclaims.highlighter.Highlightable;
 import net.william278.huskclaims.position.BlockPosition;
 import net.william278.huskclaims.position.Position;
 import net.william278.huskclaims.trust.TrustLevel;
+import net.william278.huskclaims.user.ClaimBlocksManager;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.Preferences;
 import net.william278.huskclaims.user.User;
@@ -268,6 +269,21 @@ public interface ClaimEditor {
             getPlugin().getLocales().getLocale("claim_transferred", claim.getOwnerName(claimWorld, getPlugin()),
                     newOwner.getName()).ifPresent(user::sendMessage);
             getPlugin().invalidateClaimListCache(claim.getOwner().orElse(null));
+
+            // Adjust claim blocks for both users to maintain proper accounting
+            final long surfaceArea = claim.getRegion().getSurfaceArea();
+            claim.getOwner().flatMap(claimWorld::getUser).ifPresent(originalOwner -> {
+                // Return available blocks to original owner and reduce their spent blocks
+                getPlugin().editClaimBlocks(
+                        originalOwner, ClaimBlocksManager.ClaimBlockSource.CLAIM_TRANSFER_AWAY, (blocks) -> blocks + surfaceArea);
+                getPlugin().editSpentClaimBlocks(
+                        originalOwner, ClaimBlocksManager.ClaimBlockSource.CLAIM_TRANSFER_AWAY, (blocks) -> blocks - surfaceArea);
+            });
+            // Set the new owner's spent blocks so unclaim accounting works correctly
+            claimWorld.getUser(newOwner.getUuid()).ifPresent(owner -> {
+                getPlugin().editSpentClaimBlocks(
+                        owner, ClaimBlocksManager.ClaimBlockSource.CLAIM_CREATED, (blocks) -> blocks + surfaceArea);
+            });
 
             // Set the claim, highlight it, invalidate the new owner's claim list cache
             getPlugin().removeMappedClaim(claim, claimWorld);
