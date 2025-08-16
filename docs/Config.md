@@ -98,7 +98,7 @@ claims:
     - ADMIN_CLAIMS
   # Default operation type flags for the wilderness (outside claims)
   # To modify existing worlds, use /claimflags set <flag> <true/false> while standing outside a claim.
-  # Note: redstone_outside_claims is included by default to allow redstone to work outside claims
+  # Note: redstone_actuate is included by default to allow redstone to work outside claims
   wilderness_rules:
     - empty_bucket
     - block_place
@@ -128,6 +128,7 @@ claims:
     - block_interact
     - player_damage_monster
     - redstone_interact
+    - redstone_actuate
     - player_damage_player
   # List of worlds where users cannot claim
   unclaimable_worlds: []
