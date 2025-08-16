@@ -52,13 +52,15 @@ These permissions restrict being able to use certain trust tags when granting tr
 
 You can turn off the permission requirement for using LuckPerms groups in claims in the [[config]] hook settings. 
 
-## Bypass Permissions
-These permissions allow users to bypass certain claim restrictions.
+## Ignore Claims Permissions
+These permissions control what users can bypass when they have the ignore claims feature toggled on. The ignore claims feature is stateful and user-toggleable, providing granular control over claim restrictions.
 
-| Permission                    | Description                                              | Default |
-|-------------------------------|----------------------------------------------------------|:-------:|
-| `huskclaims.bypass.ban`       | Bypass claim bans and enter claims the user is banned from. |    ❌    |
-| `huskclaims.bypass.private`   | Bypass private claim restrictions and enter private claims without trust. |    ❌    |
+| Permission                                    | Description                                                                                    | Default |
+|-----------------------------------------------|------------------------------------------------------------------------------------------------|:-------:|
+| `huskclaims.command.ignoreclaims.bans`        | Allow bypassing claim bans when ignoring claims.                                               |    ❌    |
+| `huskclaims.command.ignoreclaims.private`     | Allow bypassing private claim restrictions when ignoring claims.                               |    ❌    |
+| `huskclaims.command.ignoreclaims.operations.*` | Allow bypassing all operation types when ignoring claims.                                      |    ❌    |
+| `huskclaims.command.ignoreclaims.operations.<operation_type>` | Allow bypassing specific operation types when ignoring claims (e.g., `block_break`, `redstone_actuate`). |    ❌    |
 
 ## Flags
 These permissions restrict the use of flags.

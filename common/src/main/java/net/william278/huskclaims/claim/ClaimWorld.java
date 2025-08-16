@@ -461,11 +461,12 @@ public class ClaimWorld {
     // Check if a user is banned from a claim
     @ApiStatus.Internal
     public boolean isBannedFromClaim(@NotNull OnlineUser user, @NotNull Claim claim, @NotNull HuskClaims plugin) {
-        if (!plugin.getSettings().getClaims().getBans().isEnabled() || plugin.isIgnoringClaims(user)) {
+        if (!plugin.getSettings().getClaims().getBans().isEnabled()) {
             return false;
         }
 
-        if (user.hasPermission("huskclaims.bypass.ban")) {
+        // Check if user is ignoring claims and has permission to bypass bans
+        if (plugin.isIgnoringClaims(user) && plugin.hasIgnoreClaimsBanPermission(user)) {
             return false;
         }
 
@@ -481,14 +482,15 @@ public class ClaimWorld {
     @ApiStatus.Internal
     public boolean cannotNavigatePrivateClaim(@NotNull OnlineUser user, @NotNull Claim claim,
                                               @NotNull HuskClaims plugin) {
-        if (!plugin.getSettings().getClaims().getBans().isPrivateClaims() || plugin.isIgnoringClaims(user)) {
+        if (!plugin.getSettings().getClaims().getBans().isPrivateClaims()) {
             return false;
         }
         if (!claim.isPrivateClaim()) {
             return false;
         }
 
-        if (user.hasPermission("huskclaims.bypass.private")) {
+        // Check if user is ignoring claims and has permission to bypass private claims
+        if (plugin.isIgnoringClaims(user) && plugin.hasIgnoreClaimsPrivatePermission(user)) {
             return false;
         }
 
