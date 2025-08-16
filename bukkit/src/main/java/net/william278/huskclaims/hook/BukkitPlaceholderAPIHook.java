@@ -35,6 +35,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -103,6 +104,7 @@ public class BukkitPlaceholderAPIHook extends Hook {
         @AllArgsConstructor
         private enum Placeholder {
             CLAIM_BLOCKS((plugin, user) -> Long.toString(plugin.getCachedClaimBlocks(user))),
+            CLAIM_BLOCKS_FORMATTED((plugin, user) -> String.format("%,d", plugin.getCachedClaimBlocks(user))),
             CURRENT_IS_CLAIMED((plugin, user) -> formatBoolean(plugin.getClaimAt(user.getPosition()).isPresent())),
             CURRENT_CLAIM_OWNER((plugin, user) -> plugin.getClaimWorld(user.getPosition().getWorld())
                     .flatMap(world -> world.getClaimAt(user.getPosition())
