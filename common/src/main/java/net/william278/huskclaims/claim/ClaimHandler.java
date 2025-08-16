@@ -33,6 +33,7 @@ import net.william278.huskclaims.user.Preferences;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import net.william278.cloplib.operation.OperationType;
 
 /**
  * Handler for {@link Operation}s in {@link Claim}s
@@ -143,7 +144,36 @@ public interface ClaimHandler extends Handler {
 
     // Checks if the outcome of an operation is being ignored by its involved user
     private boolean isOperationIgnored(@NotNull Operation operation) {
-        return operation.getUser().map(user -> isIgnoringClaims((OnlineUser) user)).orElse(false);
+        return operation.getUser().map(user -> {
+            final OnlineUser onlineUser = (OnlineUser) user;
+            if (!isIgnoringClaims(onlineUser)) {
+                return false;
+            }
+            
+            // Check if user has permission to bypass this specific operation type
+            return hasIgnoreClaimsPermission(onlineUser, operation.getType());
+        }).orElse(false);
+    }
+
+    // Checks if a user has permission to bypass a specific operation type when ignoring claims
+    private boolean hasIgnoreClaimsPermission(@NotNull OnlineUser user, @NotNull OperationType operationType) {
+        // Check for wildcard permission first
+        if (getPlugin().canUseCommand(IgnoreClaimsCommand.class, user, "operations", "*")) {
+            return true;
+        }
+        
+        // Check for specific operation type permission
+        return getPlugin().canUseCommand(IgnoreClaimsCommand.class, user, "operations", operationType.name());
+    }
+
+    // Checks if a user has permission to bypass claim bans when ignoring claims
+    default boolean hasIgnoreClaimsBanPermission(@NotNull OnlineUser user) {
+        return getPlugin().canUseCommand(IgnoreClaimsCommand.class, user, "bans");
+    }
+
+    // Checks if a user has permission to bypass private claims when ignoring claims
+    default boolean hasIgnoreClaimsPrivatePermission(@NotNull OnlineUser user) {
+        return getPlugin().canUseCommand(IgnoreClaimsCommand.class, user, "private");
     }
 
     // Checks if a user is ignoring claims, ensuring they also have permission to ignore claims

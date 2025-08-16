@@ -384,6 +384,29 @@ This is a table of HuskClaims commands, how to use them, their required permissi
             <td align="center">❌</td>
         </tr>
         <tr>
+            <td colspan="5" align="center"><strong>Granular Ignore Claims Permissions</strong></td>
+        </tr>
+        <tr>
+            <td colspan="2"><code>huskclaims.command.ignoreclaims.bans</code></td>
+            <td colspan="2">Allow bypassing claim bans when ignoring claims</td>
+            <td align="center">❌</td>
+        </tr>
+        <tr>
+            <td colspan="2"><code>huskclaims.command.ignoreclaims.private</code></td>
+            <td colspan="2">Allow bypassing private claims when ignoring claims</td>
+            <td align="center">❌</td>
+        </tr>
+        <tr>
+            <td colspan="2"><code>huskclaims.command.ignoreclaims.operations.*</code></td>
+            <td colspan="2">Allow bypassing all operation types when ignoring claims</td>
+            <td align="center">❌</td>
+        </tr>
+        <tr>
+            <td colspan="2"><code>huskclaims.command.ignoreclaims.operations.&lt;operation_type&gt;</code></td>
+            <td colspan="2">Allow bypassing specific operation types when ignoring claims (e.g., <code>block_break</code>, <code>redstone_actuate</code>)</td>
+            <td align="center">❌</td>
+        </tr>
+        <tr>
             <td><code>/signspy</code></td>
             <td><code>/signspy [on|off]</code></td>
             <td>Toggle receiving sign moderation notifications when users place or edit signs.</td>
