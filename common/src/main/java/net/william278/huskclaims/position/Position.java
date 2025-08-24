@@ -77,19 +77,18 @@ public class Position implements BlockPosition, OperationPosition {
 
     @Override
     public int getBlockX() {
-        return (int) getX();
+        return (int) Math.floor(getX());
     }
 
     @Override
     public int getBlockZ() {
-        return (int) getZ();
+        return (int) Math.floor(getZ());
     }
 
     @Override
     public long getLongChunkCoords() {
         return ((long) getChunk().getX() << 32) | (getChunk().getZ() & 0xFFFFFFFFL);
     }
-
 
     @Override
     public boolean equals(Object obj) {
