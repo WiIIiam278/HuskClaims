@@ -37,7 +37,6 @@ public interface DropsHandler {
     @NotNull
     Map<UUID, Set<GroundStack>> getTrackedItems();
 
-
     default void markItemsForLocking(@NotNull OnlineUser user,
                                      @NotNull Collection<? extends DroppedItem> items) {
         if (!getSettings().isLockItems()) {

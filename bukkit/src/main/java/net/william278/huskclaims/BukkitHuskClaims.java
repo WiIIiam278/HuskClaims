@@ -88,8 +88,8 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     private Toilet toilet;
     private final Gson gson = getGsonBuilder().create();
     private final Set<TrustTag> trustTags = ConcurrentHashMap.newKeySet();
-    private final Map<UUID, List<DroppedItem>> markedDrops = Maps.newHashMap();
-    private final Map<UUID, Set<GroundStack>> trackedItems = Maps.newHashMap();
+    private final Map<UUID, List<DroppedItem>> markedDrops = Maps.newConcurrentMap();
+    private final Map<UUID, Set<GroundStack>> trackedItems = Maps.newConcurrentMap();
     private final ConcurrentMap<String, List<User>> globalUserList = Maps.newConcurrentMap();
     private final ConcurrentMap<UUID, ClaimSelection> claimSelections = Maps.newConcurrentMap();
     private final ConcurrentMap<UUID, OnlineUser> onlineUserMap = Maps.newConcurrentMap();
@@ -258,7 +258,6 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
     public ConsoleUser getConsole() {
         return ConsoleUser.wrap(audiences.console());
     }
-
 
     @Override
     public void setupPluginMessagingChannels() {
