@@ -217,6 +217,9 @@ public final class Settings {
                 "or the claim tool. Increasing this can affect performance when users claim lots of land at once. "})
         private long maximumClaimActionSize = 45000;
 
+        @Comment({"The maximum radius, in blocks, that a user can claim at once using /claim <radius>"})
+        private long maximumClaimRadius = 100;
+
         @Comment("Claim inspection tool (right click with this to inspect claims)")
         private String inspectionTool = "minecraft:stick";
 
