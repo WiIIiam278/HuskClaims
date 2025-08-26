@@ -96,7 +96,7 @@ public class ClaimCommand extends OnlineUserCommand {
         }
 
         if (radius > claims.getMaximumClaimRadius()) {
-            plugin.getLocales().getLocale("error_claim_radius_exceeds_max")
+            plugin.getLocales().getLocale("error_claim_radius_exceeds_max", Long.toString(claims.getMaximumClaimRadius()))
                     .ifPresent(user::sendMessage);
             return;
         }
