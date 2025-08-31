@@ -163,7 +163,8 @@ public interface ClaimHandler extends Handler {
         }
         
         // Check for specific operation type permission
-        return getPlugin().canUseCommand(IgnoreClaimsCommand.class, user, "operations", operationType.name());
+        // Use asMinimalString() to get the snake_case format for permission nodes
+        return getPlugin().canUseCommand(IgnoreClaimsCommand.class, user, "operations", operationType.asMinimalString());
     }
 
     // Checks if a user has permission to bypass claim bans when ignoring claims
