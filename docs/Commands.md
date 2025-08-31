@@ -377,33 +377,41 @@ This is a table of HuskClaims commands, how to use them, their required permissi
         <tr><th colspan="5">Other administrator commands</th></tr>
         <tr><td colspan="5" align="center">Moderation and plugin management utilities.</td></tr>
         <tr>
+            <td rowspan="2"><code>/ignoreclaims</code></td>
             <td><code>/ignoreclaims</code></td>
-            <td><code>/ignoreclaims [on|off]</code></td>
             <td>Toggle ignoring claim rules/trust levels. Note you must constantly have the permission to keep ignoring claims.</td>
-            <td><code>huskclaims.command.ignoreclaims</code></td>
+            <td rowspan="2"><code>huskclaims.command.ignoreclaims</code></td>
             <td align="center">❌</td>
         </tr>
         <tr>
-            <td colspan="5" align="center"><strong>Granular Ignore Claims Permissions</strong></td>
+            <td><code>/ignoreclaims [on|off]</code></td>
+            <td>Toggle ignoring claim rules/trust levels with explicit state.</td>
+            <td align="center">❌</td>
         </tr>
+        <tr><th colspan="5">Granular Ignore Claims Permissions</th></tr>
+        <tr><td colspan="5" align="center">These permissions control what users can bypass when they have the ignore claims feature toggled on.</td></tr>
         <tr>
             <td colspan="2"><code>huskclaims.command.ignoreclaims.bans</code></td>
-            <td colspan="2">Allow bypassing claim bans when ignoring claims</td>
+            <td>Allow bypassing claim bans when ignoring claims</td>
+            <td><code>huskclaims.command.ignoreclaims.bans</code></td>
             <td align="center">❌</td>
         </tr>
         <tr>
             <td colspan="2"><code>huskclaims.command.ignoreclaims.private</code></td>
-            <td colspan="2">Allow bypassing private claims when ignoring claims</td>
+            <td>Allow bypassing private claims when ignoring claims</td>
+            <td><code>huskclaims.command.ignoreclaims.private</code></td>
             <td align="center">❌</td>
         </tr>
         <tr>
             <td colspan="2"><code>huskclaims.command.ignoreclaims.operations.*</code></td>
-            <td colspan="2">Allow bypassing all operation types when ignoring claims</td>
+            <td>Allow bypassing all operation types when ignoring claims</td>
+            <td><code>huskclaims.command.ignoreclaims.operations.*</code></td>
             <td align="center">❌</td>
         </tr>
         <tr>
             <td colspan="2"><code>huskclaims.command.ignoreclaims.operations.&lt;operation_type&gt;</code></td>
-            <td colspan="2">Allow bypassing specific operation types when ignoring claims (e.g., <code>block_break</code>, <code>redstone_actuate</code>)</td>
+            <td>Allow bypassing specific operation types when ignoring claims (e.g., <code>block_break</code>, <code>redstone_actuate</code>)</td>
+            <td><code>huskclaims.command.ignoreclaims.operations.&lt;operation_type&gt;</code></td>
             <td align="center">❌</td>
         </tr>
         <tr>

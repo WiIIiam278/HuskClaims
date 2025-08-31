@@ -163,7 +163,6 @@ public interface ClaimHandler extends Handler {
         }
         
         // Check for specific operation type permission
-        // Use asMinimalString() to get the snake_case format for permission nodes
         return getPlugin().canUseCommand(IgnoreClaimsCommand.class, user, "operations", operationType.asMinimalString());
     }
 
