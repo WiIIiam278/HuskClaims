@@ -129,4 +129,12 @@ public class BukkitUser extends OnlineUser {
         plugin.runSync(bukkitPlayer, () -> PaperLib.teleportAsync(bukkitPlayer, location));
     }
 
+    @Override
+    public boolean canSee(@NotNull OnlineUser other) {
+        if (other instanceof BukkitUser bukkitOther) {
+            return bukkitPlayer.canSee(bukkitOther.getBukkitPlayer());
+        }
+        return true;
+    }
+
 }
