@@ -127,4 +127,12 @@ public class BukkitUser extends OnlineUser {
         PaperLib.teleportAsync(bukkitPlayer, BukkitHuskClaims.Adapter.adapt(position));
     }
 
+    @Override
+    public boolean canSee(@NotNull OnlineUser other) {
+        if (other instanceof BukkitUser bukkitOther) {
+            return bukkitPlayer.canSee(bukkitOther.getBukkitPlayer());
+        }
+        return true;
+    }
+
 }

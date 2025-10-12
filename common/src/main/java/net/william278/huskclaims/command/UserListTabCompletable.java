@@ -21,6 +21,7 @@ package net.william278.huskclaims.command;
 
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.user.CommandUser;
+import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,7 +33,20 @@ public interface UserListTabCompletable extends TabCompletable {
     @Override
     @Nullable
     default List<String> suggest(@NotNull CommandUser user, @NotNull String[] args) {
-        return getPlugin().getUserList().stream().map(User::getName).toList();
+        if (user instanceof OnlineUser onlineUser) {
+            return getPlugin().getUserList().stream()
+                    .filter(userInList -> {
+                        if (userInList instanceof OnlineUser onlineUserInList) {
+                            return onlineUser.canSee(onlineUserInList);
+                        }
+                        return true;
+                    })
+                    .map(User::getName)
+                    .toList();
+        }
+        return getPlugin().getUserList().stream()
+                .map(User::getName)
+                .toList();
     }
 
     @NotNull
