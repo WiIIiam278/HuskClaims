@@ -39,6 +39,7 @@ locales:
   error_not_trapped: '[Erro:](#ff3300) [Você pode construir aqui — encontre um jeito de sair por você mesmo!](#ff7e5e)'
   error_no_permission_flag: '[Erro:](#ff3300) [Você não tem permissão para usar a flag %1%.](#ff7e5e)'
   error_no_flags: '[Erro:](#ff3300) [Você não tem nenhuma flag disponível.](#ff7e5e)'
+  error_claim_radius_exceeds_max: '[Erro:](#ff3300) [O raio máximo de reivindicação é %1% blocos.](#ff7e5e)'
   group_list: '[Lista dos seus grupos:](#00fb9a) [%1%](gray)'
   group_list_item: '[%1%](white show_text=&7Grupo de %2% jogadores:\n&8 run_command=/group %1%)'
   group_member_list: '[Lista dos membros de %1%:](#00fb9a) %2%'

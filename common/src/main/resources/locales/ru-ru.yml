@@ -39,6 +39,7 @@ locales:
   error_not_trapped: '[Ошибка:](#ff3300) [Вы можете строить здесь — найдите выход самостоятельно!](#ff7e5e)'
   error_no_permission_flag: '[Ошибка:](#ff3300) [У вас нет доступа к флагу %1%.](#ff7e5e)'
   error_no_flags: '[Ошибка:](#ff3300) [У вас нет доступных флагов.](#ff7e5e)'
+  error_claim_radius_exceeds_max: '[Ошибка:](#ff3300) [Максимальный радиус привата %1% блоков.](#ff7e5e)'
   group_list: '[Список ваших групп:](#00fb9a) [%1%](gray)'
   group_list_item: '[%1%](white show_text=&7Группа из %2%-х игроков:\n&8 run_command=/group %1%)'
   group_member_list: '[Список участников группы %1%:](#00fb9a) %2%'

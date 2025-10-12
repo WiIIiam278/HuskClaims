@@ -39,6 +39,7 @@ locales:
   error_not_trapped: '[錯誤：](#ff3300) [您有方法離開這裡！此處可以建造方塊。](#ff7e5e)'
   error_no_permission_flag: '[錯誤：](#ff3300) [您沒有權限使用領地標記 %1% 。](#ff7e5e)'
   error_no_flags: '[錯誤：](#ff3300) [您沒有任何可用的領地標記。](#ff7e5e)'
+  error_claim_radius_exceeds_max: '[錯誤：](#ff3300) [最大宣告半徑為 %1% 個方塊。](#ff7e5e)'
   group_list: '[群組列表：](#00fb9a) [%1%](gray)'
   group_list_item: '[%1%](white show_text=&7群組有 %2% 位成員：\n&8 run_command=/group %1%)'
   group_member_list: '[群組 %1% 的成員：](#00fb9a) %2%'
