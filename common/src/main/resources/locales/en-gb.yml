@@ -39,6 +39,7 @@ locales:
   error_not_trapped: '[Error:](#ff3300) [You can build here—find a way out by yourself!](#ff7e5e)'
   error_no_permission_flag: '[Error:](#ff3300) [You do not have permission to use the %1% flag.](#ff7e5e)'
   error_no_flags: '[Error:](#ff3300) [You don''t have any flags available.](#ff7e5e)'
+  error_claim_radius_exceeds_max: '[Error:](#ff3300) [The maximum claim radius is %1% blocks.](#ff7e5e)'
   group_list: '[List of your groups:](#00fb9a) [%1%](gray)'
   group_list_item: '[%1%](white show_text=&7Group of %2% players:\n&8 run_command=/group %1%)'
   group_member_list: '[List of group members of %1%:](#00fb9a) %2%'
