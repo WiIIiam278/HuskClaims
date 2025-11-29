@@ -63,6 +63,10 @@ public class Preferences implements AuditLogger {
     @SerializedName("claiming_mode")
     private ClaimingMode claimingMode = ClaimingMode.CLAIMS;
 
+    @Expose
+    @SerializedName("auto_tax_collection")
+    private boolean autoTaxCollection = true;
+
     private Preferences(@NotNull Action openAction) {
         log(openAction);
     }

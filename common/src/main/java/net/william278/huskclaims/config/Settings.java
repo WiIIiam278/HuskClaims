@@ -286,6 +286,34 @@ public final class Settings {
 
         }
 
+        @Comment("Settings for property tax system")
+        private PropertyTaxSettings propertyTax = new PropertyTaxSettings();
+
+        @Getter
+        @Configuration
+        @NoArgsConstructor(access = AccessLevel.PRIVATE)
+        public static class PropertyTaxSettings {
+
+            @Comment("Whether to enable the property tax system")
+            private boolean enabled = false;
+
+            @Comment("The default tax rate per day per block (in economy currency)")
+            private double defaultTaxRatePerDayPerBlock = 0.01;
+
+            @Comment("The number of days a claim can be overdue before it becomes unclaimed and griefable (Minimum: 1)")
+            private long dueDays = 30;
+
+            @Comment("Whether to automatically collect taxes from players' balances")
+            private boolean automaticCollection = false;
+
+            @Comment("List of worlds to exclude from property tax")
+            private List<String> excludedWorlds = Lists.newArrayList();
+
+            @Comment("List of users (by either UUID or username) to exclude from property tax")
+            private List<String> excludedUsers = Lists.newArrayList();
+
+        }
+
         @Comment("Settings for banning users from claims")
         private BanSettings bans = new BanSettings();
 

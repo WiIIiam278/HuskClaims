@@ -35,8 +35,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
+
+import net.william278.huskclaims.config.Settings;
 
 import static net.william278.huskclaims.config.Settings.ClaimSettings;
 
@@ -144,9 +147,100 @@ public interface ClaimPruner {
                 .collect(Collectors.toSet());
     }
 
+    /**
+     * Prunes claims with overdue property tax
+     * <p>
+     * This deletes all claims where the owner has not paid property tax for the configured number of days.
+     * Claim blocks will be refunded accordingly.
+     *
+     * @since 1.5
+     */
+    @Blocking
+    default void pruneOverdueTaxClaims() {
+        final Settings.ClaimSettings.PropertyTaxSettings taxSettings =
+                getPlugin().getSettings().getClaims().getPropertyTax();
+        if (!taxSettings.isEnabled()) {
+            return;
+        }
+
+        // Determine which worlds to check
+        final Set<ClaimWorld> toPrune = getWorldsToPruneForTax();
+        if (toPrune.isEmpty()) {
+            return;
+        }
+
+        final LocalTime startTime = LocalTime.now();
+        getPlugin().log(Level.INFO, "Checking for overdue property tax claims...");
+
+        // Find claims with overdue tax
+        final Map<User, Long> toRefund = Maps.newHashMap();
+        for (ClaimWorld world : toPrune) {
+            if (world.getClaims().isEmpty()) {
+                continue;
+            }
+
+            final Map<User, Long> blocks = Maps.newHashMap();
+            for (Claim claim : world.getClaims()) {
+                if (claim.isAdminClaim() || claim.getOwner().isEmpty()) {
+                    continue;
+                }
+
+                final UUID ownerUuid = claim.getOwner().get();
+                final Optional<SavedUser> savedUser = getPlugin().getDatabase().getUser(ownerUuid);
+                if (savedUser.isEmpty()) {
+                    continue;
+                }
+
+                final User owner = savedUser.get().getUser();
+                final double taxBalance = savedUser.get().getTaxBalance();
+
+                // Check if claim is overdue
+                if (getPlugin().isClaimOverdue(claim, world, taxBalance)) {
+                    final long surfaceArea = claim.getRegion().getSurfaceArea();
+                    blocks.compute(owner, (k, v) -> v == null ? surfaceArea : v + surfaceArea);
+                    world.removeClaim(claim);
+                }
+            }
+
+            if (!blocks.isEmpty()) {
+                getDatabase().updateClaimWorld(world);
+                blocks.forEach((u, b) -> toRefund.compute(u, (k, v) -> v == null ? b : v + b));
+            }
+        }
+
+        // Refund claim blocks
+        refundPrunedBlocks(toRefund);
+        if (!toRefund.isEmpty()) {
+            getPlugin().log(Level.INFO, String.format("Pruned %s overdue tax claim(s) in %s seconds",
+                    toRefund.size(), ChronoUnit.MILLIS.between(startTime, LocalTime.now()) / 1000d));
+        }
+    }
+
+    @NotNull
+    @Unmodifiable
+    default Set<ClaimWorld> getWorldsToPruneForTax() {
+        final Settings.ClaimSettings.PropertyTaxSettings taxSettings =
+                getPlugin().getSettings().getClaims().getPropertyTax();
+        return getPlugin().getClaimWorlds().entrySet().stream()
+                .filter((entry) -> !taxSettings.getExcludedWorlds().contains(entry.getKey()))
+                .map(Map.Entry::getValue).collect(Collectors.toSet());
+    }
+
     @NotNull
     private ClaimSettings.InactivityPruningSettings getSettings() {
         return getPlugin().getSettings().getClaims().getInactivityPruning();
+    }
+
+    /**
+     * Check if a claim is overdue for tax payment
+     *
+     * @param claim the claim to check
+     * @param world the claim world
+     * @param userTaxBalance the user's tax balance
+     * @return true if the claim is overdue
+     */
+    default boolean isClaimOverdue(@NotNull Claim claim, @NotNull ClaimWorld world, double userTaxBalance) {
+        return getPlugin().isClaimOverdue(claim, world, userTaxBalance);
     }
 
     @NotNull

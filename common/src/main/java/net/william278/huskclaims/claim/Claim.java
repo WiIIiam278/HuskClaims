@@ -159,6 +159,14 @@ public class Claim implements Highlightable {
     @SerializedName("creation_time")
     private String creationTime;
 
+    /**
+     * The last time tax was calculated for this claim (as a stringified {@link OffsetDateTime})
+     */
+    @Expose
+    @Nullable
+    @SerializedName("last_tax_calculation")
+    private String lastTaxCalculation;
+
     protected Claim(@Nullable UUID owner, @NotNull Region region, @NotNull ConcurrentMap<UUID, String> users,
                     @NotNull ConcurrentMap<String, String> groups, @NotNull ConcurrentMap<String, String> tags,
                     @NotNull ConcurrentMap<UUID, UUID> bannedUsers, @NotNull Set<Claim> children, boolean inheritParent,
@@ -173,6 +181,7 @@ public class Claim implements Highlightable {
         this.defaultFlags = defaultFlags;
         this.inheritParent = inheritParent;
         this.creationTime = OffsetDateTime.now().toString();
+        this.lastTaxCalculation = OffsetDateTime.now().toString();
         this.privateClaim = privateClaim;
         children.forEach(child -> child.setParent(this));
     }
@@ -566,6 +575,15 @@ public class Claim implements Highlightable {
     @NotNull
     public Optional<OffsetDateTime> getCreationTime() {
         return Optional.ofNullable(creationTime).map(OffsetDateTime::parse);
+    }
+
+    @NotNull
+    public Optional<OffsetDateTime> getLastTaxCalculation() {
+        return Optional.ofNullable(lastTaxCalculation).map(OffsetDateTime::parse);
+    }
+
+    public void setLastTaxCalculation(@NotNull OffsetDateTime dateTime) {
+        this.lastTaxCalculation = dateTime.toString();
     }
 
     @NotNull

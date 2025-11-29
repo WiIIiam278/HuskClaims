@@ -34,6 +34,7 @@ import net.william278.huskclaims.moderation.DropsHandler;
 import net.william278.huskclaims.moderation.SignNotifier;
 import net.william278.huskclaims.network.BrokerProvider;
 import net.william278.huskclaims.pet.PetHandler;
+import net.william278.huskclaims.tax.PropertyTaxManager;
 import net.william278.huskclaims.trust.GroupManager;
 import net.william278.huskclaims.trust.TrustTagManager;
 import net.william278.huskclaims.user.SavedUserProvider;
@@ -52,7 +53,7 @@ import java.util.logging.Level;
 public interface HuskClaims extends Task.Supplier, ConfigProvider, UserProvider, SavedUserProvider, DatabaseProvider,
         GsonProvider, SignNotifier, ClaimManager, GroupManager, TrustTagManager, ListenerProvider, CommandProvider,
         PetHandler, DropsHandler, BrokerProvider, TextValidator, AudiencesProvider, BlockProvider, SafeTeleportProvider,
-        MetaProvider, EventDispatcher, HookProvider, HighlighterProvider, DumpProvider {
+        MetaProvider, EventDispatcher, HookProvider, HighlighterProvider, DumpProvider, PropertyTaxManager {
 
     /**
      * Load plugin systems
@@ -183,6 +184,32 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, UserProvider,
      */
     @NotNull
     default HuskClaims getPlugin() {
+        return this;
+    }
+
+    /**
+     * Check if a claim is overdue for tax payment
+     *
+     * @param claim the claim to check
+     * @param world the claim world
+     * @param userTaxBalance the user's tax balance
+     * @return true if the claim is overdue
+     * @since 1.5
+     */
+    default boolean isClaimOverdue(@NotNull net.william278.huskclaims.claim.Claim claim,
+                                   @NotNull net.william278.huskclaims.claim.ClaimWorld world,
+                                   double userTaxBalance) {
+        return getPropertyTaxManager().isClaimOverdue(claim, world, userTaxBalance);
+    }
+
+    /**
+     * Get the property tax manager
+     *
+     * @return the property tax manager
+     * @since 1.5
+     */
+    @NotNull
+    default PropertyTaxManager getPropertyTaxManager() {
         return this;
     }
 

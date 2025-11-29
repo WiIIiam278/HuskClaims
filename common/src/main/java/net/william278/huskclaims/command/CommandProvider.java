@@ -126,6 +126,12 @@ public interface CommandProvider {
             commands.add(new BuyClaimBlocksCommand(getPlugin()));
         }
 
+        // Register property tax payment
+        if (getPlugin().getSettings().getClaims().getPropertyTax().isEnabled()
+                && getPlugin().getSettings().getHooks().getEconomy().isEnabled()) {
+            commands.add(new PayTaxCommand(getPlugin()));
+        }
+
         // Register trapped command
         if (getPlugin().getSettings().getClaims().isTrappedCommand()) {
             commands.add(new TrappedCommand(getPlugin()));

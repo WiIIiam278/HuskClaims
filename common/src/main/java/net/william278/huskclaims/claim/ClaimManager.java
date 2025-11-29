@@ -202,6 +202,11 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor, ClaimPruner {
                     user, ClaimBlocksManager.ClaimBlockSource.CLAIM_RESIZED, (blocks -> blocks - neededBlocks));
             getPlugin().editSpentClaimBlocks(
                     user, ClaimBlocksManager.ClaimBlockSource.CLAIM_RESIZED, (blocks) -> (blocks + neededBlocks));
+            
+            // Update tax calculation date when claim is expanded
+            if (neededBlocks > 0) {
+                getPlugin().getPropertyTaxManager().onClaimExpanded(claim);
+            }
         });
     }
 
@@ -222,6 +227,9 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor, ClaimPruner {
                     user, ClaimBlocksManager.ClaimBlockSource.CLAIM_DELETED, (blocks -> blocks + surfaceArea));
             getPlugin().editSpentClaimBlocks(
                     user, ClaimBlocksManager.ClaimBlockSource.CLAIM_DELETED, (blocks -> blocks - surfaceArea));
+            
+            // Adjust tax balance when claim is unclaimed
+            getPlugin().getPropertyTaxManager().onClaimUnclaimed(claim, claimWorld, user);
         });
         getPlugin().removeMappedClaim(claim, claimWorld);
         getPlugin().invalidateClaimListCache(claim.getOwner().orElse(null));
@@ -374,6 +382,7 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor, ClaimPruner {
 
         // Carry out pruning as necessary
         pruneClaims();
+        pruneOverdueTaxClaims();
     }
 
     /**
