@@ -153,23 +153,32 @@ public abstract class ClaimsListCommand extends Command implements GlobalClaimsP
                     return plugin.getLocales().getRawLocale("claim_list_tax_owed", formattedAmount).orElse("");
                 }
             } else if (taxBalance > 0.01) {
-                // Prepaid
-                final String formattedAmount = hook.get().format(taxBalance);
-                return plugin.getLocales().getRawLocale("claim_list_tax_prepaid", formattedAmount).orElse("");
+                // Prepaid - show net prepaid (balance minus any tax owed)
+                final double netPrepaid = taxBalance - taxOwed;
+                if (netPrepaid > 0.01) {
+                    final String formattedAmount = hook.get().format(netPrepaid);
+                    return plugin.getLocales().getRawLocale("claim_list_tax_prepaid", formattedAmount).orElse("");
+                } else {
+                    // Balance covers tax, show as paid
+                    return plugin.getLocales().getRawLocale("claim_list_tax_paid").orElse("");
+                }
             } else {
                 // Show current status even if 0 (for new claims, show rate info or "paid")
-                if (taxOwed <= 0.01 && taxBalance >= 0.01) {
-                    // Tax is paid up
-                    return plugin.getLocales().getRawLocale("claim_list_tax_paid").orElse("");
-                } else {
-                    // Show daily rate for new claims (always show if tax is enabled)
+                if (taxOwed <= 0.01) {
+                    // Tax is paid up or no tax accrued yet
+                    // Always show daily rate for new claims so users know the rate
                     final double taxRate = plugin.getPropertyTaxManager().getTaxRate(savedUser.get().getUser());
                     final long claimBlocks = claim.getRegion().getSurfaceArea();
                     final double dailyTax = claimBlocks * taxRate;
                     if (dailyTax > 0.0) {
                         final String dailyFormatted = hook.get().format(dailyTax);
-                        return plugin.getLocales().getRawLocale("claim_list_tax_current", dailyFormatted).orElse("");
+                        final String rateInfo = plugin.getLocales().getRawLocale("claim_list_tax_current", dailyFormatted).orElse("");
+                        if (!rateInfo.isEmpty()) {
+                            return rateInfo;
+                        }
                     }
+                    // Fallback: show as paid if no rate info available
+                    return plugin.getLocales().getRawLocale("claim_list_tax_paid").orElse("");
                 }
             }
 

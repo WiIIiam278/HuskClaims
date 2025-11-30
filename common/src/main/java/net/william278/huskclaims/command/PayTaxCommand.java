@@ -116,7 +116,10 @@ public class PayTaxCommand extends OnlineUserCommand implements PropertyTaxManag
         if (payTax(executor, amount)) {
             final Optional<SavedUser> savedUser = plugin.getDatabase().getUser(executor.getUuid());
             final double newBalance = savedUser.map(SavedUser::getTaxBalance).orElse(0.0);
-            plugin.getLocales().getLocale("tax_paid", hook.format(amount), hook.format(newBalance))
+            final double newTotalOwed = getTotalTaxOwed(executor);
+            final double netBalance = newBalance - newTotalOwed;
+            // Show net balance (balance after accounting for tax owed)
+            plugin.getLocales().getLocale("tax_paid", hook.format(amount), hook.format(Math.max(0.0, netBalance)))
                     .ifPresent(executor::sendMessage);
         } else {
             // Refund if payment failed

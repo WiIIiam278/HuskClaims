@@ -257,9 +257,12 @@ public interface PropertyTaxManager {
     /**
      * Process tax payment for a user
      * <p>
-     * When tax is paid, we add it to the user's tax balance (prepaid amount).
-     * The tax calculation date is NOT updated - tax continues to accrue, but the
-     * prepaid balance covers it. This allows players to pay in advance.
+     * When tax is paid:
+     * 1. First, pay off any existing tax owed (update lastTaxCalculation dates)
+     * 2. Then, add the remainder to the user's tax balance (prepaid amount)
+     * <p>
+     * This ensures that when you pay $10 and owe $0.21, you end up with $9.79 balance,
+     * not $10 balance.
      *
      * @param user the user paying
      * @param amount the amount to pay
@@ -276,7 +279,34 @@ public interface PropertyTaxManager {
         }
 
         final SavedUser userData = savedUser.get();
-        userData.setTaxBalance(userData.getTaxBalance() + amount);
+        final double currentBalance = userData.getTaxBalance();
+        final double totalTaxOwed = getTotalTaxOwed(user);
+        final double netOwed = totalTaxOwed - currentBalance; // Amount actually owed after balance
+
+        // If there's tax owed, first pay it off by updating lastTaxCalculation dates to now
+        // This "pays off" all accrued tax up to this moment
+        if (netOwed > 0.01 && amount > 0.01) {
+            final double amountToPayOff = Math.min(amount, netOwed);
+            
+            // Update lastTaxCalculation for all claims to now to pay off accrued tax
+            final java.time.OffsetDateTime now = java.time.OffsetDateTime.now();
+            for (ClaimWorld world : getPlugin().getClaimWorlds().values()) {
+                for (Claim claim : world.getClaims()) {
+                    if (claim.getOwner().isPresent() && claim.getOwner().get().equals(user.getUuid())) {
+                        // Update to now to "pay off" all tax accrued up to this point
+                        claim.setLastTaxCalculation(now);
+                    }
+                }
+            }
+            
+            // Add remaining amount to balance (this is the prepaid amount)
+            final double remainder = amount - amountToPayOff;
+            userData.setTaxBalance(currentBalance + remainder);
+        } else {
+            // No tax owed, just add to balance (prepaying)
+            userData.setTaxBalance(currentBalance + amount);
+        }
+        
         getPlugin().getDatabase().updateUser(userData);
         return true;
     }
