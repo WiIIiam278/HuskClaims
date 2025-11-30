@@ -195,7 +195,7 @@ public interface ClaimPruner {
                 final double taxBalance = savedUser.get().getTaxBalance();
 
                 // Check if claim is overdue
-                if (getPlugin().isClaimOverdue(claim, world, taxBalance)) {
+                if (getPlugin().getPropertyTaxManager().isClaimOverdue(claim, world, taxBalance)) {
                     final long surfaceArea = claim.getRegion().getSurfaceArea();
                     blocks.compute(owner, (k, v) -> v == null ? surfaceArea : v + surfaceArea);
                     // Remove the claim (tax balance adjustment not needed - claim removal stops tax accrual)
@@ -239,17 +239,6 @@ public interface ClaimPruner {
         return getPlugin().getSettings().getClaims().getInactivityPruning();
     }
 
-    /**
-     * Check if a claim is overdue for tax payment
-     *
-     * @param claim the claim to check
-     * @param world the claim world
-     * @param userTaxBalance the user's tax balance
-     * @return true if the claim is overdue
-     */
-    default boolean isClaimOverdue(@NotNull Claim claim, @NotNull ClaimWorld world, double userTaxBalance) {
-        return getPlugin().isClaimOverdue(claim, world, userTaxBalance);
-    }
 
     @NotNull
     HuskClaims getPlugin();

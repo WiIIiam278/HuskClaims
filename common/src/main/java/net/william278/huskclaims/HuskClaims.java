@@ -187,20 +187,6 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, UserProvider,
         return this;
     }
 
-    /**
-     * Check if a claim is overdue for tax payment
-     *
-     * @param claim the claim to check
-     * @param world the claim world
-     * @param userTaxBalance the user's tax balance
-     * @return true if the claim is overdue
-     * @since 1.5
-     */
-    default boolean isClaimOverdue(@NotNull net.william278.huskclaims.claim.Claim claim,
-                                   @NotNull net.william278.huskclaims.claim.ClaimWorld world,
-                                   double userTaxBalance) {
-        return getPropertyTaxManager().isClaimOverdue(claim, world, userTaxBalance);
-    }
 
     /**
      * Get the property tax manager
