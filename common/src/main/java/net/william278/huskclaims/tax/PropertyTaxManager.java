@@ -91,6 +91,15 @@ import java.util.logging.Level;
  *         <li>Example: If dueDays=30, player offline for 34 days with no balance = claim unclaimed</li>
  *       </ul>
  *   </li>
+ *   <li><b>Important: Tax Accumulation During Grace Period:</b>
+ *       <ul>
+ *         <li>Tax CONTINUES to accumulate during the grace period</li>
+ *         <li>The grace period (dueDays) only delays when the claim gets unclaimed</li>
+ *         <li>Tax keeps accruing every day: days × blocks × rate</li>
+ *         <li>Example: If dueDays=30 and you owe $10 on day 1, you'll owe $40 on day 30 (if rate is $1/day)</li>
+ *         <li>The grace period is a buffer before unclaiming, NOT a tax-free period</li>
+ *       </ul>
+ *   </li>
  *   <li><b>Server Startup:</b>
  *       <ul>
  *         <li>pruneOverdueTaxClaims() runs automatically</li>
