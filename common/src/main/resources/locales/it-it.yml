@@ -263,6 +263,8 @@ locales:
   tax_info_amount_owed: '[Importo Dovuto:](#ff7e5e) [%1%](#ff3300)'
   tax_info_balanced: '[La tua tassa è bilanciata - nessun importo dovuto o prepagato.](#00fb9a)'
   tax_info_rate: '[Tasso di Tassa:](#00fb9a) [%1%](gray) [al giorno per blocco](gray)'
+  tax_info_daily_charge: '[Addebito Giornaliero Tassa:](#00fb9a) [%1%](gray) [al giorno per %2% blocchi](gray)'
   tax_info_days_until_due: '[Giorni fino all''esaurimento del saldo:](#ff7e5e) [%1%](gray)'
+  tax_info_next_due_date: '[Prossima Data di Scadenza:](#ff7e5e) [%1%](gray)'
   tax_info_due_days: '[Giorni di Scadenza (periodo di grazia):](#00fb9a) [%1%](gray)'
   taxinfo_command_description: 'Visualizza le informazioni sulla tassa di proprietà e il saldo.'

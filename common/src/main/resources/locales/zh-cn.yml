@@ -263,6 +263,8 @@ locales:
   tax_info_amount_owed: '[欠款金额:](#ff7e5e) [%1%](#ff3300)'
   tax_info_balanced: '[您的税款已平衡 - 无欠款或预付款。](#00fb9a)'
   tax_info_rate: '[税率:](#00fb9a) [%1%](gray) [每天每方块](gray)'
+  tax_info_daily_charge: '[每日税费:](#00fb9a) [%1%](gray) [每天 %2% 方块](gray)'
   tax_info_days_until_due: '[余额耗尽前的天数:](#ff7e5e) [%1%](gray)'
+  tax_info_next_due_date: '[下次缴税日期:](#ff7e5e) [%1%](gray)'
   tax_info_due_days: '[宽限天数:](#00fb9a) [%1%](gray)'
   taxinfo_command_description: '查看您的财产税信息和余额。'

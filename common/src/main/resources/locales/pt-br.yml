@@ -263,6 +263,8 @@ locales:
   tax_info_amount_owed: '[Valor Devido:](#ff7e5e) [%1%](#ff3300)'
   tax_info_balanced: '[Seu imposto está equilibrado - nenhum valor devido ou pré-pago.](#00fb9a)'
   tax_info_rate: '[Taxa de Imposto:](#00fb9a) [%1%](gray) [por dia por bloco](gray)'
+  tax_info_daily_charge: '[Cobrança Diária de Imposto:](#00fb9a) [%1%](gray) [por dia para %2% blocos](gray)'
   tax_info_days_until_due: '[Dias até o saldo se esgotar:](#ff7e5e) [%1%](gray)'
+  tax_info_next_due_date: '[Próxima Data de Vencimento:](#ff7e5e) [%1%](gray)'
   tax_info_due_days: '[Dias de Vencimento (período de carência):](#00fb9a) [%1%](gray)'
   taxinfo_command_description: 'Visualize suas informações de imposto sobre propriedade e saldo.'

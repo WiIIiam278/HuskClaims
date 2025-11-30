@@ -263,6 +263,8 @@ locales:
   tax_info_amount_owed: '[Sumă Datorată:](#ff7e5e) [%1%](#ff3300)'
   tax_info_balanced: '[Taxa dvs. este echilibrată - nicio sumă datorată sau preplătită.](#00fb9a)'
   tax_info_rate: '[Rata Taxei:](#00fb9a) [%1%](gray) [pe zi pe bloc](gray)'
+  tax_info_daily_charge: '[Taxă Zilnică:](#00fb9a) [%1%](gray) [pe zi pentru %2% blocuri](gray)'
   tax_info_days_until_due: '[Zile până la epuizarea soldului:](#ff7e5e) [%1%](gray)'
+  tax_info_next_due_date: '[Următoarea Dată de Scadență:](#ff7e5e) [%1%](gray)'
   tax_info_due_days: '[Zile de Scadență (perioada de grație):](#00fb9a) [%1%](gray)'
   taxinfo_command_description: 'Vizualizați informațiile despre taxa de proprietate și soldul dvs.'
