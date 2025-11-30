@@ -43,9 +43,8 @@ shadowJar {
     relocate 'me.lucko', 'net.william278.huskclaims.libraries'
     relocate 'net.roxeez', 'net.william278.huskclaims.libraries'
 
-    minimize {
-        exclude('net.william278.huskclaims.**')
-    }
+    // Don't minimize to ensure all classes from bukkit module are included
+    // The bukkit module classes are required for PaperHuskClaims to extend BukkitHuskClaims
 }
 
 tasks {
