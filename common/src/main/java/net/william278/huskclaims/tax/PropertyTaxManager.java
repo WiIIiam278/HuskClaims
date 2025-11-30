@@ -165,7 +165,7 @@ public interface PropertyTaxManager {
      * @param claim the claim to check
      * @param world the claim world
      * @param userTaxBalance the user's current tax balance
-     * @return the number of days overdue (negative if not overdue)
+     * @return the number of days overdue (0 if not overdue)
      */
     default long getDaysOverdue(@NotNull Claim claim, @NotNull ClaimWorld world, double userTaxBalance) {
         final Settings.ClaimSettings.PropertyTaxSettings settings = getTaxSettings();
@@ -203,6 +203,7 @@ public interface PropertyTaxManager {
         }
 
         // Calculate days overdue based on total owed
+        // This represents how many days of tax are unpaid
         final long daysOverdue = (long) Math.ceil(totalOwed / dailyTax);
         return Math.max(0, daysOverdue);
     }
@@ -240,7 +241,7 @@ public interface PropertyTaxManager {
         double total = 0.0;
         for (ClaimWorld world : getPlugin().getClaimWorlds().values()) {
             for (Claim claim : world.getClaims()) {
-                if (claim.getOwner().map(u -> u.equals(user.getUuid())).orElse(false)) {
+                if (claim.getOwner().isPresent() && claim.getOwner().get().equals(user.getUuid())) {
                     total += calculateTaxOwed(claim, world);
                 }
             }
@@ -250,6 +251,10 @@ public interface PropertyTaxManager {
 
     /**
      * Process tax payment for a user
+     * <p>
+     * When tax is paid, we add it to the user's tax balance (prepaid amount).
+     * The tax calculation date is NOT updated - tax continues to accrue, but the
+     * prepaid balance covers it. This allows players to pay in advance.
      *
      * @param user the user paying
      * @param amount the amount to pay
@@ -282,22 +287,23 @@ public interface PropertyTaxManager {
 
     /**
      * Adjust tax balance when a claim is unclaimed
+     * <p>
+     * When a claim is unclaimed, the tax that was owed for that claim should no longer be owed.
+     * Since taxBalance represents prepaid tax (positive) that reduces what's owed, and tax is
+     * calculated dynamically based on days since last calculation, we reset the last tax calculation
+     * date for the claim before it's removed. However, since the claim is being deleted, we
+     * don't need to do anything - the tax will simply not be calculated for it anymore.
+     * <p>
+     * The prepaid balance stays unchanged so other claims can use it.
      *
      * @param claim the claim being unclaimed
      * @param world the claim world
      * @param owner the owner of the claim
      */
     default void onClaimUnclaimed(@NotNull Claim claim, @NotNull ClaimWorld world, @NotNull User owner) {
-        // Calculate tax for the unclaimed portion and adjust balance
-        final double taxOwed = calculateTaxOwed(claim, world);
-        final Optional<SavedUser> savedUser = getPlugin().getDatabase().getUser(owner.getUuid());
-        if (savedUser.isPresent()) {
-            final SavedUser userData = savedUser.get();
-            // Reduce tax owed by the amount for this claim
-            // The prepaid balance stays, so we just reduce what's owed
-            userData.setTaxBalance(userData.getTaxBalance() - taxOwed);
-            getPlugin().getDatabase().updateUser(userData);
-        }
+        // When a claim is unclaimed, it will no longer accrue tax, so we don't need to adjust
+        // the tax balance. The prepaid balance stays for other claims to use.
+        // Tax is calculated dynamically, so removing the claim automatically removes its tax burden.
     }
 
     @NotNull

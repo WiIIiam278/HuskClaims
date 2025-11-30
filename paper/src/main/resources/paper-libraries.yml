@@ -1,5 +1,6 @@
 # Dependencies for HuskClaims on Paper
 libraries:
+  - de.exlll:configlib-yaml:4.6.1
   - 'redis.clients:jedis:${jedis_version}'
   - 'com.mysql:mysql-connector-j:${mysql_driver_version}'
   - 'org.mariadb.jdbc:mariadb-java-client:${mariadb_driver_version}'

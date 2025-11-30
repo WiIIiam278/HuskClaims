@@ -348,9 +348,9 @@ public class MySqlDatabase extends Database {
     public void createOrUpdateUser(@NotNull SavedUser data) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
-                    INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`, `preferences`, `spent_claim_blocks`)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                    ON DUPLICATE KEY UPDATE `username` = ?, `last_login` = ?, `claim_blocks` = ?, `preferences` = ?, `spent_claim_blocks` = ?;"""))) {
+                    INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`, `preferences`, `spent_claim_blocks`, `tax_balance`)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    ON DUPLICATE KEY UPDATE `username` = ?, `last_login` = ?, `claim_blocks` = ?, `preferences` = ?, `spent_claim_blocks` = ?, `tax_balance` = ?;"""))) {
                 final byte[] prefs = plugin.getGson().toJson(data.getPreferences()).getBytes(StandardCharsets.UTF_8);
                 statement.setString(1, data.getUser().getUuid().toString());
                 statement.setString(2, data.getUser().getName());
@@ -358,11 +358,13 @@ public class MySqlDatabase extends Database {
                 statement.setLong(4, data.getClaimBlocks());
                 statement.setBytes(5, prefs);
                 statement.setLong(6, data.getSpentClaimBlocks());
-                statement.setString(7, data.getUser().getName());
-                statement.setTimestamp(8, Timestamp.valueOf(LocalDateTime.now()));
-                statement.setLong(9, data.getClaimBlocks());
-                statement.setBytes(10, prefs);
-                statement.setLong(11, data.getSpentClaimBlocks());
+                statement.setDouble(7, data.getTaxBalance());
+                statement.setString(8, data.getUser().getName());
+                statement.setTimestamp(9, Timestamp.valueOf(LocalDateTime.now()));
+                statement.setLong(10, data.getClaimBlocks());
+                statement.setBytes(11, prefs);
+                statement.setLong(12, data.getSpentClaimBlocks());
+                statement.setDouble(13, data.getTaxBalance());
                 statement.executeUpdate();
             }
         } catch (SQLException e) {

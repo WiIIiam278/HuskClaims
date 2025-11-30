@@ -198,6 +198,7 @@ public interface ClaimPruner {
                 if (getPlugin().isClaimOverdue(claim, world, taxBalance)) {
                     final long surfaceArea = claim.getRegion().getSurfaceArea();
                     blocks.compute(owner, (k, v) -> v == null ? surfaceArea : v + surfaceArea);
+                    // Remove the claim (tax balance adjustment not needed - claim removal stops tax accrual)
                     world.removeClaim(claim);
                 }
             }
@@ -221,9 +222,16 @@ public interface ClaimPruner {
     default Set<ClaimWorld> getWorldsToPruneForTax() {
         final Settings.ClaimSettings.PropertyTaxSettings taxSettings =
                 getPlugin().getSettings().getClaims().getPropertyTax();
-        return getPlugin().getClaimWorlds().entrySet().stream()
-                .filter((entry) -> !taxSettings.getExcludedWorlds().contains(entry.getKey()))
-                .map(Map.Entry::getValue).collect(Collectors.toSet());
+        return getPlugin().getClaimWorlds().values().stream()
+                .filter((world) -> {
+                    try {
+                        final String worldName = world.getName(getPlugin());
+                        return !taxSettings.getExcludedWorlds().contains(worldName);
+                    } catch (IllegalStateException e) {
+                        return false;
+                    }
+                })
+                .collect(Collectors.toSet());
     }
 
     @NotNull
