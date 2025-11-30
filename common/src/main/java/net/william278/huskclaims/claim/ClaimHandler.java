@@ -232,33 +232,48 @@ public interface ClaimHandler extends Handler {
             return;
         }
 
-        // Get user's tax balance
-        final java.util.Optional<net.william278.huskclaims.user.SavedUser> savedUser =
-                getPlugin().getDatabase().getUser(user.getUuid());
-        if (savedUser.isEmpty()) {
-            return;
-        }
+        // Get user's tax balance asynchronously for Folia compatibility
+        getPlugin().runAsync(() -> {
+            final java.util.Optional<net.william278.huskclaims.user.SavedUser> savedUser =
+                    getPlugin().getDatabase().getUser(user.getUuid());
+            if (savedUser.isEmpty()) {
+                return;
+            }
 
-        final double taxBalance = savedUser.get().getTaxBalance();
-        final double taxOwed = getPlugin().getPropertyTaxManager().calculateTaxOwed(claim, world);
-        final double totalOwed = taxOwed - taxBalance;
+            final double taxBalance = savedUser.get().getTaxBalance();
+            final double taxOwed = getPlugin().getPropertyTaxManager().calculateTaxOwed(claim, world);
+            final double totalOwed = taxOwed - taxBalance;
 
-        if (totalOwed > 0) {
-            final long daysOverdue = getPlugin().getPropertyTaxManager().getDaysOverdue(claim, world, taxBalance);
-            final long daysUntilUnclaim = Math.max(0, taxSettings.getDueDays() - daysOverdue);
+            // Send messages on main thread
+            getPlugin().runSync(user, () -> {
+                if (totalOwed > 0) {
+                    final long daysOverdue = getPlugin().getPropertyTaxManager().getDaysOverdue(claim, world, taxBalance);
+                    final long daysUntilUnclaim = Math.max(0, taxSettings.getDueDays() - daysOverdue);
+                    final boolean isOverdue = daysOverdue >= taxSettings.getDueDays();
 
-            getPlugin().getLocales().getLocale("tax_owed_info",
-                    getPlugin().getHook(net.william278.huskclaims.hook.EconomyHook.class)
-                            .map(hook -> hook.format(totalOwed)).orElse(String.format("%.2f", totalOwed)),
-                    Long.toString(daysUntilUnclaim))
-                    .ifPresent(user::sendMessage);
-        } else if (taxBalance > 0) {
-            // Show positive balance
-            getPlugin().getLocales().getLocale("tax_balance_positive",
-                    getPlugin().getHook(net.william278.huskclaims.hook.EconomyHook.class)
-                            .map(hook -> hook.format(taxBalance)).orElse(String.format("%.2f", taxBalance)))
-                    .ifPresent(user::sendMessage);
-        }
+                    if (isOverdue) {
+                        // Show prominent overdue warning
+                        final String formattedAmount = getPlugin().getHook(net.william278.huskclaims.hook.EconomyHook.class)
+                                .map(hook -> hook.format(totalOwed)).orElse(String.format("%.2f", totalOwed));
+                        getPlugin().getLocales().getLocale("tax_overdue_warning",
+                                formattedAmount, Long.toString(daysOverdue))
+                                .ifPresent(user::sendMessage);
+                    }
+
+                    getPlugin().getLocales().getLocale("tax_owed_info",
+                            getPlugin().getHook(net.william278.huskclaims.hook.EconomyHook.class)
+                                    .map(hook -> hook.format(totalOwed)).orElse(String.format("%.2f", totalOwed)),
+                            Long.toString(daysUntilUnclaim))
+                            .ifPresent(user::sendMessage);
+                } else if (taxBalance > 0) {
+                    // Show positive balance
+                    getPlugin().getLocales().getLocale("tax_balance_positive",
+                            getPlugin().getHook(net.william278.huskclaims.hook.EconomyHook.class)
+                                    .map(hook -> hook.format(taxBalance)).orElse(String.format("%.2f", taxBalance)))
+                            .ifPresent(user::sendMessage);
+                }
+            });
+        });
     }
 
 }

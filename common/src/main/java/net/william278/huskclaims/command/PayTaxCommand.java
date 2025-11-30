@@ -62,41 +62,52 @@ public class PayTaxCommand extends OnlineUserCommand implements PropertyTaxManag
             return;
         }
 
-        // Get user's saved data
-        final Optional<SavedUser> savedUser = plugin.getDatabase().getUser(executor.getUuid());
-        if (savedUser.isEmpty()) {
-            plugin.getLocales().getLocale("error_invalid_user", executor.getName())
-                    .ifPresent(executor::sendMessage);
-            return;
-        }
-
-        final SavedUser userData = savedUser.get();
-        final double currentBalance = userData.getTaxBalance();
-        final double totalOwed = getTotalTaxOwed(executor);
-        final double amountToPay = totalOwed - currentBalance;
-
-        // If no amount specified, show tax info
-        if (args.length == 0) {
-            showTaxInfo(executor, currentBalance, totalOwed, amountToPay, hook.get());
-            
-            // If there's an amount to pay, offer to pay it
-            if (amountToPay > 0) {
-                plugin.getLocales().getLocale("tax_info_pay_prompt",
-                        hook.get().format(amountToPay))
-                        .ifPresent(executor::sendMessage);
+        // Get user's saved data asynchronously for Folia compatibility
+        plugin.runAsync(() -> {
+            final Optional<SavedUser> savedUser = plugin.getDatabase().getUser(executor.getUuid());
+            if (savedUser.isEmpty()) {
+                plugin.runSync(executor, () -> {
+                    plugin.getLocales().getLocale("error_invalid_user", executor.getName())
+                            .ifPresent(executor::sendMessage);
+                });
+                return;
             }
-            return;
-        }
 
-        // Parse amount
-        final Optional<Double> amount = parseDouble(args[0]);
-        if (amount.isEmpty() || amount.get() <= 0) {
-            plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
-                    .ifPresent(executor::sendMessage);
-            return;
-        }
+            final SavedUser userData = savedUser.get();
+            final double currentBalance = userData.getTaxBalance();
+            final double totalOwed = getTotalTaxOwed(executor);
+            final double amountToPay = totalOwed - currentBalance;
 
-        payTaxAmount(executor, amount.get(), hook.get());
+            // If no amount specified, show tax info
+            if (args.length == 0) {
+                plugin.runSync(executor, () -> {
+                    showTaxInfo(executor, currentBalance, totalOwed, amountToPay, hook.get());
+                    
+                    // If there's an amount to pay, offer to pay it
+                    if (amountToPay > 0) {
+                        plugin.getLocales().getLocale("tax_info_pay_prompt",
+                                hook.get().format(amountToPay))
+                                .ifPresent(executor::sendMessage);
+                    }
+                });
+                return;
+            }
+
+            // Parse amount
+            final Optional<Double> amount = parseDouble(args[0]);
+            if (amount.isEmpty() || amount.get() <= 0) {
+                plugin.runSync(executor, () -> {
+                    plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                            .ifPresent(executor::sendMessage);
+                });
+                return;
+            }
+
+            // Pay tax amount (this will handle async internally)
+            plugin.runSync(executor, () -> {
+                payTaxAmount(executor, amount.get(), hook.get());
+            });
+        });
     }
 
     private void payTaxAmount(@NotNull OnlineUser executor, double amount, @NotNull EconomyHook hook) {
@@ -107,18 +118,24 @@ public class PayTaxCommand extends OnlineUserCommand implements PropertyTaxManag
             return;
         }
 
-        // Add to tax balance
-        if (payTax(executor, amount)) {
-            final Optional<SavedUser> savedUser = plugin.getDatabase().getUser(executor.getUuid());
-            final double newBalance = savedUser.map(SavedUser::getTaxBalance).orElse(0.0);
-            plugin.getLocales().getLocale("tax_paid", hook.format(amount), hook.format(newBalance))
-                    .ifPresent(executor::sendMessage);
-        } else {
-            // Refund if payment failed
-            hook.takeMoney(executor, -amount, EconomyHook.EconomyReason.PAY_TAX);
-            plugin.getLocales().getLocale("error_tax_payment_failed")
-                    .ifPresent(executor::sendMessage);
-        }
+        // Add to tax balance (payTax handles async internally)
+        plugin.runAsync(() -> {
+            if (payTax(executor, amount)) {
+                final Optional<SavedUser> savedUser = plugin.getDatabase().getUser(executor.getUuid());
+                final double newBalance = savedUser.map(SavedUser::getTaxBalance).orElse(0.0);
+                plugin.runSync(executor, () -> {
+                    plugin.getLocales().getLocale("tax_paid", hook.format(amount), hook.format(newBalance))
+                            .ifPresent(executor::sendMessage);
+                });
+            } else {
+                // Refund if payment failed
+                plugin.runSync(executor, () -> {
+                    hook.takeMoney(executor, -amount, EconomyHook.EconomyReason.PAY_TAX);
+                    plugin.getLocales().getLocale("error_tax_payment_failed")
+                            .ifPresent(executor::sendMessage);
+                });
+            }
+        });
     }
 
     private void showTaxInfo(@NotNull OnlineUser executor, double currentBalance, double totalOwed, double amountToPay, @NotNull EconomyHook hook) {

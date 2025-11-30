@@ -54,14 +54,27 @@ public abstract class ClaimsListCommand extends Command implements GlobalClaimsP
 
     @NotNull
     private String getClaimListRow(@NotNull ServerWorldClaim claim, @NotNull CommandUser user) {
+        final List<String> parts = new ArrayList<>(List.of(
+                plugin.getLocales().getPositionText(claim.claim().getRegion().getCenter(),
+                        TELEPORT_Y_LEVEL, claim.serverWorld(), user, plugin),
+                getClaimSize(claim.claim()),
+                getClaimChildren(claim.claim()),
+                getClaimMembers(claim.claim())
+        ));
+        
+        // Add tax info if property tax is enabled
+        final java.util.Optional<net.william278.huskclaims.claim.ClaimWorld> claimWorld =
+                plugin.getClaimWorld(claim.serverWorld().world());
+        if (claimWorld.isPresent()) {
+            final String taxInfo = getClaimTax(claim.claim(), claimWorld.get());
+            if (!taxInfo.isEmpty()) {
+                parts.add(taxInfo);
+            }
+        }
+        
         return plugin.getLocales().getRawLocale("claim_list_item_separator")
-                .map(separator -> String.join(separator, List.of(
-                        plugin.getLocales().getPositionText(claim.claim().getRegion().getCenter(),
-                                TELEPORT_Y_LEVEL, claim.serverWorld(), user, plugin),
-                        getClaimSize(claim.claim()),
-                        getClaimChildren(claim.claim()),
-                        getClaimMembers(claim.claim())
-                ))).orElse("");
+                .map(separator -> String.join(separator, parts))
+                .orElse("");
     }
 
 
@@ -89,6 +102,63 @@ public abstract class ClaimsListCommand extends Command implements GlobalClaimsP
                 "claim_list_trustees",
                 Integer.toString(claim.getTrustedUsers().size() + claim.getTrustedGroups().size())
         ).orElse("");
+    }
+
+    @NotNull
+    private String getClaimTax(@NotNull Claim claim, @NotNull net.william278.huskclaims.claim.ClaimWorld world) {
+        try {
+            final net.william278.huskclaims.config.Settings.ClaimSettings.PropertyTaxSettings taxSettings =
+                    plugin.getSettings().getClaims().getPropertyTax();
+            if (!taxSettings.isEnabled() || claim.isAdminClaim() || claim.getOwner().isEmpty()) {
+                return "";
+            }
+
+            // Check if world is excluded
+            if (taxSettings.getExcludedWorlds().contains(world.getName(plugin))) {
+                return "";
+            }
+
+            // Get user's tax balance
+            final java.util.Optional<net.william278.huskclaims.user.SavedUser> savedUser =
+                    plugin.getDatabase().getUser(claim.getOwner().get());
+            if (savedUser.isEmpty()) {
+                return "";
+            }
+
+            // Check if user is excluded
+            final net.william278.huskclaims.user.User owner = savedUser.get().getUser();
+            if (taxSettings.getExcludedUsers().contains(owner.getUuid().toString())
+                    || taxSettings.getExcludedUsers().contains(owner.getName())) {
+                return "";
+            }
+
+            final double taxBalance = savedUser.get().getTaxBalance();
+            final double taxOwed = plugin.getPropertyTaxManager().calculateTaxOwed(claim, world);
+            final double totalOwed = taxOwed - taxBalance;
+
+            final java.util.Optional<net.william278.huskclaims.hook.EconomyHook> hook =
+                    plugin.getHook(net.william278.huskclaims.hook.EconomyHook.class);
+            final String formattedAmount = hook.map(h -> h.format(Math.abs(totalOwed)))
+                    .orElse(String.format("%.2f", Math.abs(totalOwed)));
+
+            if (totalOwed > 0) {
+                // Overdue or owing
+                final long daysOverdue = plugin.getPropertyTaxManager().getDaysOverdue(claim, world, taxBalance);
+                if (daysOverdue >= taxSettings.getDueDays()) {
+                    return plugin.getLocales().getRawLocale("claim_list_tax_overdue", formattedAmount).orElse("");
+                } else {
+                    return plugin.getLocales().getRawLocale("claim_list_tax_owed", formattedAmount).orElse("");
+                }
+            } else if (taxBalance > 0) {
+                // Prepaid
+                return plugin.getLocales().getRawLocale("claim_list_tax_prepaid", formattedAmount).orElse("");
+            }
+
+            return "";
+        } catch (Exception e) {
+            // Silently fail if tax calculation fails (e.g., database not ready)
+            return "";
+        }
     }
 
     @NotNull
