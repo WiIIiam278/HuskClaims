@@ -141,7 +141,8 @@ public abstract class ClaimsListCommand extends Command implements GlobalClaimsP
             final String formattedAmount = hook.map(h -> h.format(Math.abs(totalOwed)))
                     .orElse(String.format("%.2f", Math.abs(totalOwed)));
 
-            if (totalOwed > 0) {
+            // Always show tax status if tax is enabled for this claim
+            if (totalOwed > 0.01) { // Use small threshold to avoid floating point issues
                 // Overdue or owing
                 final long daysOverdue = plugin.getPropertyTaxManager().getDaysOverdue(claim, world, taxBalance);
                 if (daysOverdue >= taxSettings.getDueDays()) {
@@ -149,9 +150,24 @@ public abstract class ClaimsListCommand extends Command implements GlobalClaimsP
                 } else {
                     return plugin.getLocales().getRawLocale("claim_list_tax_owed", formattedAmount).orElse("");
                 }
-            } else if (taxBalance > 0) {
+            } else if (taxBalance > 0.01) {
                 // Prepaid
                 return plugin.getLocales().getRawLocale("claim_list_tax_prepaid", formattedAmount).orElse("");
+            } else {
+                // Show current status even if 0 (for new claims, show rate info or "paid")
+                if (taxOwed <= 0.01 && taxBalance >= 0.01) {
+                    // Tax is paid up
+                    return plugin.getLocales().getRawLocale("claim_list_tax_paid").orElse("");
+                } else {
+                    // Show daily rate for new claims
+                    final double taxRate = plugin.getPropertyTaxManager().getTaxRate(savedUser.get().getUser());
+                    final long claimBlocks = claim.getRegion().getSurfaceArea();
+                    final double dailyTax = claimBlocks * taxRate;
+                    if (dailyTax > 0.01) {
+                        final String dailyFormatted = hook.map(h -> h.format(dailyTax)).orElse(String.format("%.2f", dailyTax));
+                        return plugin.getLocales().getRawLocale("claim_list_tax_current", dailyFormatted).orElse("");
+                    }
+                }
             }
 
             return "";

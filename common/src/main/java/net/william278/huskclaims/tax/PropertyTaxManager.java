@@ -148,9 +148,12 @@ public interface PropertyTaxManager {
         final OffsetDateTime now = OffsetDateTime.now();
         final OffsetDateTime lastCalculation = claim.getLastTaxCalculation()
                 .orElse(claim.getCreationTime().orElse(now));
-        final long days = ChronoUnit.DAYS.between(lastCalculation, now);
+        
+        // Calculate time difference - use hours for more precision, then convert to days
+        final long hours = ChronoUnit.HOURS.between(lastCalculation, now);
+        final double days = hours / 24.0;
 
-        if (days <= 0) {
+        if (days <= 0.0) {
             return 0.0;
         }
 
@@ -204,7 +207,9 @@ public interface PropertyTaxManager {
 
         // Calculate days overdue based on total owed
         // This represents how many days of tax are unpaid
-        final long daysOverdue = (long) Math.ceil(totalOwed / dailyTax);
+        // Use precise calculation to handle partial days
+        final double daysOverdueDouble = totalOwed / dailyTax;
+        final long daysOverdue = (long) Math.ceil(daysOverdueDouble);
         return Math.max(0, daysOverdue);
     }
 
