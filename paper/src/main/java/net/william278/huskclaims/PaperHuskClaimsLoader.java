@@ -19,24 +19,24 @@
 
 package net.william278.huskclaims;
 
-import de.exlll.configlib.Configuration;
-import de.exlll.configlib.YamlConfigurations;
 import io.papermc.paper.plugin.loader.PluginClasspathBuilder;
 import io.papermc.paper.plugin.loader.PluginLoader;
 import io.papermc.paper.plugin.loader.library.impl.MavenLibraryResolver;
-import lombok.NoArgsConstructor;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
+import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-@NoArgsConstructor
 @SuppressWarnings("UnstableApiUsage")
 public class PaperHuskClaimsLoader implements PluginLoader {
 
@@ -64,27 +64,78 @@ public class PaperHuskClaimsLoader implements PluginLoader {
     @NotNull
     private static List<String> resolveLibraries(@NotNull PluginClasspathBuilder classpathBuilder) {
         try (InputStream input = getLibraryListFile()) {
-            return YamlConfigurations.read(
-                    Objects.requireNonNull(input, "Failed to read libraries file"),
-                    PaperLibraries.class
-            ).libraries;
+            if (input == null) {
+                classpathBuilder.getContext().getLogger().warn("Failed to read paper-libraries.yml, using defaults");
+                return getDefaultLibraries();
+            }
+            return parseYamlLibraries(input);
         } catch (Throwable e) {
             classpathBuilder.getContext().getLogger().error("Failed to resolve libraries", e);
+            return getDefaultLibraries();
         }
-        return List.of();
     }
 
-    @Nullable
+    @NotNull
     private static InputStream getLibraryListFile() {
         return PaperHuskClaimsLoader.class.getClassLoader().getResourceAsStream("paper-libraries.yml");
     }
 
-    @Configuration
-    @NoArgsConstructor
-    public static class PaperLibraries {
+    @NotNull
+    private static List<String> parseYamlLibraries(@NotNull InputStream input) throws Exception {
+        final List<String> libraries = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8))) {
+            String line;
+            boolean inLibrariesSection = false;
+            final Pattern libraryPattern = Pattern.compile("^\\s*-\\s*(.+)$");
+            final Pattern listStartPattern = Pattern.compile("^\\s*libraries:\\s*$");
 
-        private List<String> libraries;
+            while ((line = reader.readLine()) != null) {
+                // Skip comments
+                if (line.trim().startsWith("#")) {
+                    continue;
+                }
 
+                // Check if we're entering the libraries section
+                if (listStartPattern.matcher(line).matches()) {
+                    inLibrariesSection = true;
+                    continue;
+                }
+
+                // If we're in the libraries section, parse library entries
+                if (inLibrariesSection) {
+                    final java.util.regex.Matcher matcher = libraryPattern.matcher(line);
+                    if (matcher.matches()) {
+                        String library = matcher.group(1).trim();
+                        // Remove quotes if present
+                        if ((library.startsWith("'") && library.endsWith("'")) ||
+                            (library.startsWith("\"") && library.endsWith("\""))) {
+                            library = library.substring(1, library.length() - 1);
+                        }
+                        // Replace ${variable} placeholders (basic implementation)
+                        library = library.replace("${jedis_version}", "6.0.0")
+                                .replace("${mysql_driver_version}", "9.3.0")
+                                .replace("${mariadb_driver_version}", "3.5.3")
+                                .replace("${sqlite_driver_version}", "3.49.1.0");
+                        libraries.add(library);
+                    } else if (!line.trim().isEmpty() && !line.startsWith(" ")) {
+                        // If we hit a non-indented line, we've left the libraries section
+                        break;
+                    }
+                }
+            }
+        }
+        return libraries.isEmpty() ? getDefaultLibraries() : libraries;
+    }
+
+    @NotNull
+    private static List<String> getDefaultLibraries() {
+        return List.of(
+                "de.exlll:configlib-yaml:4.6.1",
+                "redis.clients:jedis:6.0.0",
+                "com.mysql:mysql-connector-j:9.3.0",
+                "org.mariadb.jdbc:mariadb-java-client:3.5.3",
+                "org.xerial:sqlite-jdbc:3.49.1.0"
+        );
     }
 
 }

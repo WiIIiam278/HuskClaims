@@ -43,7 +43,9 @@ shadowJar {
     relocate 'me.lucko', 'net.william278.huskclaims.libraries'
     relocate 'net.roxeez', 'net.william278.huskclaims.libraries'
 
-    minimize()
+    minimize {
+        exclude('net.william278.huskclaims.**')
+    }
 }
 
 tasks {
