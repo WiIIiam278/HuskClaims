@@ -130,14 +130,9 @@ public class PayTaxCommand extends OnlineUserCommand implements PropertyTaxManag
     }
 
     private void showTaxInfo(@NotNull OnlineUser executor, double currentBalance, double totalOwed, double amountToPay, @NotNull EconomyHook hook) {
-        // Always show current tax balance
-        if (currentBalance > 0.01) {
-            plugin.getLocales().getLocale("tax_info_balance", hook.format(currentBalance))
-                    .ifPresent(executor::sendMessage);
-        } else {
-            plugin.getLocales().getLocale("tax_info_balance_zero")
-                    .ifPresent(executor::sendMessage);
-        }
+        // Always show current tax balance (like claimblocks shows balance)
+        plugin.getLocales().getLocale("tax_info_balance", hook.format(currentBalance))
+                .ifPresent(executor::sendMessage);
 
         // Always show total tax owed across all claims (even if 0)
         plugin.getLocales().getLocale("tax_info_total_owed", hook.format(Math.max(0.0, totalOwed)))
