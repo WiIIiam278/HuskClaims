@@ -75,15 +75,16 @@ public class PayTaxCommand extends OnlineUserCommand implements PropertyTaxManag
         final double totalOwed = getTotalTaxOwed(executor);
         final double amountToPay = totalOwed - currentBalance;
 
-        // If no amount specified, pay all owed
+        // If no amount specified, show tax info
         if (args.length == 0) {
-            if (amountToPay <= 0) {
-                plugin.getLocales().getLocale("tax_no_amount_owed")
+            showTaxInfo(executor, currentBalance, totalOwed, amountToPay, hook.get());
+            
+            // If there's an amount to pay, offer to pay it
+            if (amountToPay > 0) {
+                plugin.getLocales().getLocale("tax_info_pay_prompt",
+                        hook.get().format(amountToPay))
                         .ifPresent(executor::sendMessage);
-                return;
             }
-
-            payTaxAmount(executor, amountToPay, hook.get());
             return;
         }
 
@@ -116,6 +117,36 @@ public class PayTaxCommand extends OnlineUserCommand implements PropertyTaxManag
             // Refund if payment failed
             hook.takeMoney(executor, -amount, EconomyHook.EconomyReason.PAY_TAX);
             plugin.getLocales().getLocale("error_tax_payment_failed")
+                    .ifPresent(executor::sendMessage);
+        }
+    }
+
+    private void showTaxInfo(@NotNull OnlineUser executor, double currentBalance, double totalOwed, double amountToPay, @NotNull EconomyHook hook) {
+        // Show current tax balance
+        if (currentBalance > 0) {
+            plugin.getLocales().getLocale("tax_info_balance",
+                    hook.format(currentBalance))
+                    .ifPresent(executor::sendMessage);
+        } else {
+            plugin.getLocales().getLocale("tax_info_balance_zero")
+                    .ifPresent(executor::sendMessage);
+        }
+
+        // Show total tax owed across all claims
+        plugin.getLocales().getLocale("tax_info_total_owed",
+                hook.format(totalOwed))
+                .ifPresent(executor::sendMessage);
+
+        // Show amount to pay (if any)
+        if (amountToPay > 0) {
+            plugin.getLocales().getLocale("tax_info_amount_to_pay",
+                    hook.format(amountToPay))
+                    .ifPresent(executor::sendMessage);
+        } else if (currentBalance > totalOwed) {
+            // Show prepaid amount
+            final double prepaid = currentBalance - totalOwed;
+            plugin.getLocales().getLocale("tax_info_prepaid",
+                    hook.format(prepaid))
                     .ifPresent(executor::sendMessage);
         }
     }
