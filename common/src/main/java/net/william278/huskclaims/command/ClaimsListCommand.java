@@ -132,7 +132,18 @@ public abstract class ClaimsListCommand extends Command implements GlobalClaimsP
                 return "";
             }
 
-            final double taxBalance = savedUser.get().getTaxBalance();
+            // Auto-pay tax from balance if sufficient (same as /taxinfo)
+            // This ensures consistency between /claims and /taxinfo
+            if (owner instanceof net.william278.huskclaims.user.OnlineUser onlineOwner) {
+                plugin.getPropertyTaxManager().autoPayTaxFromBalance(onlineOwner);
+            }
+            
+            // Refresh user data after potential auto-payment
+            final java.util.Optional<net.william278.huskclaims.user.SavedUser> updatedUser =
+                    plugin.getDatabase().getUser(owner.getUuid());
+            final net.william278.huskclaims.user.SavedUser finalUserData = updatedUser.orElse(savedUser.get());
+            
+            final double taxBalance = finalUserData.getTaxBalance();
             final double taxOwed = plugin.getPropertyTaxManager().calculateTaxOwed(claim, world);
             final double totalOwed = taxOwed - taxBalance;
 
@@ -167,7 +178,7 @@ public abstract class ClaimsListCommand extends Command implements GlobalClaimsP
                 if (taxOwed <= 0.01) {
                     // Tax is paid up or no tax accrued yet
                     // Always show daily rate for new claims so users know the rate
-                    final double taxRate = plugin.getPropertyTaxManager().getTaxRate(savedUser.get().getUser());
+                    final double taxRate = plugin.getPropertyTaxManager().getTaxRate(finalUserData.getUser());
                     final long claimBlocks = claim.getRegion().getSurfaceArea();
                     final double dailyTax = claimBlocks * taxRate;
                     if (dailyTax > 0.0) {

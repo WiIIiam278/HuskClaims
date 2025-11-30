@@ -104,15 +104,22 @@ public class TaxInfoCommand extends OnlineUserCommand implements PropertyTaxMana
             }
         }
 
-        // Calculate next due date (when balance will be exhausted)
+        // Calculate next payment due date
+        // This is when the balance will be exhausted (if positive) or when payment is needed (if negative)
         long daysUntilDue = 0;
         java.time.OffsetDateTime nextDueDate = null;
         if (netBalance > 0.01 && totalDailyTax > 0.01) {
+            // Positive balance - calculate when it will be exhausted
             daysUntilDue = (long) Math.floor(netBalance / totalDailyTax);
             nextDueDate = java.time.OffsetDateTime.now().plusDays(daysUntilDue);
-        } else if (netBalance < -0.01 && totalDailyTax > 0.01) {
-            // Already overdue - next due date is now
+        } else if (netBalance < -0.01) {
+            // Negative balance - payment is due now
             nextDueDate = java.time.OffsetDateTime.now();
+            daysUntilDue = 0;
+        } else if (netBalance <= 0.01 && totalDailyTax > 0.01) {
+            // Balance is zero or very small - next payment due in 1 day
+            nextDueDate = java.time.OffsetDateTime.now().plusDays(1);
+            daysUntilDue = 1;
         }
 
         // Prepare messages
@@ -140,21 +147,21 @@ public class TaxInfoCommand extends OnlineUserCommand implements PropertyTaxMana
             locales.getLocale("tax_info_net_balance", hook.get().format(netBalance)).ifPresent(lines::add);
             if (daysUntilDue > 0 && nextDueDate != null) {
                 locales.getLocale("tax_info_days_until_due", Long.toString(daysUntilDue)).ifPresent(lines::add);
-                locales.getLocale("tax_info_next_due_date", nextDueDate.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
-                        .ifPresent(lines::add);
             }
         } else if (netBalance < -0.01) {
             // Negative net balance = you owe money
             final double amountOwed = -netBalance;
             locales.getLocale("tax_info_net_balance_negative", hook.get().format(amountOwed)).ifPresent(lines::add);
             locales.getLocale("tax_info_amount_owed", hook.get().format(amountOwed)).ifPresent(lines::add);
-            if (nextDueDate != null) {
-                locales.getLocale("tax_info_next_due_date", nextDueDate.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
-                        .ifPresent(lines::add);
-            }
         } else {
             // Balanced (net balance is 0)
             locales.getLocale("tax_info_balanced").ifPresent(lines::add);
+        }
+        
+        // Always show next payment due date if we have one
+        if (nextDueDate != null && totalDailyTax > 0.01) {
+            locales.getLocale("tax_info_next_due_date", nextDueDate.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
+                    .ifPresent(lines::add);
         }
         
         locales.getLocale("tax_info_rate", hook.get().format(taxRate)).ifPresent(lines::add);
