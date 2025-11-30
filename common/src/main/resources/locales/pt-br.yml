@@ -251,6 +251,7 @@ locales:
   tax_info_prepaid: '[Valor Pré-pago:](#00fb9a) [%1%](gray)'
   tax_info_pay_prompt: '[Use](gray) [/paytax](gray italic show_text=&7Clique para pagar tudo que deve suggest_command=/paytax) [para pagar tudo que deve, ou](gray) [/paytax <valor>](gray italic show_text=&7Clique para pagar um valor específico suggest_command=/paytax ) [para pagar um valor específico.](gray)'
   tax_info_no_tax_owed: '[Atualmente não há imposto devido.](#00fb9a)'
+  tax_info_can_prepay: '[Você pode pré-pagar impostos usando](gray) [/paytax <valor>](gray italic show_text=&7Clique para pré-pagar impostos suggest_command=/paytax ) [para criar um saldo positivo.](gray)'
   claim_list_tax_owed: '[⚠ Imposto: %1%](#ff7e5e show_text=&7Imposto devido para este terreno)'
   claim_list_tax_overdue: '[🚨 Atrasado: %1%](#ff3300 show_text=&7Imposto atrasado - terreno será removido em breve!)'
   claim_list_tax_prepaid: '[✓ Pré-pago: %1%](#00fb9a show_text=&7Saldo pré-pago)'

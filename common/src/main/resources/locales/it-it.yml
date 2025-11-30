@@ -251,6 +251,7 @@ locales:
   tax_info_prepaid: '[Importo Prepagato:](#00fb9a) [%1%](gray)'
   tax_info_pay_prompt: '[Usa](gray) [/paytax](gray italic show_text=&7Clicca per pagare tutto il dovuto suggest_command=/paytax) [per pagare tutto il dovuto, o](gray) [/paytax <importo>](gray italic show_text=&7Clicca per pagare un importo specifico suggest_command=/paytax ) [per pagare un importo specifico.](gray)'
   tax_info_no_tax_owed: '[Al momento non devi tasse.](#00fb9a)'
+  tax_info_can_prepay: '[Puoi prepagare le tasse usando](gray) [/paytax <importo>](gray italic show_text=&7Clicca per prepagare le tasse suggest_command=/paytax ) [per creare un saldo positivo.](gray)'
   claim_list_tax_owed: '[⚠ Tassa: %1%](#ff7e5e show_text=&7Tassa dovuta per questo claim)'
   claim_list_tax_overdue: '[🚨 Scaduta: %1%](#ff3300 show_text=&7Tassa scaduta - il claim sarà rimosso presto!)'
   claim_list_tax_prepaid: '[✓ Prepagato: %1%](#00fb9a show_text=&7Saldo prepagato)'

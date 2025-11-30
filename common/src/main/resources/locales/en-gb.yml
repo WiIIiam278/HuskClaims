@@ -246,6 +246,7 @@ locales:
   tax_info_amount_to_pay: '[Amount to Pay:](#ff3300) [%1%](#ff7e5e)'
   tax_info_prepaid: '[Prepaid Amount:](#00fb9a) [%1%](gray)'
   tax_info_no_tax_owed: '[No tax currently owed.](#00fb9a)'
+  tax_info_can_prepay: '[You can prepay tax using](gray) [/paytax <amount>](gray italic show_text=&7Click to prepay tax suggest_command=/paytax ) [to build up a positive balance.](gray)'
   tax_info_pay_prompt: '[Use](gray) [/paytax](gray italic show_text=&7Click to pay all owed suggest_command=/paytax) [to pay all owed, or](gray) [/paytax <amount>](gray italic show_text=&7Click to pay specific amount suggest_command=/paytax ) [to pay a specific amount.](gray)'
   claim_list_tax_current: '[Tax: %1%/day](#00fb9a show_text=&7Daily tax rate for this claim)'
   claim_list_tax_paid: '[✓ Paid](#00fb9a show_text=&7Tax is paid up)'
