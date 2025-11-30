@@ -258,11 +258,12 @@ public interface PropertyTaxManager {
      * Process tax payment for a user
      * <p>
      * When tax is paid:
-     * 1. First, pay off any existing tax owed (update lastTaxCalculation dates)
-     * 2. Then, add the remainder to the user's tax balance (prepaid amount)
+     * 1. The payment is added to the user's tax balance
+     * 2. The balance automatically reduces what's owed (tax is calculated dynamically)
      * <p>
-     * This ensures that when you pay $10 and owe $0.21, you end up with $9.79 balance,
-     * not $10 balance.
+     * The tax balance is shared across all claims, so multiple claims use the same balance.
+     * Tax is calculated based on days since lastTaxCalculation, and the balance reduces
+     * the net amount owed.
      *
      * @param user the user paying
      * @param amount the amount to pay
@@ -280,43 +281,77 @@ public interface PropertyTaxManager {
 
         final SavedUser userData = savedUser.get();
         final double currentBalance = userData.getTaxBalance();
-        final double totalTaxOwed = getTotalTaxOwed(user);
-        final double netOwed = totalTaxOwed - currentBalance; // Amount actually owed after balance
-
-        // If there's tax owed, first pay it off by updating lastTaxCalculation dates to now
-        // This "pays off" all accrued tax up to this moment
-        if (netOwed > 0.01 && amount > 0.01) {
-            final double amountToPayOff = Math.min(amount, netOwed);
-            
-            // Update lastTaxCalculation for all claims to now to pay off accrued tax
-            final java.time.OffsetDateTime now = java.time.OffsetDateTime.now();
-            for (ClaimWorld world : getPlugin().getClaimWorlds().values()) {
-                for (Claim claim : world.getClaims()) {
-                    if (claim.getOwner().isPresent() && claim.getOwner().get().equals(user.getUuid())) {
-                        // Update to now to "pay off" all tax accrued up to this point
-                        claim.setLastTaxCalculation(now);
-                    }
-                }
-            }
-            
-            // Add remaining amount to balance (this is the prepaid amount)
-            final double remainder = amount - amountToPayOff;
-            userData.setTaxBalance(currentBalance + remainder);
-        } else {
-            // No tax owed, just add to balance (prepaying)
-            userData.setTaxBalance(currentBalance + amount);
-        }
+        
+        // Simply add to balance - the balance will automatically reduce what's owed
+        // Tax is calculated dynamically based on days since lastTaxCalculation
+        userData.setTaxBalance(currentBalance + amount);
         
         getPlugin().getDatabase().updateUser(userData);
         return true;
     }
 
     /**
+     * Automatically deduct tax from balance and update lastTaxCalculation dates
+     * when the balance is sufficient to cover tax owed.
+     * <p>
+     * This method should be called periodically or when checking tax info to ensure
+     * that tax is automatically paid from the balance when sufficient funds are available.
+     *
+     * @param user the user to process tax for
+     * @return true if any tax was automatically paid from balance
+     */
+    default boolean autoPayTaxFromBalance(@NotNull User user) {
+        final Optional<SavedUser> savedUser = getPlugin().getDatabase().getUser(user.getUuid());
+        if (savedUser.isEmpty()) {
+            return false;
+        }
+
+        final SavedUser userData = savedUser.get();
+        final double currentBalance = userData.getTaxBalance();
+        final double totalTaxOwed = getTotalTaxOwed(user);
+        final double netOwed = totalTaxOwed - currentBalance;
+
+        // If balance is sufficient to cover all tax, automatically pay it
+        if (netOwed <= 0.01 && totalTaxOwed > 0.01) {
+            // Balance covers all tax - update lastTaxCalculation dates to now
+            final OffsetDateTime now = OffsetDateTime.now();
+            boolean updated = false;
+            
+            for (ClaimWorld world : getPlugin().getClaimWorlds().values()) {
+                for (Claim claim : world.getClaims()) {
+                    if (claim.getOwner().isPresent() && claim.getOwner().get().equals(user.getUuid())) {
+                        final double claimTaxOwed = calculateTaxOwed(claim, world);
+                        if (claimTaxOwed > 0.01) {
+                            claim.setLastTaxCalculation(now);
+                            updated = true;
+                        }
+                    }
+                }
+            }
+            
+            if (updated) {
+                // Deduct the tax from balance
+                userData.setTaxBalance(currentBalance - totalTaxOwed);
+                getPlugin().getDatabase().updateUser(userData);
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    /**
      * Update tax calculation date for a claim after expansion
+     * <p>
+     * When a claim is expanded, we update the lastTaxCalculation to the current time.
+     * This ensures that tax is only calculated on the new size from the expansion point forward.
+     * The tax balance is NOT affected - it remains unchanged and can be used by all claims.
      *
      * @param claim the claim that was expanded
      */
     default void onClaimExpanded(@NotNull Claim claim) {
+        // Update lastTaxCalculation to now so tax is calculated on new size from this point
+        // The tax balance is NOT reset - it remains available for all claims
         claim.setLastTaxCalculation(OffsetDateTime.now());
     }
 
