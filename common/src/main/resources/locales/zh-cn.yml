@@ -260,6 +260,7 @@ locales:
   tax_overdue_warning: '[🚨 税款逾期 🚨](#ff3300 bold)\n[欠款金额:](#ff7e5e) [%1%](#ff3300 bold)\n[逾期天数:](#ff7e5e) [%2%](#ff3300 bold)\n[您的领地即将被移除!](#ff3300 italic)\n[使用](gray) [/paytax](gray italic show_text=&7点击缴税 suggest_command=/paytax) [立即支付。](gray)'
   tax_info_header: '[财产税信息](#00fb9a) [%1%](gray)'
   tax_info_net_balance: '[净余额（税后）:](#00fb9a) [%1%](gray)'
+  tax_info_net_balance_negative: '[净余额:](#ff7e5e) [-%1%](#ff3300) [ (您欠此金额)](#ff3300)'
   tax_info_amount_owed: '[欠款金额:](#ff7e5e) [%1%](#ff3300)'
   tax_info_balanced: '[您的税款已平衡 - 无欠款或预付款。](#00fb9a)'
   tax_info_rate: '[税率:](#00fb9a) [%1%](gray) [每天每方块](gray)'

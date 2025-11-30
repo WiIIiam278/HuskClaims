@@ -120,7 +120,11 @@ public class TaxInfoCommand extends OnlineUserCommand implements PropertyTaxMana
         final List<MineDown> lines = Lists.newArrayList();
         
         locales.getLocale("tax_info_header", executor.getName()).ifPresent(lines::add);
+        
+        // Always show the raw tax balance (prepaid amount)
         locales.getLocale("tax_info_balance", hook.get().format(taxBalance)).ifPresent(lines::add);
+        
+        // Always show total tax owed
         locales.getLocale("tax_info_total_owed", hook.get().format(Math.max(0.0, totalTaxOwed))).ifPresent(lines::add);
         
         // Show daily tax charge
@@ -129,7 +133,10 @@ public class TaxInfoCommand extends OnlineUserCommand implements PropertyTaxMana
                     .ifPresent(lines::add);
         }
         
+        // Show net balance - this is the key metric (balance - owed)
+        // If negative, you owe money; if positive, you have prepaid
         if (netBalance > 0.01) {
+            // Positive net balance = prepaid
             locales.getLocale("tax_info_net_balance", hook.get().format(netBalance)).ifPresent(lines::add);
             if (daysUntilDue > 0 && nextDueDate != null) {
                 locales.getLocale("tax_info_days_until_due", Long.toString(daysUntilDue)).ifPresent(lines::add);
@@ -137,13 +144,16 @@ public class TaxInfoCommand extends OnlineUserCommand implements PropertyTaxMana
                         .ifPresent(lines::add);
             }
         } else if (netBalance < -0.01) {
+            // Negative net balance = you owe money
             final double amountOwed = -netBalance;
+            locales.getLocale("tax_info_net_balance_negative", hook.get().format(amountOwed)).ifPresent(lines::add);
             locales.getLocale("tax_info_amount_owed", hook.get().format(amountOwed)).ifPresent(lines::add);
             if (nextDueDate != null) {
                 locales.getLocale("tax_info_next_due_date", nextDueDate.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
                         .ifPresent(lines::add);
             }
         } else {
+            // Balanced (net balance is 0)
             locales.getLocale("tax_info_balanced").ifPresent(lines::add);
         }
         

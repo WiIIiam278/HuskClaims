@@ -252,6 +252,7 @@ locales:
   claim_list_tax_paid: '[✓ Paid](#00fb9a show_text=&7Tax is paid up)'
   tax_info_header: '[Property Tax Information for](#00fb9a) [%1%](gray)'
   tax_info_net_balance: '[Net Balance (after tax):](#00fb9a) [%1%](gray)'
+  tax_info_net_balance_negative: '[Net Balance:](#ff7e5e) [-%1%](#ff3300) [ (You owe this amount)](#ff3300)'
   tax_info_amount_owed: '[Amount Owed:](#ff7e5e) [%1%](#ff3300)'
   tax_info_balanced: '[Your tax is balanced - no amount owed or prepaid.](#00fb9a)'
   tax_info_rate: '[Tax Rate:](#00fb9a) [%1%](gray) [per day per block](gray)'

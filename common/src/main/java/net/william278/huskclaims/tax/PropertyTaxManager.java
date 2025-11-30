@@ -38,6 +38,46 @@ import java.util.regex.Pattern;
 
 /**
  * Manager for handling property tax calculations and payments
+ * <p>
+ * <b>When Tax Calculations Are Updated:</b>
+ * <ul>
+ *   <li><b>Tax Owed (calculateTaxOwed):</b> Calculated dynamically on-demand every time it's called.
+ *       It's based on: days since lastTaxCalculation * blocks * taxRate. This is NOT stored,
+ *       it's calculated fresh each time.</li>
+ *   <li><b>Tax Balance:</b> Stored in database, only changes when:
+ *       <ul>
+ *         <li>User pays tax via /paytax command (adds to balance)</li>
+ *         <li>autoPayTaxFromBalance() is called (deducts from balance when sufficient)</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>lastTaxCalculation Date:</b> Updated when:
+ *       <ul>
+ *         <li>Claim is created (set to creation time)</li>
+ *         <li>Claim is expanded (set to current time)</li>
+ *         <li>autoPayTaxFromBalance() runs and balance covers all tax (set to current time)</li>
+ *       </ul>
+ *   </li>
+ * </ul>
+ * <p>
+ * <b>When autoPayTaxFromBalance() is Called:</b>
+ * <ul>
+ *   <li>When user runs /taxinfo command</li>
+ *   <li>When user enters their own claim</li>
+ *   <li>Can be called manually for scheduled tax processing</li>
+ * </ul>
+ * <p>
+ * <b>Tax Balance vs Net Balance:</b>
+ * <ul>
+ *   <li><b>Tax Balance:</b> The prepaid amount stored in database (always >= 0)</li>
+ *   <li><b>Tax Owed:</b> Calculated dynamically based on time since lastTaxCalculation</li>
+ *   <li><b>Net Balance:</b> Tax Balance - Tax Owed
+ *       <ul>
+ *         <li>If positive: You have prepaid tax</li>
+ *         <li>If negative: You owe tax (shown as negative balance)</li>
+ *         <li>If zero: Balanced</li>
+ *       </ul>
+ *   </li>
+ * </ul>
  *
  * @since 1.5
  */

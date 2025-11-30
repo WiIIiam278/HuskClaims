@@ -260,6 +260,7 @@ locales:
   tax_overdue_warning: '[🚨 IMPOSTO ATRASADO 🚨](#ff3300 bold)\n[Valor Devido:](#ff7e5e) [%1%](#ff3300 bold)\n[Dias de Atraso:](#ff7e5e) [%2%](#ff3300 bold)\n[Seu terreno será removido em breve!](#ff3300 italic)\n[Use](gray) [/paytax](gray italic show_text=&7Clique para pagar o imposto suggest_command=/paytax) [para pagar imediatamente.](gray)'
   tax_info_header: '[Informações de Imposto sobre Propriedade para](#00fb9a) [%1%](gray)'
   tax_info_net_balance: '[Saldo Líquido (após impostos):](#00fb9a) [%1%](gray)'
+  tax_info_net_balance_negative: '[Saldo Líquido:](#ff7e5e) [-%1%](#ff3300) [ (Você deve este valor)](#ff3300)'
   tax_info_amount_owed: '[Valor Devido:](#ff7e5e) [%1%](#ff3300)'
   tax_info_balanced: '[Seu imposto está equilibrado - nenhum valor devido ou pré-pago.](#00fb9a)'
   tax_info_rate: '[Taxa de Imposto:](#00fb9a) [%1%](gray) [por dia por bloco](gray)'

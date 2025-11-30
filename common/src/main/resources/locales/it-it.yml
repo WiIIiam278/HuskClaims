@@ -260,6 +260,7 @@ locales:
   tax_overdue_warning: '[🚨 TASSA SCADUTA 🚨](#ff3300 bold)\n[Importo Dovuto:](#ff7e5e) [%1%](#ff3300 bold)\n[Giorni di Ritardo:](#ff7e5e) [%2%](#ff3300 bold)\n[Il tuo claim sarà rimosso presto!](#ff3300 italic)\n[Usa](gray) [/paytax](gray italic show_text=&7Clicca per pagare la tassa suggest_command=/paytax) [per pagare immediatamente.](gray)'
   tax_info_header: '[Informazioni Tassa Proprietà per](#00fb9a) [%1%](gray)'
   tax_info_net_balance: '[Saldo Netto (dopo le tasse):](#00fb9a) [%1%](gray)'
+  tax_info_net_balance_negative: '[Saldo Netto:](#ff7e5e) [-%1%](#ff3300) [ (Devi questo importo)](#ff3300)'
   tax_info_amount_owed: '[Importo Dovuto:](#ff7e5e) [%1%](#ff3300)'
   tax_info_balanced: '[La tua tassa è bilanciata - nessun importo dovuto o prepagato.](#00fb9a)'
   tax_info_rate: '[Tasso di Tassa:](#00fb9a) [%1%](gray) [al giorno per blocco](gray)'
