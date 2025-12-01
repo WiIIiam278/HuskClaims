@@ -409,6 +409,10 @@ public abstract class Database {
                     users.values().forEach(database::updateUser);
                 },
                 Type.MYSQL, Type.MARIADB, Type.SQLITE
+        ),
+        ADD_TAX_BALANCE_COLUMN(
+                4, "add_tax_balance_column",
+                Type.MYSQL, Type.MARIADB, Type.SQLITE
         );
 
         private final int version;

@@ -1,0 +1,169 @@
+/*
+ * This file is part of HuskClaims, licensed under the Apache License 2.0.
+ *
+ *  Copyright (c) William278 <will27528@gmail.com>
+ *  Copyright (c) contributors
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+package net.william278.huskclaims.command;
+
+import net.william278.huskclaims.HuskClaims;
+import net.william278.huskclaims.config.Settings;
+import net.william278.huskclaims.hook.EconomyHook;
+import net.william278.huskclaims.tax.PropertyTaxManager;
+import net.william278.huskclaims.user.OnlineUser;
+import net.william278.huskclaims.user.SavedUser;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * Command for paying property tax
+ *
+ * @since 1.5
+ */
+public class PayTaxCommand extends OnlineUserCommand implements PropertyTaxManager {
+
+    public PayTaxCommand(@NotNull HuskClaims plugin) {
+        super(
+                List.of("paytax"),
+                "[<amount>]",
+                plugin
+        );
+    }
+
+    @Override
+    public void execute(@NotNull OnlineUser executor, @NotNull String[] args) {
+        final Settings.ClaimSettings.PropertyTaxSettings settings = getPlugin().getSettings().getClaims().getPropertyTax();
+        if (!settings.isEnabled()) {
+            plugin.getLocales().getLocale("error_property_tax_disabled")
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        // Get economy hook
+        final Optional<EconomyHook> hook = plugin.getHook(EconomyHook.class);
+        if (hook.isEmpty()) {
+            plugin.getLocales().getLocale("error_economy_not_found")
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        // Get user's saved data (synchronous like BuyClaimBlocksCommand)
+        final Optional<SavedUser> savedUser = plugin.getDatabase().getUser(executor.getUuid());
+        if (savedUser.isEmpty()) {
+            plugin.getLocales().getLocale("error_invalid_user", executor.getName())
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        final SavedUser userData = savedUser.get();
+        final double currentBalance = userData.getTaxBalance();
+        final double totalOwed = getTotalTaxOwed(executor);
+        final double amountToPay = totalOwed - currentBalance;
+
+        // If no amount specified, show tax info
+        if (args.length == 0) {
+            showTaxInfo(executor, currentBalance, totalOwed, amountToPay, hook.get());
+            
+            // If there's an amount to pay, offer to pay it
+            if (amountToPay > 0.01) {
+                plugin.getLocales().getLocale("tax_info_pay_prompt",
+                        hook.get().format(amountToPay))
+                        .ifPresent(executor::sendMessage);
+            } else {
+                // Show that they can prepay even if nothing is owed
+                plugin.getLocales().getLocale("tax_info_can_prepay")
+                        .ifPresent(executor::sendMessage);
+            }
+            return;
+        }
+
+        // Parse amount
+        final Optional<Double> amount = parseDouble(args[0]);
+        if (amount.isEmpty() || amount.get() <= 0) {
+            plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        // Pay tax amount (synchronous like BuyClaimBlocksCommand)
+        payTaxAmount(executor, amount.get(), hook.get());
+    }
+
+    private void payTaxAmount(@NotNull OnlineUser executor, double amount, @NotNull EconomyHook hook) {
+        // Check if user has enough money (synchronous like BuyClaimBlocksCommand)
+        if (!hook.takeMoney(executor, amount, EconomyHook.EconomyReason.PAY_TAX)) {
+            plugin.getLocales().getLocale("error_insufficient_funds")
+                    .ifPresent(executor::sendMessage);
+            return;
+        }
+
+        // Add to tax balance (synchronous database call like BuyClaimBlocksCommand)
+        if (payTax(executor, amount)) {
+            final Optional<SavedUser> savedUser = plugin.getDatabase().getUser(executor.getUuid());
+            final double newBalance = savedUser.map(SavedUser::getTaxBalance).orElse(0.0);
+            final double newTotalOwed = getTotalTaxOwed(executor);
+            final double netBalance = newBalance - newTotalOwed;
+            // Show net balance (balance after accounting for tax owed)
+            // If negative, show as negative to be clear about what's owed
+            final String netBalanceDisplay = netBalance < -0.01 
+                    ? "-" + hook.format(-netBalance) 
+                    : hook.format(Math.max(0.0, netBalance));
+            plugin.getLocales().getLocale("tax_paid", hook.format(amount), netBalanceDisplay)
+                    .ifPresent(executor::sendMessage);
+        } else {
+            // Refund if payment failed
+            hook.takeMoney(executor, -amount, EconomyHook.EconomyReason.PAY_TAX);
+            plugin.getLocales().getLocale("error_tax_payment_failed")
+                    .ifPresent(executor::sendMessage);
+        }
+    }
+
+    private void showTaxInfo(@NotNull OnlineUser executor, double currentBalance, double totalOwed, double amountToPay, @NotNull EconomyHook hook) {
+        // Always show current tax balance (like claimblocks shows balance)
+        plugin.getLocales().getLocale("tax_info_balance", hook.format(currentBalance))
+                .ifPresent(executor::sendMessage);
+
+        // Always show total tax owed across all claims (even if 0)
+        plugin.getLocales().getLocale("tax_info_total_owed", hook.format(Math.max(0.0, totalOwed)))
+                .ifPresent(executor::sendMessage);
+
+        // Show amount to pay (if any)
+        if (amountToPay > 0.01) {
+            plugin.getLocales().getLocale("tax_info_amount_to_pay", hook.format(amountToPay))
+                    .ifPresent(executor::sendMessage);
+        } else if (currentBalance > totalOwed + 0.01) {
+            // Show prepaid amount
+            final double prepaid = currentBalance - totalOwed;
+            plugin.getLocales().getLocale("tax_info_prepaid", hook.format(prepaid))
+                    .ifPresent(executor::sendMessage);
+        } else if (totalOwed <= 0.01 && currentBalance <= 0.01) {
+            // Show that no tax is currently owed
+            plugin.getLocales().getLocale("tax_info_no_tax_owed")
+                    .ifPresent(executor::sendMessage);
+        }
+    }
+
+    private Optional<Double> parseDouble(@NotNull String value) {
+        try {
+            return Optional.of(Double.parseDouble(value));
+        } catch (NumberFormatException e) {
+            return Optional.empty();
+        }
+    }
+
+}

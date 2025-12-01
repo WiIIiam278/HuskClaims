@@ -54,14 +54,27 @@ public abstract class ClaimsListCommand extends Command implements GlobalClaimsP
 
     @NotNull
     private String getClaimListRow(@NotNull ServerWorldClaim claim, @NotNull CommandUser user) {
+        final List<String> parts = new ArrayList<>(List.of(
+                plugin.getLocales().getPositionText(claim.claim().getRegion().getCenter(),
+                        TELEPORT_Y_LEVEL, claim.serverWorld(), user, plugin),
+                getClaimSize(claim.claim()),
+                getClaimChildren(claim.claim()),
+                getClaimMembers(claim.claim())
+        ));
+        
+        // Add tax info if property tax is enabled
+        final java.util.Optional<net.william278.huskclaims.claim.ClaimWorld> claimWorld =
+                plugin.getClaimWorld(claim.serverWorld().world());
+        if (claimWorld.isPresent()) {
+            final String taxInfo = getClaimTax(claim.claim(), claimWorld.get());
+            if (!taxInfo.isEmpty()) {
+                parts.add(taxInfo);
+            }
+        }
+        
         return plugin.getLocales().getRawLocale("claim_list_item_separator")
-                .map(separator -> String.join(separator, List.of(
-                        plugin.getLocales().getPositionText(claim.claim().getRegion().getCenter(),
-                                TELEPORT_Y_LEVEL, claim.serverWorld(), user, plugin),
-                        getClaimSize(claim.claim()),
-                        getClaimChildren(claim.claim()),
-                        getClaimMembers(claim.claim())
-                ))).orElse("");
+                .map(separator -> String.join(separator, parts))
+                .orElse("");
     }
 
 
@@ -89,6 +102,103 @@ public abstract class ClaimsListCommand extends Command implements GlobalClaimsP
                 "claim_list_trustees",
                 Integer.toString(claim.getTrustedUsers().size() + claim.getTrustedGroups().size())
         ).orElse("");
+    }
+
+    @NotNull
+    private String getClaimTax(@NotNull Claim claim, @NotNull net.william278.huskclaims.claim.ClaimWorld world) {
+        try {
+            final net.william278.huskclaims.config.Settings.ClaimSettings.PropertyTaxSettings taxSettings =
+                    plugin.getSettings().getClaims().getPropertyTax();
+            if (!taxSettings.isEnabled() || claim.isAdminClaim() || claim.getOwner().isEmpty()) {
+                return "";
+            }
+
+            // Check if world is excluded
+            if (taxSettings.getExcludedWorlds().contains(world.getName(plugin))) {
+                return "";
+            }
+
+            // Get user's tax balance (synchronous database call like other methods)
+            final java.util.Optional<net.william278.huskclaims.user.SavedUser> savedUser =
+                    plugin.getDatabase().getUser(claim.getOwner().get());
+            if (savedUser.isEmpty()) {
+                return "";
+            }
+
+            // Check if user is excluded
+            final net.william278.huskclaims.user.User owner = savedUser.get().getUser();
+            if (taxSettings.getExcludedUsers().contains(owner.getUuid().toString())
+                    || taxSettings.getExcludedUsers().contains(owner.getName())) {
+                return "";
+            }
+
+            // Auto-pay tax from balance if sufficient (same as /taxinfo)
+            // This ensures consistency between /claims and /taxinfo
+            if (owner instanceof net.william278.huskclaims.user.OnlineUser onlineOwner) {
+                plugin.getPropertyTaxManager().autoPayTaxFromBalance(onlineOwner);
+            }
+            
+            // Refresh user data after potential auto-payment
+            final java.util.Optional<net.william278.huskclaims.user.SavedUser> updatedUser =
+                    plugin.getDatabase().getUser(owner.getUuid());
+            final net.william278.huskclaims.user.SavedUser finalUserData = updatedUser.orElse(savedUser.get());
+            
+            final double taxBalance = finalUserData.getTaxBalance();
+            final double taxOwed = plugin.getPropertyTaxManager().calculateTaxOwed(claim, world);
+            final double totalOwed = taxOwed - taxBalance;
+
+            final java.util.Optional<net.william278.huskclaims.hook.EconomyHook> hook =
+                    plugin.getHook(net.william278.huskclaims.hook.EconomyHook.class);
+            if (hook.isEmpty()) {
+                return "";
+            }
+
+            // Always show tax status if tax is enabled for this claim
+            if (totalOwed > 0.01) { // Use small threshold to avoid floating point issues
+                // Overdue or owing
+                final long daysOverdue = plugin.getPropertyTaxManager().getDaysOverdue(claim, world, taxBalance);
+                final String formattedAmount = hook.get().format(Math.abs(totalOwed));
+                if (daysOverdue >= taxSettings.getDueDays()) {
+                    return plugin.getLocales().getRawLocale("claim_list_tax_overdue", formattedAmount).orElse("");
+                } else {
+                    return plugin.getLocales().getRawLocale("claim_list_tax_owed", formattedAmount).orElse("");
+                }
+            } else if (taxBalance > 0.01) {
+                // Prepaid - show net prepaid (balance minus any tax owed)
+                final double netPrepaid = taxBalance - taxOwed;
+                if (netPrepaid > 0.01) {
+                    final String formattedAmount = hook.get().format(netPrepaid);
+                    return plugin.getLocales().getRawLocale("claim_list_tax_prepaid", formattedAmount).orElse("");
+                } else {
+                    // Balance covers tax, show as paid
+                    return plugin.getLocales().getRawLocale("claim_list_tax_paid").orElse("");
+                }
+            } else {
+                // Show current status even if 0 (for new claims, show rate info or "paid")
+                if (taxOwed <= 0.01) {
+                    // Tax is paid up or no tax accrued yet
+                    // Always show daily rate for new claims so users know the rate
+                    final double taxRate = plugin.getPropertyTaxManager().getTaxRate(finalUserData.getUser());
+                    final long claimBlocks = claim.getRegion().getSurfaceArea();
+                    final double dailyTax = claimBlocks * taxRate;
+                    if (dailyTax > 0.0) {
+                        final String dailyFormatted = hook.get().format(dailyTax);
+                        final String rateInfo = plugin.getLocales().getRawLocale("claim_list_tax_current", dailyFormatted).orElse("");
+                        if (!rateInfo.isEmpty()) {
+                            return rateInfo;
+                        }
+                    }
+                    // Fallback: show as paid if no rate info available
+                    return plugin.getLocales().getRawLocale("claim_list_tax_paid").orElse("");
+                }
+            }
+
+            return "";
+        } catch (Exception e) {
+            // Log error but don't break the claims list
+            plugin.log(java.util.logging.Level.WARNING, "Error calculating tax for claim list", e);
+            return "";
+        }
     }
 
     @NotNull
