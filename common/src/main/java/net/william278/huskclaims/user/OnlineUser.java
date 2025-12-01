@@ -75,6 +75,22 @@ public abstract class OnlineUser extends User implements OperationUser, CommandU
         sendMessage(mineDown.toComponent());
     }
 
+    public void sendTitle(@NotNull MineDown mineDown) {
+        sendTitle(mineDown.toComponent());
+    }
+
+    public void sendTitle(@NotNull Component title) {
+        getAudience().sendActionBar(title);
+    }
+
+    public void sendSubtitle(@NotNull MineDown mineDown) {
+        sendSubtitle(mineDown.toComponent());
+    }
+
+    public void sendSubtitle(@NotNull Component subtitle) {
+        getAudience().sendActionBar(subtitle);
+    }
+
     public abstract void sendPluginMessage(@NotNull String channel, byte[] message);
 
     public abstract boolean hasPermission(@NotNull String permission, boolean isDefault);

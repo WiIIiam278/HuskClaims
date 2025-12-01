@@ -216,7 +216,7 @@ public class MySqlDatabase extends Database {
     public Optional<SavedUser> getUser(@NotNull UUID uuid) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
-                    SELECT `uuid`, `username`, `last_login`, `claim_blocks`, `preferences`, `spent_claim_blocks`
+                    SELECT `uuid`, `username`, `last_login`, `claim_blocks`, `preferences`, `spent_claim_blocks`, COALESCE(`tax_balance`, 0.0) AS `tax_balance`
                     FROM `%user_data%`
                     WHERE uuid = ?"""))) {
                 statement.setString(1, uuid.toString());
@@ -230,7 +230,8 @@ public class MySqlDatabase extends Database {
                             resultSet.getTimestamp("last_login").toLocalDateTime()
                                     .atOffset(OffsetDateTime.now().getOffset()),
                             resultSet.getLong("claim_blocks"),
-                            resultSet.getLong("spent_claim_blocks")
+                            resultSet.getLong("spent_claim_blocks"),
+                            resultSet.getDouble("tax_balance")
                     ));
                 }
             }
@@ -244,7 +245,7 @@ public class MySqlDatabase extends Database {
     public Optional<SavedUser> getUser(@NotNull String username) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
-                    SELECT `uuid`, `username`, `last_login`, `claim_blocks`, `preferences`, `spent_claim_blocks`
+                    SELECT `uuid`, `username`, `last_login`, `claim_blocks`, `preferences`, `spent_claim_blocks`, COALESCE(`tax_balance`, 0.0) AS `tax_balance`
                     FROM `%user_data%`
                     WHERE `username` = ?"""))) {
                 statement.setString(1, username);
@@ -259,7 +260,8 @@ public class MySqlDatabase extends Database {
                             resultSet.getTimestamp("last_login").toLocalDateTime()
                                     .atOffset(OffsetDateTime.now().getOffset()),
                             resultSet.getLong("claim_blocks"),
-                            resultSet.getLong("spent_claim_blocks")
+                            resultSet.getLong("spent_claim_blocks"),
+                            resultSet.getDouble("tax_balance")
                     ));
                 }
             }
@@ -274,7 +276,7 @@ public class MySqlDatabase extends Database {
         final List<SavedUser> inactiveUsers = Lists.newArrayList();
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
-                    SELECT `uuid`, `username`, `last_login`, `preferences`, `claim_blocks`, `spent_claim_blocks`
+                    SELECT `uuid`, `username`, `last_login`, `preferences`, `claim_blocks`, `spent_claim_blocks`, COALESCE(`tax_balance`, 0.0) AS `tax_balance`
                     FROM `%user_data%`
                     WHERE `last_login` < DATE_SUB(NOW(), INTERVAL ? DAY);"""))) {
                 statement.setLong(1, daysInactive);
@@ -289,7 +291,8 @@ public class MySqlDatabase extends Database {
                             resultSet.getTimestamp("last_login").toLocalDateTime()
                                     .atOffset(OffsetDateTime.now().getOffset()),
                             resultSet.getLong("claim_blocks"),
-                            resultSet.getLong("spent_claim_blocks")
+                            resultSet.getLong("spent_claim_blocks"),
+                            resultSet.getDouble("tax_balance")
                     ));
                 }
             }
@@ -304,8 +307,8 @@ public class MySqlDatabase extends Database {
     public void createUser(@NotNull SavedUser saved) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
-                    INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`, `preferences`, `spent_claim_blocks`)
-                    VALUES (?, ?, ?, ?, ?, ?)"""))) {
+                    INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`, `preferences`, `spent_claim_blocks`, `tax_balance`)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)"""))) {
                 statement.setString(1, saved.getUser().getUuid().toString());
                 statement.setString(2, saved.getUser().getName());
                 statement.setTimestamp(3, Timestamp.valueOf(saved.getLastLogin().toLocalDateTime()));
@@ -313,6 +316,7 @@ public class MySqlDatabase extends Database {
                 statement.setBytes(5, plugin.getGson().toJson(saved.getPreferences())
                         .getBytes(StandardCharsets.UTF_8));
                 statement.setLong(6, saved.getSpentClaimBlocks());
+                statement.setDouble(7, saved.getTaxBalance());
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
@@ -325,13 +329,14 @@ public class MySqlDatabase extends Database {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
                     UPDATE `%user_data%`
-                    SET `claim_blocks` = ?, `preferences` = ?, `spent_claim_blocks` = ?
+                    SET `claim_blocks` = ?, `preferences` = ?, `spent_claim_blocks` = ?, `tax_balance` = ?
                     WHERE `uuid` = ?"""))) {
                 statement.setLong(1, user.getClaimBlocks());
                 statement.setBytes(2, plugin.getGson().toJson(user.getPreferences())
                         .getBytes(StandardCharsets.UTF_8));
                 statement.setLong(3, user.getSpentClaimBlocks());
-                statement.setString(4, user.getUser().getUuid().toString());
+                statement.setDouble(4, user.getTaxBalance());
+                statement.setString(5, user.getUser().getUuid().toString());
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
@@ -343,9 +348,9 @@ public class MySqlDatabase extends Database {
     public void createOrUpdateUser(@NotNull SavedUser data) {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(format("""
-                    INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`, `preferences`, `spent_claim_blocks`)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                    ON DUPLICATE KEY UPDATE `username` = ?, `last_login` = ?, `claim_blocks` = ?, `preferences` = ?, `spent_claim_blocks` = ?;"""))) {
+                    INSERT INTO `%user_data%` (`uuid`, `username`, `last_login`, `claim_blocks`, `preferences`, `spent_claim_blocks`, `tax_balance`)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    ON DUPLICATE KEY UPDATE `username` = ?, `last_login` = ?, `claim_blocks` = ?, `preferences` = ?, `spent_claim_blocks` = ?, `tax_balance` = ?;"""))) {
                 final byte[] prefs = plugin.getGson().toJson(data.getPreferences()).getBytes(StandardCharsets.UTF_8);
                 statement.setString(1, data.getUser().getUuid().toString());
                 statement.setString(2, data.getUser().getName());
@@ -353,11 +358,13 @@ public class MySqlDatabase extends Database {
                 statement.setLong(4, data.getClaimBlocks());
                 statement.setBytes(5, prefs);
                 statement.setLong(6, data.getSpentClaimBlocks());
-                statement.setString(7, data.getUser().getName());
-                statement.setTimestamp(8, Timestamp.valueOf(LocalDateTime.now()));
-                statement.setLong(9, data.getClaimBlocks());
-                statement.setBytes(10, prefs);
-                statement.setLong(11, data.getSpentClaimBlocks());
+                statement.setDouble(7, data.getTaxBalance());
+                statement.setString(8, data.getUser().getName());
+                statement.setTimestamp(9, Timestamp.valueOf(LocalDateTime.now()));
+                statement.setLong(10, data.getClaimBlocks());
+                statement.setBytes(11, prefs);
+                statement.setLong(12, data.getSpentClaimBlocks());
+                statement.setDouble(13, data.getTaxBalance());
                 statement.executeUpdate();
             }
         } catch (SQLException e) {

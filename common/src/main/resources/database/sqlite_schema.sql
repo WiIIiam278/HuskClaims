@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS `%user_data%`
     `claim_blocks`       bigint        NOT NULL DEFAULT 0,
     `preferences`        longblob      NOT NULL,
     `spent_claim_blocks` bigint        NOT NULL DEFAULT 0,
+    `tax_balance`        real          NOT NULL DEFAULT 0.0,
 
     PRIMARY KEY (`uuid`)
 );

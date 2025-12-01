@@ -76,7 +76,11 @@ public abstract class EconomyHook extends Hook {
         /**
          * A transaction to purchase additional claim blocks
          */
-        BUY_CLAIM_BLOCKS
+        BUY_CLAIM_BLOCKS,
+        /**
+         * A transaction to pay property tax
+         */
+        PAY_TAX
     }
 
 }
