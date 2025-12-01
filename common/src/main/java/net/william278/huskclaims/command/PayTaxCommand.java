@@ -119,7 +119,11 @@ public class PayTaxCommand extends OnlineUserCommand implements PropertyTaxManag
             final double newTotalOwed = getTotalTaxOwed(executor);
             final double netBalance = newBalance - newTotalOwed;
             // Show net balance (balance after accounting for tax owed)
-            plugin.getLocales().getLocale("tax_paid", hook.format(amount), hook.format(Math.max(0.0, netBalance)))
+            // If negative, show as negative to be clear about what's owed
+            final String netBalanceDisplay = netBalance < -0.01 
+                    ? "-" + hook.format(-netBalance) 
+                    : hook.format(Math.max(0.0, netBalance));
+            plugin.getLocales().getLocale("tax_paid", hook.format(amount), netBalanceDisplay)
                     .ifPresent(executor::sendMessage);
         } else {
             // Refund if payment failed

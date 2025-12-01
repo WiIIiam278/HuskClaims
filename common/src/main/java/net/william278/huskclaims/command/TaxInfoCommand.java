@@ -78,27 +78,48 @@ public class TaxInfoCommand extends OnlineUserCommand implements PropertyTaxMana
         }
 
         final SavedUser userData = savedUser.get();
-        final double taxBalance = userData.getTaxBalance();
+        
+        // Automatically pay tax from balance if sufficient
+        autoPayTaxFromBalance(executor);
+        
+        // Refresh user data after auto-payment
+        final Optional<SavedUser> updatedUserData = plugin.getDatabase().getUser(executor.getUuid());
+        final SavedUser finalUserData = updatedUserData.orElse(userData);
+        
+        final double taxBalance = finalUserData.getTaxBalance();
         final double totalTaxOwed = getTotalTaxOwed(executor);
         final double netBalance = taxBalance - totalTaxOwed;
         final double taxRate = getTaxRate(executor);
 
-        // Calculate next due date (when balance will be exhausted)
-        long daysUntilDue = 0;
-        if (netBalance > 0.01 && totalTaxOwed > 0.01) {
-            // Calculate daily tax rate across all claims
-            double dailyTax = 0.0;
-            for (ClaimWorld world : plugin.getClaimWorlds().values()) {
-                for (Claim claim : world.getClaims()) {
-                    if (claim.getOwner().isPresent() && claim.getOwner().get().equals(executor.getUuid())) {
-                        final long claimBlocks = claim.getRegion().getSurfaceArea();
-                        dailyTax += claimBlocks * taxRate;
-                    }
+        // Calculate daily tax rate across all claims
+        double totalDailyTax = 0.0;
+        long totalClaimBlocks = 0;
+        for (ClaimWorld world : plugin.getClaimWorlds().values()) {
+            for (Claim claim : world.getClaims()) {
+                if (claim.getOwner().isPresent() && claim.getOwner().get().equals(executor.getUuid())) {
+                    final long claimBlocks = claim.getRegion().getSurfaceArea();
+                    totalClaimBlocks += claimBlocks;
+                    totalDailyTax += claimBlocks * taxRate;
                 }
             }
-            if (dailyTax > 0.0) {
-                daysUntilDue = (long) Math.ceil(netBalance / dailyTax);
-            }
+        }
+
+        // Calculate next payment due date
+        // This is when the balance will be exhausted (if positive) or when payment is needed (if negative)
+        long daysUntilDue = 0;
+        java.time.OffsetDateTime nextDueDate = null;
+        if (netBalance > 0.01 && totalDailyTax > 0.01) {
+            // Positive balance - calculate when it will be exhausted
+            daysUntilDue = (long) Math.floor(netBalance / totalDailyTax);
+            nextDueDate = java.time.OffsetDateTime.now().plusDays(daysUntilDue);
+        } else if (netBalance < -0.01) {
+            // Negative balance - payment is due now
+            nextDueDate = java.time.OffsetDateTime.now();
+            daysUntilDue = 0;
+        } else if (netBalance <= 0.01 && totalDailyTax > 0.01) {
+            // Balance is zero or very small - next payment due in 1 day
+            nextDueDate = java.time.OffsetDateTime.now().plusDays(1);
+            daysUntilDue = 1;
         }
 
         // Prepare messages
@@ -106,19 +127,41 @@ public class TaxInfoCommand extends OnlineUserCommand implements PropertyTaxMana
         final List<MineDown> lines = Lists.newArrayList();
         
         locales.getLocale("tax_info_header", executor.getName()).ifPresent(lines::add);
+        
+        // Always show the raw tax balance (prepaid amount)
         locales.getLocale("tax_info_balance", hook.get().format(taxBalance)).ifPresent(lines::add);
+        
+        // Always show total tax owed
         locales.getLocale("tax_info_total_owed", hook.get().format(Math.max(0.0, totalTaxOwed))).ifPresent(lines::add);
         
+        // Show daily tax charge
+        if (totalDailyTax > 0.01) {
+            locales.getLocale("tax_info_daily_charge", hook.get().format(totalDailyTax), Long.toString(totalClaimBlocks))
+                    .ifPresent(lines::add);
+        }
+        
+        // Show net balance - this is the key metric (balance - owed)
+        // If negative, you owe money; if positive, you have prepaid
         if (netBalance > 0.01) {
+            // Positive net balance = prepaid
             locales.getLocale("tax_info_net_balance", hook.get().format(netBalance)).ifPresent(lines::add);
-            if (daysUntilDue > 0) {
+            if (daysUntilDue > 0 && nextDueDate != null) {
                 locales.getLocale("tax_info_days_until_due", Long.toString(daysUntilDue)).ifPresent(lines::add);
             }
         } else if (netBalance < -0.01) {
+            // Negative net balance = you owe money
             final double amountOwed = -netBalance;
+            locales.getLocale("tax_info_net_balance_negative", hook.get().format(amountOwed)).ifPresent(lines::add);
             locales.getLocale("tax_info_amount_owed", hook.get().format(amountOwed)).ifPresent(lines::add);
         } else {
+            // Balanced (net balance is 0)
             locales.getLocale("tax_info_balanced").ifPresent(lines::add);
+        }
+        
+        // Always show next payment due date if we have one
+        if (nextDueDate != null && totalDailyTax > 0.01) {
+            locales.getLocale("tax_info_next_due_date", nextDueDate.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
+                    .ifPresent(lines::add);
         }
         
         locales.getLocale("tax_info_rate", hook.get().format(taxRate)).ifPresent(lines::add);

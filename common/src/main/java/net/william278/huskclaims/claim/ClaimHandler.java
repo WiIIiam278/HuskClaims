@@ -235,6 +235,9 @@ public interface ClaimHandler extends Handler {
         // Get user's tax balance (async for database operations)
         getPlugin().runAsync(() -> {
             try {
+                // Automatically pay tax from balance if sufficient
+                getPlugin().getPropertyTaxManager().autoPayTaxFromBalance(user);
+                
                 final java.util.Optional<net.william278.huskclaims.user.SavedUser> savedUser =
                         getPlugin().getDatabase().getUser(user.getUuid());
                 if (savedUser.isEmpty()) {

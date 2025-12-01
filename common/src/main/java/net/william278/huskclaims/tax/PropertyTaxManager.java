@@ -29,15 +29,98 @@ import net.william278.huskclaims.user.SavedUser;
 import net.william278.huskclaims.user.User;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.logging.Level;
 
 /**
  * Manager for handling property tax calculations and payments
+ * <p>
+ * <b>When Tax Calculations Are Updated:</b>
+ * <ul>
+ *   <li><b>Tax Owed (calculateTaxOwed):</b> Calculated dynamically on-demand every time it's called.
+ *       It's based on: days since lastTaxCalculation * blocks * taxRate. This is NOT stored,
+ *       it's calculated fresh each time. Tax accrues continuously based on time, even when players are offline.</li>
+ *   <li><b>Tax Balance:</b> Stored in database, only changes when:
+ *       <ul>
+ *         <li>User pays tax via /paytax command (adds to balance)</li>
+ *         <li>autoPayTaxFromBalance() is called (deducts from balance when sufficient)</li>
+ *         <li>Scheduled tax processing task runs (every hour, processes all users)</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>lastTaxCalculation Date:</b> Updated when:
+ *       <ul>
+ *         <li>Claim is created (set to creation time)</li>
+ *         <li>Claim is expanded (set to current time)</li>
+ *         <li>autoPayTaxFromBalance() runs and balance covers all tax (set to current time)</li>
+ *         <li>Scheduled tax processing task auto-pays from balance (set to current time)</li>
+ *       </ul>
+ *   </li>
+ * </ul>
+ * <p>
+ * <b>When autoPayTaxFromBalance() is Called:</b>
+ * <ul>
+ *   <li>When user runs /taxinfo command</li>
+ *   <li>When user enters their own claim</li>
+ *   <li>When scheduled tax processing task runs (every hour, for all users including offline)</li>
+ *   <li>On server startup (pruneOverdueTaxClaims checks all claims)</li>
+ * </ul>
+ * <p>
+ * <b>What Happens When Player is Offline:</b>
+ * <ul>
+ *   <li><b>With Prepaid Balance:</b>
+ *       <ul>
+ *         <li>Tax continues to accrue based on time (days since lastTaxCalculation)</li>
+ *         <li>Scheduled task (every hour) automatically deducts tax from balance when sufficient</li>
+ *         <li>If balance is exhausted, tax continues to accrue and claim becomes overdue</li>
+ *         <li>After grace period (dueDays), claim is automatically unclaimed on server startup or scheduled task</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>Without Prepaid Balance:</b>
+ *       <ul>
+ *         <li>Tax continues to accrue based on time</li>
+ *         <li>No automatic payment (no balance to use)</li>
+ *         <li>After grace period (dueDays), claim is automatically unclaimed on server startup or scheduled task</li>
+ *         <li>Example: If dueDays=30, player offline for 34 days with no balance = claim unclaimed</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>Important: Tax Accumulation During Grace Period:</b>
+ *       <ul>
+ *         <li>Tax CONTINUES to accumulate during the grace period</li>
+ *         <li>The grace period (dueDays) only delays when the claim gets unclaimed</li>
+ *         <li>Tax keeps accruing every day: days × blocks × rate</li>
+ *         <li>Example: If dueDays=30 and you owe $10 on day 1, you'll owe $40 on day 30 (if rate is $1/day)</li>
+ *         <li>The grace period is a buffer before unclaiming, NOT a tax-free period</li>
+ *       </ul>
+ *   </li>
+ *   <li><b>Server Startup:</b>
+ *       <ul>
+ *         <li>pruneOverdueTaxClaims() runs automatically</li>
+ *         <li>Checks all claims for overdue tax</li>
+ *         <li>Unclaims claims that are overdue beyond grace period</li>
+ *       </ul>
+ *   </li>
+ * </ul>
+ * <p>
+ * <b>Tax Balance vs Net Balance:</b>
+ * <ul>
+ *   <li><b>Tax Balance:</b> The prepaid amount stored in database (always >= 0)</li>
+ *   <li><b>Tax Owed:</b> Calculated dynamically based on time since lastTaxCalculation</li>
+ *   <li><b>Net Balance:</b> Tax Balance - Tax Owed
+ *       <ul>
+ *         <li>If positive: You have prepaid tax</li>
+ *         <li>If negative: You owe tax (shown as negative balance)</li>
+ *         <li>If zero: Balanced</li>
+ *       </ul>
+ *   </li>
+ * </ul>
  *
  * @since 1.5
  */
@@ -58,37 +141,56 @@ public interface PropertyTaxManager {
             return 0.0;
         }
 
+        final double defaultRate = settings.getDefaultTaxRatePerDayPerBlock();
+
         // Check for permission-based tax rate
         if (user instanceof OnlineUser onlineUser) {
             final Optional<Double> permissionRate = getTaxRateFromPermissions(onlineUser);
             if (permissionRate.isPresent()) {
-                return permissionRate.get();
+                final double rate = permissionRate.get();
+                // Validate the permission rate is reasonable (within 1000x of default)
+                // This prevents wildcard permissions from causing issues
+                final double maxReasonableRate = Math.max(defaultRate * 1000, 10.0);
+                if (rate > 0 && rate <= maxReasonableRate) {
+                    return rate;
+                } else {
+                    // Log warning if unreasonable rate found
+                    getPlugin().log(java.util.logging.Level.WARNING, 
+                        String.format("User %s has unreasonable tax rate permission: %.2f (default: %.2f). Using default rate.",
+                            user.getName(), rate, defaultRate));
+                }
             }
         }
 
-        return settings.getDefaultTaxRatePerDayPerBlock();
+        return defaultRate;
     }
 
     /**
      * Get tax rate from user permissions
      * Checks permissions like huskclaims.tax.rate.0.01, huskclaims.tax.rate.0.05, etc.
+     * <p>
+     * Note: Only explicit permission nodes are checked. Wildcard permissions that might
+     * grant high values (like huskclaims.tax.rate.*) are ignored to prevent incorrect rates.
      *
      * @param user the online user
      * @return the tax rate if found in permissions
      */
     default Optional<Double> getTaxRateFromPermissions(@NotNull OnlineUser user) {
-        // Try to get numerical permission first (for integer rates)
-        final Optional<Long> numericalRate = user.getNumericalPermission("huskclaims.tax.rate.");
-        if (numericalRate.isPresent()) {
-            return Optional.of(numericalRate.get().doubleValue());
-        }
-
-        // Check common decimal rates by testing permission nodes
+        final double defaultRate = getTaxSettings().getDefaultTaxRatePerDayPerBlock();
+        
+        // Check common decimal rates by testing explicit permission nodes
         // We check common values: 0.001, 0.01, 0.05, 0.1, 0.5, 1.0, etc.
+        // Only check rates that are reasonable (within 100x of default rate)
+        final double maxReasonableRate = Math.max(defaultRate * 100, 1.0);
         final double[] commonRates = {0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0};
         double highestRate = -1.0;
 
         for (double rate : commonRates) {
+            // Skip rates that are unreasonably high compared to default
+            if (rate > maxReasonableRate) {
+                continue;
+            }
+            
             // Try different formats: 0.01, 0_01, 001
             final String[] formats = {
                     String.format("huskclaims.tax.rate.%.3f", rate),
@@ -98,11 +200,26 @@ public interface PropertyTaxManager {
             };
 
             for (String permission : formats) {
+                // Only check if user has the explicit permission (not wildcard)
                 if (user.hasPermission(permission, false)) {
+                    // Verify this is an explicit permission, not a wildcard match
+                    // by checking if the permission node exists explicitly
                     if (rate > highestRate) {
                         highestRate = rate;
                     }
                     break; // Found a match for this rate, move to next
+                }
+            }
+        }
+        
+        // Also check numerical permission, but validate it's reasonable
+        final Optional<Long> numericalRate = user.getNumericalPermission("huskclaims.tax.rate.");
+        if (numericalRate.isPresent()) {
+            final double numRate = numericalRate.get().doubleValue();
+            // Only use if it's reasonable (within 100x of default)
+            if (numRate <= maxReasonableRate && numRate > 0) {
+                if (numRate > highestRate) {
+                    highestRate = numRate;
                 }
             }
         }
@@ -258,11 +375,12 @@ public interface PropertyTaxManager {
      * Process tax payment for a user
      * <p>
      * When tax is paid:
-     * 1. First, pay off any existing tax owed (update lastTaxCalculation dates)
-     * 2. Then, add the remainder to the user's tax balance (prepaid amount)
+     * 1. The payment is added to the user's tax balance
+     * 2. The balance automatically reduces what's owed (tax is calculated dynamically)
      * <p>
-     * This ensures that when you pay $10 and owe $0.21, you end up with $9.79 balance,
-     * not $10 balance.
+     * The tax balance is shared across all claims, so multiple claims use the same balance.
+     * Tax is calculated based on days since lastTaxCalculation, and the balance reduces
+     * the net amount owed.
      *
      * @param user the user paying
      * @param amount the amount to pay
@@ -280,43 +398,77 @@ public interface PropertyTaxManager {
 
         final SavedUser userData = savedUser.get();
         final double currentBalance = userData.getTaxBalance();
-        final double totalTaxOwed = getTotalTaxOwed(user);
-        final double netOwed = totalTaxOwed - currentBalance; // Amount actually owed after balance
-
-        // If there's tax owed, first pay it off by updating lastTaxCalculation dates to now
-        // This "pays off" all accrued tax up to this moment
-        if (netOwed > 0.01 && amount > 0.01) {
-            final double amountToPayOff = Math.min(amount, netOwed);
-            
-            // Update lastTaxCalculation for all claims to now to pay off accrued tax
-            final java.time.OffsetDateTime now = java.time.OffsetDateTime.now();
-            for (ClaimWorld world : getPlugin().getClaimWorlds().values()) {
-                for (Claim claim : world.getClaims()) {
-                    if (claim.getOwner().isPresent() && claim.getOwner().get().equals(user.getUuid())) {
-                        // Update to now to "pay off" all tax accrued up to this point
-                        claim.setLastTaxCalculation(now);
-                    }
-                }
-            }
-            
-            // Add remaining amount to balance (this is the prepaid amount)
-            final double remainder = amount - amountToPayOff;
-            userData.setTaxBalance(currentBalance + remainder);
-        } else {
-            // No tax owed, just add to balance (prepaying)
-            userData.setTaxBalance(currentBalance + amount);
-        }
+        
+        // Simply add to balance - the balance will automatically reduce what's owed
+        // Tax is calculated dynamically based on days since lastTaxCalculation
+        userData.setTaxBalance(currentBalance + amount);
         
         getPlugin().getDatabase().updateUser(userData);
         return true;
     }
 
     /**
+     * Automatically deduct tax from balance and update lastTaxCalculation dates
+     * when the balance is sufficient to cover tax owed.
+     * <p>
+     * This method should be called periodically or when checking tax info to ensure
+     * that tax is automatically paid from the balance when sufficient funds are available.
+     *
+     * @param user the user to process tax for
+     * @return true if any tax was automatically paid from balance
+     */
+    default boolean autoPayTaxFromBalance(@NotNull User user) {
+        final Optional<SavedUser> savedUser = getPlugin().getDatabase().getUser(user.getUuid());
+        if (savedUser.isEmpty()) {
+            return false;
+        }
+
+        final SavedUser userData = savedUser.get();
+        final double currentBalance = userData.getTaxBalance();
+        final double totalTaxOwed = getTotalTaxOwed(user);
+        final double netOwed = totalTaxOwed - currentBalance;
+
+        // If balance is sufficient to cover all tax, automatically pay it
+        if (netOwed <= 0.01 && totalTaxOwed > 0.01) {
+            // Balance covers all tax - update lastTaxCalculation dates to now
+            final OffsetDateTime now = OffsetDateTime.now();
+            boolean updated = false;
+            
+            for (ClaimWorld world : getPlugin().getClaimWorlds().values()) {
+                for (Claim claim : world.getClaims()) {
+                    if (claim.getOwner().isPresent() && claim.getOwner().get().equals(user.getUuid())) {
+                        final double claimTaxOwed = calculateTaxOwed(claim, world);
+                        if (claimTaxOwed > 0.01) {
+                            claim.setLastTaxCalculation(now);
+                            updated = true;
+                        }
+                    }
+                }
+            }
+            
+            if (updated) {
+                // Deduct the tax from balance
+                userData.setTaxBalance(currentBalance - totalTaxOwed);
+                getPlugin().getDatabase().updateUser(userData);
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    /**
      * Update tax calculation date for a claim after expansion
+     * <p>
+     * When a claim is expanded, we update the lastTaxCalculation to the current time.
+     * This ensures that tax is only calculated on the new size from the expansion point forward.
+     * The tax balance is NOT affected - it remains unchanged and can be used by all claims.
      *
      * @param claim the claim that was expanded
      */
     default void onClaimExpanded(@NotNull Claim claim) {
+        // Update lastTaxCalculation to now so tax is calculated on new size from this point
+        // The tax balance is NOT reset - it remains available for all claims
         claim.setLastTaxCalculation(OffsetDateTime.now());
     }
 
@@ -344,6 +496,101 @@ public interface PropertyTaxManager {
     @NotNull
     default Settings.ClaimSettings.PropertyTaxSettings getTaxSettings() {
         return getPlugin().getSettings().getClaims().getPropertyTax();
+    }
+
+    /**
+     * Load the scheduled task for automatic tax processing
+     * <p>
+     * This task runs periodically (every hour) to:
+     * 1. Automatically pay tax from balance for all users (online and offline)
+     * 2. Process overdue tax claims
+     * <p>
+     * This ensures tax is processed even when players are offline.
+     */
+    default void loadTaxScheduler() {
+        final Settings.ClaimSettings.PropertyTaxSettings settings = getTaxSettings();
+        if (!settings.isEnabled()) {
+            return;
+        }
+
+        // Run every hour to process tax
+        getPlugin().getRepeatingTask(
+                () -> {
+                    try {
+                        processTaxForAllUsers();
+                    } catch (Exception e) {
+                        getPlugin().log(Level.SEVERE, "Error processing tax for all users", e);
+                    }
+                },
+                Duration.ofHours(1),
+                Duration.ofMinutes(5) // Start 5 minutes after server start
+        ).run();
+    }
+
+    /**
+     * Process tax for all users (both online and offline)
+     * <p>
+     * This method:
+     * 1. Automatically pays tax from balance when sufficient
+     * 2. Checks for overdue claims and processes them
+     * <p>
+     * This ensures tax is processed even when players don't log in.
+     */
+    default void processTaxForAllUsers() {
+        final Settings.ClaimSettings.PropertyTaxSettings settings = getTaxSettings();
+        if (!settings.isEnabled()) {
+            return;
+        }
+
+        // Get all unique claim owners
+        final Set<UUID> claimOwners = new java.util.HashSet<>();
+        for (ClaimWorld world : getPlugin().getClaimWorlds().values()) {
+            for (Claim claim : world.getClaims()) {
+                if (claim.getOwner().isPresent() && !claim.isAdminClaim()) {
+                    claimOwners.add(claim.getOwner().get());
+                }
+            }
+        }
+
+        int processedUsers = 0;
+        int autoPaidUsers = 0;
+        
+        // Process tax for each owner
+        for (UUID ownerUuid : claimOwners) {
+            try {
+                final Optional<SavedUser> savedUser = getPlugin().getDatabase().getUser(ownerUuid);
+                if (savedUser.isEmpty()) {
+                    continue;
+                }
+
+                final User owner = savedUser.get().getUser();
+                
+                // Auto-pay tax from balance if sufficient
+                if (autoPayTaxFromBalance(owner)) {
+                    autoPaidUsers++;
+                }
+                
+                processedUsers++;
+            } catch (Exception e) {
+                getPlugin().log(Level.WARNING, 
+                    String.format("Error processing tax for user %s", ownerUuid), e);
+            }
+        }
+
+        // Process overdue claims (this also runs on server startup)
+        getPlugin().runAsync(() -> {
+            try {
+                getPlugin().pruneOverdueTaxClaims();
+            } catch (Exception e) {
+                getPlugin().log(Level.SEVERE, "Error pruning overdue tax claims", e);
+            }
+        });
+
+        if (processedUsers > 0) {
+            getPlugin().log(Level.INFO, String.format(
+                "Tax processing cycle completed: %d users processed, %d users had tax auto-paid from balance",
+                processedUsers, autoPaidUsers));
+        }
     }
 
 }

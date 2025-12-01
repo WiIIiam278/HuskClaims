@@ -92,6 +92,7 @@ public interface HuskClaims extends Task.Supplier, ConfigProvider, UserProvider,
             loadCommands();
             loadListeners();
             loadClaimBlockScheduler();
+            loadTaxScheduler();
             registerHooks(PluginHook.Register.ON_ENABLE);
             loadAPI();
             loadMetrics();
