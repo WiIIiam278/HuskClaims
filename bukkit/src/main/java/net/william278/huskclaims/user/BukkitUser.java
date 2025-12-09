@@ -26,6 +26,7 @@ import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.HuskClaims;
 import net.william278.huskclaims.hook.HuskHomesHook;
 import net.william278.huskclaims.position.Position;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -124,7 +125,8 @@ public class BukkitUser extends OnlineUser {
     }
 
     private void teleportInstant(@NotNull Position position) {
-        PaperLib.teleportAsync(bukkitPlayer, BukkitHuskClaims.Adapter.adapt(position));
+        final Location location = BukkitHuskClaims.Adapter.adapt(position);
+        plugin.runSync(bukkitPlayer, () -> PaperLib.teleportAsync(bukkitPlayer, location));
     }
 
     @Override
