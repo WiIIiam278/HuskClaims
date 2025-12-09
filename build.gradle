@@ -23,6 +23,7 @@ ext {
     set 'mysql_driver_version', mysql_driver_version.toString()
     set 'mariadb_driver_version', mariadb_driver_version.toString()
     set 'sqlite_driver_version', sqlite_driver_version.toString()
+    set 'mongodb_driver_version', mongodb_driver_version.toString()
 }
 
 publishing {
