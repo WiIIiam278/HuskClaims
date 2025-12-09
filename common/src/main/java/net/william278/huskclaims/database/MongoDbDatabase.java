@@ -203,6 +203,10 @@ public class MongoDbDatabase extends Database {
                         Updates.set("spent_claim_blocks", 0L)
                 );
             }
+            default -> {
+                throw new UnsupportedOperationException("MongoDB migration " + migration.name()
+                        + " is not implemented in performMongoMigration");
+            }
         }
     }
 
