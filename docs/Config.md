@@ -28,15 +28,16 @@ check_for_updates: true
 command_cooldown_seconds: 0.5
 # Database settings
 database:
-  # Type of database to use (SQLITE, MYSQL or MARIADB)
+  # Type of database to use (SQLITE, MYSQL, MARIADB or MONGODB)
   type: SQLITE
-  # Specify credentials here if you are using MYSQL or MARIADB
+  # Specify credentials here if you are using MYSQL, MARIADB or MONGODB
   credentials:
     host: localhost
     port: 3306
     database: huskclaims
     username: root
     password: pa55w0rd
+    # Connection parameters. For MySQL/MariaDB: JDBC parameters. For MongoDB: connection string options (e.g. ?authSource=admin&retryWrites=true)
     parameters: ?autoReconnect=true&useSSL=false&useUnicode=true&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
   # MYSQL / MARIADB database Hikari connection pool properties
   # Don't modify this unless you know what you're doing!
@@ -98,6 +99,7 @@ claims:
     - ADMIN_CLAIMS
   # Default operation type flags for the wilderness (outside claims)
   # To modify existing worlds, use /claimflags set <flag> <true/false> while standing outside a claim.
+  # Note: redstone_actuate is included by default to allow redstone to work outside claims
   wilderness_rules:
     - empty_bucket
     - block_place
@@ -127,6 +129,7 @@ claims:
     - block_interact
     - player_damage_monster
     - redstone_interact
+    - redstone_actuate
     - player_damage_player
   # List of worlds where users cannot claim
   unclaimable_worlds: []

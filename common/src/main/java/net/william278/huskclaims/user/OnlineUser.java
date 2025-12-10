@@ -101,5 +101,12 @@ public abstract class OnlineUser extends User implements OperationUser, CommandU
 
     public abstract void teleport(@NotNull Position position, boolean instant);
 
+    /**
+     * Returns whether this user can see the specified user
+     *
+     * @param other The other user to check visibility for
+     * @return Whether this user can see the other user
+     */
+    public abstract boolean canSee(@NotNull OnlineUser other);
 
 }

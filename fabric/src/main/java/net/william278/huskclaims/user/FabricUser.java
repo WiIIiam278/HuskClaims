@@ -143,4 +143,12 @@ public class FabricUser extends OnlineUser {
         return fabricPlayer;
     }
 
+    @Override
+    public boolean canSee(@NotNull OnlineUser other) {
+        if (other instanceof FabricUser fabricOther) {
+            return fabricPlayer.getServer().getPlayerManager().getPlayer(fabricOther.getFabricPlayer().getUuid()) != null;
+        }
+        return true;
+    }
+
 }

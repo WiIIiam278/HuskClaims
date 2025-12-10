@@ -31,7 +31,7 @@ dependencies {
     compileOnly 'net.luckperms:api:5.5'
     compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:2.7.0'
     compileOnly 'us.dynmap:DynmapCoreAPI:3.6'
-    compileOnly 'maven.modrinth:pl3xmap:1.21.5-529'
+    compileOnly 'maven.modrinth:pl3xmap:1.21.10-537'
     compileOnly 'com.github.plan-player-analytics:Plan:5.6.2965'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.9-SNAPSHOT'
     compileOnly('org.geysermc.floodgate:api:2.2.4-SNAPSHOT') {
@@ -47,6 +47,7 @@ dependencies {
     compileOnly "org.xerial:sqlite-jdbc:$sqlite_driver_version"
     compileOnly "com.mysql:mysql-connector-j:$mysql_driver_version"
     compileOnly "org.mariadb.jdbc:mariadb-java-client:$mariadb_driver_version"
+    compileOnly "org.mongodb:mongodb-driver-sync:$mongodb_driver_version"
     compileOnly "redis.clients:jedis:$jedis_version"
 
     annotationProcessor 'org.projectlombok:lombok:1.18.38'
