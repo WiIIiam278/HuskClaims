@@ -60,6 +60,9 @@ public interface DatabaseProvider {
             case SQLITE -> {
                 return new SqLiteDatabase(getPlugin());
             }
+            case MONGODB -> {
+                return new MongoDbDatabase(getPlugin());
+            }
             default -> throw new IllegalStateException("Unexpected value: " + type);
         }
     }

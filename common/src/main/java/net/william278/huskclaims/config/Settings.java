@@ -69,10 +69,10 @@ public final class Settings {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class DatabaseSettings {
 
-        @Comment("Type of database to use (SQLITE, MYSQL or MARIADB)")
+        @Comment("Type of database to use (SQLITE, MYSQL, MARIADB or MONGODB)")
         private Database.Type type = Database.Type.SQLITE;
 
-        @Comment("Specify credentials here if you are using MYSQL or MARIADB")
+        @Comment("Specify credentials here if you are using MYSQL, MARIADB or MONGODB")
         private DatabaseCredentials credentials = new DatabaseCredentials();
 
         @Comment({"MYSQL / MARIADB database Hikari connection pool properties",
@@ -91,11 +91,14 @@ public final class Settings {
         @Configuration
         @NoArgsConstructor(access = AccessLevel.PRIVATE)
         public static class DatabaseCredentials {
+            @Comment("Database host. Default port: 3306 for MySQL/MariaDB, 27017 for MongoDB")
             private String host = "localhost";
+            @Comment("Database port. Default: 3306 for MySQL/MariaDB, 27017 for MongoDB")
             int port = 3306;
             String database = "huskclaims";
             String username = "root";
             String password = "pa55w0rd";
+            @Comment("Connection parameters. For MySQL/MariaDB: JDBC parameters. For MongoDB: connection string options (e.g. ?authSource=admin&retryWrites=true)")
             String parameters = "?autoReconnect=true&useSSL=false&useUnicode=true&characterEncoding=UTF-8&allowPublicKeyRetrieval=true";
         }
 
