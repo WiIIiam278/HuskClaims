@@ -4,3 +4,4 @@ libraries:
   - 'com.mysql:mysql-connector-j:${mysql_driver_version}'
   - 'org.mariadb.jdbc:mariadb-java-client:${mariadb_driver_version}'
   - 'org.xerial:sqlite-jdbc:${sqlite_driver_version}'
+  - 'org.mongodb:mongodb-driver-sync:${mongodb_driver_version}'

@@ -136,7 +136,7 @@ public abstract class Database {
      * @param connection the database connection
      * @throws SQLException if an SQL error occurs during migration
      */
-    protected final void performMigrations(@NotNull Connection connection, @NotNull Type type) throws SQLException {
+    protected final void performMigrations(@Nullable Connection connection, @NotNull Type type) throws SQLException {
         final int currentVersion = getSchemaVersion();
         final int latestVersion = Migration.getLatestVersion();
         if (currentVersion < latestVersion) {
@@ -149,12 +149,19 @@ public abstract class Database {
                     try {
                         plugin.log(Level.INFO, "Performing database migration: " + migration.getMigrationName()
                                 + " (v" + migration.getVersion() + ")");
-                        executeScript(connection, "migrations/%s-%s-%s.sql".formatted(
-                                migration.getVersion(),
-                                type.name().toLowerCase(Locale.ENGLISH),
-                                migration.getMigrationName()
-                        ));
-                    } catch (SQLException e) {
+                        if (type == Type.MONGODB) {
+                            performMongoMigration(migration);
+                        } else {
+                            if (connection == null) {
+                                throw new IllegalStateException("Connection cannot be null for SQL databases");
+                            }
+                            executeScript(connection, "migrations/%s-%s-%s.sql".formatted(
+                                    migration.getVersion(),
+                                    type.name().toLowerCase(Locale.ENGLISH),
+                                    migration.getMigrationName()
+                            ));
+                        }
+                    } catch (Exception e) {
                         plugin.log(Level.WARNING, "Migration " + migration.getMigrationName()
                                 + " (v" + migration.getVersion() + ") failed; skipping", e);
                     }
@@ -164,6 +171,15 @@ public abstract class Database {
             setSchemaVersion(latestVersion);
             plugin.log(Level.INFO, "Completed database migration (Target version: v" + latestVersion + ")");
         }
+    }
+
+    /**
+     * Perform a MongoDB migration
+     *
+     * @param migration the migration to perform
+     */
+    protected void performMongoMigration(@NotNull Migration migration) {
+        throw new UnsupportedOperationException("MongoDB migrations must be implemented in MongoDbDatabase");
     }
 
     /**
@@ -331,7 +347,8 @@ public abstract class Database {
     public enum Type {
         MYSQL("MySQL"),
         MARIADB("MariaDB"),
-        SQLITE("SQLite");
+        SQLITE("SQLite"),
+        MONGODB("MongoDB");
         @NotNull
         private final String displayName;
 
@@ -377,11 +394,11 @@ public abstract class Database {
     public enum Migration {
         ADD_METADATA_TABLE(
                 0, "add_metadata_table",
-                Type.MYSQL, Type.MARIADB, Type.SQLITE
+                Type.MYSQL, Type.MARIADB, Type.SQLITE, Type.MONGODB
         ),
         REMOVE_HOURS_PLAYED_COLUMN(
                 1, "remove_hours_played_column",
-                Type.MYSQL, Type.MARIADB, Type.SQLITE
+                Type.MYSQL, Type.MARIADB, Type.SQLITE, Type.MONGODB
         ),
         CONVERT_TO_JSONB(
                 2, "convert_to_jsonb",
@@ -408,7 +425,7 @@ public abstract class Database {
                     }
                     users.values().forEach(database::updateUser);
                 },
-                Type.MYSQL, Type.MARIADB, Type.SQLITE
+                Type.MYSQL, Type.MARIADB, Type.SQLITE, Type.MONGODB
         );
 
         private final int version;

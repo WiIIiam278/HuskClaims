@@ -31,6 +31,7 @@ dependencies {
     implementation include("org.xerial:sqlite-jdbc:$sqlite_driver_version")
     implementation include("com.mysql:mysql-connector-j:$mysql_driver_version")
     implementation include("org.mariadb.jdbc:mariadb-java-client:$mariadb_driver_version")
+    implementation include("org.mongodb:mongodb-driver-sync:$mongodb_driver_version")
     implementation include("redis.clients:jedis:$jedis_version")
     implementation include("redis.clients.authentication:redis-authx-core:0.1.1-beta2")
 
