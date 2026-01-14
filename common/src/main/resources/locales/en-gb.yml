@@ -221,6 +221,7 @@ locales:
   claimslist_command_description: 'View a list of player claims.'
   adminclaimslist_command_description: 'View a list of admin claims.'
   extendclaim_command_description: 'Increase a claim''s size in direction you''re facing.'
+  reduceclaim_command_description: 'Decrease a claim''s size in direction you''re facing.'
   claimblocks_command_description: 'View your claim block balance.'
   restrictclaim_command_description: 'Restrict trust access inheritance from child claims.'
   claim_command_description: 'Create a claim, or toggle regular claiming mode.'

@@ -221,6 +221,7 @@ locales:
   claimslist_command_description: 'Visualizza la lista dei claim del giocatore.'
   adminclaimslist_command_description: 'Visualizza la lista dei claim amministrativi.'
   extendclaim_command_description: 'Aumenta la dimensione di un claim nella direzione verso cui guardi.'
+  reduceclaim_command_description: 'Riduce la dimensione di un claim nella direzione verso cui guardi.'
   claimblocks_command_description: 'Visualizza il saldo dei tuoi blocchi di claim.'
   restrictclaim_command_description: 'Restringi l''eredità di accesso ai claim figlio.'
   claim_command_description: 'Crea un claim o attiva la modalità di claim normale.'

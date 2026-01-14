@@ -101,6 +101,19 @@ This is a table of HuskClaims commands, how to use them, their required permissi
             <td><code>huskclaims.command.extendclaim.other</code></td>
             <td align="center">❌</td>
         </tr>
+        <!-- /reduceclaim command -->
+        <tr>
+            <td rowspan="2"><code>/reduceclaim</code></td>
+            <td rowspan="2"><code>/reduceclaim &lt;blocks&gt;</code></td>
+            <td>Reduce your claim by a number of blocks in the direction you are facing</td>
+            <td><code>huskclaims.command.reduceclaim</code></td>
+            <td align="center">✅</td>
+        </tr>
+        <tr>
+            <td>Reduce another user's claim</td>
+            <td><code>huskclaims.command.reduceclaim.other</code></td>
+            <td align="center">❌</td>
+        </tr>
         <!-- /unclaim command -->
         <tr>
             <td rowspan="2"><code>/unclaim</code></td>

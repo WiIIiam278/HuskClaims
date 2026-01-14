@@ -141,7 +141,7 @@ claims:
   # The maximum number of claim blocks a user can have.
   # Override with the "huskclaims.max_claim_blocks.(amount)" permission
   maximum_claim_blocks: 9999999
-  # The maximum amount of land, in claim blocks, that can be affected at once by /claim, /extendclaim,
+  # The maximum amount of land, in claim blocks, that can be affected at once by /claim, /extendclaim, /reduceclaim,
   # or the claim tool. Increasing this can affect performance when users claim lots of land at once. 
   maximum_claim_action_size: 45000
   # Claim inspection tool (right click with this to inspect claims)
@@ -156,7 +156,7 @@ claims:
   claim_tool_model_data:
     required: false
     model_data: 0
-  # Require players to hold the claim tool to use claim commands (e.g. /claim <radius>, /extendclaim)
+  # Require players to hold the claim tool to use claim commands (e.g. /claim <radius>, /extendclaim, /reduceclaim)
   require_tool_for_commands: true
   # Minimum size of claims along one edge. This does not affect child or admin claims.
   minimum_claim_size: 5

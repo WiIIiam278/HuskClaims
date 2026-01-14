@@ -221,6 +221,7 @@ locales:
   claimslist_command_description: '檢視玩家領地清單。'
   adminclaimslist_command_description: '檢視管理員領地清單。'
   extendclaim_command_description: '朝您面對的方向增加領地     區塊的大小。'
+  reduceclaim_command_description: '朝您面對的方向減少領地區塊的大小。'
   claimblocks_command_description: '檢視您可用的領地格數。'
   restrictclaim_command_description: '限制從子領地繼承信任權限。'
   claim_command_description: '建立領地，或切換一般領地模式。'
