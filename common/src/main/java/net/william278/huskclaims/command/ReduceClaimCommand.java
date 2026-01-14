@@ -95,10 +95,10 @@ public class ReduceClaimCommand extends InClaimOwnerCommand {
     private Region getReducedRegion(@NotNull Region region, @NotNull ReduceDirection facing, int amount) {
         int north = 0, south = 0, east = 0, west = 0;
         switch (facing) {
-            case NORTH -> north = -amount;
-            case SOUTH -> south = -amount;
-            case EAST -> east = -amount;
-            case WEST -> west = -amount;
+            case NORTH -> south = -amount;
+            case SOUTH -> north = -amount;
+            case EAST -> west = -amount;
+            case WEST -> east = -amount;
         }
         return region.getResized(north, south, east, west);
     }
