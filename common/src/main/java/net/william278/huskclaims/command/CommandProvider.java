@@ -102,6 +102,7 @@ public interface CommandProvider {
         commands.add(new UserClaimsListCommand(getPlugin()));
         commands.add(new AdminClaimsListCommand(getPlugin()));
         commands.add(new ExtendClaimCommand(getPlugin()));
+        commands.add(new ReduceClaimCommand(getPlugin()));
         commands.add(new ClaimBlocksCommand(getPlugin()));
         commands.add(new RestrictClaimCommand(getPlugin()));
         commands.add(new IgnoreClaimsCommand(getPlugin()));

@@ -221,6 +221,7 @@ locales:
   claimslist_command_description: 'Показать список приватов игрока.'
   adminclaimslist_command_description: 'Показать список приватов администрации.'
   extendclaim_command_description: 'Расширить размер привата в ту сторону, в которую вы смотрите.'
+  reduceclaim_command_description: 'Уменьшить размер привата в ту сторону, в которую вы смотрите.'
   claimblocks_command_description: 'Показать ваш баланс блоков привата.'
   restrictclaim_command_description: 'Ограничить наследование прав доверия потомственных приватов.'
   claim_command_description: 'Создать приват или войти в обычный режим привата.'

@@ -221,6 +221,7 @@ locales:
   claimslist_command_description: 'Mostra uma lista dos terrenos de jogadores.'
   adminclaimslist_command_description: 'Mostra uma lista dos terrenos administrativos.'
   extendclaim_command_description: 'Aumenta o tamanho do terreno na direção que você está olhando.'
+  reduceclaim_command_description: 'Diminui o tamanho do terreno na direção que você está olhando.'
   claimblocks_command_description: 'Mostra o seu saldo de blocos reivindicáveis.'
   restrictclaim_command_description: 'Restringe a herança de autorizações de acesso para subterrenos.'
   claim_command_description: 'Cria um terreno ou ativa/desativa o modo de reivindicação normal de terrenos.'

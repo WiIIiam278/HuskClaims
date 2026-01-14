@@ -216,7 +216,7 @@ public final class Settings {
                 "Override with the \"huskclaims.max_claim_blocks.(amount)\" permission"})
         private long maximumClaimBlocks = 9999999;
 
-        @Comment({"The maximum amount of land, in claim blocks, that can be affected at once by /claim, /extendclaim,",
+        @Comment({"The maximum amount of land, in claim blocks, that can be affected at once by /claim, /extendclaim, /reduceclaim",
                 "or the claim tool. Increasing this can affect performance when users claim lots of land at once. "})
         private long maximumClaimActionSize = 45000;
 
@@ -243,7 +243,7 @@ public final class Settings {
             private int modelData = 0;
         }
 
-        @Comment("Require players to hold the claim tool to use claim commands (e.g. /claim <radius>, /extendclaim)")
+        @Comment("Require players to hold the claim tool to use claim commands (e.g. /claim <radius>, /extendclaim, /reduceclaim)")
         private boolean requireToolForCommands = true;
 
         @Comment("Minimum size of claims along one edge. This does not affect child or admin claims.")
