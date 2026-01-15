@@ -221,6 +221,7 @@ locales:
   claimslist_command_description: '浏览公开的玩家领地.'
   adminclaimslist_command_description: '浏览管理员领地.'
   extendclaim_command_description: '向面朝方向拓宽领地.'
+  reduceclaim_command_description: '向面朝方向缩小领地.'
   claimblocks_command_description: '浏览占地方块剩余数量.'
   restrictclaim_command_description: '限制子领地的信任继承状态.'
   claim_command_description: '创建领地, 或进入普通领地创建模式.'

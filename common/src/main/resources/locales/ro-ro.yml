@@ -221,6 +221,7 @@ locales:
   claimslist_command_description: 'Vezi o listă de revendicări ale jucătorilor.'
   adminclaimslist_command_description: 'Vezi o listă de revendicări de admin.'
   extendclaim_command_description: 'Mărește dimensiunea unei revendicări în direcția în care privești.'
+  reduceclaim_command_description: 'Micșorează dimensiunea unei revendicări în direcția în care privești.'
   claimblocks_command_description: 'Interoghează soldul tău de blocuri de revendicare.'
   restrictclaim_command_description: 'Restricționează moștenirea accesului de încredere de la revendicările fiu.'
   claim_command_description: 'Creează o revendicare sau comută modul obișnuit de revendicare.'

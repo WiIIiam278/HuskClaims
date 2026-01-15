@@ -94,7 +94,7 @@ public class BukkitUser extends OnlineUser {
     @Override
     public Optional<Long> getNumericalPermission(@NotNull String prefix) {
         return bukkitPlayer.getEffectivePermissions().stream()
-                .filter(perm -> perm.getPermission().startsWith(prefix))
+                .filter(perm -> perm.getPermission().startsWith(prefix) && perm.getValue())
                 .map(perm -> perm.getPermission().substring(prefix.length()))
                 .map(value -> {
                     try {
@@ -103,8 +103,8 @@ public class BukkitUser extends OnlineUser {
                         return null;
                     }
                 })
-                .filter(Objects::nonNull).sorted()
-                .findFirst();
+                .filter(Objects::nonNull)
+                .max(Long::compareTo);
     }
 
     @Override

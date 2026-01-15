@@ -110,7 +110,7 @@ public class FabricUser extends OnlineUser {
                 permissions.add(l);
             }
         }
-        return permissions.stream().sorted().findFirst();
+        return permissions.stream().max(Long::compareTo);
     }
 
     @Override
