@@ -33,6 +33,7 @@ import net.william278.huskclaims.user.Preferences;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import java.util.UUID;
 import net.william278.cloplib.operation.OperationType;
 
 /**
@@ -130,12 +131,25 @@ public interface ClaimHandler extends Handler {
             return false;
         }
 
-        // If the two claims are the same, allow it, otherwise, deny it
+        // If the two claims are the same or share the same owner, allow it, otherwise, deny it
         final ClaimWorld claimWorld = optionalClaimWorld.get();
         final Optional<Claim> claim1 = claimWorld.getClaimAt((Position) position1);
         final Optional<Claim> claim2 = claimWorld.getClaimAt((Position) position2);
         if (claim1.isPresent() && claim2.isPresent()) {
-            return !claim1.get().equals(claim2.get());
+            final Claim c1 = claim1.get();
+            final Claim c2 = claim2.get();
+            if (c1.equals(c2)) {
+                return false;
+            }
+            final Optional<UUID> owner1 = c1.getOwner();
+            final Optional<UUID> owner2 = c2.getOwner();
+            if (owner1.isEmpty() && owner2.isEmpty()) {
+                return false;
+            }
+            if (owner1.isPresent() && owner2.isPresent()) {
+                return !owner1.get().equals(owner2.get());
+            }
+            return true;
         }
 
         // Otherwise allow it so long as there's no claim at either position
