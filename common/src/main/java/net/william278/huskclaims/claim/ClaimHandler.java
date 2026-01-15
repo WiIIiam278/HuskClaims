@@ -33,7 +33,6 @@ import net.william278.huskclaims.user.Preferences;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
-import java.util.UUID;
 import net.william278.cloplib.operation.OperationType;
 
 /**
@@ -141,15 +140,7 @@ public interface ClaimHandler extends Handler {
             if (c1.equals(c2)) {
                 return false;
             }
-            final Optional<UUID> owner1 = c1.getOwner();
-            final Optional<UUID> owner2 = c2.getOwner();
-            if (owner1.isEmpty() && owner2.isEmpty()) {
-                return false;
-            }
-            if (owner1.isPresent() && owner2.isPresent()) {
-                return !owner1.get().equals(owner2.get());
-            }
-            return true;
+            return !c1.getOwner().equals(c2.getOwner());
         }
 
         // Otherwise allow it so long as there's no claim at either position
