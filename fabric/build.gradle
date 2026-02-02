@@ -24,10 +24,10 @@ dependencies {
     // Manually include config deps due to the way including api deps works
     implementation include("de.exlll:configlib-core:4.6.1")
     implementation include("org.snakeyaml:snakeyaml-engine:2.10")
-    implementation include('org.apache.commons:commons-pool2:2.12.1')
+    implementation include('org.apache.commons:commons-pool2:2.13.0')
 
     // Include driver deps due to no runtime dep loading support
-    implementation include('org.apache.commons:commons-pool2:2.12.1')
+    implementation include('org.apache.commons:commons-pool2:2.13.0')
     implementation include("org.xerial:sqlite-jdbc:$sqlite_driver_version")
     implementation include("com.mysql:mysql-connector-j:$mysql_driver_version")
     implementation include("org.mariadb.jdbc:mariadb-java-client:$mariadb_driver_version")
