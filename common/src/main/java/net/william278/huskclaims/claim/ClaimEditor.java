@@ -179,9 +179,10 @@ public interface ClaimEditor {
             }
 
             // Check claim blocks
-            if (getPlugin().getCachedClaimBlocks(user) < neededBlocks) {
+            final long userBlocks = getPlugin().getCachedClaimBlocks(user);
+            if (userBlocks < neededBlocks) {
                 getPlugin().getLocales().getLocale("error_not_enough_claim_blocks",
-                        Long.toString(neededBlocks)).ifPresent(user::sendMessage);
+                        Long.toString(neededBlocks - userBlocks)).ifPresent(user::sendMessage);
                 return;
             }
         }

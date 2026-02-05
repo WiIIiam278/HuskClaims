@@ -130,12 +130,17 @@ public interface ClaimHandler extends Handler {
             return false;
         }
 
-        // If the two claims are the same, allow it, otherwise, deny it
+        // If the two claims are the same or share the same owner, allow it, otherwise, deny it
         final ClaimWorld claimWorld = optionalClaimWorld.get();
         final Optional<Claim> claim1 = claimWorld.getClaimAt((Position) position1);
         final Optional<Claim> claim2 = claimWorld.getClaimAt((Position) position2);
         if (claim1.isPresent() && claim2.isPresent()) {
-            return !claim1.get().equals(claim2.get());
+            final Claim c1 = claim1.get();
+            final Claim c2 = claim2.get();
+            if (c1.equals(c2)) {
+                return false;
+            }
+            return !c1.getOwner().equals(c2.getOwner());
         }
 
         // Otherwise allow it so long as there's no claim at either position
