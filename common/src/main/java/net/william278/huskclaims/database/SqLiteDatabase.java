@@ -234,7 +234,7 @@ public class SqLiteDatabase extends Database {
         try (PreparedStatement statement = getConnection().prepareStatement(format("""
                 SELECT `uuid`, `username`, `last_login`, `claim_blocks`, json(`preferences`) AS preferences, `spent_claim_blocks`
                 FROM `%user_data%`
-                WHERE `username` = ?"""))) {
+                WHERE LOWER(`username`) = LOWER(?)"""))) {
             statement.setString(1, username);
             final ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {

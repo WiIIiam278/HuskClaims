@@ -28,6 +28,8 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
+
+import java.util.regex.Pattern;
 import com.mongodb.client.model.Indexes;
 import com.mongodb.client.model.Updates;
 import net.william278.huskclaims.HuskClaims;
@@ -226,7 +228,8 @@ public class MongoDbDatabase extends Database {
     @Override
     public Optional<SavedUser> getUser(@NotNull String username) {
         try {
-            final Document document = userCollection.find(Filters.eq("username", username)).first();
+            final Document document = userCollection.find(
+                    Filters.regex("username", Pattern.compile("^" + Pattern.quote(username) + "$", Pattern.CASE_INSENSITIVE))).first();
             if (document != null) {
                 return Optional.of(documentToSavedUser(document));
             }
