@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Java 21
@@ -18,14 +18,14 @@ jobs:
           java-version: 21
           cache: gradle
 
-      - name: Make gradlew executable
+      - name: Make Gradle executable
         run: chmod +x gradlew
 
-      - name: Build with Gradle (Paperweight)
-        run: ./gradlew clean build --no-daemon --stacktrace
+      - name: Build with Gradle
+        run: ./gradlew clean build --no-daemon --stacktrace --info
 
-      - name: Upload Paper Jar
+      - name: Upload jar
         uses: actions/upload-artifact@v4
         with:
-          name: HuskClaims-Paper
+          name: HuskClaims-Jar
           path: '**/build/libs/*.jar'
