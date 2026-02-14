@@ -1,0 +1,36 @@
+name: Build HuskClaims (Paperweight)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Grant execute permission
+        run: chmod +x gradlew
+
+      - name: Clean Gradle cache
+        run: rm -rf ~/.gradle/caches
+
+      - name: Build with Paperweight
+        run: ./gradlew clean build --no-daemon --stacktrace
+
+      - name: Upload jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: HuskClaims-Jar
+          path: '**/build/libs/*.jar'
