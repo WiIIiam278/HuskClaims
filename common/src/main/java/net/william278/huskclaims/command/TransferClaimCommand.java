@@ -65,7 +65,7 @@ public class TransferClaimCommand extends InClaimOwnerCommand implements UserLis
                                @NotNull ClaimWorld world, @NotNull Claim claim) {
         // Ensure the user has permission to transfer the claim
         if ((claim.getOwner().isEmpty() && !ClaimingMode.ADMIN_CLAIMS.canUse(executor)) || (claim.getOwner().isPresent()
-                && claim.getOwner().get().equals(executor.getUuid()) && !hasPermission(executor, "other"))) {
+                && !claim.getOwner().get().equals(executor.getUuid()) && !hasPermission(executor, "other"))) {
             plugin.getLocales().getLocale("no_transfer_permission")
                     .ifPresent(executor::sendMessage);
             return;
