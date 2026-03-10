@@ -72,6 +72,12 @@ public class TrustCommand extends InClaimCommand implements TrustableTabCompleta
     private void setTrust(@NotNull OnlineUser executor, @NotNull Trustable trustable,
                           @NotNull ClaimWorld world, @NotNull Claim claim) {
         plugin.fireTrustEvent(executor, level, trustable, claim, world, (event) -> {
+            if (trustable instanceof User user && claim.isUserBanned(user)) {
+                plugin.getLocales().getLocale("error_user_banned")
+                        .ifPresent(executor::sendMessage);
+                return;
+            }
+
             claim.setTrustLevel(trustable, level);
             if (trustable instanceof User user) {
                 world.cacheUser(user);
