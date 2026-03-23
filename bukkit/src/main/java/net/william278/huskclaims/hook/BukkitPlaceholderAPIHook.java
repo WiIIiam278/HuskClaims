@@ -105,6 +105,20 @@ public class BukkitPlaceholderAPIHook extends Hook {
         private enum Placeholder {
             CLAIM_BLOCKS((plugin, user) -> Long.toString(plugin.getCachedClaimBlocks(user))),
             CLAIM_BLOCKS_FORMATTED((plugin, user) -> String.format("%,d", plugin.getCachedClaimBlocks(user))),
+            ACCRUED_CLAIM_BLOCKS((plugin, user) -> {
+                long started = plugin.getSettings().getClaims().getStartingClaimBlocks();
+                long available = Math.max(0, plugin.getCachedClaimBlocks(user));
+                long spent = Math.max(0, plugin.getCachedSpentClaimBlocks(user));
+                long earned = (available + spent) - started;
+                return Long.toString(started + Math.max(0, earned));
+            }),
+            ACCRUED_CLAIM_BLOCKS_FORMATTED((plugin, user) -> {
+                long started = plugin.getSettings().getClaims().getStartingClaimBlocks();
+                long available = Math.max(0, plugin.getCachedClaimBlocks(user));
+                long spent = Math.max(0, plugin.getCachedSpentClaimBlocks(user));
+                long earned = (available + spent) - started;
+                return String.format("%,d", started + Math.max(0, earned));
+            }),
             CURRENT_IS_CLAIMED((plugin, user) -> formatBoolean(plugin.getClaimAt(user.getPosition()).isPresent())),
             CURRENT_CLAIM_OWNER((plugin, user) -> plugin.getClaimWorld(user.getPosition().getWorld())
                     .flatMap(world -> world.getClaimAt(user.getPosition())
