@@ -51,7 +51,7 @@ public class PreferencesSerializer extends TypeAdapter<Preferences> {
     private void writeAuditLog(@NotNull JsonWriter out, @NotNull Map<String, AuditLogger.Entry> auditLog) throws IOException {
         out.beginObject();
         int i = 0;
-        for (Map.Entry<String, AuditLogger.Entry> entry : auditLog.entrySet()) {
+        for (Map.Entry<String, AuditLogger.Entry> entry : Map.copyOf(auditLog).entrySet()) {
             if (i >= maxPersistedLogEntries) {
                 break;
             }
@@ -102,7 +102,7 @@ public class PreferencesSerializer extends TypeAdapter<Preferences> {
 
     @NotNull
     private Map<String, AuditLogger.Entry> readAuditLog(@NotNull JsonReader in) throws IOException {
-        final Map<String, AuditLogger.Entry> auditLog = Maps.newHashMap();
+        final Map<String, AuditLogger.Entry> auditLog = Maps.newConcurrentMap();
         in.beginObject();
         while (in.hasNext()) {
             auditLog.put(in.nextName(), readAuditLogEntry(in));
