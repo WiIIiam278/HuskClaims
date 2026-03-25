@@ -75,6 +75,11 @@ public interface EventDispatcher extends EventProvider {
         fireEvent(getClaimBlocksChangeEvent(user, oldClaimBlocks, newClaimBlocks, reason), callback);
     }
 
+    default void fireHourlyClaimBlocksEvent(@NotNull OnlineUser user, long amount,
+                                            @NotNull Consumer<Long> callback) {
+        callback.accept(amount);
+    }
+
     default void fireCreateChildClaimEvent(@NotNull OnlineUser claimer, @NotNull Claim parent,
                                            @NotNull Region childRegion, @NotNull ClaimWorld claimWorld,
                                            @NotNull Consumer<CreateChildClaimEvent> callback) {
