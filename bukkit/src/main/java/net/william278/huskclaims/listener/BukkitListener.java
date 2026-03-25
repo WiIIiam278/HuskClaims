@@ -103,11 +103,11 @@ public class BukkitListener extends BukkitOperationListener implements BukkitPet
         }
     }
 
-    // Fix: End crystals are not treated as explosion by cloplib, so their
+    // Fix: End crystals are not treated as explosion in wilderness by cloplib, so their
     // block damage bypasses explosion_damage_terrain. Override here to handle them correctly.
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onEndCrystalExplode(@NotNull EntityExplodeEvent e) {
-        if (e.getEntityType() != EntityType.END_CRYSTAL) {
+        if (!e.getEntity().getType().getKey().getKey().equals("end_crystal")) {
             return;
         }
         e.blockList().removeIf(block -> plugin.cancelOperation(
