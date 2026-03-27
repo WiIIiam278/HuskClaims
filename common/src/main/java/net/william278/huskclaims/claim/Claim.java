@@ -518,9 +518,13 @@ public class Claim implements Highlightable {
      * @since 1.0
      */
     public boolean isOperationAllowed(@NotNull Operation operation, @NotNull HuskClaims plugin) {
+        if(owner != null && operation.getUser()
+                .filter(user -> owner.equals(user.getUuid()))
+                .map(u -> plugin.allowedOwnerOperations().contains(operation.getType()))
+                .orElse(false)) return true;
+
         // If the operation is explicitly allowed, return it
         return defaultFlags.contains(operation.getType())
-
                 // Or, if the user is the owner, return true
                 || (owner != null && operation.getUser()
                 .filter(user -> owner.equals(user.getUuid()))
