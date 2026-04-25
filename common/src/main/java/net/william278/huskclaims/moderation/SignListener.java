@@ -37,7 +37,6 @@ import java.util.regex.Pattern;
  */
 public interface SignListener {
 
-
     /**
      * Handles the editing of a sign
      *

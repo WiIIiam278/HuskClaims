@@ -55,7 +55,7 @@ public record UserGroup(
         return String.format(
                 "%s%s",
                 plugin.getSettings().getUserGroups().getGroupSpecifierPrefix(),
-                name.replaceAll(" ", "_")
+                name.replace(" ", "_")
         );
     }
 

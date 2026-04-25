@@ -44,7 +44,6 @@ public interface InspectionToolHandler {
     String INSPECT_NEARBY_PERMISSION = "huskclaims.inspect.nearby";
     String VIEW_LAST_SEEN_PERMISSION = "huskclaims.inspect.view_last_seen";
 
-
     // When the inspection tool (default: stick) is used
     default void onInspectionToolUse(@NotNull OperationUser opUser, @NotNull OperationPosition opPosition) {
         final OnlineUser user = (OnlineUser) opUser;

@@ -152,7 +152,7 @@ public class BukkitHuskClaims extends JavaPlugin implements HuskClaims, BukkitTa
         try {
             final Metrics metrics = new Metrics(this, BSTATS_PLUGIN_ID);
             metrics.addCustomChart(new SimplePie("is_cross_server",
-                    () -> settings.getCrossServer().isEnabled() ? "true" : "false")
+                    () -> Boolean.toString(settings.getCrossServer().isEnabled()))
             );
             metrics.addCustomChart(new SimplePie("language",
                     () -> settings.getLanguage().toLowerCase(Locale.ENGLISH))

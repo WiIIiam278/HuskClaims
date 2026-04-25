@@ -67,7 +67,7 @@ public abstract class TrustTag implements TrustableCollection {
         return String.format(
                 "%s%s",
                 plugin.getSettings().getTrustTags().getTagSpecifierPrefix(),
-                name.replaceAll(" ", "_")
+                name.replace(" ", "_")
         );
     }
 

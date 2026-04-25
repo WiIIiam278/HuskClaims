@@ -261,7 +261,6 @@ public class BukkitGriefPreventionImporter extends Importer {
         return 0;
     }
 
-
     private int getTotalClaims() {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement("""

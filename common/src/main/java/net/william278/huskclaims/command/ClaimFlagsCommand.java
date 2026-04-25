@@ -95,7 +95,7 @@ public class ClaimFlagsCommand extends OnlineUserCommand implements TabCompletab
 
     private void handleSetClaimFlag(@NotNull OnlineUser onlineUser, @Nullable Claim claim,
                                     @NotNull ClaimWorld world, @NotNull String[] args) {
-        final Optional<OperationType> operationType = parseOperationTypeArg(args, 0);
+        final Optional<OperationType> operationType = parseOperationTypeArg(args);
         if (operationType.isEmpty()) {
             plugin.getLocales().getLocale("error_invalid_syntax", getUsage())
                     .ifPresent(onlineUser::sendMessage);
@@ -122,7 +122,7 @@ public class ClaimFlagsCommand extends OnlineUserCommand implements TabCompletab
         }
         plugin.getDatabase().updateClaimWorld(world);
 
-        // Send flag list on correct page to indicated the update
+        // Send flag list on correct page to indicate the update
         final double changedIndex = plugin.getOperationListener()
                 .getRegisteredOperationTypes().stream()
                     .filter(op -> canManageFlag(onlineUser, op)).toList().indexOf(type);
