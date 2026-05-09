@@ -57,7 +57,7 @@ public class Preferences implements AuditLogger {
 
     @Expose
     @SerializedName("audit_log")
-    private Map<String, Entry> logEntries = Maps.newHashMap();
+    private Map<String, Entry> logEntries = Maps.newConcurrentMap();
 
     @Expose
     @SerializedName("claiming_mode")

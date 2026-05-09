@@ -35,6 +35,7 @@ import org.bukkit.entity.Tameable;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.ItemStack;
@@ -103,6 +104,21 @@ public class BukkitListener extends BukkitOperationListener implements BukkitPet
         }
     }
 
+    // Fix: End crystals are not treated as explosion in wilderness by cloplib, so their
+    // block damage bypasses explosion_damage_terrain. Override here to handle them correctly.
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    public void onEndCrystalExplode(@NotNull EntityExplodeEvent e) {
+        if (!e.getEntity().getType().getKey().getKey().equals("end_crystal")) {
+            return;
+        }
+        e.blockList().removeIf(block -> plugin.cancelOperation(
+                net.william278.cloplib.operation.Operation.of(
+                        net.william278.cloplib.operation.OperationType.EXPLOSION_DAMAGE_TERRAIN,
+                        getPosition(block.getLocation())
+                )
+        ));
+    }
+        
     @EventHandler(ignoreCancelled = true)
     public void onWorldLoad(@NotNull WorldLoadEvent e) {
         plugin.runAsync(() -> {
