@@ -32,6 +32,7 @@ public interface UserListener {
     default void onUserJoin(@NotNull OnlineUser user) {
         getPlugin().runAsync(() -> {
             getPlugin().cacheSavedUser(user);
+            refreshClaimWorldUserName(user);
             final Preferences prefs = getPlugin().getCachedUserPreferences(user.getUuid()).orElse(Preferences.DEFAULTS);
             final Settings.ClaimSettings settings = getPlugin().getSettings().getClaims();
 
@@ -73,6 +74,17 @@ public interface UserListener {
             getPlugin().getLocales().getLocale("claim_selection_cancelled")
                     .ifPresent(user::sendMessage);
         }
+    }
+
+    // Refresh the user's cached name in all loaded claim worlds, in case they changed their Minecraft name
+    // while the server was running. Without this, claim owner placeholders show the old name until a claim
+    // operation (e.g. trust/transfer) rewrites the cache.
+    private void refreshClaimWorldUserName(@NotNull OnlineUser user) {
+        getPlugin().getClaimWorlds().values().forEach(world -> {
+            if (world.refreshUserName(user.getUuid(), user.getName())) {
+                getPlugin().runQueued(() -> getPlugin().getDatabase().updateClaimWorld(world));
+            }
+        });
     }
 
     // Check if a user is ignoring claims on join and if they can't do so anymore, toggle

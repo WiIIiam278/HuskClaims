@@ -382,6 +382,27 @@ public class ClaimWorld {
     }
 
     /**
+     * Refresh the cached username for a user already known to this world (e.g. after a Minecraft name change).
+     * <p>
+     * Only updates users already present in the cache (claim owners and trustees), so this never adds spurious
+     * entries. Does nothing if the name is unchanged.
+     *
+     * @param uuid the UUID of the user
+     * @param name the user's current username
+     * @return {@code true} if the cached name was changed, {@code false} otherwise
+     * @since 1.4
+     */
+    @ApiStatus.Internal
+    public boolean refreshUserName(@NotNull UUID uuid, @NotNull String name) {
+        final String cached = userCache.get(uuid);
+        if (cached == null || cached.equals(name)) {
+            return false;
+        }
+        userCache.put(uuid, name);
+        return true;
+    }
+
+    /**
      * Get the claims a region overlaps with, except for certain claims
      *
      * @param region    The region to check
