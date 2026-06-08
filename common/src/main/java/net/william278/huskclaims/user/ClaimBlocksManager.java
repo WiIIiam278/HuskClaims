@@ -37,7 +37,7 @@ import java.util.logging.Level;
 public interface ClaimBlocksManager {
 
     // How many times per hour to run the claim block update task for all users
-    int HOURLY_BLOCKS_UPDATES = 10;
+    int HOURLY_BLOCKS_UPDATES = 5;
 
     // Permission to grant hourly claim blocks
     String HOURLY_BLOCKS_PERMISSION = "huskclaims.hourly_blocks.";
