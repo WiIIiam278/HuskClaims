@@ -168,14 +168,12 @@ public interface BukkitTask extends Task {
 
                     final GracefulScheduling scheduler = getScheduler();
 
-                    if (e instanceof Entity entity) {
-                        scheduled = scheduler.entitySpecificScheduler(entity).run(runnable, null);
-                    } else if (e instanceof Location location) {
-                        scheduled = scheduler.regionSpecificScheduler(location).run(runnable);
-                    } else if (e instanceof Chunk chunk) {
-                        scheduled = scheduler.regionSpecificScheduler(chunk.getWorld(), chunk.getX(), chunk.getZ()).run(runnable);
-                    } else {
-                        scheduled = scheduler.globalRegionalScheduler().run(runnable);
+                    switch (e) {
+                        case Entity entity -> scheduled = scheduler.entitySpecificScheduler(entity).run(runnable, null);
+                        case Location location -> scheduled = scheduler.regionSpecificScheduler(location).run(runnable);
+                        case Chunk chunk ->
+                              scheduled = scheduler.regionSpecificScheduler(chunk.getWorld(), chunk.getX(), chunk.getZ()).run(runnable);
+                        case null, default -> scheduled = scheduler.globalRegionalScheduler().run(runnable);
                     }
                 }
 

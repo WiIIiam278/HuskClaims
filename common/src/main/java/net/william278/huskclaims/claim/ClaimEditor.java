@@ -263,6 +263,20 @@ public interface ClaimEditor {
             return;
         }
 
+        // Validate the new owner has enough available claim blocks to receive the claim.
+        // Without this check, /transferclaim + /unclaim can be used to generate free blocks:
+        // the original owner is refunded on transfer, but if the new owner's available
+        // balance is never debited, unclaiming gives them a refund for blocks they
+        // never paid for. See claim block accounting in ClaimBlocksManager#editClaimBlocks.
+        final long surfaceArea = claim.getRegion().getSurfaceArea();
+        final long newOwnerAvailable = getPlugin().getClaimBlocks(newOwner.getUuid());
+        if (newOwnerAvailable < surfaceArea) {
+            getPlugin().getLocales().getLocale("error_not_enough_claim_blocks",
+                            Long.toString(surfaceArea - newOwnerAvailable))
+                    .ifPresent(user::sendMessage);
+            return;
+        }
+
         // Transfer claim
         getPlugin().fireTransferClaimEvent(user, claim, claimWorld, newOwner, (event) -> {
             // Cache user, send message, invalidate source user/admin claim list cache
@@ -272,7 +286,6 @@ public interface ClaimEditor {
             getPlugin().invalidateClaimListCache(claim.getOwner().orElse(null));
 
             // Adjust claim blocks for both users to maintain proper accounting
-            final long surfaceArea = claim.getRegion().getSurfaceArea();
             claim.getOwner().flatMap(claimWorld::getUser).ifPresent(originalOwner -> {
                 // Return available blocks to original owner and reduce their spent blocks
                 getPlugin().editClaimBlocks(
@@ -280,8 +293,11 @@ public interface ClaimEditor {
                 getPlugin().editSpentClaimBlocks(
                         originalOwner, ClaimBlocksManager.ClaimBlockSource.CLAIM_TRANSFER_AWAY, (blocks) -> blocks - surfaceArea);
             });
-            // Set the new owner's spent blocks so unclaim accounting works correctly
+            // Debit the new owner's available blocks and increase their spent counter
+            // so unclaim accounting works correctly and no blocks are duplicated.
             claimWorld.getUser(newOwner.getUuid()).ifPresent(owner -> {
+                getPlugin().editClaimBlocks(
+                        owner, ClaimBlocksManager.ClaimBlockSource.CLAIM_CREATED, (blocks) -> blocks - surfaceArea);
                 getPlugin().editSpentClaimBlocks(
                         owner, ClaimBlocksManager.ClaimBlockSource.CLAIM_CREATED, (blocks) -> blocks + surfaceArea);
             });

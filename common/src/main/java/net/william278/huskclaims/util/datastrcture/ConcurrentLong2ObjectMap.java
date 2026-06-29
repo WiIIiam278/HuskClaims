@@ -29,13 +29,15 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.StampedLock;
 
 /**
  * A concurrent map that implements the fastutil {@link Long2ObjectMap} interface.
  * <p>
- * This implementation uses a lock striping (sharding) strategy with an array of
+ * This implementation uses a lock striping (sharding) strategy with a list of
  * internal buckets, each protected by its own {@link StampedLock}. This allows for
  * high concurrency levels by reducing lock contention, as threads operating on
  * different keys can often work on separate buckets in parallel.
@@ -61,7 +63,7 @@ public class ConcurrentLong2ObjectMap<V> implements Long2ObjectMap<V> {
     private static final int DEFAULT_CONCURRENCY_LEVEL = 16;
     public static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
-    private final Bucket<V>[] buckets;
+    private final List<Bucket<V>> buckets;
 
     private static class Bucket<V> {
         final Long2ObjectOpenHashMap<V> map;
@@ -73,19 +75,18 @@ public class ConcurrentLong2ObjectMap<V> implements Long2ObjectMap<V> {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public ConcurrentLong2ObjectMap(int initialCapacity, float loadFactor) {
         if (initialCapacity < 0) throw new IllegalArgumentException("Illegal initial capacity: " + initialCapacity);
         if (loadFactor <= 0 || Float.isNaN(loadFactor)) throw new IllegalArgumentException("Illegal load factor: " + loadFactor);
 
         int concurrencyLevel = DEFAULT_CONCURRENCY_LEVEL;
-        this.buckets = new Bucket[concurrencyLevel];
-
         int perBucketCapacity = (initialCapacity / concurrencyLevel) + 1;
 
+        List<Bucket<V>> bucketList = new ArrayList<>(concurrencyLevel);
         for (int i = 0; i < concurrencyLevel; i++) {
-            buckets[i] = new Bucket<>(perBucketCapacity, loadFactor);
+            bucketList.add(new Bucket<>(perBucketCapacity, loadFactor));
         }
+        this.buckets = bucketList;
     }
 
     /**
@@ -107,8 +108,8 @@ public class ConcurrentLong2ObjectMap<V> implements Long2ObjectMap<V> {
     private Bucket<V> getBucket(long key) {
         int h = Long.hashCode(key);
         int spreadHash = h ^ (h >>> 16);
-        int index = (buckets.length - 1) & spreadHash;
-        return buckets[index];
+        int index = (buckets.size() - 1) & spreadHash;
+        return buckets.get(index);
     }
 
     @Override
@@ -229,7 +230,10 @@ public class ConcurrentLong2ObjectMap<V> implements Long2ObjectMap<V> {
     @Override
     public void putAll(@NotNull Map<? extends Long, ? extends V> m) {
         for (Map.Entry<? extends Long, ? extends V> entry : m.entrySet()) {
-            this.put(entry.getKey(), entry.getValue());
+            final long key = (entry instanceof Long2ObjectMap.Entry<?> longEntry)
+                    ? longEntry.getLongKey()
+                    : entry.getKey().longValue();
+            this.put(key, entry.getValue());
         }
     }
 

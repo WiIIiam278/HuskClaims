@@ -43,6 +43,7 @@ public abstract class WorldGuardHook extends RestrictedRegionHook {
 
     @Override
     public void unload() {
+
     }
 
 }

@@ -77,5 +77,4 @@ public class BuyClaimBlocksCommand extends OnlineUserCommand {
         return amount * Math.max(0.0, plugin.getSettings().getHooks().getEconomy().getCostPerBlock());
     }
 
-
 }

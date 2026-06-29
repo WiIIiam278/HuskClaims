@@ -165,7 +165,6 @@ public final class Settings {
         }
     }
 
-
     @Comment("Claim flags & world settings")
     private ClaimSettings claims = new ClaimSettings();
 
@@ -600,7 +599,6 @@ public final class Settings {
             private boolean enabled = true;
         }
 
-
         private EconomyHookSettings economy = new EconomyHookSettings();
 
         @Getter
@@ -644,7 +642,6 @@ public final class Settings {
             @Comment("Whether to hook into Geyser to let Bedrock users highlight claims. Requires Floodgate installed.")
             private boolean enabled = true;
         }
-
 
         private MapHookSettings map = new MapHookSettings();
 

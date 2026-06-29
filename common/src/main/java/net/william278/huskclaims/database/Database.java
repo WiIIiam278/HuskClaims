@@ -472,7 +472,7 @@ public abstract class Database {
         }
 
         public static int getLatestVersion() {
-            return getOrderedMigrations().get(getOrderedMigrations().size() - 1).getVersion();
+            return getOrderedMigrations().getLast().getVersion();
         }
     }
 

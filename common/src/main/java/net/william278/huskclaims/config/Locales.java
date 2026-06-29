@@ -62,7 +62,7 @@ public class Locales implements PaginatedListProvider {
 
     protected static final String DEFAULT_LOCALE = "en-gb";
 
-    // The raw set of locales loaded from yaml
+    // The raw set of locales loaded from YAML
     Map<String, String> locales = Maps.newTreeMap();
 
     /**

@@ -74,7 +74,7 @@ public class TrustListCommand extends InClaimCommand {
                 Integer.toString(claim.getRegion().getLongestEdge()),
                 Integer.toString(claim.getRegion().getShortestEdge()),
                 Integer.toString(claim.getChildren().size()),
-                Integer.toString(claim.getTrustedUsers().keySet().size()),
+                Integer.toString(claim.getTrustedUsers().size()),
                 claim.getCreationTime().map(t -> t.format(DateTimeFormatter.ISO_LOCAL_DATE)).orElse(na)
         ).orElse(ownerName);
     }
@@ -88,7 +88,7 @@ public class TrustListCommand extends InClaimCommand {
                 Long.toString(claim.getRegion().getSurfaceArea()),
                 Integer.toString(claim.getRegion().getLongestEdge()),
                 Integer.toString(claim.getRegion().getShortestEdge()),
-                Integer.toString(claim.getTrustedUsers().keySet().size()),
+                Integer.toString(claim.getTrustedUsers().size()),
                 plugin.getLocales().getRawLocale(String.format("child_claims_inherit_%srestricted",
                         claim.isInheritParent() ? "un" : "")).orElse(Boolean.toString(claim.isInheritParent())),
                 claim.getCreationTime().map(t -> t.format(DateTimeFormatter.ISO_LOCAL_DATE)).orElse(na)

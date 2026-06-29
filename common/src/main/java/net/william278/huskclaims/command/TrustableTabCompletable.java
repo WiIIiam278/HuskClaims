@@ -60,5 +60,4 @@ public interface TrustableTabCompletable extends UserListTabCompletable {
     @Nullable
     UUID getGroupOwner(@NotNull OnlineUser user);
 
-
 }

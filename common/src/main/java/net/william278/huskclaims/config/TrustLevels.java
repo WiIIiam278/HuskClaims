@@ -49,7 +49,7 @@ public class TrustLevels {
             """;
 
     private List<TrustLevel> trustLevels = Lists.newArrayList(
-            // Permission trust (manage trustees, make sub-divisions, etc.)
+            // Permission trust (manage trustees, make subdivisions, etc.)
             TrustLevel.builder()
                     .id("manage")
                     .weight(400)
