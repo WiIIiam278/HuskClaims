@@ -74,7 +74,7 @@ public abstract class Node implements Executable {
         if (aliases.isEmpty()) {
             throw new IllegalStateException("Primary alias of command node is blank");
         }
-        return aliases.get(0);
+        return aliases.getFirst();
     }
 
     protected Optional<User> resolveUser(@NotNull CommandUser executor, @NotNull String[] args) {
@@ -150,8 +150,8 @@ public abstract class Node implements Executable {
         return Optional.empty();
     }
 
-    protected Optional<OperationType> parseOperationTypeArg(@NotNull String[] args, int index) {
-        return parseStringArg(args, index).flatMap(arg -> plugin.getOperationListener().getOperationType(arg));
+    protected Optional<OperationType> parseOperationTypeArg(@NotNull String[] args) {
+        return parseStringArg(args, 0).flatMap(arg -> plugin.getOperationListener().getOperationType(arg));
     }
 
     protected Optional<Long> parseClaimBlocksArg(@NotNull String[] args, int index) {

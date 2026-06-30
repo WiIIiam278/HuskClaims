@@ -20,4 +20,5 @@
 package net.william278.huskclaims.event;
 
 public interface ClaimUnBanEvent extends BanEvent {
+
 }

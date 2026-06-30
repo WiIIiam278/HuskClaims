@@ -22,7 +22,6 @@ package net.william278.huskclaims.database;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.gson.JsonSyntaxException;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -110,7 +109,7 @@ public class MongoDbDatabase extends Database {
     }
 
     @Override
-    protected void executeScript(@NotNull Connection connection, @NotNull String name) throws SQLException {
+    protected void executeScript(@NotNull Connection connection, @NotNull String name) {
         throw new UnsupportedOperationException("MongoDB does not use SQL scripts");
     }
 
@@ -193,22 +192,16 @@ public class MongoDbDatabase extends Database {
                     metadataCollection.insertOne(new Document("schema_version", 0));
                 }
             }
-            case REMOVE_HOURS_PLAYED_COLUMN -> {
-                userCollection.updateMany(
-                        new Document(),
-                        new Document("$unset", new Document("hours_played", ""))
-                );
-            }
-            case ADD_SPENT_CLAIM_BLOCKS_COLUMN -> {
-                userCollection.updateMany(
-                        Filters.exists("spent_claim_blocks", false),
-                        Updates.set("spent_claim_blocks", 0L)
-                );
-            }
-            default -> {
-                throw new UnsupportedOperationException("MongoDB migration " + migration.name()
-                        + " is not implemented in performMongoMigration");
-            }
+            case REMOVE_HOURS_PLAYED_COLUMN -> userCollection.updateMany(
+                    new Document(),
+                    new Document("$unset", new Document("hours_played", ""))
+            );
+            case ADD_SPENT_CLAIM_BLOCKS_COLUMN -> userCollection.updateMany(
+                    Filters.exists("spent_claim_blocks", false),
+                    Updates.set("spent_claim_blocks", 0L)
+            );
+            default -> throw new UnsupportedOperationException("MongoDB migration " + migration.name()
+                    + " is not implemented in performMongoMigration");
         }
     }
 
@@ -245,9 +238,9 @@ public class MongoDbDatabase extends Database {
         try {
             final long cutoffTime = System.currentTimeMillis() - (daysInactive * 24L * 60L * 60L * 1000L);
             final Date cutoffDate = new Date(cutoffTime);
-            userCollection.find(Filters.lt("last_login", cutoffDate)).forEach(document -> {
-                inactiveUsers.add(documentToSavedUser(document));
-            });
+            userCollection.find(Filters.lt("last_login", cutoffDate)).forEach(document ->
+                  inactiveUsers.add(documentToSavedUser(document))
+            );
         } catch (Exception e) {
             plugin.log(Level.SEVERE, "Failed to fetch list of inactive users", e);
             inactiveUsers.clear();
@@ -306,9 +299,9 @@ public class MongoDbDatabase extends Database {
     public Set<UserGroup> getUserGroups(@NotNull UUID uuid) {
         try {
             final Set<UserGroup> userGroups = Sets.newHashSet();
-            userGroupCollection.find(Filters.eq("uuid", uuid.toString())).forEach(document -> {
-                userGroups.add(documentToUserGroup(document));
-            });
+            userGroupCollection.find(Filters.eq("uuid", uuid.toString())).forEach(document ->
+                  userGroups.add(documentToUserGroup(document))
+            );
             return userGroups;
         } catch (Exception e) {
             plugin.log(Level.SEVERE, "Failed to fetch user groups from collection", e);
@@ -531,4 +524,3 @@ public class MongoDbDatabase extends Database {
     }
 
 }
-

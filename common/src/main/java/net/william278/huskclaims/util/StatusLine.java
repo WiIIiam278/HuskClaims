@@ -87,7 +87,7 @@ public enum StatusLine {
         return Component
                 .text("•").appendSpace()
                 .append(Component.text(
-                        WordUtils.capitalizeFully(name().replaceAll("_", " ")),
+                        WordUtils.capitalizeFully(name().replace("_", " ")),
                         TextColor.color(0x848484)
                 ))
                 .append(Component.text(':')).append(Component.space().color(NamedTextColor.WHITE))

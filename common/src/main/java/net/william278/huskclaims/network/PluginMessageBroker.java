@@ -101,5 +101,6 @@ public class PluginMessageBroker extends Broker {
 
     @Override
     public void close() {
+
     }
 }

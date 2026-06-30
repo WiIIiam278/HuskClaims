@@ -217,7 +217,9 @@ public interface ClaimManager extends ClaimHandler, ClaimEditor, ClaimPruner {
         getPlugin().runQueued(() -> getPlugin().getDatabase().updateClaimWorld(claimWorld));
 
         // Adjust the owner's claim block count
-        claim.getOwner().flatMap(claimWorld::getUser).ifPresent(user -> {
+        claim.getOwner().ifPresent(ownerUuid -> {
+            final User user = claimWorld.getUser(ownerUuid)
+                    .orElseGet(() -> User.of(ownerUuid, ownerUuid.toString()));
             getPlugin().editClaimBlocks(
                     user, ClaimBlocksManager.ClaimBlockSource.CLAIM_DELETED, (blocks -> blocks + surfaceArea));
             getPlugin().editSpentClaimBlocks(

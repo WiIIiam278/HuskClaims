@@ -91,7 +91,7 @@ public class LuckPermsHook extends Hook {
                     String.format(
                             "%s%s",
                             plugin.getSettings().getHooks().getLuckPerms().getTrustTagPrefix(),
-                            group.getName().toLowerCase(Locale.ENGLISH).replaceAll(" ", "_")
+                            group.getName().toLowerCase(Locale.ENGLISH).replace(" ", "_")
                     ),
                     plugin.getLocales().getRawLocale("group_tag_description", Locales.
                             escapeText(group.getDisplayName() == null ? group.getName() : group.getDisplayName())

@@ -325,17 +325,16 @@ public class Claim implements Highlightable {
      * @since 1.0
      */
     public void setTrustLevel(@NotNull Trustable trustable, @NotNull TrustLevel level) {
-        if (trustable instanceof User user) {
-            setUserTrustLevel(user.getUuid(), level);
-        } else if (trustable instanceof UserGroup group) {
-            if (isAdminClaim()) {
-                throw new IllegalArgumentException("Cannot set group trust level in admin claim");
+        switch (trustable) {
+            case User user -> setUserTrustLevel(user.getUuid(), level);
+            case UserGroup group -> {
+                if (isAdminClaim()) {
+                    throw new IllegalArgumentException("Cannot set group trust level in admin claim");
+                }
+                setGroupTrustLevel(group, level);
             }
-            setGroupTrustLevel(group, level);
-        } else if (trustable instanceof TrustTag tag) {
-            setTagTrustLevel(tag, level);
-        } else {
-            throw new IllegalArgumentException("Trustable must be a User, UserGroup, or TrustTag");
+            case TrustTag tag -> setTagTrustLevel(tag, level);
+            default -> throw new IllegalArgumentException("Trustable must be a User, UserGroup, or TrustTag");
         }
     }
 
@@ -347,15 +346,14 @@ public class Claim implements Highlightable {
      * @since 1.0
      */
     public void removeTrustLevel(@NotNull Trustable trustable, @NotNull ClaimWorld world) {
-        if (trustable instanceof User user) {
-            trustedUsers.remove(user.getUuid());
-            world.cacheUser(user);
-        } else if (trustable instanceof UserGroup group) {
-            trustedGroups.remove(group.name());
-        } else if (trustable instanceof TrustTag tag) {
-            trustedTags.remove(tag.getName());
-        } else {
-            throw new IllegalArgumentException("Trustable must be a User, UserGroup, or TrustTag");
+        switch (trustable) {
+            case User user -> {
+                trustedUsers.remove(user.getUuid());
+                world.cacheUser(user);
+            }
+            case UserGroup group -> trustedGroups.remove(group.name());
+            case TrustTag tag -> trustedTags.remove(tag.getName());
+            default -> throw new IllegalArgumentException("Trustable must be a User, UserGroup, or TrustTag");
         }
     }
 
@@ -441,14 +439,12 @@ public class Claim implements Highlightable {
      * @since 1.0
      */
     public Optional<TrustLevel> getTrustLevel(@NotNull Trustable trustable, @NotNull HuskClaims plugin) {
-        if (trustable instanceof User user) {
-            return getUserTrustLevel(user, plugin);
-        } else if (trustable instanceof UserGroup group) {
-            return getGroupTrustLevel(group.name(), plugin);
-        } else if (trustable instanceof TrustTag tag) {
-            return getTagTrustLevel(tag.getName(), plugin);
-        }
-        throw new IllegalArgumentException("Trustable must be a User, UserGroup, or TrustedTag");
+        return switch (trustable) {
+            case User user -> getUserTrustLevel(user, plugin);
+            case UserGroup group -> getGroupTrustLevel(group.name(), plugin);
+            case TrustTag tag -> getTagTrustLevel(tag.getName(), plugin);
+            default -> throw new IllegalArgumentException("Trustable must be a User, UserGroup, or TrustedTag");
+        };
     }
 
     /**

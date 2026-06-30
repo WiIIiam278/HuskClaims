@@ -113,7 +113,6 @@ public abstract class Broker implements MessageHandler {
         return this;
     }
 
-
     /**
      * Identifies types of message brokers
      */
