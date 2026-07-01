@@ -37,7 +37,7 @@ import java.util.logging.Level;
 public interface ClaimBlocksManager {
 
     // How many times per hour to run the claim block update task for all users
-    int HOURLY_BLOCKS_UPDATES = 4;
+    int HOURLY_BLOCKS_UPDATES = 5;
 
     // Permission to grant hourly claim blocks
     String HOURLY_BLOCKS_PERMISSION = "huskclaims.hourly_blocks.";
@@ -156,18 +156,26 @@ public interface ClaimBlocksManager {
             return;
         }
 
-        try {
-            // Double-check user is still online right before block editing to minimize TOCTOU window
-            if (!getPlugin().getOnlineUserMap().containsKey(user.getUuid())) {
-                return;
-            }
-            editClaimBlocks(user, ClaimBlockSource.HOURLY_BLOCKS, (blocks -> blocks + hourlyBlocks));
-        } catch (IllegalArgumentException e) {
-            // Log warning if user data becomes unavailable during execution
-            // This can happen if user disconnects after validation but before block editing
-            getPlugin().log(Level.WARNING, "Failed to grant hourly claim blocks to user " + 
-                user.getUuid() + " (user data unavailable): " + e.getMessage());
+        if (!getPlugin().getOnlineUserMap().containsKey(user.getUuid())) {
+            return;
         }
+
+        // Fire hourly claim blocks event to allow booster plugins (e.g. AxBoosters) to modify the amount
+        getPlugin().fireHourlyClaimBlocksEvent(user, hourlyBlocks, (adjustedAmount) -> {
+            try {
+                // Double-check user is still online right before block editing to minimize TOCTOU window
+                if (!getPlugin().getOnlineUserMap().containsKey(user.getUuid())) {
+                    return;
+                }
+                editClaimBlocks(user, ClaimBlockSource.HOURLY_BLOCKS,
+                        (blocks -> blocks + adjustedAmount));
+            } catch (IllegalArgumentException e) {
+                // Log warning if user data becomes unavailable during execution
+                // This can happen if user disconnects after validation but before block editing
+                getPlugin().log(Level.WARNING, "Failed to grant hourly claim blocks to user "
+                        + user.getUuid() + " (user data unavailable): " + e.getMessage());
+            }
+        });
     }
 
     default void loadClaimBlockScheduler() {

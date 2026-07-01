@@ -30,12 +30,14 @@ import net.william278.huskclaims.trust.Trustable;
 import net.william278.huskclaims.user.OnlineUser;
 import net.william278.huskclaims.user.SavedUserProvider;
 import net.william278.huskclaims.user.User;
+import net.william278.huskclaims.user.BukkitUser;
 import org.bukkit.event.Cancellable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public interface BukkitEventDispatcher extends EventDispatcher {
 
@@ -43,6 +45,22 @@ public interface BukkitEventDispatcher extends EventDispatcher {
     default <T extends Event> boolean fireIsCancelled(@NotNull T event) {
         ((BukkitHuskClaims) getPlugin()).getServer().getPluginManager().callEvent((org.bukkit.event.Event) event);
         return event instanceof Cancellable cancellable && cancellable.isCancelled();
+    }
+
+    @Override
+    default void fireHourlyClaimBlocksEvent(@NotNull OnlineUser user, long amount,
+                                            @NotNull Consumer<Long> callback) {
+        if (!(user instanceof BukkitUser bukkitUser)) {
+            callback.accept(amount);
+            return;
+        }
+        final BukkitHourlyClaimBlocksEvent event = new BukkitHourlyClaimBlocksEvent(
+                bukkitUser.getBukkitPlayer(), amount
+        );
+        getPlugin().runSync(() -> {
+            ((BukkitHuskClaims) getPlugin()).getServer().getPluginManager().callEvent(event);
+            getPlugin().runAsync(() -> callback.accept(event.getAmount()));
+        });
     }
 
     @Override
