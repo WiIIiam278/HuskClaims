@@ -6,7 +6,6 @@ plugins {
 loom.serverOnlyMinecraftJar()
 
 repositories {
-    maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }
     maven { url 'https://maven.impactdev.net/repository/development/' }
     maven { url 'https://maven.nucleoid.xyz/' }
 }
