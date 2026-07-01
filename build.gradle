@@ -84,7 +84,6 @@ allprojects {
         maven { url 'https://maven.enginehub.org/repo/' }
         maven { url 'https://repo.william278.net/snapshots/' }
         maven { url 'https://jitpack.io' }
-        maven { url 'https://mvn-repo.arim.space/lesser-gpl3/' }
     }
 
     dependencies {
