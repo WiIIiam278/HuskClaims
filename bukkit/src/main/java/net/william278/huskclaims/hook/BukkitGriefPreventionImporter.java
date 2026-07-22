@@ -417,12 +417,10 @@ public class BukkitGriefPreventionImporter extends Importer {
             this.claimBlocks = claimBlocks;
             this.spentClaimBlocks = spentClaimBlocks;
 
+            // Note the server may not have a cached name for a player, even if they have played before
             final OfflinePlayer player = plugin.getServer().getOfflinePlayer(uuid);
-            if (player.hasPlayedBefore()) {
-                this.name = player.getName();
-            } else {
-                this.name = uuid.toString().substring(0, 8);
-            }
+            final String playerName = player.hasPlayedBefore() ? player.getName() : null;
+            this.name = playerName != null ? playerName : uuid.toString().substring(0, 8);
         }
 
         @NotNull
