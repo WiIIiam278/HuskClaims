@@ -21,7 +21,9 @@ package net.william278.huskclaims.listener;
 
 import lombok.Getter;
 import net.william278.cloplib.listener.BukkitOperationListener;
+import net.william278.cloplib.operation.Operation;
 import net.william278.cloplib.operation.OperationPosition;
+import net.william278.cloplib.operation.OperationType;
 import net.william278.cloplib.operation.OperationUser;
 import net.william278.huskclaims.BukkitHuskClaims;
 import net.william278.huskclaims.moderation.SignListener;
@@ -33,8 +35,12 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 import org.bukkit.event.Cancellable;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.world.WorldLoadEvent;
@@ -58,7 +64,62 @@ public class BukkitListener extends BukkitOperationListener implements BukkitPet
     @Override
     public void register() {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        registerEntityPushListener();
         setInspectorCallbacks();
+    }
+
+    // Registered reflectively; EntityPushedByEntityAttackEvent is absent on older Paper builds
+    private void registerEntityPushListener() {
+        final Class<? extends Event> pushEvent;
+        try {
+            pushEvent = Class.forName("io.papermc.paper.event.entity.EntityPushedByEntityAttackEvent")
+                    .asSubclass(Event.class);
+        } catch (ClassNotFoundException | ClassCastException e) {
+            return;
+        }
+
+        plugin.getServer().getPluginManager().registerEvent(
+                pushEvent, this, EventPriority.NORMAL,
+                (listener, event) -> {
+                    if (!pushEvent.isInstance(event) || !(event instanceof Cancellable cancellable)
+                            || cancellable.isCancelled()) {
+                        return;
+                    }
+                    this.onEntityPushedByAttack((EntityEvent) event, cancellable);
+                },
+                plugin, true
+        );
+    }
+
+    // Spears knock entities back without damaging them, so no damage event fires
+    private void onEntityPushedByAttack(@NotNull EntityEvent event, @NotNull Cancellable cancellable) {
+        final Entity pushed = event.getEntity();
+        if (isMonster(pushed)) {
+            return;
+        }
+
+        final Optional<Player> source = getPlayerSource(getPushedBy(event));
+        if (source.isEmpty()) {
+            return;
+        }
+
+        if (plugin.cancelOperation(Operation.of(
+                getUser(source.get()),
+                pushed instanceof Player ? OperationType.PLAYER_DAMAGE_PLAYER
+                        : OperationType.PLAYER_DAMAGE_PERSISTENT_ENTITY,
+                getPosition(pushed.getLocation())
+        ))) {
+            cancellable.setCancelled(true);
+        }
+    }
+
+    @Nullable
+    private Entity getPushedBy(@NotNull EntityEvent event) {
+        try {
+            return (Entity) event.getClass().getMethod("getPushedBy").invoke(event);
+        } catch (ReflectiveOperationException | ClassCastException e) {
+            return null;
+        }
     }
 
     @EventHandler
@@ -112,13 +173,37 @@ public class BukkitListener extends BukkitOperationListener implements BukkitPet
             return;
         }
         e.blockList().removeIf(block -> plugin.cancelOperation(
-                net.william278.cloplib.operation.Operation.of(
-                        net.william278.cloplib.operation.OperationType.EXPLOSION_DAMAGE_TERRAIN,
+                Operation.of(
+                        OperationType.EXPLOSION_DAMAGE_TERRAIN,
                         getPosition(block.getLocation())
                 )
         ));
     }
-        
+
+    // Fix: cloplib checks explosions traced to a player against player_damage_player instead of
+    // explosion_damage_entity, so crystals detonated outside a claim damage what's inside it.
+    // Runs ahead of cloplib to check the flag regardless of what the blast is attributed to.
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
+    public void onEntityDamagedByExplosion(@NotNull EntityDamageByEntityEvent e) {
+        final EntityDamageEvent.DamageCause cause = e.getCause();
+        if (cause != EntityDamageEvent.DamageCause.BLOCK_EXPLOSION
+                && cause != EntityDamageEvent.DamageCause.ENTITY_EXPLOSION) {
+            return;
+        }
+
+        // Monsters aren't protected from explosions
+        if (isMonster(e.getEntity())) {
+            return;
+        }
+
+        if (plugin.cancelOperation(Operation.of(
+                OperationType.EXPLOSION_DAMAGE_ENTITY,
+                getPosition(e.getEntity().getLocation())
+        ))) {
+            e.setCancelled(true);
+        }
+    }
+
     @EventHandler(ignoreCancelled = true)
     public void onWorldLoad(@NotNull WorldLoadEvent e) {
         plugin.runAsync(() -> {
